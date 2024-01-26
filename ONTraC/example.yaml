@@ -1,0 +1,22 @@
+# Input files shoule be written here.
+# 
+# For each dataset: Name, Coordinates, and Features are required. Label is optional.
+# Name: Name of the dataset
+# Coordinates: Path to the coordinates file, which is a csv format file. No index.
+# Features: Path to the features file, which is a csv format file. No index.
+# Label: Path to the label file, which is a txt format file.
+# 
+# File path can be absolute or relative to the yaml file.
+Data:
+  - Name: XX_1
+    Coordinates: sample1_coordinates.csv.gz
+    Features: sample1_features.csv.gz
+    Label: sample1_label.txt
+  - Name: XX_2
+    Coordinates: sample2_coordinates.csv.gz
+    Features: sample2_features.csv.gz
+    Label: sample2_label.txt
+  - Name: XX_3
+    Coordinates: sample3_coordinates.csv.gz
+    Features: sample3_features.csv.gz
+    Label: sample3_label.txt

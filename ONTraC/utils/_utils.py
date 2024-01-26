@@ -1,0 +1,65 @@
+from copy import deepcopy
+from optparse import Values
+from typing import Dict
+
+import yaml
+
+
+def read_yaml_file(yaml_file: str) -> dict:
+    with open(yaml_file, 'r') as fhd:
+        params = yaml.load(fhd, Loader=yaml.FullLoader)
+    return params
+
+
+def count_lines(filename: str) -> int:
+    """
+    Count lines of a file
+    :param filename: file name
+    :return: number of lines
+    """
+    i = 0
+    if filename.endswith('.gz'):
+        import gzip
+        fhd = gzip.open(filename, 'rt')
+    else:
+        fhd = open(filename, 'r')
+    for _ in fhd:
+        i += 1
+    fhd.close()
+    return i
+
+
+def get_rel_params(options: Values, params: Dict) -> Dict:
+    """
+    Get relative paths for params
+    :param options: Values, options
+    :param params: Dict, input samples
+    :return: Dict, relative paths
+    """
+    rel_params = deepcopy(params)
+    for data in rel_params['Data']:
+        for k, v in data.items():
+            if k == 'Name':
+                continue
+            data[k] = f'{options.input}/{v}'
+    return rel_params
+
+
+def round_epoch_filter(epoch: int) -> bool:
+    """
+    Round epoch filter
+    Only round epoch (1, 2, ..., 9, 10, 20, ..., 90, 100, ...) will be saved
+    :param epoch: int
+    :return: bool
+    """
+
+    def _is_power_of_10(n: int) -> bool:
+        """
+        Check if n is power of 10
+        :param n: int
+        :return: bool
+        """
+        num = len(str(n))
+        return n % (10**(num - 1)) == 0
+
+    return epoch < 10 or _is_power_of_10(epoch)
