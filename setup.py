@@ -8,11 +8,13 @@ def get_version():
         exec(fp.read(), version)
     return version['__version__']
 
+
 setup(
     name='ONTraC',
     version=get_version(),
     package_dir={'ONTraC': 'ONTraC'},  # Specify the root directory for package contents
-    packages=['ONTraC','ONTraC.run','ONTraC.model','ONTraC.train','ONTraC.utils','ONTraC.optparser'],  # Specify the root directory for finding packages
+    packages=['ONTraC', 'ONTraC.run', 'ONTraC.model', 'ONTraC.train', 'ONTraC.utils',
+              'ONTraC.optparser'],  # Specify the root directory for finding packages
     # Add other package metadata (author, description, dependencies, etc.)
     # entry_points={
     #     'console_scripts': [
@@ -20,5 +22,4 @@ setup(
     #         'gp = ONTraC.bin.GP:main'
     #     ],
     # },
-    scripts=['ONTraC/bin/createDataSet', 'ONTraC/bin/GP']
-)
+    scripts=['ONTraC/bin/createDataSet', 'ONTraC/bin/GP', 'ONTraC/bin/NTScore'])
