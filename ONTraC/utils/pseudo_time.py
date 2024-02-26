@@ -171,23 +171,39 @@ def get_pseudo_time_line(data: Data, out_adj: ndarray, s: ndarray, init_node_lab
     return pseudo_time_axis, pseudo_time_per_node
 
 
-def get_niche_level_trajectory(niche_adj_matrix: ndarray) -> ndarray:
+def get_niche_trajectory_path(niche_adj_matrix: ndarray) -> List[int]:
     """
     Find niche level trajectory with maximum connectivity using Brute Force
     :param adj_matrix: non-negative ndarray, adjacency matrix of the graph
     :return: List[int], the niche trajectory
     """
     max_connectivity = float('-inf')
-    niche_level_trajectory = []
+    niche_trajectory_path = []
     for path in itertools.permutations(range(len(niche_adj_matrix))):
         connectivity = 0
         for i in range(len(path) - 1):
             connectivity += niche_adj_matrix[path[i], path[i + 1]]
         if connectivity > max_connectivity:
             max_connectivity = connectivity
-            niche_level_trajectory = list(path)
+            niche_trajectory_path = list(path)
 
-    return np.array(niche_level_trajectory)
+    return niche_trajectory_path
+
+
+def trajectory_path_to_NTScore(niche_trajectory_path: List[int]) -> ndarray:
+    """
+    Convert niche trajectory path to NTScore
+    :param niche_trajectory_path: List[int], the niche trajectory path
+    :return: ndarray, the NTScore
+    """
+
+    niche_NT_score = np.zeros(len(niche_trajectory_path))
+    values = np.linspace(0, 1, len(niche_trajectory_path))
+
+    for i, index in enumerate(niche_trajectory_path):
+        # debug(f'i: {i}, index: {index}')
+        niche_NT_score[index] = values[i]
+    return niche_NT_score
 
 
 def get_niche_trajectory(niche_cluster_loading: ndarray, niche_adj_matrix: ndarray) -> Tuple[ndarray, ndarray]:
@@ -198,7 +214,8 @@ def get_niche_trajectory(niche_cluster_loading: ndarray, niche_adj_matrix: ndarr
     :return: Tuple[ndarray, ndarray], the niche-level niche trajectory and cell-level niche trajectory
     """
 
-    niche_level_trajectory = get_niche_level_trajectory(niche_adj_matrix=niche_adj_matrix)
+    niche_trajectory_path = get_niche_trajectory_path(niche_adj_matrix=niche_adj_matrix)
 
-    niche_trajectory = niche_cluster_loading @ niche_level_trajectory
-    return niche_level_trajectory, niche_trajectory
+    niche_level_NTScore = trajectory_path_to_NTScore(niche_trajectory_path)
+    cell_level_NTScore = niche_cluster_loading @ niche_level_NTScore
+    return niche_level_NTScore, cell_level_NTScore
