@@ -149,12 +149,12 @@ def predict(output_dir: str, batch_train: SubBatchTrainProtocol, dataset: Spatai
         return None, None
 
 
-def pseudotime(options: Values, dataset: SpatailOmicsDataset, consolidate_s_array: ndarray,
-               consolidate_out_adj_array: ndarray) -> None:
+def pseudotime(options: Values, consolidate_s_array: ndarray, consolidate_out_adj_array: ndarray) -> None:
     """
     Pseudotime calculateion process
     :param options: options
-    :param dataset: dataset
+    :param consolidate_s_array: consolidate s array
+    :param consolidate_out_adj_array: consolidate out adj array
     :return: None
     """
 

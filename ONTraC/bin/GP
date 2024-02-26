@@ -83,7 +83,6 @@ def main() -> None:
     # ----- Pseudotime -----
     if consolidate_s_array is not None and consolidate_out_adj_array is not None:
         pseudotime(options=options,
-                   dataset=dataset,
                    consolidate_s_array=consolidate_s_array,
                    consolidate_out_adj_array=consolidate_out_adj_array)
 
