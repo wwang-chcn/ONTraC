@@ -11,7 +11,7 @@ from ONTraC.data import SpatailOmicsDataset, create_torch_dataset
 from ONTraC.log import debug, info, warning
 from ONTraC.train import SubBatchTrainProtocol
 from ONTraC.utils import get_rel_params, read_yaml_file
-from ONTraC.utils.pseudo_time import get_pseudo_time_line
+from ONTraC.utils.pseudo_time import get_pseudo_time_line, get_niche_trajectory
 
 
 def load_parameters(opt_validate_func: Callable, prepare_optparser_func: Callable) -> Tuple[Values, Dict]:
@@ -157,11 +157,14 @@ def pseudotime(options: Values, dataset: SpatailOmicsDataset, consolidate_s_arra
     :param dataset: dataset
     :return: None
     """
-    all_sample_loader = DenseDataLoader(dataset, batch_size=len(dataset))
-    data = next(iter(all_sample_loader))
-    pseudotime_cluster, pseudotime_node = get_pseudo_time_line(data=data,
-                                                               out_adj=consolidate_out_adj_array,
-                                                               s=consolidate_s_array,
-                                                               init_node_label=options.init_node_label)
+
+    # all_sample_loader = DenseDataLoader(dataset, batch_size=len(dataset))
+    # data = next(iter(all_sample_loader))
+    # pseudotime_cluster, pseudotime_node = get_pseudo_time_line(data=data,
+    #                                                            out_adj=consolidate_out_adj_array,
+    #                                                            s=consolidate_s_array,
+    #                                                            init_node_label=options.init_node_label)
+    pseudotime_cluster, pseudotime_node = get_niche_trajectory(niche_cluster_loading=consolidate_s_array,
+                                                               niche_adj_matrix=consolidate_out_adj_array)
     np.savetxt(fname=f'{options.output}/NT_niche_cluster.csv.gz', X=pseudotime_cluster, delimiter=',')
     np.savetxt(fname=f'{options.output}/NT_niche.csv.gz', X=pseudotime_node, delimiter=',')

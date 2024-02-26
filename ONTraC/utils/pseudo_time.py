@@ -2,6 +2,7 @@ from typing import List, Tuple
 
 import numpy as np
 import torch
+import itertools
 from numpy import ndarray
 from torch import Tensor
 from torch_geometric.data import Data
@@ -163,9 +164,41 @@ def get_pseudo_time_line(data: Data, out_adj: ndarray, s: ndarray, init_node_lab
             break
         path.append(next_cluster)
         visited[next_cluster] = True
-    
+
     pseudo_time_axis = get_new_coord(path, out_adj)
     pseudo_time_per_node = s @ pseudo_time_axis.reshape((-1, 1))
 
     return pseudo_time_axis, pseudo_time_per_node
-    
+
+
+def get_niche_level_trajectory(niche_adj_matrix: ndarray) -> ndarray:
+    """
+    Find niche level trajectory with maximum connectivity using Brute Force
+    :param adj_matrix: non-negative ndarray, adjacency matrix of the graph
+    :return: List[int], the niche trajectory
+    """
+    max_connectivity = float('-inf')
+    niche_level_trajectory = []
+    for path in itertools.permutations(range(len(niche_adj_matrix))):
+        connectivity = 0
+        for i in range(len(path) - 1):
+            connectivity += niche_adj_matrix[path[i], path[i + 1]]
+        if connectivity > max_connectivity:
+            max_connectivity = connectivity
+            niche_level_trajectory = list(path)
+
+    return np.array(niche_level_trajectory)
+
+
+def get_niche_trajectory(niche_cluster_loading: ndarray, niche_adj_matrix: ndarray) -> Tuple[ndarray, ndarray]:
+    """
+    Get niche-level niche trajectory and cell-level niche trajectory
+    :param niche_cluster_loading: ndarray, the loading of cell x niche clusters
+    :param adj_matrix: ndarray, the adjacency matrix of the graph
+    :return: Tuple[ndarray, ndarray], the niche-level niche trajectory and cell-level niche trajectory
+    """
+
+    niche_level_trajectory = get_niche_level_trajectory(niche_adj_matrix=niche_adj_matrix)
+
+    niche_trajectory = niche_cluster_loading @ niche_level_trajectory
+    return niche_level_trajectory, niche_trajectory
