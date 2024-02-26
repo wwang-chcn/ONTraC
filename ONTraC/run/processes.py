@@ -165,6 +165,6 @@ def pseudotime(options: Values, consolidate_s_array: ndarray, consolidate_out_ad
     #                                                            s=consolidate_s_array,
     #                                                            init_node_label=options.init_node_label)
     niche_level_NTScore, cell_level_NTScore = get_niche_trajectory(niche_cluster_loading=consolidate_s_array,
-                                                               niche_adj_matrix=consolidate_out_adj_array)
+                                                                   niche_adj_matrix=consolidate_out_adj_array)
     np.savetxt(fname=f'{options.output}/niche_NTScore.csv.gz', X=niche_level_NTScore, delimiter=',')
     np.savetxt(fname=f'{options.output}/cell_NTScore.csv.gz', X=cell_level_NTScore, delimiter=',')
