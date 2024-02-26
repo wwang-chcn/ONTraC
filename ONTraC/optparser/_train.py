@@ -216,15 +216,17 @@ def validate_basic_options(optparser: OptionParser, options: Values, output_dir_
 
     # check output directory
     if getattr(options, 'output') is None and getattr(options, 'oc') is None:
+        # neither -o nor --oc is specified
         error(f'Output directory is not specified, exit!\n')
         optparser.print_help()
         sys.exit(1)
     elif getattr(options, 'output') is None and getattr(options, 'oc') is not None:
+        # --oc is specified
         options.output = getattr(options, 'oc')
         if os.path.isdir(options.output):
-            info(f'Output directory ({options.output}) already exist, overwrite it.')
-            shutil.rmtree(options.output)
+            warning(f'Output directory ({options.output}) already exist, overwrite it.')
     elif getattr(options, 'output') is not None:
+        # -o is specified
         if os.path.isdir(options.output):
             if output_dir_exist_OK is False:
                 error(f'Output directory ({options.output}) already exist, exit!')
