@@ -1,6 +1,5 @@
 # **Ordered Niche Trajectory Construction** (ONTraC)
 
-
 ## Software dependencies
 
 pandas=2.1.1
@@ -29,8 +28,13 @@ torch_spline_conv=1.2.2
 
 torch_geometric=2.3.1
 
-
 ## Installation
 
+- Setup environment following the instruction on `Environment_setup`
+- Install `ONTraC`
+  ```
+  git clone https://github.com/wwang-chcn/ONTraC.git
+  cd ONTraC && pip install .
+  ```
 
 ## Citation
