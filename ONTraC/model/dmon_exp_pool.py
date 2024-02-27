@@ -119,6 +119,7 @@ class DMoNPooling(torch.nn.Module):
         out_adj = torch.matmul(torch.matmul(s.transpose(1, 2), adj), s)
 
         # Spectral loss:
+        # -Tr(S^T B S) / 2m
         degrees = torch.einsum('ijk->ij', adj).unsqueeze(-1) * mask  # B x N x 1
         degrees_t = degrees.transpose(1,2)  # B x 1 x N
         m = torch.einsum('ijk->i', degrees) / 2  # B
@@ -138,14 +139,16 @@ class DMoNPooling(torch.nn.Module):
         spectral_loss = torch.mean(spectral_loss)
 
         # Orthogonality regularization:
+        # ||S^T S / ||S^T S||_F - I / N ||_F
         ss = torch.matmul(s.transpose(1, 2), s)
         i_s = torch.eye(k).type_as(ss)
         ortho_loss = torch.norm(ss / torch.norm(ss, dim=(-1, -2), keepdim=True) - i_s / torch.norm(i_s), dim=(-1, -2))
         ortho_loss = torch.mean(ortho_loss)
 
         # Cluster loss:
+        # || sum_i S_ij ||_F / N
         cluster_size = torch.einsum('ijk->ik', s)  # B x C
-        cluster_loss = torch.norm(input=cluster_size, dim=1) / mask.sum(1) * torch.norm(i_s) - 1
+        cluster_loss = torch.norm(input=cluster_size, dim=1) / mask.sum(1) * torch.norm(i_s)
         cluster_loss = torch.mean(cluster_loss)
 
         # Fix and normalize coarsened adjacency matrix:

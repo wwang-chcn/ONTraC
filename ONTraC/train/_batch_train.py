@@ -413,12 +413,12 @@ class GPBatchTrain(BatchTrain):
         self.inspect_funcs = inspect_funcs
 
     def cal_loss(self, spectral_loss, ortho_loss, cluster_loss, data, s) -> Tuple[Tensor, ...]:
-        spectral_loss = self.spectral_loss_weight * (spectral_loss + 1) * 2 / 3
+        spectral_loss = self.spectral_loss_weight * spectral_loss
         ortho_loss = self.ortho_loss_weight * ortho_loss * np.sqrt(2)
         cluster_loss = self.cluster_loss_weight * cluster_loss / (np.sqrt(self.model.k) - 1)
         feat_similarity_loss = within_cluster_variance_loss(x=data.x, s=s, mask=data.mask)
         total_var = masked_variance(x=data.x, mask=data.mask)
-        feat_similarity_loss = self.feat_similarity_loss_weight * feat_similarity_loss / total_var
+        feat_similarity_loss = self.feat_similarity_loss_weight * feat_similarity_loss
         loss = spectral_loss + ortho_loss + cluster_loss + feat_similarity_loss
 
         return loss, spectral_loss, ortho_loss, cluster_loss, feat_similarity_loss
