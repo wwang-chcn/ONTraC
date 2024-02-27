@@ -32,7 +32,8 @@ torch_geometric=2.3.1
 
 - Setup environment following the instruction on `Environment_setup`
 - Install `ONTraC`
-  ```
+
+  ```{sh}
   git clone https://github.com/wwang-chcn/ONTraC.git
   cd ONTraC && pip install .
   ```
