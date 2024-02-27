@@ -3,7 +3,8 @@
 Liunx & cuda
 
 ```bash
-conda activate gpu_test
+conda create -n ONTraC python=3.11
+conda activate ONTraC
 conda install -y -c pytorch -c nvidia -c conda-forge -c bioconda -c defaults gcc
 conda install -y -c pytorch -c nvidia -c conda-forge -c bioconda -c defaults pyyaml scipy=1.11.2 scikit-learn=1.3.0 more-itertools
 conda install -y -c pytorch -c nvidia -c conda-forge -c bioconda -c defaults pytorch=2.0.1 torchvision=0.15.2 torchaudio=2.0.2 pytorch-cuda=11.8
