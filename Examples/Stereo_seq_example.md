@@ -1,6 +1,51 @@
+# Stereo-seq Mouse Midbrain
+
 ## Step1 generate niche GNN input files
 
 ```R
+# gaussian affinity between two cells (a cell and its KNN)
+gaussDist <- function(dist.use = NULL, sigma.use = NULL){
+  exp(-(dist.use/sigma.use)^2)
+}
+
+# weighted composition for a target cell given its KNN
+WeightedCompositionSC <- function(annot.use = NULL, w = NULL, k.annot = NULL){
+  wc.use <- sapply(annot.use,function(x){
+    idx.use <- which(k.annot == x)
+    return (sum(w[idx.use]))
+  })
+  return (wc.use)
+}
+
+# wrapper function: distance-weighted composition of a group of cells within the same tissue
+# loc.use: dataframe with rownames for cells
+# annot.sc: named single cell cluster label
+# knn.spat: nn2 output (list of nn.dists and nn.idx, each a matrix)
+WeightedComposition <- function(loc.use = NULL,knn.spat = NULL,k.use = 50,
+                                nlocal = 20,annot.sc = NULL){
+  if (is.null(knn.spat)){
+    knn.spat <- RANN::nn2(data = loc.use,k = k.use)
+  }
+  sig.use <- apply(knn.spat$nn.dists,1,function(x) x[nlocal])
+  w.gauss <- lapply(1:nrow(knn.spat$nn.dists),function(x){
+    gaussDist(knn.spat$nn.dists[x,],sig.use[x])
+  })
+  w.gauss <- Reduce(rbind,w.gauss)
+  rownames(w.gauss) <- rownames(loc.use)
+  
+  knn.spat.annot <- t(apply(knn.spat$nn.idx,1,function(x) 
+    as.character(annot.sc[rownames(loc.use)[x]])))
+  # annot.use <- sort(unique(as.character(annot.sc)))
+  annot.use <- levels(annot.sc)
+  wcomp.gauss <- sapply(1:nrow(knn.spat.annot),function(x){
+    wc <- WeightedCompositionSC(annot.use = annot.use,w = w.gauss[x,],k.annot = knn.spat.annot[x,])
+    return (wc)
+  })
+  wcomp.gauss <- t(wcomp.gauss)
+  rownames(wcomp.gauss) <- rownames(loc.use)
+  return (list(knn.spat,w.gauss,knn.spat.annot,wcomp.gauss))
+}
+
 origin_df = data.frame(data.table::fread('orgianl_data.csv'))
 colnames(origin_df) = c("cells", "sample", "annot", "x", "y")
 origin_df$annot = factor(origin_df$annot, c('RGC','GlioB','NeuB','GluNeuB','GluNeu','GABA','Basal','Fibro','Endo','Ery'))
@@ -28,7 +73,7 @@ meta_df = pd.read_csv('orgianl_data.csv')
 meta_df['annot'] = meta_df['annot'].astype('category')
 
 for name, group in meta_df.groupby(by='sample'):
-	np.savetxt(fname = label_file, X=group['annot'].cat.codes.values, delimiter=',')
+    np.savetxt(fname = label_file, X=group['annot'].cat.codes.values, delimiter=',')
 ```
 
 ## Step2 Run GNN to get niche trajectory coordinates
@@ -83,12 +128,12 @@ project_NT <- function(loc.use = NULL, knn.spat = NULL, k.use = 50, nlocal = 20,
     niche_value[x]))
   
   cell_niche_value <- apply(w.gauss * knn.spat.value, 1, sum)
-      
+    
   rownames(cell_niche_value) <- rownames(cell_niche_value)
   return(cell_niche_value)
   
 }
-      
+    
 origin_df = data.frame(data.table::fread('orgianl_data.csv.gz'))
 colnames(origin_df) = c("cells", "sample", "annot", "x", "y")
 
