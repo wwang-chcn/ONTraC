@@ -1,0 +1,198 @@
+#!/usr/bin/env python
+
+import os
+import sys
+import yaml
+from optparse import OptionParser, OptionGroup, Values
+from typing import Tuple
+
+import torch
+from torch_geometric.data import Data
+from torch_geometric.loader import DenseDataLoader
+import anndata as ad
+from anndata import AnnData
+from scipy.sparse import csr_matrix
+import numpy as np
+import pandas as pd
+
+from ONTraC.log import *
+from ONTraC.utils import *
+from ONTraC.data import SpatailOmicsDataset, create_torch_dataset
+
+
+# ------------------------------------
+# Misc Functions
+# ------------------------------------
+def prepare_optparser() -> OptionParser:
+    """
+    Prepare optparser object. New options will be added in thisfunction first.
+    """
+
+    prog_name = os.path.basename(sys.argv[0])
+    usage = f'''USAGE: {prog_name} <-i input> <-o output>'''
+    description = 'Create ONTraC output meta file.'
+
+    # option processor
+    optparser = OptionParser(version=f'{prog_name} 0.1', description=description, usage=usage, add_help_option=True)
+
+    group_basic = OptionGroup(optparser, "Basci options for running")
+    group_basic.add_option(
+        '-i',
+        '--input',
+        dest='input',
+        type='string',
+        help='Directory contains input dataset. This directory should be the output directory of createDataSet.py.')
+    group_basic.add_option(
+        '-o',
+        '--output',
+        dest='output',
+        type='string',
+        help=
+        'Directory contains ONTraC output results.'
+    )
+    optparser.add_option_group(group_basic)
+
+    return optparser
+
+
+def opt_validate(optparser) -> Values:
+    """Validate options from a OptParser object.
+
+    Ret: Validated options object.
+    """
+
+    (options, args) = optparser.parse_args()
+
+    # Whether input and output directory exists
+    if not os.path.exists(options.input):
+        raise FileNotFoundError(f"Cannot find input directory: {options.input}.")
+    if not os.path.exists(options.output):
+        raise FileNotFoundError(f"Cannot find output directory: {options.output}.")
+    
+    return options
+
+
+def read_yaml_file(yaml_file: str) -> dict:
+    with open(file=yaml_file, mode='r') as fhd:
+        params: Dict = yaml.load(stream=fhd, Loader=yaml.FullLoader)
+    return params
+
+
+def load_dataset(options: Values) -> Tuple[SpatailOmicsDataset, Data]:
+    device = torch.device(options.device if torch.cuda.is_available() else 'cpu')
+    params = read_yaml_file(f'{options.input}/samples.yaml')
+    rel_params = get_rel_params(options, params)
+    dataset = create_torch_dataset(options, rel_params)
+    all_sample_loader = DenseDataLoader(dataset, batch_size=len(dataset))
+    data = next(iter(all_sample_loader)).to(device)
+    return dataset, data
+
+
+def create_adata(options: Values) -> Tuple[Dict[str, AnnData], AnnData]:
+    """Load dataset from options.
+    """
+
+    # load meta data
+    # meta_df = pd.read_csv(f'{options.input}/meta.csv', index_col=0)
+    # meta_df.index = meta_df.index.astype(str)
+
+    # create AnnData with fake expression data
+    adata_dict = {}
+    for sample in options.data['Data']:
+        name = sample.get('Name')
+        coordinate_file = f"{sample['Coordinates']}"
+        info(f'Read samples: {name} with coordinate file: {coordinate_file}.')
+        coordinate_arr = np.loadtxt(coordinate_file, delimiter=',')
+        adata_dict[name] = AnnData(
+            X=csr_matrix(np.random.poisson(1, (coordinate_arr.shape[0], 100)), dtype=np.float32))
+        # load meta data
+        # adata_dict[name].obs = meta_df.loc[meta_df['sample'] == name]
+        adata_dict[name].obs.index = [f'{name}_{i+1:05d}' for i in range(adata_dict[name].obs.shape[0])]  # temp solution for duplicate cell names
+        # load spatial data
+        adata_dict[name].obsm['spatial'] = coordinate_arr
+
+    adata_combined = ad.concat(list(adata_dict.values()))
+
+    return adata_dict, adata_combined
+
+
+def load_graph_pooling_results(options: Values, data: Data, adata_dict: Dict[str, AnnData], adata_combined: AnnData):
+    """
+    loading graph pooling results
+    """
+    for index, name in enumerate(adata_dict.keys()):
+        soft_assign_file = f'{options.output}/{name}_s.csv'
+        if not os.path.exists(soft_assign_file):
+            soft_assign_file = f'{options.output}/{name}_s.csv.gz'
+            if not os.path.exists(soft_assign_file):
+                raise FileNotFoundError(f"Cannot find soft assignment file: {soft_assign_file}.")
+        soft_assign_arr = np.loadtxt(soft_assign_file,
+                                     delimiter=',').argmax(axis=1)[data.mask[index].detach().cpu().numpy()]
+        adata_dict[name].obs['graph_pooling'] = soft_assign_arr.astype(str)
+
+    adata_combined.obs['graph_pooling'] = np.concatenate(
+        [adata_dict[name].obs['graph_pooling'] for name in adata_dict.keys()])  # type: ignore
+
+
+def load_cell_NTScore(options: Values, data: Data, adata_dict: Dict[str, AnnData], adata_combined: AnnData):
+    """
+    loading cell-level NTScore
+    """
+    pseudo_time_file = f'{options.output}/cell_NTScore.csv'
+    if not os.path.exists(pseudo_time_file):
+        pseudo_time_file = f'{options.output}/cell_NTScore.csv.gz'
+        if not os.path.exists(pseudo_time_file):
+            raise FileNotFoundError(f"Cannot find cell-level NTScore file: {pseudo_time_file}.")
+    pseudo_time_arr = np.loadtxt(pseudo_time_file, delimiter=',')[data.mask.flatten().detach().cpu().numpy()]
+    adata_combined.obs['NTScore'] = pseudo_time_arr
+
+    # copy to each sample adata
+    for name in adata_dict.keys():
+        adata_dict[name].obs['NTScore'] = adata_combined.obs['NTScore'].loc[adata_dict[name].obs.index]
+
+
+# ------------------------------------
+# Processing Functions
+# ------------------------------------
+def get_options() -> Values:
+    optparser = prepare_optparser()
+    options = opt_validate(optparser)
+    options.name = os.path.basename(options.output)
+    options.yaml = f'{options.input}/samples.yaml'
+    return options
+
+
+def load_data(options):
+    # load data
+    params = read_yaml_file(options.yaml)
+    options.data = rel_params = get_rel_params(options, params)
+    dataset, data = load_dataset(options)
+
+    # create AnnData
+    adata_dict, adata_combined = create_adata(options)
+    load_graph_pooling_results(options, data, adata_dict, adata_combined)
+    load_cell_NTScore(options, data, adata_dict, adata_combined)
+
+    adata_combined.obs['x'] = adata_combined.obsm['spatial'][:,0]
+    adata_combined.obs['y'] = adata_combined.obsm['spatial'][:,1]
+    return adata_combined
+
+
+# ------------------------------------
+# Main Function
+# ------------------------------------
+def main():
+    options = get_options()
+    adata_combined = load_data(options)
+    adata_combined.obs.to_csv(f'{options.output}/GNN_output_meta.csv')
+
+
+# ------------------------------------
+# Program running
+# ------------------------------------
+if __name__ == '__main__':
+    try:
+        main()
+    except KeyboardInterrupt:
+        sys.stderr.write("User interrupts me! ;-) See you ^.^!\n")
+        sys.exit(0)
