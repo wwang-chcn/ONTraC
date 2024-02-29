@@ -12,14 +12,14 @@ def prepare_create_ds_optparser() -> OptionParser:
     """
 
     prog_name = os.path.basename(sys.argv[0])
-    usage = f'''USAGE: {prog_name} <-y YAML> [-o OUTPUT] [--oc OUTPUT] [--n-cpu N_CPU] [--n-neighbors N_NEIGHBORS]'''
+    usage = f'''USAGE: {prog_name} <-y YAML> <-d DATASET> [-o OUTPUT] [--oc OUTPUT] [--n-cpu N_CPU] [--n-neighbors N_NEIGHBORS]'''
     description = 'Create dataset for follwoing analysis.'
 
     # option processor
     optparser = OptionParser(version=f'{prog_name} 0.1', description=description, usage=usage, add_help_option=True)
 
     # basic options group
-    group_basic = OptionGroup(optparser, "Basci options for running")
+    group_basic = OptionGroup(optparser, "Basic options for running")
     group_basic.add_option(
         '-o',
         '--output',
@@ -40,6 +40,11 @@ def prepare_create_ds_optparser() -> OptionParser:
                            dest='yaml',
                            type='string',
                            help='Yaml file contains input dataset information.')
+    group_basic.add_option('-d',
+                           '--dataset',
+                           dest='dataset',
+                           type='string',
+                           help='Original input dataset.')
     group_basic.add_option('--n-cpu',
                            dest='n_cpu',
                            type='int',
@@ -86,7 +91,7 @@ def opt_create_ds_validate(optparser) -> Values:
         optparser.print_help()
         sys.exit(1)
     elif not os.path.isfile(options.yaml):
-        error(f'YAML file not exist, exit: {options.yaml}')
+        error(f'YAML file does not exist, exit: {options.yaml}')
         error(f'You can find example YAML file in {example_yaml_file}')
         sys.exit(1)
     elif not options.yaml.endswith('.yaml'):
@@ -94,11 +99,28 @@ def opt_create_ds_validate(optparser) -> Values:
         error(f'You can find example YAML file in {example_yaml_file}')
         sys.exit(1)
 
+    # check original data file
+    example_original_data_file = os.path.join(os.path.dirname(__file__), 'original_data.csv')
+    if getattr(options, 'dataset') is None:
+        error(f'Original dataset is not specified, exit!')
+        error(f'You can find example original data file in {example_original_data_file}')
+        optparser.print_help()
+        sys.exit(1)
+    elif not os.path.isfile(options.dataset):
+        error(f'Original dataset file does not exist, exit: {options.dataset}')
+        error(f'You can find example original data file in {example_original_data_file}')
+        sys.exit(1)
+    elif not options.dataset.endswith('.csv'):
+        error(f'Original data file must ends with .csv, exit: {options.dataset}')
+        error(f'You can find example original data file in {example_original_data_file}')
+        sys.exit(1)
+
     # print parameters to stdout
     param_text = '--------------------- RUN memo --------------------- \n'
     param_text += '           -------- basic options -------            \n'
     param_text += f'output:  {options.output}\n'
     param_text += f'yaml:    {options.yaml}\n'
+    param_text += f'dataset: {options.dataset}\n'
     param_text += f'n_cpu:   {options.n_cpu}\n'
     param_text += f'n_neighbors: {options.n_neighbors}\n'
     param_text += '---------------------------------------------------- \n'
