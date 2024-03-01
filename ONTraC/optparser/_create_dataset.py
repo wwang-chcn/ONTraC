@@ -100,7 +100,7 @@ def opt_create_ds_validate(optparser) -> Values:
         sys.exit(1)
 
     # check original data file
-    example_original_data_file = os.path.join(os.path.dirname(__file__), 'original_data.csv')
+    example_original_data_file = os.path.join(os.path.dirname(__file__), '../example_files/example_original_data.csv')
     if getattr(options, 'dataset') is None:
         error(f'Original dataset is not specified, exit!')
         error(f'You can find example original data file in {example_original_data_file}')
