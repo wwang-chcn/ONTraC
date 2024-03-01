@@ -15,12 +15,7 @@ from sklearn.neighbors import kneighbors_graph
 from ONTraC.log import *
 from ONTraC.optparser import (opt_create_ds_validate, prepare_create_ds_optparser)
 from ONTraC.utils import read_yaml_file
-
-# ------------------------------------
-# Hyper-parameters
-# ------------------------------------
-self_path = os.path.dirname(os.path.abspath(__file__))
-example_yaml_file = f'{self_path}/../example.yaml'
+from ONTraC.utils.construct_niche_network import load_original_data
 
 
 # ------------------------------------
@@ -66,7 +61,8 @@ def gauss_dist(dist_use=None, sigma_use=None):
     :param sigma_use: sigma value to be used
     :return: gaussian distance
     """
-    return np.exp(-(dist_use/sigma_use)**2)
+    return np.exp(-(dist_use / sigma_use)**2)
+
 
 def weighted_composition_sc(annot_use=None, w=None, k_annot=None):
     """
@@ -76,8 +72,9 @@ def weighted_composition_sc(annot_use=None, w=None, k_annot=None):
     :param k_annot: annotations of KNNs for the target cell
     :return wc_use: weighted composition value
     """
-    wc_use = np.array([np.sum(w[k_annot==x]) for x in annot_use])
+    wc_use = np.array([np.sum(w[k_annot == x]) for x in annot_use])
     return wc_use
+
 
 def weighted_composition(loc_use=None, knn_spat=None, k_use=50, n_local=20, annot_sc=None):
     """
@@ -99,9 +96,11 @@ def weighted_composition(loc_use=None, knn_spat=None, k_use=50, n_local=20, anno
     w_gauss = np.array([gauss_dist(knn_spat_dists[i, :], sig_use[i]) for i in range(len(knn_spat_dists))])
     knn_spat_annot = np.array([annot_sc[idx] for idx in knn_spat_idx])
     annot_use = np.unique(annot_sc)
-    wcomp_gauss = np.array([weighted_composition_sc(annot_use, w_gauss[i, :], knn_spat_annot[:, i]) for i in range(len(w_gauss))])
+    wcomp_gauss = np.array(
+        [weighted_composition_sc(annot_use, w_gauss[i, :], knn_spat_annot[:, i]) for i in range(len(w_gauss))])
 
     return knn_spat_idx, w_gauss, knn_spat_annot, wcomp_gauss
+
 
 def dataset_check(dataset: Dict) -> bool:
     """
@@ -235,40 +234,47 @@ def main() -> None:
     Input data files information should be stored in a YAML file.
     """
 
+    # prepare options
     options = opt_create_ds_validate(prepare_create_ds_optparser())
 
     # prepare GNN input files
-    origin_df = pd.read_csv(options.dataset)
-    origin_df.columns = ['cells', 'sample', 'annot', 'x', 'y']
-    origin_df['annot'] = origin_df['annot'].astype("category")
+    ori_data_df = load_original_data(options.dataset)
 
-    samples_use = sorted(origin_df['sample'].unique())
+    samples_use = sorted(ori_data_df['sample'].unique())
 
     ss0_comp_all = {}
 
     for a in samples_use:
-        loc_use = origin_df[origin_df['sample'] == a][['x', 'y', 'cells']]
+        loc_use = ori_data_df[ori_data_df['sample'] == a][['x', 'y', 'cells']]
         loc_use.set_index('cells', inplace=True)
         loc_use = loc_use[['x', 'y']]
-        
-        loc_use.to_csv(os.path.join('data/stereo_seq_brain', f"{a}_Coordinates.csv"), sep=',', index=False, header=False) # fix hardcoding
-        
-        annot_sc = origin_df[origin_df['sample'] == a]['annot']
+
+        loc_use.to_csv(os.path.join('data/stereo_seq_brain', f"{a}_Coordinates.csv"),
+                       sep=',',
+                       index=False,
+                       header=False)  # fix hardcoding
+
+        annot_sc = ori_data_df[ori_data_df['sample'] == a]['annot']
         annot_sc.index = loc_use.index
-        
+
         loc_use = loc_use.to_numpy()
 
         # Assuming WeightedComposition is a custom function
         knn_spat_idx, w_gauss, knn_spat_annot, wcomp_gauss = weighted_composition(loc_use=loc_use, annot_sc=annot_sc)
         wcomp_gauss = pd.DataFrame(wcomp_gauss)
-        wcomp_gauss.to_csv(os.path.join('data/stereo_seq_brain', f"{a}_NodeAttr.csv"), sep=',', index=False, header=False) # fix hardcoding
+        wcomp_gauss.to_csv(os.path.join('data/stereo_seq_brain', f"{a}_NodeAttr.csv"),
+                           sep=',',
+                           index=False,
+                           header=False)  # fix hardcoding
 
         ss0_comp_all[a] = wcomp_gauss
 
     meta_df = pd.read_csv(options.dataset)
     meta_df['annot'] = meta_df['annot'].astype('category')
     for name, group in meta_df.groupby(by='sample'):
-        np.savetxt(fname = os.path.join('data/stereo_seq_brain', f"{name}_CellTypeLabel.csv"), X=group['annot'].cat.codes.values, delimiter=',') # fix hardcoding
+        np.savetxt(fname=os.path.join('data/stereo_seq_brain', f"{name}_CellTypeLabel.csv"),
+                   X=group['annot'].cat.codes.values,
+                   delimiter=',')  # fix hardcoding
 
     # load parameters
     params = read_yaml_file(options.yaml)

@@ -35,16 +35,7 @@ def prepare_create_ds_optparser() -> OptionParser:
         help=
         'Directory to output the result. Will be overwritten if target directory exists. If -o is specified, --oc will be ignored.'
     )
-    group_basic.add_option('-y',
-                           '--yaml',
-                           dest='yaml',
-                           type='string',
-                           help='Yaml file contains input dataset information.')
-    group_basic.add_option('-d',
-                           '--dataset',
-                           dest='dataset',
-                           type='string',
-                           help='Original input dataset.')
+    group_basic.add_option('-d', '--dataset', dest='dataset', type='string', help='Original input dataset.')
     group_basic.add_option('--n-cpu',
                            dest='n_cpu',
                            type='int',
@@ -82,22 +73,6 @@ def opt_create_ds_validate(optparser) -> Values:
         if os.path.isdir(options.output):
             error(f'Output directory ({options.output}) already exist, exit!')
             sys.exit(1)
-
-    # check YAML file
-    example_yaml_file = os.path.join(os.path.dirname(__file__), '../example_files/example_data.yaml')
-    if getattr(options, 'yaml') is None:
-        error(f'YAML file is not specified, exit!')
-        error(f'You can find example YAML file in {example_yaml_file}')
-        optparser.print_help()
-        sys.exit(1)
-    elif not os.path.isfile(options.yaml):
-        error(f'YAML file does not exist, exit: {options.yaml}')
-        error(f'You can find example YAML file in {example_yaml_file}')
-        sys.exit(1)
-    elif not options.yaml.endswith('.yaml'):
-        error(f'YAML file must ends with .yaml, exit: {options.yaml}')
-        error(f'You can find example YAML file in {example_yaml_file}')
-        sys.exit(1)
 
     # check original data file
     example_original_data_file = os.path.join(os.path.dirname(__file__), '../example_files/example_original_data.csv')
