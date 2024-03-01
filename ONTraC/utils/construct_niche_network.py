@@ -1,8 +1,7 @@
 from optparse import Values
-from typing import Any, Dict, Tuple, List, Optional
+from typing import Any, Dict, List
 from scipy.sparse import csr_matrix
 from scipy.spatial import cKDTree
-from sklearn.neighbors import kneighbors_graph
 import pandas as pd
 import numpy as np
 from scipy.spatial import cKDTree
@@ -113,7 +112,8 @@ def construct_niche_network_sample(options: Values, sample_data_df: pd.DataFrame
 
     # extract non-weighted cell type composition
     raw_cell_type_composition = one_hot_matrix[indices_matrix]  # N x (k + 1) x n_cell_type
-    cell_type_composition = (raw_cell_type_composition * norm_dis_matrix[..., np.newaxis]).sum(axis = 1)  # N x n_cell_type
+    cell_type_composition = (raw_cell_type_composition * norm_dis_matrix[..., np.newaxis]).sum(
+        axis=1)  # N x n_cell_type
 
     # save cell type composition
     np.savetxt(f'{options.output}/{sample_name}_CellTypeComposition.csv.gz', cell_type_composition, delimiter=',')
@@ -144,8 +144,10 @@ def gen_samples_yaml(options: Values, ori_data_df: pd.DataFrame) -> None:
 
     data: Dict[str, List[Any]] = {'Data': []}
     for sample in ori_data_df['Sample'].unique():
-        data['Data'].append({'Name': sample,
-                             'Coordinates': f'{sample}_Coordinates.csv',
-                             'CellType': f'{sample}_CellType.csv',
-                             'EdgeIndex': f'{sample}_EdgeIndex.csv.gz',
-                             'CellTypeComposition': f'{sample}_CellTypeComposition.csv.gz'})
+        data['Data'].append({
+            'Name': sample,
+            'Coordinates': f'{sample}_Coordinates.csv',
+            'CellType': f'{sample}_CellType.csv',
+            'EdgeIndex': f'{sample}_EdgeIndex.csv.gz',
+            'CellTypeComposition': f'{sample}_CellTypeComposition.csv.gz'
+        })
