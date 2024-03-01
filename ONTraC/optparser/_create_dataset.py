@@ -84,7 +84,7 @@ def opt_create_ds_validate(optparser) -> Values:
             sys.exit(1)
 
     # check YAML file
-    example_yaml_file = os.path.join(os.path.dirname(__file__), 'example.yaml')
+    example_yaml_file = os.path.join(os.path.dirname(__file__), '../example_files/example_data.yaml')
     if getattr(options, 'yaml') is None:
         error(f'YAML file is not specified, exit!')
         error(f'You can find example YAML file in {example_yaml_file}')
