@@ -12,7 +12,7 @@ def prepare_create_ds_optparser() -> OptionParser:
     """
 
     prog_name = os.path.basename(sys.argv[0])
-    usage = f'''USAGE: {prog_name} <-y YAML> <-d DATASET> [-o OUTPUT] [--oc OUTPUT] [--n-cpu N_CPU] [--n-neighbors N_NEIGHBORS]'''
+    usage = f'''USAGE: {prog_name} <-d DATASET> [-o OUTPUT] [--oc OUTPUT] [--n-cpu N_CPU] [--n-neighbors N_NEIGHBORS]'''
     description = 'Create dataset for follwoing analysis.'
 
     # option processor
@@ -94,7 +94,6 @@ def opt_create_ds_validate(optparser) -> Values:
     param_text = '--------------------- RUN memo --------------------- \n'
     param_text += '           -------- basic options -------            \n'
     param_text += f'output:  {options.output}\n'
-    param_text += f'yaml:    {options.yaml}\n'
     param_text += f'dataset: {options.dataset}\n'
     param_text += f'n_cpu:   {options.n_cpu}\n'
     param_text += f'n_neighbors: {options.n_neighbors}\n'
