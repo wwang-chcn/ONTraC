@@ -140,37 +140,16 @@ def add_NP_options_group(group_train: OptionGroup) -> None:
                            type='int',
                            default=8,
                            help='Number of spatial clusters. Default is 8.')
-    group_train.add_option('--dropout', dest='dropout', type='float', default=0, help='Dropout rate. Default is 0.')
     group_train.add_option('--spectral-loss-weight',
                            dest='spectral_loss_weight',
                            type='float',
                            default=1,
                            help='Weight for spectral loss. Default is 1.')
-    group_train.add_option('--ortho-loss-weight',
-                           dest='ortho_loss_weight',
-                           type='float',
-                           default=0,
-                           help='Weight for ortho loss. Default is 0.')
     group_train.add_option('--cluster-loss-weight',
                            dest='cluster_loss_weight',
                            type='float',
                            default=1,
                            help='Weight for cluster loss. Default is 1.')
-    group_train.add_option('--bin-spectral-loss-weight',
-                           dest='bin_spectral_loss_weight',
-                           type='float',
-                           default=0,
-                           help='Weight for binary spectral loss. Default is 0.')
-    group_train.add_option('--bin-ortho-loss-weight',
-                           dest='bin_ortho_loss_weight',
-                           type='float',
-                           default=0,
-                           help='Weight for binary ortho loss. Default is 0.')
-    group_train.add_option('--bin-cluster-loss-weight',
-                           dest='bin_cluster_loss_weight',
-                           type='float',
-                           default=0,
-                           help='Weight for binary cluster loss. Default is 0.')
     group_train.add_option('--feat-similarity-loss-weight',
                            dest='feat_similarity_loss_weight',
                            type='float',
@@ -265,11 +244,6 @@ def validate_NP_options(optparser: OptionParser, options: Values) -> Values:
         error(f'k must be greater than 1, exit!')
         sys.exit(1)
 
-    # droupout
-    if getattr(options, 'dropout') < 0 or getattr(options, 'dropout') > 1:
-        warning(f'droupout must be between 0 and 1, using default value!')
-        options.dropout = 0
-
     # check init_node_label
     if getattr(options, 'init_node_label') is None:
         error(f'init_node_label is not specified, exit!')
@@ -353,13 +327,8 @@ def write_NP_options_memo(options: Values) -> None:
     """
 
     info(f'k:  {options.k}')
-    info(f'droupout:  {options.dropout}')
     info(f'spectral_loss_weight:  {options.spectral_loss_weight}')
-    info(f'ortho_loss_weight:  {options.ortho_loss_weight}')
     info(f'cluster_loss_weight:  {options.cluster_loss_weight}')
-    info(f'bin_spectral_loss_weight:  {options.bin_spectral_loss_weight}')
-    info(f'bin_ortho_loss_weight:  {options.bin_ortho_loss_weight}')
-    info(f'bin_cluster_loss_weight:  {options.bin_cluster_loss_weight}')
     info(f'feat_similarity_loss_weight:  {options.feat_similarity_loss_weight}')
     info(f'assign_exponent:  {options.assign_exponent}')
 
