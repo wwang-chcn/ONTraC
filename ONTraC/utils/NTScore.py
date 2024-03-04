@@ -5,6 +5,7 @@ import numpy as np
 from numpy import ndarray
 
 from ONTraC.data import SpatailOmicsDataset
+
 from ..log import debug, info
 
 
@@ -58,7 +59,7 @@ def get_niche_NTScore(niche_cluster_loading: ndarray, niche_adj_matrix: ndarray)
     return niche_cluster_score, niche_level_NTScore
 
 
-def niche_to_cell_NTScore(dataset: SpatailOmicsDataset, rel_params: Dict, niche_level_NTScore: ndarray) -> ndarray,
+def niche_to_cell_NTScore(dataset: SpatailOmicsDataset, rel_params: Dict, niche_level_NTScore: ndarray) -> ndarray:
     """
     Get cell-level NTScore
     :param dataset: SpatailOmicsDataset, the dataset
@@ -80,6 +81,5 @@ def niche_to_cell_NTScore(dataset: SpatailOmicsDataset, rel_params: Dict, niche_
         neighbor_niche_level_NTScore = niche_level_NTScore_[neighbor_indices_matrix]
         cell_level_NTScore_ = (neighbor_niche_level_NTScore * niche_weight_matrix_norm).sum(axis=1)
         cell_level_NTScore[node_sum:node_sum + mask.sum()] = cell_level_NTScore_
-    
+
     return cell_level_NTScore
-        
