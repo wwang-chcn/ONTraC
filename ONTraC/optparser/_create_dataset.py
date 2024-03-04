@@ -68,11 +68,12 @@ def opt_create_ds_validate(optparser) -> Values:
         options.output = getattr(options, 'oc')
         if os.path.isdir(options.output):
             info(f'Output directory ({options.output}) already exist, overwrite it.')
-            shutil.rmtree(options.output)
+        os.makedirs(options.output, exist_ok=True)
     elif getattr(options, 'output') is not None:
         if os.path.isdir(options.output):
             error(f'Output directory ({options.output}) already exist, exit!')
             sys.exit(1)
+        os.makedirs(options.output)
 
     # check original data file
     example_original_data_file = os.path.join(os.path.dirname(__file__), '../example_files/example_original_data.csv')
