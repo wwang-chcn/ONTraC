@@ -1,9 +1,10 @@
 from optparse import Values
 from typing import Any, Dict, List
-from scipy.sparse import csr_matrix
-from scipy.spatial import cKDTree
-import pandas as pd
+
 import numpy as np
+import pandas as pd
+import yaml
+from scipy.sparse import csr_matrix
 from scipy.spatial import cKDTree
 
 
@@ -151,3 +152,7 @@ def gen_samples_yaml(options: Values, ori_data_df: pd.DataFrame) -> None:
             'EdgeIndex': f'{sample}_EdgeIndex.csv.gz',
             'CellTypeComposition': f'{sample}_CellTypeComposition.csv.gz'
         })
+
+    yaml_file = f'{options.output}/samples.yaml'
+    with open(yaml_file, 'w') as fhd:
+        yaml.dump(data, fhd)
