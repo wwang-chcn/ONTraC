@@ -63,13 +63,13 @@ def main() -> None:
     # ----- train -----
     inspect_funcs_list = get_inspect_funcs()
     batch_train: SubBatchTrainProtocol = train(nn_model=GraphPooling,
-                                                  options=options,
-                                                  BatchTrain=GPBatchTrain,
-                                                  device=device,
-                                                  dataset=dataset,
-                                                  sample_loader=sample_loader,
-                                                  inspect_funcs=inspect_funcs_list,
-                                                  model_name='GraphPooling')
+                                               options=options,
+                                               BatchTrain=GPBatchTrain,
+                                               device=device,
+                                               dataset=dataset,
+                                               sample_loader=sample_loader,
+                                               inspect_funcs=inspect_funcs_list,
+                                               model_name='GraphPooling')
 
     # --- evaluate ---
     evaluate(batch_train=batch_train, model_name='GraphPooling')
@@ -82,9 +82,9 @@ def main() -> None:
 
     # ----- Pseudotime -----
     if consolidate_s_array is not None and consolidate_out_adj_array is not None:
-        pseudotime(options=options,
-                   consolidate_s_array=consolidate_s_array,
-                   consolidate_out_adj_array=consolidate_out_adj_array)
+        NTScore(options=options,
+                consolidate_s_array=consolidate_s_array,
+                consolidate_out_adj_array=consolidate_out_adj_array)
 
 
 # ------------------------------------
