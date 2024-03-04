@@ -1,6 +1,6 @@
 # Conda environment setup process
 
-Constructing ONTraC environment on Liunx using Conda
+Constructing ONTraC environment on Linux using Conda
 
 ```bash
 conda create -n ONTraC python=3.11
