@@ -26,7 +26,7 @@ def get_niche_trajectory_path(niche_adj_matrix: ndarray) -> List[int]:
     return niche_trajectory_path
 
 
-def trajectory_path_to_NTScore(niche_trajectory_path: List[int]) -> ndarray:
+def trajectory_path_to_NC_score(niche_trajectory_path: List[int]) -> ndarray:
     """
     Convert niche trajectory path to NTScore
     :param niche_trajectory_path: List[int], the niche trajectory path
@@ -42,7 +42,7 @@ def trajectory_path_to_NTScore(niche_trajectory_path: List[int]) -> ndarray:
     return niche_NT_score
 
 
-def get_niche_trajectory(niche_cluster_loading: ndarray, niche_adj_matrix: ndarray) -> Tuple[ndarray, ndarray]:
+def get_niche_NTScore(niche_cluster_loading: ndarray, niche_adj_matrix: ndarray) -> Tuple[ndarray, ndarray]:
     """
     Get niche-level niche trajectory and cell-level niche trajectory
     :param niche_cluster_loading: ndarray, the loading of cell x niche clusters
@@ -52,6 +52,6 @@ def get_niche_trajectory(niche_cluster_loading: ndarray, niche_adj_matrix: ndarr
 
     niche_trajectory_path = get_niche_trajectory_path(niche_adj_matrix=niche_adj_matrix)
 
-    niche_level_NTScore = trajectory_path_to_NTScore(niche_trajectory_path)
-    cell_level_NTScore = niche_cluster_loading @ niche_level_NTScore
-    return niche_level_NTScore, cell_level_NTScore
+    niche_cluster_score = trajectory_path_to_NC_score(niche_trajectory_path)
+    niche_level_NTScore = niche_cluster_loading @ niche_cluster_score
+    return niche_cluster_score, niche_level_NTScore

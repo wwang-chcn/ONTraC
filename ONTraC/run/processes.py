@@ -11,7 +11,7 @@ from ONTraC.data import SpatailOmicsDataset, create_torch_dataset
 from ONTraC.log import debug, info, warning
 from ONTraC.train import SubBatchTrainProtocol
 from ONTraC.utils import get_rel_params, read_yaml_file
-from ONTraC.utils.NTScore import get_niche_trajectory
+from ONTraC.utils.NTScore import get_niche_NTScore
 
 
 def load_parameters(opt_validate_func: Callable, prepare_optparser_func: Callable) -> Tuple[Values, Dict]:
@@ -163,7 +163,7 @@ def pseudotime(options: Values, consolidate_s_array: ndarray, consolidate_out_ad
     #                                                            out_adj=consolidate_out_adj_array,
     #                                                            s=consolidate_s_array,
     #                                                            init_node_label=options.init_node_label)
-    niche_level_NTScore, cell_level_NTScore = get_niche_trajectory(niche_cluster_loading=consolidate_s_array,
+    niche_cluster_score, niche_level_NTScore = get_niche_NTScore(niche_cluster_loading=consolidate_s_array,
                                                                    niche_adj_matrix=consolidate_out_adj_array)
+    np.savetxt(fname=f'{options.output}/niche_cluster_score.csv.gz', X=niche_cluster_score, delimiter=',')
     np.savetxt(fname=f'{options.output}/niche_NTScore.csv.gz', X=niche_level_NTScore, delimiter=',')
-    np.savetxt(fname=f'{options.output}/cell_NTScore.csv.gz', X=cell_level_NTScore, delimiter=',')
