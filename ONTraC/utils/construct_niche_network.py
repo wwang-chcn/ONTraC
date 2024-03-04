@@ -82,9 +82,6 @@ def construct_niche_network_sample(options: Values, sample_data_df: pd.DataFrame
     coord_df = sample_data_df[['Cell_ID', 'x', 'y']]
     coord_df.to_csv(f'{options.output}/{sample_name}_Coordinates.csv', index=False)
 
-    # save the celltype information
-    sample_data_df[['Cell_ID', 'Cell_Type']].to_csv(f'{options.output}/{sample_name}_CellType.csv', index=False)
-
     # build KDTree
     coordinates = sample_data_df[['x', 'y']].values
     kdtree = cKDTree(data=coordinates)
@@ -148,7 +145,6 @@ def gen_samples_yaml(options: Values, ori_data_df: pd.DataFrame) -> None:
         data['Data'].append({
             'Name': sample,
             'Coordinates': f'{sample}_Coordinates.csv',
-            'CellType': f'{sample}_CellType.csv',
             'EdgeIndex': f'{sample}_EdgeIndex.csv.gz',
             'Features': f'{sample}_CellTypeComposition.csv.gz'
         })
