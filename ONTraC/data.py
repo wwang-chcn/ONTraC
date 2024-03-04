@@ -37,19 +37,11 @@ class SpatailOmicsDataset(InMemoryDataset):
         data_list = []
         for index, sample in enumerate(self.params['Data']):
             info(f'Processing sample {index + 1} of {len(self.params["Data"])}')
-            if self.params['Label']:
-                data = Data(x=torch.from_numpy(np.loadtxt(sample['Features'], dtype=np.float32, delimiter=',')),
-                            y=torch.from_numpy(np.loadtxt(sample['Label'], dtype=np.int8, delimiter=',')),
-                            edge_index=torch.from_numpy(np.loadtxt(sample['EdgeIndex'], dtype=np.int64,
-                                                                   delimiter=',')).t().contiguous(),
-                            pos=torch.from_numpy(np.loadtxt(sample['Coordinates'], dtype=np.float32, delimiter=',')),
-                            name=sample['Name'])
-            else:
-                data = Data(x=torch.from_numpy(np.loadtxt(sample['Features'], dtype=np.float32, delimiter=',')),
-                            edge_index=torch.from_numpy(np.loadtxt(sample['EdgeIndex'], dtype=np.int64,
-                                                                   delimiter=',')).t().contiguous(),
-                            pos=torch.from_numpy(np.loadtxt(sample['Coordinates'], dtype=np.float32, delimiter=',')),
-                            name=sample['Name'])
+            data = Data(x=torch.from_numpy(np.loadtxt(sample['Features'], dtype=np.float32, delimiter=',')),
+                        edge_index=torch.from_numpy(np.loadtxt(sample['EdgeIndex'], dtype=np.int64,
+                                                                delimiter=',')).t().contiguous(),
+                        pos=torch.from_numpy(np.loadtxt(sample['Coordinates'], dtype=np.float32, delimiter=',')),
+                        name=sample['Name'])
             data_list.append(data)
         data, slices = self.collate(data_list)
         torch.save((data, slices), self.processed_paths[0])
