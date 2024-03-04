@@ -1,6 +1,6 @@
 # Conda environment setup process
 
-Liunx & cuda
+Constructing ONTraC environment on Linux using Conda
 
 ```bash
 conda create -n ONTraC python=3.11
