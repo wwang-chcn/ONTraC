@@ -1,9 +1,10 @@
 import itertools
-from typing import List, Tuple
+from typing import Dict, List, Tuple
 
 import numpy as np
 from numpy import ndarray
 
+from ONTraC.data import SpatailOmicsDataset
 from ..log import debug, info
 
 
@@ -55,3 +56,30 @@ def get_niche_NTScore(niche_cluster_loading: ndarray, niche_adj_matrix: ndarray)
     niche_cluster_score = trajectory_path_to_NC_score(niche_trajectory_path)
     niche_level_NTScore = niche_cluster_loading @ niche_cluster_score
     return niche_cluster_score, niche_level_NTScore
+
+
+def niche_to_cell_NTScore(dataset: SpatailOmicsDataset, rel_params: Dict, niche_level_NTScore: ndarray) -> ndarray,
+    """
+    Get cell-level NTScore
+    :param dataset: SpatailOmicsDataset, the dataset
+    :param real_param: Dict, the real parameters
+    :param niche_level_NTScore: ndarray, the niche-level NTScore
+    :return: ndarray, the cell-level NTScore
+    """
+
+    cell_level_NTScore = np.zeros(niche_level_NTScore.shape[0])
+
+    node_sum = 0
+    for i, data in enumerate(dataset):
+        name = data.name
+        mask = data.mask
+        niche_weight_matrix = np.loadtxt(rel_params['Data'][i]['NicheWeightMatrix'], delimiter=',')
+        niche_weight_matrix_norm = niche_weight_matrix / niche_weight_matrix.sum(axis=1, keepdims=True)  # normalize
+        neighbor_indices_matrix = np.loadtxt(rel_params['Data'][i]['NeighborIndicesMatrix'], delimiter=',').astype(int)
+        niche_level_NTScore_ = niche_level_NTScore[node_sum:node_sum + mask.sum()]
+        neighbor_niche_level_NTScore = niche_level_NTScore_[neighbor_indices_matrix]
+        cell_level_NTScore_ = (neighbor_niche_level_NTScore * niche_weight_matrix_norm).sum(axis=1)
+        cell_level_NTScore[node_sum:node_sum + mask.sum()] = cell_level_NTScore_
+    
+    return cell_level_NTScore
+        
