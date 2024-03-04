@@ -4,7 +4,7 @@ import sys
 
 from ONTraC.log import *
 from ONTraC.optparser import (opt_create_ds_validate, prepare_create_ds_optparser)
-from ONTraC.utils.construct_niche_network import load_original_data, construct_niche_network, gen_samples_yaml
+from ONTraC.utils.niche_net_constr import load_original_data, construct_niche_network, gen_samples_yaml
 
 
 # ------------------------------------
