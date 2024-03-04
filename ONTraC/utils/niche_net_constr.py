@@ -86,6 +86,7 @@ def construct_niche_network_sample(options: Values, sample_data_df: pd.DataFrame
     coordinates = sample_data_df[['x', 'y']].values
     kdtree = cKDTree(data=coordinates)
     dis_matrix, indices_matrix = kdtree.query(x=coordinates, k=options.n_neighbors + 1)  # include self
+    np.savetxt(f'{options.output}/{sample_name}_NeighborIndicesMatrix.csv.gz', indices_matrix, delimiter=',')  # save indices matrix
 
     # save edge index file
     # 1) convert edge index to csr_matrix
@@ -150,6 +151,7 @@ def gen_samples_yaml(options: Values, ori_data_df: pd.DataFrame) -> None:
             'EdgeIndex': f'{sample}_EdgeIndex.csv.gz',
             'Features': f'{sample}_CellTypeComposition.csv.gz',
             'NicheWeightMatrix': f'{sample}_NicheWeightMatrix.csv.gz',
+            'NeighborIndicesMatrix': f'{sample}_NeighborIndicesMatrix.csv.gz'
         })
 
     yaml_file = f'{options.output}/samples.yaml'
