@@ -41,7 +41,8 @@ class SpatailOmicsDataset(InMemoryDataset):
             data = Data(x=torch.from_numpy(np.loadtxt(sample['Features'], dtype=np.float32, delimiter=',')),
                         edge_index=torch.from_numpy(np.loadtxt(sample['EdgeIndex'], dtype=np.int64,
                                                                 delimiter=',')).t().contiguous(),
-                        pos=torch.from_numpy(pd.read_csv(sample['Coordinates']).values),
+                        # TODO: support 3D coordinates
+                        pos=torch.from_numpy(pd.read_csv(sample['Coordinates'])[['x','y']].values),
                         name=sample['Name'])
             data_list.append(data)
         data, slices = self.collate(data_list)
