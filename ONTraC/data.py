@@ -2,6 +2,7 @@ from optparse import Values
 from typing import Dict, List
 
 import numpy as np
+import pandas as pd
 import torch
 import torch_geometric.transforms as T
 from torch_geometric.data import Data, InMemoryDataset
@@ -40,7 +41,7 @@ class SpatailOmicsDataset(InMemoryDataset):
             data = Data(x=torch.from_numpy(np.loadtxt(sample['Features'], dtype=np.float32, delimiter=',')),
                         edge_index=torch.from_numpy(np.loadtxt(sample['EdgeIndex'], dtype=np.int64,
                                                                 delimiter=',')).t().contiguous(),
-                        pos=torch.from_numpy(np.loadtxt(sample['Coordinates'], dtype=np.float32, delimiter=',')),
+                        pos=torch.from_numpy(pd.read_csv(sample['Coordinates']).values),
                         name=sample['Name'])
             data_list.append(data)
         data, slices = self.collate(data_list)
