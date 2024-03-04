@@ -150,7 +150,7 @@ def gen_samples_yaml(options: Values, ori_data_df: pd.DataFrame) -> None:
             'Coordinates': f'{sample}_Coordinates.csv',
             'CellType': f'{sample}_CellType.csv',
             'EdgeIndex': f'{sample}_EdgeIndex.csv.gz',
-            'CellTypeComposition': f'{sample}_CellTypeComposition.csv.gz'
+            'Features': f'{sample}_CellTypeComposition.csv.gz'
         })
 
     yaml_file = f'{options.output}/samples.yaml'
