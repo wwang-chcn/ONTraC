@@ -35,8 +35,8 @@ def analysis_pipeline(options: Values, rel_params: Dict) -> None:
     #     niche_max_dis_in_cluster(options, data, meta_df)
     #     # 8. pseudo time in each cell type
     #     pseudotime_in_each_cell_type(options, meta_df)
-    # # 9. cluster connectivity
-    # cluster_connectivity(options)
+    # 9. cluster connectivity
+    cluster_connectivity(options)
 
     # if options.process:
     #     # 10. process
