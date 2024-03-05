@@ -19,8 +19,6 @@ mpl.rcParams['font.family'] = 'Arial'
 import matplotlib.pyplot as plt
 import seaborn as sns
 from matplotlib import gridspec
-from utils import (cluster_order_by_pseudotime, gini, move_legend,
-                   percentage_summary_along_continous_feat, to_one_hot)
 
 from ONTraC.data import SpatailOmicsDataset, create_torch_dataset
 from ONTraC.log import *
