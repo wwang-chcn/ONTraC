@@ -2,16 +2,8 @@ import os
 import sys
 from optparse import OptionGroup, OptionParser, Values
 
-from ._train import *
 from ..log import *
-
-
-import os
-import sys
-from optparse import OptionParser, Values
-
 from ._train import *
-from ..log import *
 
 
 def prepare_NT_optparser() -> OptionParser:
@@ -42,8 +34,6 @@ def opt_NT_validate(optparser: OptionParser) -> Values:
     validate_basic_options(optparser, options, output_dir_exist_OK=True)
     validate_pseudotime_options(optparser, options)
 
-    options.batch_size = 1  # set batch size to 1, for load_data function
-    
     # print parameters to stdout
     info('--------------------- RUN memo ---------------------')
     write_basic_options_memo(options)
