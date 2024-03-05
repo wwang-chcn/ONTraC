@@ -17,7 +17,7 @@ import pandas as pd
 
 from ONTraC.log import *
 from ONTraC.utils import *
-from ONTraC.data import SpatailOmicsDataset, create_torch_dataset
+from ONTraC.data import load_dataset
 
 
 # ------------------------------------
@@ -76,16 +76,6 @@ def read_yaml_file(yaml_file: str) -> dict:
     with open(file=yaml_file, mode='r') as fhd:
         params: Dict = yaml.load(stream=fhd, Loader=yaml.FullLoader)
     return params
-
-
-def load_dataset(options: Values) -> Tuple[SpatailOmicsDataset, Data]:
-    device = torch.device(options.device if torch.cuda.is_available() else 'cpu')
-    params = read_yaml_file(f'{options.input}/samples.yaml')
-    rel_params = get_rel_params(options, params)
-    dataset = create_torch_dataset(options, rel_params)
-    all_sample_loader = DenseDataLoader(dataset, batch_size=len(dataset))
-    data = next(iter(all_sample_loader)).to(device)
-    return dataset, data
 
 
 def create_adata(options: Values) -> Tuple[Dict[str, AnnData], AnnData]:
