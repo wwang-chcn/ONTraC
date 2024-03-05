@@ -5,8 +5,7 @@ from optparse import OptionParser, Values
 
 from ONTraC.analysis.anndata import anndata_based_analysis
 from ONTraC.analysis.cell_type import (cell_type_dis_in_cluster,
-                                       niche_max_dis_in_cluster,
-                                       pseudotime_in_each_cell_type)
+                                       NTScore_in_each_cell_type)
 from ONTraC.analysis.train_loss import plot_train_loss
 from ONTraC.analysis.utils import *
 from ONTraC.data import load_dataset
@@ -30,15 +29,11 @@ def analysis_pipeline(options: Values, rel_params: Dict) -> None:
     # 4. AnnData based analysis
     meta_df = anndata_based_analysis(options, data)
     if meta_df is not None:
-        # 5. compare pseudo time
-        # compare_pseudo_time(options, meta_df)
-        # 6. cell type distribution
+        # 5. cell type distribution
         cell_type_dis_in_cluster(options, data, meta_df)
-        # 7. niche max proportion
-        niche_max_dis_in_cluster(options, data, meta_df)
-        # 8. pseudo time in each cell type
-        pseudotime_in_each_cell_type(options, meta_df)
-    # 9. cluster connectivity
+        # 6. NT Score in each cell type
+        NTScore_in_each_cell_type(options, meta_df)
+    # 7. cluster connectivity
     cluster_connectivity(options)
 
     # if options.process:
