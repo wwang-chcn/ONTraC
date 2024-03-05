@@ -41,6 +41,8 @@ def opt_NT_validate(optparser: OptionParser) -> Values:
 
     validate_basic_options(optparser, options, output_dir_exist_OK=True)
     validate_pseudotime_options(optparser, options)
+
+    options.batch_size = 1  # set batch size to 1, for load_data function
     
     # print parameters to stdout
     info('--------------------- RUN memo ---------------------')
