@@ -1,6 +1,4 @@
 import os
-import re
-import shutil
 import sys
 from optparse import OptionGroup, OptionParser, Values
 from random import randint
@@ -162,20 +160,6 @@ def add_NP_options_group(group_train: OptionGroup) -> None:
                            help='Exponent for assignment. Default is 1.')
 
 
-def add_pseudotime_options_group(optparser: OptionParser) -> OptionGroup:
-    """
-    Add pseudotime options group to optparser.
-    :param optparser: OptionParser object.
-    :return: OptionGroup object.
-    """
-
-    # basic options group
-    group_pseudotime = OptionGroup(optparser, "Pseudotime options")
-    optparser.add_option_group(group_pseudotime)
-    group_pseudotime.add_option('--init-node-label', dest='init_node_label', type='int', help='Initial node label.')
-    return group_pseudotime
-
-
 def validate_basic_options(optparser: OptionParser, options: Values, output_dir_exist_OK: bool = False) -> Values:
     """
     Validate input and output options.
@@ -244,26 +228,10 @@ def validate_NP_options(optparser: OptionParser, options: Values) -> Values:
         error(f'k must be greater than 1, exit!')
         sys.exit(1)
 
-    # check init_node_label
-    if getattr(options, 'init_node_label') is None:
-        error(f'init_node_label is not specified, exit!')
-        sys.exit(1)
-
     # check assign_exponent
     if getattr(options, 'assign_exponent') < 1:
         warning(f'assign_exponent must be greater than 1, using default value!')
         options.assign_exponent = 1
-
-    return options
-
-
-def validate_pseudotime_options(optparser: OptionParser, options: Values) -> Values:
-    """
-    Validate pseudotime options.
-    :param optparser: OptionParser object.
-    :param options: Options object.
-    :return: Validated options object.
-    """
 
     return options
 
@@ -333,20 +301,18 @@ def write_NP_options_memo(options: Values) -> None:
     info(f'assign_exponent:  {options.assign_exponent}')
 
 
-def write_pseudotime_options_memo(options: Values) -> None:
-    """
-    Write pseudotime options memo to stdout.
-    :param options: Options object.
-    :return: None.
-    """
-
-    info('           -------- pseudotime options -------            ')
-    info(f'init_node_label:  {options.init_node_label}')
-
-
 __all__ = [
-    'add_basic_options_group', 'add_train_options_group', 'add_GNN_options_group', 'add_GSAE_options_group',
-    'add_NP_options_group', 'add_pseudotime_options_group', 'validate_basic_options', 'validate_train_options',
-    'validate_NP_options', 'validate_pseudotime_options', 'write_basic_options_memo', 'write_train_options_memo',
-    'write_GNN_options_memo', 'write_GSAE_options_memo', 'write_NP_options_memo', 'write_pseudotime_options_memo'
+    'add_basic_options_group',
+    'add_train_options_group',
+    'add_GNN_options_group',
+    'add_GSAE_options_group',
+    'add_NP_options_group',
+    'validate_basic_options',
+    'validate_train_options',
+    'validate_NP_options',
+    'write_basic_options_memo',
+    'write_train_options_memo',
+    'write_GNN_options_memo',
+    'write_GSAE_options_memo',
+    'write_NP_options_memo',
 ]
