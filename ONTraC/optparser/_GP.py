@@ -2,8 +2,8 @@ import os
 import sys
 from optparse import OptionParser, Values
 
-from ._train import *
 from ..log import *
+from ._train import *
 
 
 def prepare_GP_optparser() -> OptionParser:
@@ -21,7 +21,6 @@ def prepare_GP_optparser() -> OptionParser:
     group_train = add_train_options_group(optparser)
     add_GNN_options_group(group_train)
     add_NP_options_group(group_train)
-    group_pseudotime = add_pseudotime_options_group(optparser)
 
     return optparser
 
@@ -36,15 +35,13 @@ def opt_GP_validate(optparser: OptionParser) -> Values:
 
     validate_basic_options(optparser, options)
     validate_train_options(optparser, options)
-    validate_pseudotime_options(optparser, options)
-    
+
     # print parameters to stdout
     info('--------------------- RUN memo ---------------------')
     write_basic_options_memo(options)
     write_train_options_memo(options)
     write_GNN_options_memo(options)
     write_NP_options_memo(options)
-    write_pseudotime_options_memo(options)
     info('----------------------------------------------------')
 
     return options
