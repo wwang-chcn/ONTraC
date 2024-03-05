@@ -21,8 +21,8 @@ def analysis_pipeline(options: Values, rel_params: Dict) -> None:
     plot_each_cluster_proportion(options, data)
     # 3. cluster spatial continuity
     cluster_spatial_continuity(options, data)
-    # # 4. AnnData based analysis
-    # meta_df = anndata_based_analysis(options, data)
+    # 4. AnnData based analysis
+    meta_df = anndata_based_analysis(options, data)
     # if meta_df is not None:
     #     # 5. compare pseudo time
     #     compare_pseudo_time(options, meta_df)
