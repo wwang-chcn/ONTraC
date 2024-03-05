@@ -5,7 +5,7 @@ from typing import Optional
 
 import numpy as np
 
-from ONTraC.optparser import opt_PT_validate, prepare_PT_optparser
+from ONTraC.optparser import opt_NT_validate, prepare_NT_optparser
 from ONTraC.run.processes import *
 
 
@@ -20,8 +20,8 @@ def main() -> None:
 
     # ----- prepare -----
     # --- load parameters ---
-    options, rel_params = load_parameters(opt_validate_func=opt_PT_validate,
-                                          prepare_optparser_func=prepare_PT_optparser)
+    options, rel_params = load_parameters(opt_validate_func=opt_NT_validate,
+                                          prepare_optparser_func=prepare_NT_optparser)
     # --- load data ---
     dataset, sample_loader = load_data(options=options, rel_params=rel_params)
     # load consolidated s_array and out_adj_array
