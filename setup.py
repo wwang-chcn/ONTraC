@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 
 # Function to read the version from the package's version.py
@@ -13,13 +13,11 @@ setup(
     name='ONTraC',
     version=get_version(),
     package_dir={'ONTraC': 'ONTraC'},  # Specify the root directory for package contents
-    packages=['ONTraC', 'ONTraC.run', 'ONTraC.model', 'ONTraC.train', 'ONTraC.utils',
-              'ONTraC.optparser'],  # Specify the root directory for finding packages
-    # Add other package metadata (author, description, dependencies, etc.)
-    # entry_points={
-    #     'console_scripts': [
-    #         'create-dataset = ONTraC.bin.createDataSet:main',
-    #         'gp = ONTraC.bin.GP:main'
-    #     ],
-    # },
-    scripts=['ONTraC/bin/createDataSet', 'ONTraC/bin/GP', 'ONTraC/bin/NTScore', 'ONTraC/bin/genGnnMeta', 'ONTraC/bin/ONTraC_analysis'],)
+    packages=[
+        'ONTraC', 'ONTraC.analysis', 'ONTraC.model', 'ONTraC.run', 'ONTraC.train', 'ONTraC.utils', 'ONTraC.optparser'
+    ],  # Specify the root directory for finding packages
+    scripts=[
+        'ONTraC/bin/createDataSet', 'ONTraC/bin/GP', 'ONTraC/bin/NTScore', 'ONTraC/bin/genGnnMeta',
+        'ONTraC/bin/ONTraC_analysis'
+    ],
+)
