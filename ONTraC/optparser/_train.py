@@ -310,7 +310,6 @@ __all__ = [
     'validate_basic_options',
     'validate_train_options',
     'validate_NP_options',
-    'validate_pseudotime_options',
     'write_basic_options_memo',
     'write_train_options_memo',
     'write_GNN_options_memo',
