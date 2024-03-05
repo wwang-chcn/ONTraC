@@ -20,8 +20,8 @@ def get_niche_trajectory_path(niche_adj_matrix: ndarray) -> List[int]:
     2) Remove the edge with lowest weight in the circle
     3) Get the path
     """
-    
-    row_ind, col_ind = linear_sum_assignment(niche_adj_matrix, maximize = True)  # Find a circle with maximum connectivity
+
+    row_ind, col_ind = linear_sum_assignment(niche_adj_matrix, maximize=True)  # Find a circle with maximum connectivity
     edges = dict(zip(row_ind, col_ind))
 
     # remove the edge with lowest weight in the circle
@@ -30,7 +30,7 @@ def get_niche_trajectory_path(niche_adj_matrix: ndarray) -> List[int]:
         if niche_adj_matrix[i, edges[i]] < min_connectivity:
             min_connectivity = niche_adj_matrix[i, edges[i]]
             min_edge = (i, edges[i])
-    
+
     # get the path
     niche_trajectory_path = []
     start_node = min_edge[1]
