@@ -49,7 +49,7 @@ def prepare_optparser() -> OptionParser:
     Ret: OptParser object.
     """
     usage = "usage: %prog <-n NAME> <-i INPUT>"
-    description = "Analysis the results of GraphPoolPseudoTime."
+    description = "Analysis the results of ONTraC."
     optparser = OptionParser(usage=usage, description=description, add_help_option=False)
     optparser.add_option('-h', '--help', action='help', help='Show this help message and exit.')
     optparser.add_option('-n', '--name', dest='name', type='string', help='Name of the train.')
@@ -58,7 +58,7 @@ def prepare_optparser() -> OptionParser:
         '--input',
         dest='input',
         type='string',
-        help='Directory contains input dataset. This directory should be the output directory of createDataSet.py.')
+        help='Directory contains input dataset. This directory should be the output directory of createDataSet.')
     optparser.add_option('-y', '--yaml', dest='yaml', type='string', help='Yaml file stored dataset information.')
     optparser.add_option('-p',
                          '--process',
@@ -66,7 +66,6 @@ def prepare_optparser() -> OptionParser:
                          action='store_true',
                          default=False,
                          help='Analysis intermediate results generated in training process.')
-    optparser.add_option('--init-node-label', dest='init_node_label', type='int', help='Initial node label.')
     return optparser
 
 
