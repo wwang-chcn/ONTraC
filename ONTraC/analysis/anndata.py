@@ -150,7 +150,7 @@ def plot_NTScore(options: Values, data: Data, adata_dict: Dict[str, AnnData]) ->
         plt.close(fig)
 
 
-def plot_feat_along_pseudo_time(results_dict, title, options) -> None:
+def plot_feat_along_NTScore(results_dict, title, options) -> None:
     with sns.axes_style('white', rc={
             'xtick.bottom': True,
             'ytick.left': True
@@ -169,26 +169,26 @@ def plot_feat_along_pseudo_time(results_dict, title, options) -> None:
             xticks = np.array([0, 24, 49, 74, 99])
             ax.set_xticks(xticks)
             ax.set_xticklabels([f'{x+1:d}' for x in xticks])
-            ax.set_xlabel('Percentile of PseudoTime')
+            ax.set_xlabel('Percentile of NTScore')
             ax.set_ylabel('Percentage')
             move_legend(ax, new_loc='upper left', bbox_to_anchor=(1, 1))
             fig.tight_layout()
-            fig.savefig(f'{options.output}/{title}_combined_{discrete_column}_along_pseudo_time.pdf')
+            fig.savefig(f'{options.output}/{title}_combined_{discrete_column}_along_NTScore.pdf')
             plt.close(fig)
 
 
-def feat_along_pseudo_time(options: Values, adata_dict: Dict[str, AnnData], adata_combined: AnnData) -> None:
+def feat_along_NTScore(options: Values, adata_dict: Dict[str, AnnData], adata_combined: AnnData) -> None:
     # all samples
     results_dict = percentage_summary_along_continous_feat(df=adata_combined.obs,
-                                                           continous_column='pseudo_time',
+                                                           continous_column='NTScore',
                                                            discrete_columns=['annot', 'annot_niche_max'])
-    plot_feat_along_pseudo_time(results_dict, 'all_samples', options)
+    plot_feat_along_NTScore(results_dict, 'all_samples', options)
 
     for name in adata_dict:
         results_dict = percentage_summary_along_continous_feat(df=adata_dict[name].obs,
-                                                               continous_column='pseudo_time',
+                                                               continous_column='NTScore',
                                                                discrete_columns=['annot', 'annot_niche_max'])
-        plot_feat_along_pseudo_time(results_dict, name, options)
+        plot_feat_along_NTScore(results_dict, name, options)
 
 
 def anndata_based_analysis(
@@ -207,10 +207,10 @@ def anndata_based_analysis(
         # 2. spatial plots
         # spatial_plots(options, 'trained_embedding', adata_dict)
 
-    # 3. plot pseudo time
+    # 3. plot NT score
     plot_NTScore(options, data, adata_dict)
 
-    # 4. feat_along_pseudo_time
-    feat_along_pseudo_time(options, adata_dict, adata_combined)
+    # 4. feature along NT score
+    feat_along_NTScore(options, adata_dict, adata_combined)
 
     return adata_combined.obs
