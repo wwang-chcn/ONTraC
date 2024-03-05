@@ -75,9 +75,9 @@ def plot_max_pro_cluster(options: Values, data: Data) -> None:
 
 
 def cluster_order_by_pseudotime(options: Values, soft_assign: np.ndarray):
-    pseudotime_cluster_file = f'{options.output}/pseudo_time_cluster.csv.gz'
+    pseudotime_cluster_file = f'{options.output}/niche_cluster_score.csv.gz'
     if not os.path.exists(pseudotime_cluster_file):
-        pseudotime_cluster_file = f'{options.output}/pseudo_time_cluster.csv'
+        pseudotime_cluster_file = f'{options.output}/niche_cluster_score.csv'
         if not os.path.exists(pseudotime_cluster_file):
             warning(f'File not found: {pseudotime_cluster_file}')
             return np.arange(soft_assign.shape[1])
