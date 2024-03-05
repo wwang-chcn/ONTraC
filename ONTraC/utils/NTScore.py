@@ -39,6 +39,9 @@ def get_niche_trajectory_path(niche_adj_matrix: ndarray) -> List[int]:
         start_node = edges[start_node]
         if start_node == min_edge[0]:
             break
+    
+    if len(niche_trajectory_path) != niche_adj_matrix.shape[0]:
+        raise ValueError('No niche trajectory path found. Please adjust the parameters.')
 
     return niche_trajectory_path
 
