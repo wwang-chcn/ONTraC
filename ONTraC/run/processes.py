@@ -5,13 +5,12 @@ from typing import Callable, Dict, List, Optional, Tuple, Type
 import numpy as np
 import torch
 from numpy import ndarray
-from torch_geometric.loader import DenseDataLoader
-
 from ONTraC.data import SpatailOmicsDataset, create_torch_dataset
 from ONTraC.log import debug, info, warning
 from ONTraC.train import SubBatchTrainProtocol
 from ONTraC.utils import get_rel_params, read_yaml_file
-from ONTraC.utils.pseudo_time import get_pseudo_time_line, get_niche_trajectory
+from ONTraC.utils.NTScore import get_niche_NTScore, niche_to_cell_NTScore
+from torch_geometric.loader import DenseDataLoader
 
 
 def load_parameters(opt_validate_func: Callable, prepare_optparser_func: Callable) -> Tuple[Values, Dict]:
@@ -61,7 +60,6 @@ def train(nn_model: Type[torch.nn.Module], options: Values, BatchTrain: Type[Sub
     model = nn_model(input_feats=dataset.num_features,
                      hidden_feats=options.hidden_feats,
                      k=options.k,
-                     dropout=options.dropout,
                      exponent=options.assign_exponent)
     optimizer = torch.optim.Adam(model.parameters(), lr=options.lr)
     batch_train = BatchTrain(model=model, device=device, data_loader=sample_loader)  # type: ignore
@@ -149,7 +147,8 @@ def predict(output_dir: str, batch_train: SubBatchTrainProtocol, dataset: Spatai
         return None, None
 
 
-def pseudotime(options: Values, consolidate_s_array: ndarray, consolidate_out_adj_array: ndarray) -> None:
+def NTScore(options: Values, rel_params: Dict, dataset: SpatailOmicsDataset, consolidate_s_array: ndarray,
+            consolidate_out_adj_array: ndarray) -> None:
     """
     Pseudotime calculateion process
     :param options: options
@@ -158,13 +157,12 @@ def pseudotime(options: Values, consolidate_s_array: ndarray, consolidate_out_ad
     :return: None
     """
 
-    # all_sample_loader = DenseDataLoader(dataset, batch_size=len(dataset))
-    # data = next(iter(all_sample_loader))
-    # pseudotime_cluster, pseudotime_node = get_pseudo_time_line(data=data,
-    #                                                            out_adj=consolidate_out_adj_array,
-    #                                                            s=consolidate_s_array,
-    #                                                            init_node_label=options.init_node_label)
-    niche_level_NTScore, cell_level_NTScore = get_niche_trajectory(niche_cluster_loading=consolidate_s_array,
-                                                                   niche_adj_matrix=consolidate_out_adj_array)
+    niche_cluster_score, niche_level_NTScore = get_niche_NTScore(niche_cluster_loading=consolidate_s_array,
+                                                                 niche_adj_matrix=consolidate_out_adj_array)
+    cell_level_NTScore = niche_to_cell_NTScore(dataset=dataset,
+                                               rel_params=rel_params,
+                                               niche_level_NTScore=niche_level_NTScore)
+
+    np.savetxt(fname=f'{options.output}/niche_cluster_score.csv.gz', X=niche_cluster_score, delimiter=',')
     np.savetxt(fname=f'{options.output}/niche_NTScore.csv.gz', X=niche_level_NTScore, delimiter=',')
     np.savetxt(fname=f'{options.output}/cell_NTScore.csv.gz', X=cell_level_NTScore, delimiter=',')

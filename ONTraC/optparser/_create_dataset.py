@@ -12,14 +12,14 @@ def prepare_create_ds_optparser() -> OptionParser:
     """
 
     prog_name = os.path.basename(sys.argv[0])
-    usage = f'''USAGE: {prog_name} <-y YAML> [-o OUTPUT] [--oc OUTPUT] [--n-cpu N_CPU] [--n-neighbors N_NEIGHBORS]'''
+    usage = f'''USAGE: {prog_name} <-d DATASET> [-o OUTPUT] [--oc OUTPUT] [--n-cpu N_CPU] [--n-neighbors N_NEIGHBORS]'''
     description = 'Create dataset for follwoing analysis.'
 
     # option processor
     optparser = OptionParser(version=f'{prog_name} 0.1', description=description, usage=usage, add_help_option=True)
 
     # basic options group
-    group_basic = OptionGroup(optparser, "Basci options for running")
+    group_basic = OptionGroup(optparser, "Basic options for running")
     group_basic.add_option(
         '-o',
         '--output',
@@ -35,11 +35,7 @@ def prepare_create_ds_optparser() -> OptionParser:
         help=
         'Directory to output the result. Will be overwritten if target directory exists. If -o is specified, --oc will be ignored.'
     )
-    group_basic.add_option('-y',
-                           '--yaml',
-                           dest='yaml',
-                           type='string',
-                           help='Yaml file contains input dataset information.')
+    group_basic.add_option('-d', '--dataset', dest='dataset', type='string', help='Original input dataset.')
     group_basic.add_option('--n-cpu',
                            dest='n_cpu',
                            type='int',
@@ -72,33 +68,34 @@ def opt_create_ds_validate(optparser) -> Values:
         options.output = getattr(options, 'oc')
         if os.path.isdir(options.output):
             info(f'Output directory ({options.output}) already exist, overwrite it.')
-            shutil.rmtree(options.output)
+        os.makedirs(options.output, exist_ok=True)
     elif getattr(options, 'output') is not None:
         if os.path.isdir(options.output):
             error(f'Output directory ({options.output}) already exist, exit!')
             sys.exit(1)
+        os.makedirs(options.output)
 
-    # check YAML file
-    example_yaml_file = os.path.join(os.path.dirname(__file__), 'example.yaml')
-    if getattr(options, 'yaml') is None:
-        error(f'YAML file is not specified, exit!')
-        error(f'You can find example YAML file in {example_yaml_file}')
+    # check original data file
+    example_original_data_file = os.path.join(os.path.dirname(__file__), '../example_files/example_original_data.csv')
+    if getattr(options, 'dataset') is None:
+        error(f'Original dataset is not specified, exit!')
+        error(f'You can find example original data file in {example_original_data_file}')
         optparser.print_help()
         sys.exit(1)
-    elif not os.path.isfile(options.yaml):
-        error(f'YAML file not exist, exit: {options.yaml}')
-        error(f'You can find example YAML file in {example_yaml_file}')
+    elif not os.path.isfile(options.dataset):
+        error(f'Original dataset file does not exist, exit: {options.dataset}')
+        error(f'You can find example original data file in {example_original_data_file}')
         sys.exit(1)
-    elif not options.yaml.endswith('.yaml'):
-        error(f'YAML file must ends with .yaml, exit: {options.yaml}')
-        error(f'You can find example YAML file in {example_yaml_file}')
+    elif not options.dataset.endswith('.csv'):
+        error(f'Original data file must ends with .csv, exit: {options.dataset}')
+        error(f'You can find example original data file in {example_original_data_file}')
         sys.exit(1)
 
     # print parameters to stdout
     param_text = '--------------------- RUN memo --------------------- \n'
     param_text += '           -------- basic options -------            \n'
     param_text += f'output:  {options.output}\n'
-    param_text += f'yaml:    {options.yaml}\n'
+    param_text += f'dataset: {options.dataset}\n'
     param_text += f'n_cpu:   {options.n_cpu}\n'
     param_text += f'n_neighbors: {options.n_neighbors}\n'
     param_text += '---------------------------------------------------- \n'

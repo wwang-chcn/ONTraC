@@ -14,7 +14,7 @@ from ._train import *
 from ..log import *
 
 
-def prepare_PT_optparser() -> OptionParser:
+def prepare_NT_optparser() -> OptionParser:
     """
     Prepare optparser object. New options will be added in thisfunction first.
     """
@@ -31,7 +31,7 @@ def prepare_PT_optparser() -> OptionParser:
     return optparser
 
 
-def opt_PT_validate(optparser: OptionParser) -> Values:
+def opt_NT_validate(optparser: OptionParser) -> Values:
     """Validate options from a OptParser object.
 
     Ret: Validated options object.
@@ -41,6 +41,8 @@ def opt_PT_validate(optparser: OptionParser) -> Values:
 
     validate_basic_options(optparser, options, output_dir_exist_OK=True)
     validate_pseudotime_options(optparser, options)
+
+    options.batch_size = 1  # set batch size to 1, for load_data function
     
     # print parameters to stdout
     info('--------------------- RUN memo ---------------------')
