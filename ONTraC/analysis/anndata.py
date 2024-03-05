@@ -31,6 +31,10 @@ def create_adata(options: Values) -> Tuple[Dict[str, AnnData], AnnData]:
     """Load dataset from options.
     """
 
+    # load meta data
+    meta_df = pd.read_csv(f'{options.raw}', index_col=0)
+    meta_df.index = meta_df.index.astype(str)
+
     # create AnnData with fake expression data
     adata_dict = {}
     for sample in options.data['Data']:
@@ -40,7 +44,8 @@ def create_adata(options: Values) -> Tuple[Dict[str, AnnData], AnnData]:
         # TODO: support 3D spatial data
         coordinate_arr = pd.read_csv(coordinate_file)[['x', 'y']].values
         adata_dict[name] = AnnData(X=csr_matrix(np.random.poisson(1, (coordinate_arr.shape[0], 100)), dtype=np.float32))
-
+        # load meta data
+        adata_dict[name].obs = meta_df.loc[meta_df['sample'] == name]
         adata_dict[name].obs.index = [f'{name}_{i+1:05d}' for i in range(adata_dict[name].obs.shape[0])
                                       ]  # temp solution for duplicate cell names
         # load spatial data
@@ -181,13 +186,13 @@ def feat_along_NTScore(options: Values, adata_dict: Dict[str, AnnData], adata_co
     # all samples
     results_dict = percentage_summary_along_continous_feat(df=adata_combined.obs,
                                                            continous_column='NTScore',
-                                                           discrete_columns=['annot', 'annot_niche_max'])
+                                                           discrete_columns=['Cell_Type'])
     plot_feat_along_NTScore(results_dict, 'all_samples', options)
 
     for name in adata_dict:
         results_dict = percentage_summary_along_continous_feat(df=adata_dict[name].obs,
                                                                continous_column='NTScore',
-                                                               discrete_columns=['annot', 'annot_niche_max'])
+                                                               discrete_columns=['Cell_Type'])
         plot_feat_along_NTScore(results_dict, name, options)
 
 

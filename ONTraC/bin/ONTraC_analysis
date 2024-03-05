@@ -55,14 +55,15 @@ def prepare_optparser() -> OptionParser:
     description = "Analysis the results of ONTraC."
     optparser = OptionParser(usage=usage, description=description, add_help_option=False)
     optparser.add_option('-h', '--help', action='help', help='Show this help message and exit.')
-    optparser.add_option('-n', '--name', dest='name', type='string', help='Name of the train.')
+    optparser.add_option('-n', '--name', dest='name', type='string', required=True, help='Name of the train.')
+    optparser.add_option('-r'
+                         '--raw', dest='raw', type='string', help='Raw input file.')
     optparser.add_option(
         '-i',
         '--input',
         dest='input',
         type='string',
         help='Directory contains input dataset. This directory should be the output directory of createDataSet.')
-    optparser.add_option('-y', '--yaml', dest='yaml', type='string', help='Yaml file stored dataset information.')
     optparser.add_option('-p',
                          '--process',
                          dest='process',
@@ -82,13 +83,22 @@ def opt_validate(optparser: OptionParser) -> Values:
     if not options.input:
         optparser.print_help()
         sys.exit(1)
-    options.output = f'output/{options.name}'
-    if not options.output:
-        error(f'Output directory for training not found: {options.output}')
+    if not os.path.exists(options.raw):
+        error(f'Raw input file not found: {options.raw}')
         optparser.print_help()
         sys.exit(1)
+    options.output = f'output/{options.name}'
+    if not os.path.exists(options.input):
+        error(f'Input directory for training not found: {options.input}')
+        optparser.print_help()
+        sys.exit(1)
+    options.yaml = f'{options.input}/samples.yaml'
     if not os.path.exists(options.yaml):
         error(f'Yaml file not found: {options.yaml}')
+        optparser.print_help()
+        sys.exit(1)
+    if not options.output:
+        error(f'Output directory for training not found: {options.output}')
         optparser.print_help()
         sys.exit(1)
     options.device = 'cpu'
