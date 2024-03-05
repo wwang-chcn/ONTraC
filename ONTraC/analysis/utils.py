@@ -218,3 +218,79 @@ def cluster_spatial_continuity(options: Values, data: Data):
     cluster_moran = pd.DataFrame(cluster_spatial_continuity_gen(s_tensor, data),
                                  columns=['moran_I', 'sample', 'cluster'])
     cluster_moran.to_csv(f'{options.output}/cluster_moran.csv.gz', index=False)
+
+
+def move_legend(ax, new_loc, **kws):
+    old_legend = ax.legend_
+    handles = old_legend.legend_handles
+    labels = [t.get_text() for t in old_legend.get_texts()]
+    title = old_legend.get_title().get_text()
+    ax.legend(handles, labels, loc=new_loc, title=title, ncols=(len(labels) - 1) // 10 + 1, **kws)
+
+
+def percentage_summary_along_continous_feat(df: pd.DataFrame,
+                                            continous_column: str,
+                                            discrete_columns: List[str],
+                                            bins: int = 100,
+                                            smooth_bins: int = 5) -> Dict[str, pd.DataFrame]:
+    df_sorted = df.sort_values(by=continous_column)
+
+    results_dict = {}
+    for discrete_column in discrete_columns:
+
+        group_index = np.arange(df_sorted.shape[0]) // int(df_sorted.shape[0] / (bins + smooth_bins))
+        statistic_df = df_sorted.groupby(group_index)[discrete_column].value_counts().unstack().fillna(0)
+        statistic_rolling_df = statistic_df.rolling(window=smooth_bins).sum()
+        statistic_rolling_df = statistic_rolling_df[statistic_rolling_df.index >= smooth_bins]
+        statistic_rolling_df = statistic_rolling_df.div(statistic_rolling_df.sum(axis=1), axis=0) * 100
+        statistic_rolling_df.reset_index(drop=True, inplace=True)
+        statistic_rolling_df['percentile'] = np.arange(statistic_rolling_df.shape[0])
+
+        statistic_melt_df = statistic_rolling_df.melt(id_vars=['percentile'],
+                                                      value_vars=statistic_rolling_df.columns)  # type: ignore
+        results_dict[discrete_column] = statistic_melt_df
+
+    return results_dict
+
+
+def gini(array: np.ndarray | pd.Series) -> float:
+    """Calculate the Gini coefficient of a numpy array."""
+    #
+    # from:
+    # http://www.statsdirect.com/help/default.htm#nonparametric_methods/gini.htm
+    # All values are treated equally, arrays must be 1d:
+    if isinstance(array, pd.Series):
+        array = np.array(array)
+    array = array.flatten()  # type: ignore
+    if np.amin(array) < 0:
+        # Values cannot be negative:
+        array -= np.amin(array)  # type: ignore
+    # Values cannot be 0:
+    array += 0.0000001
+    # Values must be sorted:
+    array = np.sort(array)  # type: ignore
+    # Number of array elements:
+    n = array.shape[0]  # type: ignore
+    # Index per array element:
+    index = np.arange(1, n + 1)  # type: ignore
+    # Gini coefficient:
+    return ((np.sum((2 * index - n - 1) * array)) / (n * np.sum(array)))  # type: ignore
+
+
+def to_one_hot(arr, num_classes: Optional[int] = None):  # type: ignore
+    """
+    Converts an integer array to a binary class matrix (one-hot encoding).
+
+    :param arr: np.array, shape (n_samples,)
+        An integer array.
+    :param num_classes: int, optional, default None
+        The total number of classes. If `None`, this would be inferred as the (max of array) + 1.
+    :return: np.array, shape (n_samples, n_classes)
+        The binary class matrix representation of the input.
+    """
+    arr = np.asarray(arr, dtype=int)
+    n = arr.size
+    num_classes: int = np.max(arr) + 1 if num_classes is None else num_classes
+    one_hot = np.zeros((n, num_classes))
+    one_hot[np.arange(n), arr] = 1
+    return one_hot
