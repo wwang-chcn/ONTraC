@@ -37,7 +37,8 @@ def create_adata(options: Values) -> Tuple[Dict[str, AnnData], AnnData]:
         name = sample.get('Name')
         coordinate_file = f"{sample['Coordinates']}"
         info(f'Read samples: {name} with coordinate file: {coordinate_file}.')
-        coordinate_arr = np.loadtxt(coordinate_file, delimiter=',')
+        # TODO: support 3D spatial data
+        coordinate_arr = pd.read_csv(coordinate_file)[['x', 'y']].values
         adata_dict[name] = AnnData(X=csr_matrix(np.random.poisson(1, (coordinate_arr.shape[0], 100)), dtype=np.float32))
 
         adata_dict[name].obs.index = [f'{name}_{i+1:05d}' for i in range(adata_dict[name].obs.shape[0])
