@@ -123,20 +123,20 @@ def load_annotation_data(options: Values, data: Data, adata_dict: Dict[str, AnnD
         warning(str(e))
 
 
-def plot_pseudo_time(options: Values, data: Data, adata_dict: Dict[str, AnnData]) -> None:
+def plot_NTScore(options: Values, data: Data, adata_dict: Dict[str, AnnData]) -> None:
     for index, name in enumerate(data.name):
-        pseudo_time_df = pd.DataFrame({
-            'pseudo_time': adata_dict[name].obs['pseudo_time'],
+        NTScore_df = pd.DataFrame({
+            'NTScore': adata_dict[name].obs['NTScore'],
             'x': adata_dict[name].obsm['spatial'][:, 0],  # type: ignore
             'y': adata_dict[name].obsm['spatial'][:, 1],  # type: ignore
         })
         moran_I_value = moran_I_features(
             torch.cat([
-                torch.FloatTensor(adata_dict[name].obs['pseudo_time'].values),
+                torch.FloatTensor(adata_dict[name].obs['NTScore'].values),
                 torch.zeros(data.x[index].shape[0] - adata_dict[name].shape[0])
             ]), data.adj[index], data.mask[index]).detach().cpu().numpy().reshape(-1)[0]
         fig, ax = plt.subplots()
-        cax = ax.scatter(data=pseudo_time_df, x='x', y='y', s=6, linewidth=0, c='pseudo_time', cmap='rainbow')
+        cax = ax.scatter(data=NTScore_df, x='x', y='y', s=6, linewidth=0, c='NTScore', cmap='rainbow')
         ax.set_title(name)
         ax.annotate(f'Moran\'s I: {moran_I_value: .3f}',
                     xy=(0.02, 0.02),
@@ -146,7 +146,7 @@ def plot_pseudo_time(options: Values, data: Data, adata_dict: Dict[str, AnnData]
                     fontsize=12)
         fig.colorbar(cax, ax=ax, orientation='vertical', fraction=0.05, pad=0.05)
         fig.tight_layout()
-        fig.savefig(f'{options.output}/{name}_PseudoTime.pdf')
+        fig.savefig(f'{options.output}/{name}_NTScore.pdf')
         plt.close(fig)
 
 
@@ -208,7 +208,7 @@ def anndata_based_analysis(
         # spatial_plots(options, 'trained_embedding', adata_dict)
 
     # 3. plot pseudo time
-    plot_pseudo_time(options, data, adata_dict)
+    plot_NTScore(options, data, adata_dict)
 
     # 4. feat_along_pseudo_time
     feat_along_pseudo_time(options, adata_dict, adata_combined)
