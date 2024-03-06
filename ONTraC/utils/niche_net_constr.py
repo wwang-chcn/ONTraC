@@ -103,7 +103,6 @@ def construct_niche_network_sample(options: Values, sample_data_df: pd.DataFrame
     # calculate weight matrix
     # normalize the distance matrix using self node and 20-th neighbor using a gaussian kernel
     norm_dis_matrix = np.apply_along_axis(func1d=gauss_dist_1d, axis=1, arr=dis_matrix, n_local=n_local)  # N x (k + 1)
-    norm_dis_matrix = norm_dis_matrix / norm_dis_matrix.sum(axis=1, keepdims=True)  # normalize
     np.savetxt(f'{options.output}/{sample_name}_NicheWeightMatrix.csv.gz', norm_dis_matrix,
                delimiter=',')  # save weight matrix
 
