@@ -27,7 +27,11 @@ def analysis_pipeline(options: Values, rel_params: Dict) -> None:
     # 3. cluster spatial continuity
     cluster_spatial_continuity(options, data)
     # 4. AnnData based analysis
-    meta_df = anndata_based_analysis(options, data)
+    try:
+        meta_df = anndata_based_analysis(options, data)
+    except Exception as e:
+        error(f'Error in AnnData based analysis: {e}')
+        meta_df = None
     if meta_df is not None:
         # 5. cell type distribution
         cell_type_dis_in_cluster(options, data, meta_df)
