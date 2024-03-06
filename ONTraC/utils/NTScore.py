@@ -3,45 +3,25 @@ from typing import Dict, List, Tuple
 
 import numpy as np
 from numpy import ndarray
-from scipy.optimize import linear_sum_assignment
 
 from ONTraC.data import SpatailOmicsDataset
-
-from ..log import debug, info
 
 
 def get_niche_trajectory_path(niche_adj_matrix: ndarray) -> List[int]:
     """
-    Find niche level trajectory with maximum connectivity
-    :param adj_matrix: non-negative ndarray, adjacency matrix of the graph with shape (n, n), n >= 2
+    Find niche level trajectory with maximum connectivity using Brute Force
+    :param adj_matrix: non-negative ndarray, adjacency matrix of the graph
     :return: List[int], the niche trajectory
-
-    1) Find a circle with maximum connectivity
-    2) Remove the edge with lowest weight in the circle
-    3) Get the path
     """
-
-    row_ind, col_ind = linear_sum_assignment(niche_adj_matrix, maximize=True)  # Find a circle with maximum connectivity
-    edges = dict(zip(row_ind, col_ind))
-
-    # remove the edge with lowest weight in the circle
-    min_connectivity = niche_adj_matrix.max()
-    for i in range(niche_adj_matrix.shape[0]):
-        if niche_adj_matrix[i, edges[i]] < min_connectivity:
-            min_connectivity = niche_adj_matrix[i, edges[i]]
-            min_edge = (i, edges[i])
-
-    # get the path
+    max_connectivity = float('-inf')
     niche_trajectory_path = []
-    start_node = min_edge[1]
-    while True:
-        niche_trajectory_path.append(start_node)
-        start_node = edges[start_node]
-        if start_node == min_edge[0]:
-            break
-    
-    if len(niche_trajectory_path) != niche_adj_matrix.shape[0]:
-        raise ValueError('No niche trajectory path found. Please adjust the parameters.')
+    for path in itertools.permutations(range(len(niche_adj_matrix))):
+        connectivity = 0
+        for i in range(len(path) - 1):
+            connectivity += niche_adj_matrix[path[i], path[i + 1]]
+        if connectivity > max_connectivity:
+            max_connectivity = connectivity
+            niche_trajectory_path = list(path)
 
     return niche_trajectory_path
 
