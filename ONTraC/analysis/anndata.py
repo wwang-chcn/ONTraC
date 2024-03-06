@@ -212,10 +212,11 @@ def anndata_based_analysis(
         # 2. spatial plots
         # spatial_plots(options, 'trained_embedding', adata_dict)
 
-    # 3. plot NT score
-    plot_NTScore(options, data, adata_dict)
+    if 'NTScore' in adata_combined.obs.columns:
+        # 3. plot NT score
+        plot_NTScore(options, data, adata_dict)
 
-    # 4. feature along NT score
-    feat_along_NTScore(options, adata_dict, adata_combined)
+        # 4. feature along NT score
+        feat_along_NTScore(options, adata_dict, adata_combined)
 
     return adata_combined.obs
