@@ -18,7 +18,6 @@ def prepare_NT_optparser() -> OptionParser:
     optparser = OptionParser(version=f'{program_name} 0.1', description=description, usage=usage, add_help_option=True)
 
     group_basic = add_basic_options_group(optparser)
-    group_pseudotime = add_pseudotime_options_group(optparser)
 
     return optparser
 
@@ -32,12 +31,10 @@ def opt_NT_validate(optparser: OptionParser) -> Values:
     (options, args) = optparser.parse_args()
 
     validate_basic_options(optparser, options, output_dir_exist_OK=True)
-    validate_pseudotime_options(optparser, options)
 
     # print parameters to stdout
     info('--------------------- RUN memo ---------------------')
     write_basic_options_memo(options)
-    write_pseudotime_options_memo(options)
     info('----------------------------------------------------')
 
     return options
