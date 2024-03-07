@@ -68,17 +68,15 @@ def niche_to_cell_NTScore(dataset: SpatailOmicsDataset, rel_params: Dict, niche_
 
     cell_level_NTScore = np.zeros(niche_level_NTScore.shape[0])
 
-    node_sum = 0
     for i, data in enumerate(dataset):
-        name = data.name
         mask = data.mask
+        slice_ = slice(i * data.x.shape[0], i * data.x.shape[0] + mask.sum())
         niche_weight_matrix = np.loadtxt(rel_params['Data'][i]['NicheWeightMatrix'], delimiter=',')
         niche_weight_matrix_norm = niche_weight_matrix / niche_weight_matrix.sum(axis=1, keepdims=True)  # normalize
         neighbor_indices_matrix = np.loadtxt(rel_params['Data'][i]['NeighborIndicesMatrix'], delimiter=',').astype(int)
-        niche_level_NTScore_ = niche_level_NTScore[node_sum:node_sum + mask.sum()]
+        niche_level_NTScore_ = niche_level_NTScore[slice_]
         neighbor_niche_level_NTScore = niche_level_NTScore_[neighbor_indices_matrix]
         cell_level_NTScore_ = (neighbor_niche_level_NTScore * niche_weight_matrix_norm).sum(axis=1)
-        cell_level_NTScore[node_sum:node_sum + mask.sum()] = cell_level_NTScore_
-        node_sum += mask.sum()
+        cell_level_NTScore[slice_] = cell_level_NTScore_
 
     return cell_level_NTScore
