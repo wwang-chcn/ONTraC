@@ -79,5 +79,6 @@ def niche_to_cell_NTScore(dataset: SpatailOmicsDataset, rel_params: Dict, niche_
         neighbor_niche_level_NTScore = niche_level_NTScore_[neighbor_indices_matrix]
         cell_level_NTScore_ = (neighbor_niche_level_NTScore * niche_weight_matrix_norm).sum(axis=1)
         cell_level_NTScore[node_sum:node_sum + mask.sum()] = cell_level_NTScore_
+        node_sum += mask.sum()
 
     return cell_level_NTScore
