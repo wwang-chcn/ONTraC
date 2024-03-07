@@ -58,7 +58,7 @@ def prepare_ontrac_optparser() -> OptionParser:
     optparser = OptionParser(version=f'{program_name} 0.1', description=description, usage=usage, add_help_option=True)
 
     # Create Dataset
-    group_basic = OptionGroup(optparser, "Basic options for running")
+    group_basic = OptionGroup(optparser, "Basic options for preprocessing")
     group_basic.add_option('-d',
                            '--dataset',
                            dest='dataset',
@@ -77,21 +77,21 @@ def prepare_ontrac_optparser() -> OptionParser:
     optparser.add_option_group(group_basic)
 
     # GP
-    group_basic = add_basic_options_group(optparser)
     group_train = add_train_options_group(optparser)
     add_GNN_options_group(group_train)
     add_NP_options_group(group_train)
 
     # Output
-    group_basic.add_option('--preprocessing-dir',
+    group_output = OptionGroup(optparser, "Options for output directories")
+    group_output.add_option('--preprocessing-dir',
                            dest='preprocessing_dir',
                            type='string',
                            help='Directory for preprocessing outputs.')
-    group_basic.add_option('--GNN-dir',
+    group_output.add_option('--GNN-dir',
                            dest='GNN_dir',
                            type='string',
                            help='Directory for the GNN output.')
-    group_basic.add_option('--NTScore-dir',
+    group_output.add_option('--NTScore-dir',
                            dest='NTScore_dir',
                            type='string',
                            help='Directory for the NTScore output')

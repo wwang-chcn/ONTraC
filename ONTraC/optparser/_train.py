@@ -5,26 +5,6 @@ from random import randint
 
 from ..log import *
 
-
-def add_basic_options_group(optparser: OptionParser) -> OptionGroup:
-    """
-    Add basic options group to optparser.
-    :param optparser: OptionParser object.
-    :return: OptionGroup object.
-    """
-
-    # basic options group
-    group_basic = OptionGroup(optparser, "Basic options")
-    optparser.add_option_group(group_basic)
-    group_basic.add_option(
-        '-i',
-        '--input',
-        dest='input',
-        type='string',
-        help='Directory contains input dataset. This directory should be the output directory of createDataSet.py.')
-    return group_basic
-
-
 def add_train_options_group(optparser: OptionParser) -> OptionGroup:
     """
     Add train options group to optparser.

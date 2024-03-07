@@ -96,7 +96,7 @@ def create_torch_dataset(options: Values, params: Dict) -> SpatailOmicsDataset:
 
     # ------------------------------------
     # Step 2: Create torch dataset
-    dataset = SpatailOmicsDataset(root=options.input, params=params,
+    dataset = SpatailOmicsDataset(root=options.preprocessing_dir, params=params,
                                   transform=T.ToDense(m_nodes))  # transform edge_index to adj matrix
     # dataset = SpatailOmicsDataset(root=options.input, params=params)
     return dataset
