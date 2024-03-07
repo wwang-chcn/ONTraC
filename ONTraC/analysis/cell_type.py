@@ -5,12 +5,15 @@ import numpy as np
 import pandas as pd
 from torch_geometric.data import Data
 
+from ONTraC.log import warning
+
 mpl.rcParams['pdf.fonttype'] = 42
 mpl.rcParams['ps.fonttype'] = 42
 mpl.rcParams['font.family'] = 'Arial'
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+from .constants import NT_SCORE_FEATS
 from .utils import gini, to_one_hot
 
 
@@ -94,7 +97,12 @@ def cell_type_dis_in_cluster(options: Values, data: Data, meta_df: pd.DataFrame)
             var_name='Cell_Type',
             value_vars=cell_type_cat,  # type: ignore
             value_name='Number')
-        g = sns.catplot(cell_type_dis_melt_df, kind="bar", x="Number", y="Cell_Type", col="cluster", height=4,
+        g = sns.catplot(cell_type_dis_melt_df,
+                        kind="bar",
+                        x="Number",
+                        y="Cell_Type",
+                        col="cluster",
+                        height=4,
                         aspect=.5)  # type: ignore
         g.add_legend()
         g.figure.figsize = (6.4, 20)
@@ -107,6 +115,7 @@ def NTScore_in_each_cell_type(options: Values, meta_df: pd.DataFrame) -> None:
     """
     Plot NT score in each cell type.
     """
+
     with sns.axes_style('white', rc={
             'xtick.bottom': True,
             'ytick.left': True
@@ -118,9 +127,12 @@ def NTScore_in_each_cell_type(options: Values, meta_df: pd.DataFrame) -> None:
                                  'ytick.labelsize': 10,
                                  'legend.fontsize': 10
                              }):
-        fig, ax = plt.subplots(figsize=(6, 4))
-        sns.violinplot(data=meta_df, x='Cell_Type', y='NTScore', ax=ax)
-        ax.set_xticklabels(ax.get_xticklabels(), rotation='vertical')
-        fig.tight_layout()
-        fig.savefig(f'{options.output}/NTScore_in_each_cell_type.pdf')
-        plt.close(fig)
+        for NTScore in NT_SCORE_FEATS:
+            if NTScore not in meta_df.columns:
+                warning(f'{NTScore} not found in meta data. Skip.')
+            fig, ax = plt.subplots(figsize=(6, 4))
+            sns.violinplot(data=meta_df, x='Cell_Type', y=NTScore, ax=ax)
+            ax.set_xticklabels(ax.get_xticklabels(), rotation='vertical')
+            fig.tight_layout()
+            fig.savefig(f'{options.output}/{NTScore}_in_each_cell_type.pdf')
+            plt.close(fig)

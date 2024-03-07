@@ -24,7 +24,9 @@ import seaborn as sns
 
 from ONTraC.log import *
 from ONTraC.train.loss_funs import moran_I_features
-from .utils import percentage_summary_along_continous_feat, move_legend
+
+from .constants import NT_SCORE_FEAT_FILES, NT_SCORE_FEATS
+from .utils import move_legend, percentage_summary_along_continous_feat
 
 
 def create_adata(options: Values) -> Tuple[Dict[str, AnnData], AnnData]:
@@ -91,21 +93,22 @@ def load_graph_pooling_results(options: Values, data: Data, adata_dict: Dict[str
         [adata_dict[name].obs['graph_pooling'] for name in adata_dict.keys()])  # type: ignore
 
 
-def load_cell_NTScore(options: Values, data: Data, adata_dict: Dict[str, AnnData], adata_combined: AnnData):
+def load_NTScore(options: Values, data: Data, adata_dict: Dict[str, AnnData], adata_combined: AnnData) -> None:
     """
-    loading cell-level NTScore
+    loading NTScore
     """
-    pseudo_time_file = f'{options.output}/cell_NTScore.csv'
-    if not os.path.exists(pseudo_time_file):
-        pseudo_time_file = f'{options.output}/cell_NTScore.csv.gz'
-        if not os.path.exists(pseudo_time_file):
-            raise FileNotFoundError(f"Cannot find cell-level NTScore file: {pseudo_time_file}.")
-    pseudo_time_arr = np.loadtxt(pseudo_time_file, delimiter=',')[data.mask.flatten().detach().cpu().numpy()]
-    adata_combined.obs['NTScore'] = pseudo_time_arr
+    for NTScore, NTScore_file in zip(NT_SCORE_FEATS, NT_SCORE_FEAT_FILES):
+        NTScore_file = f'{options.output}/{NTScore_file}'
+        if not os.path.exists(NTScore_file):
+            NTScore_file = f'{options.output}/{NTScore_file}.gz'
+            if not os.path.exists(NTScore_file):
+                raise FileNotFoundError(f"Cannot find NTScore file: {NTScore_file}.")
+        NTScore_file_arr = np.loadtxt(NTScore_file, delimiter=',')[data.mask.flatten().detach().cpu().numpy()]
+        adata_combined.obs[NTScore] = NTScore_file_arr
 
-    # copy to each sample adata
-    for name in adata_dict.keys():
-        adata_dict[name].obs['NTScore'] = adata_combined.obs['NTScore'].loc[adata_dict[name].obs.index]
+        # copy to each sample adata
+        for name in adata_dict.keys():
+            adata_dict[name].obs[NTScore] = adata_combined.obs[NTScore].loc[adata_dict[name].obs.index]
 
 
 def load_annotation_data(options: Values, data: Data, adata_dict: Dict[str, AnnData], adata_combined: AnnData):
@@ -121,41 +124,48 @@ def load_annotation_data(options: Values, data: Data, adata_dict: Dict[str, AnnD
     except FileNotFoundError as e:
         warning(str(e))
 
-    # --- load cell-level NTScore ---
+    # --- load NTScore ---
     try:
-        load_cell_NTScore(options, data, adata_dict, adata_combined)
+        load_NTScore(options, data, adata_dict, adata_combined)
     except FileNotFoundError as e:
         warning(str(e))
 
 
 def plot_NTScore(options: Values, data: Data, adata_dict: Dict[str, AnnData]) -> None:
+    """
+    Plot NTScore
+    """
+
+    features = ['niche_NTScore', 'cell_NTScore']
+
     for index, name in enumerate(data.name):
-        NTScore_df = pd.DataFrame({
-            'NTScore': adata_dict[name].obs['NTScore'],
-            'x': adata_dict[name].obsm['spatial'][:, 0],  # type: ignore
-            'y': adata_dict[name].obsm['spatial'][:, 1],  # type: ignore
-        })
-        moran_I_value = moran_I_features(
-            torch.cat([
-                torch.FloatTensor(adata_dict[name].obs['NTScore'].values),
-                torch.zeros(data.x[index].shape[0] - adata_dict[name].shape[0])
-            ]), data.adj[index], data.mask[index]).detach().cpu().numpy().reshape(-1)[0]
-        fig, ax = plt.subplots()
-        cax = ax.scatter(data=NTScore_df, x='x', y='y', s=6, linewidth=0, c='NTScore', cmap='rainbow')
-        ax.set_title(name)
-        ax.annotate(f'Moran\'s I: {moran_I_value: .3f}',
-                    xy=(0.02, 0.02),
-                    xycoords='axes fraction',
-                    ha='left',
-                    va='bottom',
-                    fontsize=12)
-        fig.colorbar(cax, ax=ax, orientation='vertical', fraction=0.05, pad=0.05)
-        fig.tight_layout()
-        fig.savefig(f'{options.output}/{name}_NTScore.pdf')
-        plt.close(fig)
+        for feat in features:
+            feature_df = pd.DataFrame({
+                'feature': adata_dict[name].obs[feat],
+                'x': adata_dict[name].obsm['spatial'][:, 0],  # type: ignore
+                'y': adata_dict[name].obsm['spatial'][:, 1],  # type: ignore
+            })
+            moran_I_value = moran_I_features(
+                torch.cat([
+                    torch.FloatTensor(adata_dict[name].obs[feat].values),
+                    torch.zeros(data.x[index].shape[0] - adata_dict[name].shape[0])
+                ]), data.adj[index], data.mask[index]).detach().cpu().numpy().reshape(-1)[0]
+            fig, ax = plt.subplots()
+            cax = ax.scatter(data=feature_df, x='x', y='y', s=6, linewidth=0, c=feat, cmap='rainbow')
+            ax.set_title(name)
+            ax.annotate(f'Moran\'s I: {moran_I_value: .3f}',
+                        xy=(0.02, 0.02),
+                        xycoords='axes fraction',
+                        ha='left',
+                        va='bottom',
+                        fontsize=12)
+            fig.colorbar(cax, ax=ax, orientation='vertical', fraction=0.05, pad=0.05)
+            fig.tight_layout()
+            fig.savefig(f'{options.output}/{name}_{feat}.pdf')
+            plt.close(fig)
 
 
-def plot_feat_along_NTScore(results_dict, title, options) -> None:
+def plot_feat_along_NTScore(results_dict: Dict, title: str, continous_column: str, options: Values) -> None:
     with sns.axes_style('white', rc={
             'xtick.bottom': True,
             'ytick.left': True
@@ -178,22 +188,26 @@ def plot_feat_along_NTScore(results_dict, title, options) -> None:
             ax.set_ylabel('Percentage')
             move_legend(ax, new_loc='upper left', bbox_to_anchor=(1, 1))
             fig.tight_layout()
-            fig.savefig(f'{options.output}/{title}_combined_{discrete_column}_along_NTScore.pdf')
+            fig.savefig(f'{options.output}/{title}_combined_{discrete_column}_along_{continous_column}.pdf')
             plt.close(fig)
 
 
 def feat_along_NTScore(options: Values, adata_dict: Dict[str, AnnData], adata_combined: AnnData) -> None:
-    # all samples
-    results_dict = percentage_summary_along_continous_feat(df=adata_combined.obs,
-                                                           continous_column='NTScore',
-                                                           discrete_columns=['Cell_Type'])
-    plot_feat_along_NTScore(results_dict, 'all_samples', options)
 
-    for name in adata_dict:
-        results_dict = percentage_summary_along_continous_feat(df=adata_dict[name].obs,
-                                                               continous_column='NTScore',
+    for NTScore in NT_SCORE_FEATS:
+        results_dict = percentage_summary_along_continous_feat(df=adata_combined.obs,
+                                                               continous_column=NTScore,
                                                                discrete_columns=['Cell_Type'])
-        plot_feat_along_NTScore(results_dict, name, options)
+        plot_feat_along_NTScore(results_dict=results_dict,
+                                title='all_samples',
+                                continous_column=NTScore,
+                                options=options)
+
+        for name in adata_dict:
+            results_dict = percentage_summary_along_continous_feat(df=adata_dict[name].obs,
+                                                                   continous_column=NTScore,
+                                                                   discrete_columns=['Cell_Type'])
+            plot_feat_along_NTScore(results_dict=results_dict, title=name, continous_column=NTScore, options=options)
 
 
 def anndata_based_analysis(

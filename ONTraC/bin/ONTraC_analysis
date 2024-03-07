@@ -36,8 +36,7 @@ def analysis_pipeline(options: Values, rel_params: Dict) -> None:
         # 5. cell type distribution
         cell_type_dis_in_cluster(options, data, meta_df)
         # 6. NT Score in each cell type
-        if 'NTScore' in meta_df.columns:
-            NTScore_in_each_cell_type(options, meta_df)
+        NTScore_in_each_cell_type(options, meta_df)
     # 7. cluster connectivity
     cluster_connectivity(options)
 
