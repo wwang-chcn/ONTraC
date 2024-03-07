@@ -16,8 +16,6 @@ def prepare_GP_optparser() -> OptionParser:
 
     # option processor
     optparser = OptionParser(version=f'{program_name} 0.1', description=description, usage=usage, add_help_option=True)
-
-    group_basic = add_basic_options_group(optparser)
     group_train = add_train_options_group(optparser)
     add_GNN_options_group(group_train)
     add_NP_options_group(group_train)
