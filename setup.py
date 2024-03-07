@@ -22,4 +22,4 @@ setup(
     #         'gp = ONTraC.bin.GP:main'
     #     ],
     # },
-    scripts=['ONTraC/bin/createDataSet', 'ONTraC/bin/GP', 'ONTraC/bin/NTScore'])
+    scripts=['ONTraC/bin/createDataSet', 'ONTraC/bin/GP', 'ONTraC/bin/NTScore', 'ONTraC/bin/ONTraC'])
