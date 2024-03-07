@@ -5,12 +5,13 @@ from typing import Callable, Dict, List, Optional, Tuple, Type
 import numpy as np
 import torch
 from numpy import ndarray
+from torch_geometric.loader import DenseDataLoader
+
 from ONTraC.data import SpatailOmicsDataset, create_torch_dataset
 from ONTraC.log import debug, info, warning
 from ONTraC.train import SubBatchTrainProtocol
 from ONTraC.utils import get_rel_params, read_yaml_file
 from ONTraC.utils.NTScore import get_niche_NTScore, niche_to_cell_NTScore
-from torch_geometric.loader import DenseDataLoader
 
 
 def load_parameters(opt_validate_func: Callable, prepare_optparser_func: Callable) -> Tuple[Values, Dict]:
@@ -131,7 +132,6 @@ def predict(output_dir: str, batch_train: SubBatchTrainProtocol, dataset: Spatai
         # consolidate s
         consolidate_s = torch.cat(consolidate_s_list, dim=0)
         # consolidate out_adj
-        consolidate_out_adj = consolidate_out_adj / len(dataset)  # type: ignore
         ind = torch.arange(consolidate_s.shape[-1], device=consolidate_out_adj.device)
         consolidate_out_adj[ind, ind] = 0
         d = torch.einsum('ij->i', consolidate_out_adj)
