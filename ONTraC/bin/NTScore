@@ -26,8 +26,8 @@ def main() -> None:
     # --- load data ---
     dataset, data = load_dataset(options=options)
     # load consolidated s_array and out_adj_array
-    consolidate_s_array = np.loadtxt(fname=f'{options.output}/consolidate_s.csv.gz', delimiter=',')
-    consolidate_out_adj_array = np.loadtxt(fname=f'{options.output}/consolidate_out_adj.csv.gz', delimiter=',')
+    consolidate_s_array = np.loadtxt(fname=f'{options.NTScore_dir}/consolidate_s.csv.gz', delimiter=',')
+    consolidate_out_adj_array = np.loadtxt(fname=f'{options.NTScore_dir}/consolidate_out_adj.csv.gz', delimiter=',')
 
     # ----- Pseudotime -----
     if consolidate_s_array is not None and consolidate_out_adj_array is not None:

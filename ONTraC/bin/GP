@@ -75,7 +75,7 @@ def main() -> None:
     evaluate(batch_train=batch_train, model_name='GraphPooling')
 
     # ----- predict -----
-    consolidate_s_array, consolidate_out_adj_array = predict(output_dir=options.output,
+    consolidate_s_array, consolidate_out_adj_array = predict(output_dir=options.GNN_dir,
                                                              batch_train=batch_train,
                                                              dataset=dataset,
                                                              model_name='GraphPooling')

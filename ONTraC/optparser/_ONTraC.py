@@ -12,20 +12,15 @@ from ..log import *
 # ------------------------------------
 def create_ds_output_check(optparser, options):
     # check output directory
-    if getattr(options, 'output') is None and getattr(options, 'oc') is None:
+    if getattr(options, 'preprocessing_dir') is None:
         error(f'Output directory is not specified, exit!\n')
         optparser.print_help()
         sys.exit(1)
-    elif getattr(options, 'output') is None and getattr(options, 'oc') is not None:
-        options.output = getattr(options, 'oc')
-        if os.path.isdir(options.output):
-            info(f'Output directory ({options.output}) already exist, overwrite it.')
-        os.makedirs(options.output, exist_ok=True)
-    elif getattr(options, 'output') is not None:
-        if os.path.isdir(options.output):
+    elif getattr(options, 'preprocessing_dir') is not None:
+        if os.path.isdir(options.preprocessing_dir):
             error(f'Output directory ({options.output}) already exist, exit!')
             sys.exit(1)
-        os.makedirs(options.output)
+        os.makedirs(options.preprocessing_dir)
 
 def create_ds_original_data_check(optparser, options):
     # check original data file
@@ -64,21 +59,6 @@ def prepare_ontrac_optparser() -> OptionParser:
 
     # Create Dataset
     group_basic = OptionGroup(optparser, "Basic options for running")
-    group_basic.add_option(
-        '-o',
-        '--output',
-        dest='output',
-        type='string',
-        help=
-        'Directory to output the result. Won\'t be overwritten if target directory exists. If -o is not specified, -oc must be specified.'
-    )
-    group_basic.add_option(
-        '--oc',
-        dest='oc',
-        type='string',
-        help=
-        'Directory to output the result. Will be overwritten if target directory exists. If -o is specified, --oc will be ignored.'
-    )
     group_basic.add_option('-d',
                            '--dataset',
                            dest='dataset',
@@ -137,7 +117,7 @@ def opt_ontrac_validate(optparser) -> Values:
     # print parameters to stdout
     info('--------------------- RUN memo ---------------------')
     info('       -------- create dataset options -------      ')
-    info(f'output:  {options.output}')
+    info(f'output:  {options.preprocessing_dir}')
     info(f'dataset: {options.dataset}')
     info(f'n_cpu:   {options.n_cpu}')
     info(f'n_neighbors: {options.n_neighbors}')

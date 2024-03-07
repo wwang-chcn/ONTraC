@@ -22,21 +22,6 @@ def add_basic_options_group(optparser: OptionParser) -> OptionGroup:
         dest='input',
         type='string',
         help='Directory contains input dataset. This directory should be the output directory of createDataSet.py.')
-    group_basic.add_option(
-        '-o',
-        '--output',
-        dest='output',
-        type='string',
-        help=
-        'Directory to output the result. Won\'t be overwritten if target directory exists. If -o is not specified, -oc must be specified.'
-    )
-    group_basic.add_option(
-        '--oc',
-        dest='oc',
-        type='string',
-        help=
-        'Directory to output the result. Will be overwritten if target directory exists. If -o is specified, --oc will be ignored.'
-    )
     return group_basic
 
 

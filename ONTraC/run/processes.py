@@ -75,9 +75,9 @@ def train(nn_model: Type[torch.nn.Module], options: Values, BatchTrain: Type[Sub
                       max_patience=options.patience,
                       min_delta=options.min_delta,
                       min_epochs=options.min_epochs,
-                      output=options.output,
+                      output=options.GNN_dir,
                       **loss_weight_args)
-    batch_train.save(path=f'{options.output}/model_state_dict.pt')
+    batch_train.save(path=f'{options.GNN_dir}/model_state_dict.pt')
     return batch_train
 
 
@@ -163,6 +163,6 @@ def NTScore(options: Values, rel_params: Dict, dataset: SpatailOmicsDataset, con
                                                rel_params=rel_params,
                                                niche_level_NTScore=niche_level_NTScore)
 
-    np.savetxt(fname=f'{options.output}/niche_cluster_score.csv.gz', X=niche_cluster_score, delimiter=',')
-    np.savetxt(fname=f'{options.output}/niche_NTScore.csv.gz', X=niche_level_NTScore, delimiter=',')
-    np.savetxt(fname=f'{options.output}/cell_NTScore.csv.gz', X=cell_level_NTScore, delimiter=',')
+    np.savetxt(fname=f'{options.NTScore_dir}/niche_cluster_score.csv.gz', X=niche_cluster_score, delimiter=',')
+    np.savetxt(fname=f'{options.NTScore_dir}/niche_NTScore.csv.gz', X=niche_level_NTScore, delimiter=',')
+    np.savetxt(fname=f'{options.NTScore_dir}/cell_NTScore.csv.gz', X=cell_level_NTScore, delimiter=',')
