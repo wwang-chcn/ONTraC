@@ -95,6 +95,7 @@ def prepare_ontrac_optparser() -> OptionParser:
                            dest='NTScore_dir',
                            type='string',
                            help='Directory for the NTScore output')
+    optparser.add_option_group(group_output)
 
     return optparser
 
