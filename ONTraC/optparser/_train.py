@@ -267,7 +267,6 @@ def write_NP_options_memo(options: Values) -> None:
 
 
 __all__ = [
-    'add_basic_options_group',
     'add_train_options_group',
     'add_GNN_options_group',
     'add_GSAE_options_group',
