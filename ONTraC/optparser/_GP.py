@@ -35,11 +35,9 @@ def opt_GP_validate(optparser: OptionParser) -> Values:
     validate_train_options(optparser, options)
 
     # print parameters to stdout
-    info('--------------------- RUN memo ---------------------')
-    write_basic_options_memo(options)
     write_train_options_memo(options)
     write_GNN_options_memo(options)
     write_NP_options_memo(options)
-    info('----------------------------------------------------')
+    info('------------------- RUN memo end -------------------')
 
     return options

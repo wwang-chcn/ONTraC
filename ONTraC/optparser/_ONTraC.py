@@ -112,9 +112,12 @@ def opt_ontrac_validate(optparser) -> Values:
 
     # print parameters to stdout
     info('--------------------- RUN memo ---------------------')
-    info('       -------- create dataset options -------      ')
-    info(f'output:  {options.preprocessing_dir}')
+    info('         -------- IO options -------        ')
+    info(f'preprocessing output directory:  {options.preprocessing_dir}')
+    info(f'GNN output directory:  {options.GNN_dir}')
+    info(f'NTScore output directory:  {options.NTScore_dir}')
     info(f'dataset: {options.dataset}')
+    info('     ------ niche net constr options ------    ')
     info(f'n_cpu:   {options.n_cpu}')
     info(f'n_neighbors: {options.n_neighbors}')
 
