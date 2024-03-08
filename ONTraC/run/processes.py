@@ -21,9 +21,9 @@ def load_parameters(opt_validate_func: Callable, prepare_optparser_func: Callabl
     :return: options, rel_params
     """
     options = opt_validate_func(prepare_optparser_func())
-    params = read_yaml_file(f'{options.input}/samples.yaml')
+    params = read_yaml_file(f'{options.preprocessing_dir}/samples.yaml')
     rel_params = get_rel_params(options, params)
-    os.makedirs(options.output, exist_ok=True)
+    os.makedirs(options.GNN_dir, exist_ok=True)
 
     return options, rel_params
 
