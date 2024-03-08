@@ -86,7 +86,8 @@ def construct_niche_network_sample(options: Values, sample_data_df: pd.DataFrame
     coordinates = sample_data_df[['x', 'y']].values
     kdtree = cKDTree(data=coordinates)
     dis_matrix, indices_matrix = kdtree.query(x=coordinates, k=options.n_neighbors + 1)  # include self
-    np.savetxt(f'{options.output}/{sample_name}_NeighborIndicesMatrix.csv.gz', indices_matrix, delimiter=',')  # save indices matrix
+    np.savetxt(f'{options.output}/{sample_name}_NeighborIndicesMatrix.csv.gz', indices_matrix,
+               delimiter=',')  # save indices matrix
 
     # save edge index file
     # 1) convert edge index to csr_matrix
@@ -94,7 +95,7 @@ def construct_niche_network_sample(options: Values, sample_data_df: pd.DataFrame
     # 3) convert it to edge index back
     # 4) save it
     edge_index = np.argwhere(indices_matrix[:, 1:] > -1)  # remove self
-    adj_matrix = csr_matrix((np.ones(edge_index.shape[0]), (edge_index[:, 0], edge_index[:, 1])), shape=(N, N))
+    adj_matrix = csr_matrix((np.ones(edge_index.shape[0]), (edge_index[:, 0], edge_index[:, 1] + 1)), shape=(N, N))  # remove self
     adj_matrix = adj_matrix + adj_matrix.transpose()
     edge_index = np.argwhere(adj_matrix.todense() > 0)
     edge_index_file = f'{options.output}/{sample_name}_EdgeIndex.csv.gz'
