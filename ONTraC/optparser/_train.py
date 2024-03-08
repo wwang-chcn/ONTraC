@@ -134,34 +134,19 @@ def validate_basic_options(optparser: OptionParser, options: Values, output_dir_
     """
 
     # check input directory
-    if getattr(options, 'input') is None:
+    if getattr(options, 'preprocessing_dir') is None:
         error(f'Input directory is not specified, exit!\n')
         optparser.print_help()
         sys.exit(1)
-    elif not os.path.isdir(options.input):
-        error(f'Input directory not exist, exit: {options.input}')
+    elif not os.path.isdir(options.preprocessing_dir):
+        error(f'Input directory not exist, exit: {options.preprocessing_dir}')
         sys.exit(1)
 
     # check output directory
-    if getattr(options, 'output') is None and getattr(options, 'oc') is None:
-        # neither -o nor --oc is specified
+    if getattr(options, 'GNN_dir') is None:
         error(f'Output directory is not specified, exit!\n')
         optparser.print_help()
         sys.exit(1)
-    elif getattr(options, 'output') is None and getattr(options, 'oc') is not None:
-        # --oc is specified
-        options.output = getattr(options, 'oc')
-        if os.path.isdir(options.output):
-            warning(f'Output directory ({options.output}) already exist, overwrite it.')
-    elif getattr(options, 'output') is not None:
-        # -o is specified
-        if os.path.isdir(options.output):
-            if output_dir_exist_OK is False:
-                error(f'Output directory ({options.output}) already exist, exit!')
-                sys.exit(1)
-            else:
-                info(f'Output directory ({options.output}) already exist.')
-
     return options
 
 
