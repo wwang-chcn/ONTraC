@@ -194,8 +194,8 @@ def write_basic_options_memo(options: Values) -> None:
     """
 
     info('           -------- basic options -------            ')
-    info(f'input:   {options.input}')
-    info(f'output:  {options.output}')
+    info(f'input:   {options.preprocessing_dir}')
+    info(f'output:  {options.GNN_dir}')
 
 
 def write_train_options_memo(options: Values) -> None:
