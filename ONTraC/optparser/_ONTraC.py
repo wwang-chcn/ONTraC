@@ -117,11 +117,5 @@ def opt_ontrac_validate(optparser) -> Values:
     info(f'dataset: {options.dataset}')
     info(f'n_cpu:   {options.n_cpu}')
     info(f'n_neighbors: {options.n_neighbors}')
-    info('             -------- GP options -------            ')
-    write_basic_options_memo(options)
-    write_train_options_memo(options)
-    write_GNN_options_memo(options)
-    write_NP_options_memo(options)
-    info('----------------------------------------------------')
 
     return options
