@@ -18,7 +18,7 @@ def create_ds_output_check(optparser, options):
         sys.exit(1)
     elif getattr(options, 'preprocessing_dir') is not None:
         if os.path.isdir(options.preprocessing_dir):
-            error(f'Output directory ({options.output}) already exist, exit!')
+            error(f'Output directory ({options.preprocessing_dir}) already exist, exit!')
             sys.exit(1)
         os.makedirs(options.preprocessing_dir)
 
