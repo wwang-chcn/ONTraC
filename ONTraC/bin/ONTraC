@@ -57,7 +57,7 @@ def main() -> None:
     #GP
     # ----- prepare -----
     # --- load parameters ---
-    options, rel_params = load_parameters(opt_validate_func=opt_GP_validate, prepare_optparser_func = prepare_ontrac_optparser())
+    options, rel_params = load_parameters(opt_validate_func=opt_GP_validate, prepare_optparser_func = prepare_ontrac_optparser)
     # --- load data ---
     dataset, sample_loader = load_data(options=options, rel_params=rel_params)
     # --- prepare ---
