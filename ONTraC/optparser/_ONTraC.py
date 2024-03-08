@@ -57,45 +57,45 @@ def prepare_ontrac_optparser() -> OptionParser:
     # option processor
     optparser = OptionParser(version=f'{program_name} 0.1', description=description, usage=usage, add_help_option=True)
 
-    # Create Dataset
-    group_basic = OptionGroup(optparser, "Basic options for preprocessing")
-    group_basic.add_option('-d',
+    # IO option group
+    group_io = OptionGroup(optparser, "IO")
+    group_io.add_option('-d',
                            '--dataset',
                            dest='dataset',
                            type='string',
                            help='Original input dataset.')
-    group_basic.add_option('--n-cpu',
+    group_io.add_option('--preprocessing-dir',
+                           dest='preprocessing_dir',
+                           type='string',
+                           help='Directory for preprocessing outputs.')
+    group_io.add_option('--GNN-dir',
+                           dest='GNN_dir',
+                           type='string',
+                           help='Directory for the GNN output.')
+    group_io.add_option('--NTScore-dir',
+                           dest='NTScore_dir',
+                           type='string',
+                           help='Directory for the NTScore output')
+    optparser.add_option_group(group_io)
+
+    # Niche net construction option group
+    group_niche = OptionGroup(optparser, "Niche Network Construction")
+    group_niche.add_option('--n-cpu',
                            dest='n_cpu',
                            type='int',
                            default=4,
                            help='Number of CPUs used for parallel computing. Default is 4.')
-    group_basic.add_option('--n-neighbors',
+    group_niche.add_option('--n-neighbors',
                            dest='n_neighbors',
                            type='int',
                            default=50,
                            help='Number of neighbors used for kNN graph construction. Default is 50.')
-    optparser.add_option_group(group_basic)
+    optparser.add_option_group(group_niche)
 
     # GP
     group_train = add_train_options_group(optparser)
     add_GNN_options_group(group_train)
     add_NP_options_group(group_train)
-
-    # Output
-    group_output = OptionGroup(optparser, "Options for output directories")
-    group_output.add_option('--preprocessing-dir',
-                           dest='preprocessing_dir',
-                           type='string',
-                           help='Directory for preprocessing outputs.')
-    group_output.add_option('--GNN-dir',
-                           dest='GNN_dir',
-                           type='string',
-                           help='Directory for the GNN output.')
-    group_output.add_option('--NTScore-dir',
-                           dest='NTScore_dir',
-                           type='string',
-                           help='Directory for the NTScore output')
-    optparser.add_option_group(group_output)
 
     return optparser
 
