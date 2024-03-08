@@ -5,7 +5,6 @@ from typing import Callable, Dict, List, Optional, Tuple, Type
 import numpy as np
 import torch
 from numpy import ndarray
-from ONTraC.optparser._ONTraC import *
 from ONTraC.data import SpatailOmicsDataset, create_torch_dataset
 from ONTraC.log import debug, info, warning
 from ONTraC.train import SubBatchTrainProtocol
