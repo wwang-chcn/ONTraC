@@ -11,7 +11,7 @@ def prepare_GP_optparser() -> OptionParser:
     Prepare optparser object. New options will be added in thisfunction first.
     """
     program_name = os.path.basename(sys.argv[0])
-    usage = f'''USAGE: {program_name} <-i INPUT> [-o OUTPUT] [--oc OUTPUT]'''
+    usage = f'''USAGE: {program_name} <-i INPUT> [-o OUTPUT] [--oc OUTPUT] GP'''
     description = 'GP (Graph Pooling): GNN & Node Pooling'
 
     # option processor
