@@ -10,8 +10,8 @@ def prepare_GP_optparser() -> OptionParser:
     Prepare optparser object. New options will be added in thisfunction first.
     """
     program_name = os.path.basename(sys.argv[0])
-    usage = f'''USAGE: {program_name} <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> [--device DEVICE] 
-    [--epochs EPOCHS] [--patience PATIENCE] [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] 
+    usage = f'''USAGE: {program_name} <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR> 
+    [--device DEVICE] [--epochs EPOCHS] [--patience PATIENCE] [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] 
     [-s SEED] [--seed SEED] [--lr LR] [--hidden-feats HIDDEN_FEATS] [-k K_CLUSTER] [--k-cluster K_CLUSTER] 
     [--spectral-loss-weight SPECTRAL_LOSS_WEIGHT] [--cluster-loss-weight CLUSTER_LOSS_WEIGHT] 
     [--feat-similarity-loss-weight FEAT_SIMILARITY_LOSS_WEIGHT] [--assign-exponent ASSIGN_EXPONENT]'''
@@ -38,7 +38,7 @@ def opt_GP_validate(optparser: OptionParser) -> Values:
     # check program name
     program_name = os.path.basename(sys.argv[0])
 
-    if program_name == 'createDataSet':
+    if program_name == 'GP':
         info('--------------------- RUN memo ---------------------')
 
     validate_basic_options(optparser, options)
