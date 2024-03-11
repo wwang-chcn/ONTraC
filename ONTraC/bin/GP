@@ -51,7 +51,7 @@ def main() -> None:
     options, rel_params = load_parameters(opt_validate_func=opt_GP_validate,
                                           prepare_optparser_func=prepare_GP_optparser)
     # --- load data ---
-    dataset, sample_loader = load_data(options=options, rel_params=rel_params)
+    dataset, sample_loader = load_data(options=options)
     # --- prepare ---
     device: torch.device = device_validate(device_name=options.device)
     # --- random seed ---

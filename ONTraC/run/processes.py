@@ -28,13 +28,15 @@ def load_parameters(opt_validate_func: Callable, prepare_optparser_func: Callabl
     return options, rel_params
 
 
-def load_data(options: Values, rel_params: Dict) -> Tuple[SpatailOmicsDataset, DenseDataLoader]:
+def load_data(options: Values) -> Tuple[SpatailOmicsDataset, DenseDataLoader]:
     """
     Load data
     :param options: options
     :param rel_params: rel_params
     :return: dataset, sample_loader
     """
+    params = read_yaml_file(f'{options.preprocessing_dir}/samples.yaml')
+    rel_params = get_rel_params(options, params)
     dataset = create_torch_dataset(options, rel_params)
     batch_size = options.batch_size if options.batch_size > 0 else len(dataset)
     sample_loader = DenseDataLoader(dataset, batch_size=batch_size)
