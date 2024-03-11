@@ -5,13 +5,33 @@ from random import randint
 
 from ..log import *
 
+def add_basic_options_group(optparser: OptionParser) -> OptionGroup:
+    """
+    Add basic options group to optparser.
+    :param optparser: OptionParser object.
+    :return: OptionGroup object.
+    """
+
+    # basic options group
+    group_basic = OptionGroup(optparser, "Basic options")
+    optparser.add_option_group(group_basic)
+    group_basic.add_option('--preprocessing-dir',
+                           dest='preprocessing_dir',
+                           type='string',
+                           help='Directory for preprocessing outputs.')
+    group_basic.add_option('--GNN-dir',
+                           dest='GNN_dir',
+                           type='string',
+                           help='Directory for the GNN output.')
+    
+    return group_basic
+
 def add_train_options_group(optparser: OptionParser) -> OptionGroup:
     """
     Add train options group to optparser.
     :param optparser: OptionParser object.
     :return: OptionGroup object.
     """
-
     # overall train options group
     group_train = OptionGroup(optparser, "Options for training")
     optparser.add_option_group(group_train)
@@ -252,6 +272,7 @@ def write_NP_options_memo(options: Values) -> None:
 
 
 __all__ = [
+    'add_basic_options_group',
     'add_train_options_group',
     'add_GNN_options_group',
     'add_GSAE_options_group',
