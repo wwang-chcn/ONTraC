@@ -83,6 +83,6 @@ def niche_to_cell_NTScore(dataset: SpatailOmicsDataset, rel_params: Dict, niche_
         # cell-level NTScore
         niche_level_NTScore_ = niche_level_NTScore[slice_].reshape(-1, 1)
         cell_level_NTScore_ = niche_to_cell_matrix * niche_level_NTScore_
-        cell_level_NTScore[slice_] = cell_level_NTScore_
+        cell_level_NTScore[slice_] = cell_level_NTScore_.reshape(-1)
 
     return cell_level_NTScore
