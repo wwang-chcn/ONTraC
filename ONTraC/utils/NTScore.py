@@ -3,6 +3,7 @@ from typing import Dict, List, Tuple
 
 import numpy as np
 from numpy import ndarray
+from scipy.sparse import load_npz
 
 from ONTraC.data import SpatailOmicsDataset
 
@@ -74,7 +75,7 @@ def niche_to_cell_NTScore(dataset: SpatailOmicsDataset, rel_params: Dict, niche_
         slice_ = slice(i * data.x.shape[0], i * data.x.shape[0] + mask.sum())
 
         # niche to cell matrix
-        niche_weight_matrix = np.load(rel_params['Data'][i]['NicheWeightMatrix'])
+        niche_weight_matrix = load_npz(rel_params['Data'][i]['NicheWeightMatrix'])
         niche_to_cell_matrix = (
             niche_weight_matrix /
             niche_weight_matrix.sum(axis=0)).T  # normalize by the all niches associated with each cell
