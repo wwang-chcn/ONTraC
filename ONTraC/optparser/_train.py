@@ -163,13 +163,25 @@ def validate_basic_options(optparser: OptionParser, options: Values, output_dir_
         optparser.print_help()
         sys.exit(1)
     elif not os.path.isdir(options.preprocessing_dir):
-        error(f'Input directory not exist, exit: {options.preprocessing_dir}')
+        error(f'Input directory does not exist, exit: {options.preprocessing_dir}')
         sys.exit(1)
 
     # check output directory
     if getattr(options, 'GNN_dir') is None:
-        error(f'Output directory is not specified, exit!\n')
+        error(f'GNN directory is not specified, exit!\n')
         optparser.print_help()
+        sys.exit(1)
+    elif not os.path.isdir(options.GNN_dir):
+        error(f'GNN directory does not exist, exit: {options.GNN_dir}')
+        sys.exit(1)
+
+    # check NTScore directory
+    if getattr(options, 'NTScore_dir') is None:
+        error(f'NTScore directory is not specified, exit!\n')
+        optparser.print_help()
+        sys.exit(1)
+    elif not os.path.isdir(options.NTScore_dir):
+        error(f'NTScore directory does not exist, exit: {options.NTScore_dir}')
         sys.exit(1)
     return options
 
