@@ -12,7 +12,7 @@ def prepare_create_ds_optparser() -> OptionParser:
     """
 
     prog_name = os.path.basename(sys.argv[0])
-    usage = f'''USAGE: {prog_name} <-d DATASET> [--preprocessing-dir PREPROCESSING_DIR] [--n-cpu N_CPU] [--n-neighbors N_NEIGHBORS]'''
+    usage = f'''USAGE: {prog_name} <-d DATASET> <--preprocessing-dir PREPROCESSING_DIR> [--n-cpu N_CPU] [--n-neighbors N_NEIGHBORS]'''
     description = 'Create dataset for follwoing analysis.'
 
     # option processor
