@@ -77,7 +77,7 @@ def niche_to_cell_NTScore(dataset: SpatailOmicsDataset, rel_params: Dict, niche_
         niche_weight_matrix = np.load(rel_params['Data'][i]['NicheWeightMatrix'])
         niche_to_cell_matrix = (
             niche_weight_matrix /
-            niche_weight_matrix.sum(axis=0, keepdims=True)).T  # normalize by the all niches associated with each cell
+            niche_weight_matrix.sum(axis=0)).T  # normalize by the all niches associated with each cell
 
         # cell-level NTScore
         niche_level_NTScore_ = niche_level_NTScore[slice_].reshape(-1, 1)

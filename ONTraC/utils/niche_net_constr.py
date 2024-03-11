@@ -113,7 +113,7 @@ def construct_niche_network_sample(options: Values, sample_data_df: pd.DataFrame
                                          shape=(N, N))  # convert to csr_matrix
     save_npz(file=f'{options.output}/{sample_name}_NicheWeightMatrix.npz',
              matrix=niche_weight_matrix_csr)  # save weight matrix
-    cell_to_niche_matrix = niche_weight_matrix_csr / niche_weight_matrix_csr.sum(axis=1, keepdims=True)  # N x N
+    cell_to_niche_matrix = niche_weight_matrix_csr / niche_weight_matrix_csr.sum(axis=1)  # N x N
 
     # calculate cell type composition
     sample_data_df.Cell_Type.cat.codes.values
