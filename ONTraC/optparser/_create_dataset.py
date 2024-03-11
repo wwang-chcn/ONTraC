@@ -20,14 +20,6 @@ def prepare_create_ds_optparser() -> OptionParser:
 
     # basic options group
     group_basic = OptionGroup(optparser, "Basic options for running")
-    group_basic.add_option(
-        '-o',
-        '--output',
-        dest='output',
-        type='string',
-        help=
-        'Directory to output the result. Won\'t be overwritten if target directory exists. If -o is not specified, -oc must be specified.'
-    )
     group_basic.add_option('--preprocessing-dir',
                         dest='preprocessing_dir',
                         type='string',
