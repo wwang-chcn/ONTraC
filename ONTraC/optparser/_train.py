@@ -23,6 +23,10 @@ def add_basic_options_group(optparser: OptionParser) -> OptionGroup:
                            dest='GNN_dir',
                            type='string',
                            help='Directory for the GNN output.')
+    group_basic.add_option('--NTScore-dir',
+                           dest='NTScore_dir',
+                           type='string',
+                           help='Directory for the NTScore output')
     
     return group_basic
 
