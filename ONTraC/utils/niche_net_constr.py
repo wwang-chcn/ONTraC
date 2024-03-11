@@ -4,7 +4,7 @@ from typing import Any, Dict, List
 import numpy as np
 import pandas as pd
 import yaml
-from scipy.sparse import csr_matrix
+from scipy.sparse import csr_matrix, save_npz
 from scipy.spatial import cKDTree
 
 
@@ -111,7 +111,8 @@ def construct_niche_network_sample(options: Values, sample_data_df: pd.DataFrame
     dst_indices = indices_matrix.flatten()  # include self
     niche_weight_matrix_csr = csr_matrix((niche_weight_matrix.flatten(), (src_indices, dst_indices)),
                                          shape=(N, N))  # convert to csr_matrix
-    niche_weight_matrix_csr.save_npz(f'{options.output}/{sample_name}_NicheWeightMatrix.npz')  # save weight matrix
+    save_npz(file=f'{options.output}/{sample_name}_NicheWeightMatrix.npz',
+             matrix=niche_weight_matrix_csr)  # save weight matrix
     cell_to_niche_matrix = niche_weight_matrix_csr / niche_weight_matrix_csr.sum(axis=1, keepdims=True)  # N x N
 
     # calculate cell type composition
