@@ -107,7 +107,9 @@ def construct_niche_network_sample(options: Values, sample_data_df: pd.DataFrame
     # calculate cell_to_niche_matrix
     niche_weight_matrix = np.apply_along_axis(func1d=gauss_dist_1d, axis=1, arr=dis_matrix,
                                               n_local=n_local)  # N x (k + 1)
-    niche_weight_matrix_csr = csr_matrix((niche_weight_matrix.reshape(-1), src_indices, dst_indices),
+    src_indices = np.repeat(np.arange(coordinates.shape[0]), options.n_neighbors + 1)
+    dst_indices = indices_matrix.flatten()  # include self
+    niche_weight_matrix_csr = csr_matrix((niche_weight_matrix.flatten(), (src_indices, dst_indices)),
                                          shape=(N, N))  # convert to csr_matrix
     niche_weight_matrix_csr.save_npz(f'{options.output}/{sample_name}_NicheWeightMatrix.npz')  # save weight matrix
     cell_to_niche_matrix = niche_weight_matrix_csr / niche_weight_matrix_csr.sum(axis=1, keepdims=True)  # N x N
