@@ -4,7 +4,7 @@ import os
 import sys
 from optparse import OptionGroup, OptionParser, Values
 
-from ONTraC.analysis.anndata import (create_adata, load_cell_NTScore,
+from ONTraC.analysis.anndata import (create_adata, load_annotation_data,
                                      load_graph_pooling_results)
 from ONTraC.data import load_dataset
 from ONTraC.log import *
@@ -77,14 +77,7 @@ def load_data(options):
     options.data = rel_params = get_rel_params(options, params)
     dataset, data = load_dataset(options)
 
-    # create AnnData
-    adata_dict, adata_combined = create_adata(options)
-    load_graph_pooling_results(options, data, adata_dict, adata_combined)
-    load_cell_NTScore(options, data, adata_dict, adata_combined)
-
-    adata_combined.obs['x'] = adata_combined.obsm['spatial'][:, 0]
-    adata_combined.obs['y'] = adata_combined.obsm['spatial'][:, 1]
-    return adata_combined
+    return dataset, data
 
 
 # ------------------------------------
@@ -92,7 +85,9 @@ def load_data(options):
 # ------------------------------------
 def main():
     options = get_options()
-    adata_combined = load_data(options)
+    dataset, data = load_data(options)
+    adata_dict, adata_combined = create_adata(options)
+    load_annotation_data(options, data, adata_dict, adata_combined)
     adata_combined.obs.to_csv(f'{options.output}/GNN_output_meta.csv')
 
 
