@@ -3,40 +3,12 @@ import shutil
 import sys
 from optparse import OptionGroup, OptionParser, Values
 
+from ONTraC.optparser._create_dataset import *
 from ONTraC.optparser._GP import *
 from ONTraC.optparser._train import *
 
 from ..log import *
-# ------------------------------------
-# Helper Functions
-# ------------------------------------
-def create_ds_output_check(optparser, options):
-    # check output directory
-    if getattr(options, 'preprocessing_dir') is None:
-        error(f'Output directory is not specified, exit!\n')
-        optparser.print_help()
-        sys.exit(1)
 
-def create_ds_original_data_check(optparser, options):
-    # check original data file
-    example_original_data_file = os.path.join(os.path.dirname(__file__), '../example_files/example_original_data.csv')
-    if getattr(options, 'dataset') is None:
-        error(f'Original dataset is not specified, exit!')
-        error(f'You can find example original data file in {example_original_data_file}')
-        optparser.print_help()
-        sys.exit(1)
-    elif not os.path.isfile(options.dataset):
-        error(f'Original dataset file does not exist, exit: {options.dataset}')
-        error(f'You can find example original data file in {example_original_data_file}')
-        sys.exit(1)
-    elif not options.dataset.endswith('.csv'):
-        error(f'Original data file must ends with .csv, exit: {options.dataset}')
-        error(f'You can find example original data file in {example_original_data_file}')
-        sys.exit(1)
-
-# ------------------------------------
-# ONTraC Functions
-# ------------------------------------
 def prepare_ontrac_optparser() -> OptionParser:
     """
     Prepare optparser object. New options will be added in this function first.
@@ -103,8 +75,7 @@ def opt_ontrac_validate(optparser) -> Values:
     (options, args) = optparser.parse_args()
 
     # Create Dataset
-    create_ds_output_check(optparser, options)
-    create_ds_original_data_check(optparser, options)
+    opt_create_ds_validate(prepare_create_ds_optparser())
 
     # GP
     validate_basic_options(optparser, options)
