@@ -53,7 +53,7 @@ def main() -> None:
     # --- load data ---
     dataset, sample_loader = load_data(options=options, rel_params=rel_params)
     # --- prepare ---
-    device: torch.device = tain_prepare(options=options)
+    device: torch.device = device_validate(device_name=options.device)
     # --- random seed ---
     n_seed = t_seed = r_seed = options.seed
     random.seed(a=r_seed)

@@ -41,14 +41,14 @@ def load_data(options: Values, rel_params: Dict) -> Tuple[SpatailOmicsDataset, D
     return dataset, sample_loader
 
 
-def tain_prepare(options) -> torch.device:
-    if options.device.startswith('cuda') and not torch.cuda.is_available():
+def device_validate(device_name: str) -> torch.device:
+    if device_name.startswith('cuda') and not torch.cuda.is_available():
         warning('CUDA is not available, use CPU instead.')
-        options.device = 'cpu'
-    if options.device.startswith('mps') and not torch.backends.mps.is_available():
+        device_name = 'cpu'
+    if device_name.startswith('mps') and not torch.backends.mps.is_available():
         warning('MPS is not available, use CPU instead.')
-        options.device = 'cpu'
-    device = torch.device(options.device)
+        device_name = 'cpu'
+    device = torch.device(device=device_name)
 
     return device
 
