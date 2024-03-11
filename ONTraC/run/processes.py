@@ -5,12 +5,13 @@ from typing import Callable, Dict, List, Optional, Tuple, Type
 import numpy as np
 import torch
 from numpy import ndarray
+from torch_geometric.loader import DenseDataLoader
+
 from ONTraC.data import SpatailOmicsDataset, create_torch_dataset
 from ONTraC.log import debug, info, warning
 from ONTraC.train import SubBatchTrainProtocol
 from ONTraC.utils import get_rel_params, read_yaml_file
 from ONTraC.utils.NTScore import get_niche_NTScore, niche_to_cell_NTScore
-from torch_geometric.loader import DenseDataLoader
 
 
 def load_parameters(opt_validate_func: Callable, prepare_optparser_func: Callable) -> Tuple[Values, Dict]:
@@ -149,7 +150,7 @@ def predict(output_dir: str, batch_train: SubBatchTrainProtocol, dataset: Spatai
         return None, None
 
 
-def NTScore(options: Values, rel_params: Dict, dataset: SpatailOmicsDataset, consolidate_s_array: ndarray,
+def NTScore(options: Values, dataset: SpatailOmicsDataset, consolidate_s_array: ndarray,
             consolidate_out_adj_array: ndarray) -> None:
     """
     Pseudotime calculateion process
@@ -158,6 +159,9 @@ def NTScore(options: Values, rel_params: Dict, dataset: SpatailOmicsDataset, con
     :param consolidate_out_adj_array: consolidate out adj array
     :return: None
     """
+
+    params = read_yaml_file(f'{options.preprocessing_dir}/samples.yaml')
+    rel_params = get_rel_params(options, params)
 
     niche_cluster_score, niche_level_NTScore = get_niche_NTScore(niche_cluster_loading=consolidate_s_array,
                                                                  niche_adj_matrix=consolidate_out_adj_array)

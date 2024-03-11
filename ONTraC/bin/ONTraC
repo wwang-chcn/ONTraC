@@ -84,7 +84,6 @@ def main() -> None:
     # ----- NT score -----
     if consolidate_s_array is not None and consolidate_out_adj_array is not None:
         NTScore(options=options,
-                rel_params=rel_params,
                 dataset=dataset,
                 consolidate_s_array=consolidate_s_array,
                 consolidate_out_adj_array=consolidate_out_adj_array)
