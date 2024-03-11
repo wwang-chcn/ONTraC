@@ -94,31 +94,29 @@ def construct_niche_network_sample(options: Values, sample_data_df: pd.DataFrame
     # 2) make it bidirectional
     # 3) convert it to edge index back
     # 4) save it
+    src_indices = np.repeat(np.arange(coordinates.shape[0]), options.n_neighbors)
     dst_indices = indices_matrix[:, 1:].flatten()  # remove self
-    adj_matrix = csr_matrix(
-        (np.ones(dst_indices.shape[0]), (np.repeat(np.arange(coordinates.shape[0]), options.n_neighbors), dst_indices)),
-        shape=(N, N))  # convert to csr_matrix
+    adj_matrix = csr_matrix((np.ones(dst_indices.shape[0]), (src_indices, dst_indices)),
+                            shape=(N, N))  # convert to csr_matrix
     adj_matrix = adj_matrix + adj_matrix.transpose()  # make it bidirectional
     edge_index = np.argwhere(adj_matrix.todense() > 0)  # convert it to edge index back
     edge_index_file = f'{options.output}/{sample_name}_EdgeIndex.csv.gz'
     np.savetxt(edge_index_file, edge_index, delimiter=',', fmt='%d')
 
-    # calculate weight matrix
-    # normalize the distance matrix using self node and 20-th neighbor using a gaussian kernel
-    norm_dis_matrix = np.apply_along_axis(func1d=gauss_dist_1d, axis=1, arr=dis_matrix, n_local=n_local)  # N x (k + 1)
-    norm_dis_matrix = norm_dis_matrix / norm_dis_matrix.sum(axis=1, keepdims=True)  # normalize
-    np.savetxt(f'{options.output}/{sample_name}_NicheWeightMatrix.csv.gz', norm_dis_matrix,
-               delimiter=',')  # save weight matrix
+    # calculate niche_weight_matrix and normalize it using self node and 20-th neighbor using a gaussian kernel
+    # calculate cell_to_niche_matrix
+    niche_weight_matrix = np.apply_along_axis(func1d=gauss_dist_1d, axis=1, arr=dis_matrix,
+                                              n_local=n_local)  # N x (k + 1)
+    niche_weight_matrix_csr = csr_matrix((niche_weight_matrix.reshape(-1), src_indices, dst_indices),
+                                         shape=(N, N))  # convert to csr_matrix
+    niche_weight_matrix_csr.save_npz(f'{options.output}/{sample_name}_NicheWeightMatrix.npz')  # save weight matrix
+    cell_to_niche_matrix = niche_weight_matrix_csr / niche_weight_matrix_csr.sum(axis=1, keepdims=True)  # N x N
 
     # calculate cell type composition
     sample_data_df.Cell_Type.cat.codes.values
     one_hot_matrix = np.zeros(shape=(N, sample_data_df['Cell_Type'].cat.categories.shape[0]))  # N x n_cell_type
     one_hot_matrix[np.arange(N), sample_data_df.Cell_Type.cat.codes.values] = 1
-
-    # extract non-weighted cell type composition
-    raw_cell_type_composition = one_hot_matrix[indices_matrix]  # N x (k + 1) x n_cell_type
-    cell_type_composition = (raw_cell_type_composition * norm_dis_matrix[..., np.newaxis]).sum(
-        axis=1)  # N x n_cell_type
+    cell_type_composition = cell_to_niche_matrix @ one_hot_matrix  # N x n_cell_type
 
     # save cell type composition
     np.savetxt(f'{options.output}/{sample_name}_CellTypeComposition.csv.gz', cell_type_composition, delimiter=',')
