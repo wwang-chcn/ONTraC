@@ -27,6 +27,7 @@ def prepare_optparser() -> OptionParser:
     optparser = OptionParser(version=f'{prog_name} 0.1', description=description, usage=usage, add_help_option=True)
 
     group_basic = OptionGroup(optparser, "Basci options for running")
+    optparser.add_option('-r', '--raw', dest='raw', type='string', help='Required. Raw input file.')
     group_basic.add_option(
         '-i',
         '--input',
