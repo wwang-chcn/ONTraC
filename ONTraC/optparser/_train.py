@@ -230,8 +230,9 @@ def write_basic_options_memo(options: Values) -> None:
     """
 
     info('           -------- basic options -------            ')
-    info(f'input:   {options.preprocessing_dir}')
-    info(f'output:  {options.GNN_dir}')
+    info(f'preprocessing directory:   {options.preprocessing_dir}')
+    info(f'GNN directory:  {options.GNN_dir}')
+    info(f'NTScore directory: {options.NTScore_dir}')
 
 
 def write_train_options_memo(options: Values) -> None:
