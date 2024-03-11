@@ -48,8 +48,8 @@ def create_adata(options: Values) -> Tuple[Dict[str, AnnData], AnnData]:
         adata_dict[name] = AnnData(X=csr_matrix(np.random.poisson(1, (coordinate_arr.shape[0], 100)), dtype=np.float32))
         # load meta data
         adata_dict[name].obs = meta_df.loc[meta_df['Sample'] == name]
-        adata_dict[name].obs.index = [f'{name}_{i+1:05d}' for i in range(adata_dict[name].obs.shape[0])
-                                      ]  # temp solution for duplicate cell names
+        # adata_dict[name].obs.index = [f'{name}_{i+1:05d}' for i in range(adata_dict[name].obs.shape[0])
+        #                               ]  # temp solution for duplicate cell names
         # load spatial data
         adata_dict[name].obsm['spatial'] = coordinate_arr
 
