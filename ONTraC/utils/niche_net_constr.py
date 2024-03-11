@@ -155,7 +155,7 @@ def gen_samples_yaml(options: Values, ori_data_df: pd.DataFrame) -> None:
             'Coordinates': f'{sample}_Coordinates.csv',
             'EdgeIndex': f'{sample}_EdgeIndex.csv.gz',
             'Features': f'{sample}_CellTypeComposition.csv.gz',
-            'NicheWeightMatrix': f'{sample}_NicheWeightMatrix.csv.gz',
+            'NicheWeightMatrix': f'{sample}_NicheWeightMatrix.npz',
             'NeighborIndicesMatrix': f'{sample}_NeighborIndicesMatrix.csv.gz'
         })
 
