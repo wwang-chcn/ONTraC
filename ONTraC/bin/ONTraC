@@ -1,24 +1,22 @@
 #!/usr/bin/env python
 
-import sys
-
-import gzip
-import os
 import random
-from collections import defaultdict
-from functools import partial
-from typing import Optional, Tuple, Type
+import sys
+from typing import Optional
+
 import numpy as np
 import torch
-from torch_geometric.loader import DenseDataLoader
 
 from ONTraC.log import *
-from ONTraC.optparser._ONTraC import *
-from ONTraC.utils.niche_net_constr import load_original_data, construct_niche_network, gen_samples_yaml
 from ONTraC.model import GraphPooling
+from ONTraC.optparser import opt_ontrac_validate, prepare_ontrac_optparser
 from ONTraC.run.processes import *
 from ONTraC.train import GPBatchTrain, SubBatchTrainProtocol
 from ONTraC.train.inspect_funcs import loss_record
+from ONTraC.utils.niche_net_constr import (construct_niche_network,
+                                           gen_samples_yaml,
+                                           load_original_data)
+
 
 # ------------------------------------
 # Functions
@@ -32,6 +30,7 @@ def get_inspect_funcs() -> Optional[list[Callable]]:
     """
     return [loss_record]
 
+
 # ------------------------------------
 # Main Function
 # ------------------------------------
@@ -41,10 +40,10 @@ def main() -> None:
     Input data files information should be stored in a YAML file.
     """
 
-    #Create Dataset
     # prepare options
     options = opt_ontrac_validate(prepare_ontrac_optparser())
 
+    # ----- Create Dataset -----
     # load original data
     ori_data_df = load_original_data(options=options, data_file=options.dataset)
 
@@ -54,21 +53,17 @@ def main() -> None:
     # save samples.yaml
     gen_samples_yaml(options=options, ori_data_df=ori_data_df)
 
-    #GP
-    # ----- prepare -----
-    # --- load parameters ---
-    options, rel_params = load_parameters(opt_validate_func=opt_GP_validate, prepare_optparser_func = prepare_ontrac_optparser)
-    # --- load data ---
+    # ----- Graph Pooling -----
+    # device
     device: torch.device = device_validate(device_name=options.device)
+    # load data
     dataset, sample_loader = load_data(options=options)
-    # --- prepare ---
-    # --- random seed ---
+    # random seed
     n_seed = t_seed = r_seed = options.seed
     random.seed(a=r_seed)
     torch.manual_seed(seed=t_seed)
     np.random.seed(seed=n_seed)
-
-    # ----- train -----
+    # train
     inspect_funcs_list = get_inspect_funcs()
     batch_train: SubBatchTrainProtocol = train(nn_model=GraphPooling,
                                                options=options,
@@ -78,23 +73,22 @@ def main() -> None:
                                                sample_loader=sample_loader,
                                                inspect_funcs=inspect_funcs_list,
                                                model_name='GraphPooling')
-
-    # --- evaluate ---
+    # evaluate
     evaluate(batch_train=batch_train, model_name='GraphPooling')
-
-    # ----- predict -----
+    # predict
     consolidate_s_array, consolidate_out_adj_array = predict(output_dir=options.GNN_dir,
                                                              batch_train=batch_train,
                                                              dataset=dataset,
                                                              model_name='GraphPooling')
 
-    # ----- Pseudotime -----
+    # ----- NT score -----
     if consolidate_s_array is not None and consolidate_out_adj_array is not None:
         NTScore(options=options,
                 rel_params=rel_params,
                 dataset=dataset,
                 consolidate_s_array=consolidate_s_array,
                 consolidate_out_adj_array=consolidate_out_adj_array)
+
 
 # ------------------------------------
 # Program running
