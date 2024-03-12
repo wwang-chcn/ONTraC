@@ -39,13 +39,11 @@ def opt_NT_validate(optparser: OptionParser) -> Values:
 
     (options, args) = optparser.parse_args()
 
-    validate_basic_options(optparser, options, output_dir_exist_OK=True)
-    validate_pseudotime_options(optparser, options)
+    validate_io_options(optparser, options, IO_OPTIONS)
 
     # print parameters to stdout
-    info('--------------------- RUN memo ---------------------')
-    write_basic_options_memo(options)
-    write_pseudotime_options_memo(options)
-    info('----------------------------------------------------')
+    info('------------------ RUN params memo ------------------ ')
+    write_io_options_memo(options, IO_OPTIONS)
+    info('--------------- RUN params memo end ----------------- ')
 
     return options
