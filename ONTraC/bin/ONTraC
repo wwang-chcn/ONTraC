@@ -14,8 +14,9 @@ from ONTraC.run.processes import *
 from ONTraC.train import GPBatchTrain, SubBatchTrainProtocol
 from ONTraC.train.inspect_funcs import loss_record
 from ONTraC.utils.niche_net_constr import (construct_niche_network,
-                                           device_validate, gen_samples_yaml,
+                                           gen_samples_yaml,
                                            load_original_data)
+from ONTraC.utils import device_validate
 
 
 # ------------------------------------
