@@ -34,7 +34,7 @@ def create_adata(options: Values) -> Tuple[Dict[str, AnnData], AnnData]:
     """
 
     # load meta data
-    meta_df = pd.read_csv(f'{options.raw}', index_col=0)
+    meta_df = pd.read_csv(f'{options.dataset}', index_col=0)
     meta_df.index = meta_df.index.astype(str)
 
     # create AnnData with fake expression data
