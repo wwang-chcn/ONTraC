@@ -41,7 +41,7 @@ def get_rel_params(options: Values, params: Dict) -> Dict:
         for k, v in data.items():
             if k == 'Name':
                 continue
-            data[k] = f'{options.input}/{v}'
+            data[k] = f'{options.preprocessing_dir}/{v}'
     return rel_params
 
 

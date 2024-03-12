@@ -17,7 +17,7 @@ setup(
         'ONTraC', 'ONTraC.analysis', 'ONTraC.model', 'ONTraC.run', 'ONTraC.train', 'ONTraC.utils', 'ONTraC.optparser'
     ],  # Specify the root directory for finding packages
     scripts=[
-        'ONTraC/bin/createDataSet', 'ONTraC/bin/GP', 'ONTraC/bin/NTScore', 'ONTraC/bin/genGnnMeta',
+        'ONTraC/bin/createDataSet', 'ONTraC/bin/GP', 'ONTraC/bin/NTScore', 'ONTraC/bin/ONTraC', 'ONTraC/bin/genGnnMeta',
         'ONTraC/bin/ONTraC_analysis'
     ],
 )
