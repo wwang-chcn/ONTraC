@@ -58,9 +58,7 @@ def validate_io_options(optparser: OptionParser, options: Values, io_options: Op
             optparser.print_help()
             sys.exit(1)
         if os.path.isdir(options.preprocessing_dir):
-            warning(f'The directory ({options.preprocessing_dir}) you given already exists.')
-            optparser.print_help()
-            sys.exit(1)
+            warning(f'The directory ({options.preprocessing_dir}) you given already exists. It will be overwritten.')
         else:
             info(f'Creating directory: {options.preprocessing_dir}')
             os.makedirs(options.preprocessing_dir)
@@ -71,9 +69,7 @@ def validate_io_options(optparser: OptionParser, options: Values, io_options: Op
             optparser.print_help()
             sys.exit(1)
         if os.path.isdir(options.GNN_dir):
-            warning(f'The directory ({options.GNN_dir}) you given already exists.')
-            optparser.print_help()
-            sys.exit(1)
+            warning(f'The directory ({options.GNN_dir}) you given already exists. It will be overwritten.')
         else:
             info(f'Creating directory: {options.GNN_dir}')
             os.makedirs(options.GNN_dir)
@@ -84,9 +80,7 @@ def validate_io_options(optparser: OptionParser, options: Values, io_options: Op
             optparser.print_help()
             sys.exit(1)
         if os.path.isdir(options.NTScore_dir):
-            warning(f'The directory ({options.NTScore_dir}) you given already exists.')
-            optparser.print_help()
-            sys.exit(1)
+            warning(f'The directory ({options.NTScore_dir}) you given already exists. It will be overwritten.')
         else:
             info(f'Creating directory: {options.NTScore_dir}')
             os.makedirs(options.NTScore_dir)
