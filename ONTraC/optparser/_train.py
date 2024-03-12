@@ -2,6 +2,8 @@ import sys
 from optparse import OptionGroup, OptionParser, Values
 from random import randint
 
+import torch
+
 from ..log import *
 
 
@@ -17,8 +19,7 @@ def add_train_options_group(optparser: OptionParser) -> OptionGroup:
     group_train.add_option('--device',
                            dest='device',
                            type='string',
-                           default='cuda',
-                           help='Device for training. Default is cuda.')
+                           help='Device for training. Auto select if not specified.')
     group_train.add_option('--epochs',
                            dest='epochs',
                            type='int',
@@ -131,6 +132,18 @@ def validate_train_options(optparser: OptionParser, options: Values) -> Values:
     :param options: Options object.
     :return: Validated options object.
     """
+
+    # device
+    if not options.device:
+        if torch.cuda.is_available():
+            options.device = 'cuda'
+        elif torch.backends.mps.is_available():
+            options.device = 'mps'
+        else:
+            options.device = 'cpu'
+    if not options.device.startswith(('cuda', 'mps', 'cpu')):
+        error(f'Invalid device {options.device}, exit!')
+        sys.exit(1)
 
     # determin random seed
     if getattr(options, 'seed') is None:
