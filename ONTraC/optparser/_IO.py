@@ -86,17 +86,19 @@ def validate_io_options(optparser: OptionParser, options: Values, io_options: Op
             os.makedirs(options.NTScore_dir)
 
 
-def write_io_options_memo(options: Values) -> None:
+def write_io_options_memo(options: Values, io_options: Optional[List[str]]) -> None:
     """Write IO options to stdout.
 
     Ret: None
     """
+    if io_options is None:
+        return
     info('            -------- I/O options -------             ')
-    if options.preprocessing_dir:
+    if 'preprocessing_dir' in io_options:
         info(f'preprocessing output directory:  {options.preprocessing_dir}')
-    if options.GNN_dir:
+    if 'GNN_dir' in io_options:
         info(f'GNN output directory:  {options.GNN_dir}')
-    if options.NTScore_dir:
+    if 'NTScore_dir' in io_options:
         info(f'NTScore output directory:  {options.NTScore_dir}')
-    if options.dataset:
+    if 'dataset' in io_options:
         info(f'dataset: {options.dataset}')
