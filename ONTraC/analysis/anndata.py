@@ -98,9 +98,9 @@ def load_NTScore(options: Values, data: Data, adata_dict: Dict[str, AnnData], ad
     loading NTScore
     """
     for NTScore, NTScore_file_ in zip(NT_SCORE_FEATS, NT_SCORE_FEAT_FILES):
-        NTScore_file = f'{options.GNN_dir}/{NTScore_file_}'
+        NTScore_file = f'{options.NTScore_dir}/{NTScore_file_}'
         if not os.path.exists(NTScore_file):
-            NTScore_file = f'{options.GNN_dir}/{NTScore_file_}.gz'
+            NTScore_file = f'{options.NTScore_dir}/{NTScore_file_}.gz'
             if not os.path.exists(NTScore_file):
                 raise FileNotFoundError(f"Cannot find NTScore file: {NTScore_file}.")
         NTScore_file_arr = np.loadtxt(NTScore_file, delimiter=',')[data.mask.flatten().detach().cpu().numpy()]

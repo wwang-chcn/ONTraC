@@ -27,8 +27,8 @@ from ONTraC.utils import get_rel_params, read_yaml_file
 
 
 def plot_max_pro_cluster(options: Values, data: Data) -> None:
-    if not os.path.exists(f'{options.output}/consolidate_s.csv.gz'):
-        warning(f'File not found: {options.output}/consolidate_s.csv.gz')
+    if not os.path.exists(f'{options.GNN_dir}/consolidate_s.csv.gz'):
+        warning(f'File not found: {options.GNN_dir}/consolidate_s.csv.gz')
         return None
 
     soft_assign_df = {}
