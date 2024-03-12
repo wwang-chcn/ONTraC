@@ -1,43 +1,8 @@
-import os
 import sys
 from optparse import OptionGroup, OptionParser, Values
 from random import randint
 
 from ..log import *
-
-
-def add_basic_options_group(optparser: OptionParser) -> OptionGroup:
-    """
-    Add basic options group to optparser.
-    :param optparser: OptionParser object.
-    :return: OptionGroup object.
-    """
-
-    # basic options group
-    group_basic = OptionGroup(optparser, "Basic options")
-    optparser.add_option_group(group_basic)
-    group_basic.add_option(
-        '-i',
-        '--input',
-        dest='input',
-        type='string',
-        help='Directory contains input dataset. This directory should be the output directory of createDataSet.py.')
-    group_basic.add_option(
-        '-o',
-        '--output',
-        dest='output',
-        type='string',
-        help=
-        'Directory to output the result. Won\'t be overwritten if target directory exists. If -o is not specified, -oc must be specified.'
-    )
-    group_basic.add_option(
-        '--oc',
-        dest='oc',
-        type='string',
-        help=
-        'Directory to output the result. Will be overwritten if target directory exists. If -o is specified, --oc will be ignored.'
-    )
-    return group_basic
 
 
 def add_train_options_group(optparser: OptionParser) -> OptionGroup:
@@ -46,7 +11,6 @@ def add_train_options_group(optparser: OptionParser) -> OptionGroup:
     :param optparser: OptionParser object.
     :return: OptionGroup object.
     """
-
     # overall train options group
     group_train = OptionGroup(optparser, "Options for training")
     optparser.add_option_group(group_train)
@@ -160,46 +124,6 @@ def add_NP_options_group(group_train: OptionGroup) -> None:
                            help='Exponent for assignment. Default is 1.')
 
 
-def validate_basic_options(optparser: OptionParser, options: Values, output_dir_exist_OK: bool = False) -> Values:
-    """
-    Validate input and output options.
-    :param optparser: OptionParser object.
-    :param options: Options object.
-    :return: Validated options object.
-    """
-
-    # check input directory
-    if getattr(options, 'input') is None:
-        error(f'Input directory is not specified, exit!\n')
-        optparser.print_help()
-        sys.exit(1)
-    elif not os.path.isdir(options.input):
-        error(f'Input directory not exist, exit: {options.input}')
-        sys.exit(1)
-
-    # check output directory
-    if getattr(options, 'output') is None and getattr(options, 'oc') is None:
-        # neither -o nor --oc is specified
-        error(f'Output directory is not specified, exit!\n')
-        optparser.print_help()
-        sys.exit(1)
-    elif getattr(options, 'output') is None and getattr(options, 'oc') is not None:
-        # --oc is specified
-        options.output = getattr(options, 'oc')
-        if os.path.isdir(options.output):
-            warning(f'Output directory ({options.output}) already exist, overwrite it.')
-    elif getattr(options, 'output') is not None:
-        # -o is specified
-        if os.path.isdir(options.output):
-            if output_dir_exist_OK is False:
-                error(f'Output directory ({options.output}) already exist, exit!')
-                sys.exit(1)
-            else:
-                info(f'Output directory ({options.output}) already exist.')
-
-    return options
-
-
 def validate_train_options(optparser: OptionParser, options: Values) -> Values:
     """
     Validate train options.
@@ -228,24 +152,7 @@ def validate_NP_options(optparser: OptionParser, options: Values) -> Values:
         error(f'k must be greater than 1, exit!')
         sys.exit(1)
 
-    # check assign_exponent
-    if getattr(options, 'assign_exponent') < 1:
-        warning(f'assign_exponent must be greater than 1, using default value!')
-        options.assign_exponent = 1
-
     return options
-
-
-def write_basic_options_memo(options: Values) -> None:
-    """
-    Write basic options memo to stdout.
-    :param options: Options object.
-    :return: None.
-    """
-
-    info('           -------- basic options -------            ')
-    info(f'input:   {options.input}')
-    info(f'output:  {options.output}')
 
 
 def write_train_options_memo(options: Values) -> None:
@@ -302,15 +209,12 @@ def write_NP_options_memo(options: Values) -> None:
 
 
 __all__ = [
-    'add_basic_options_group',
     'add_train_options_group',
     'add_GNN_options_group',
     'add_GSAE_options_group',
     'add_NP_options_group',
-    'validate_basic_options',
     'validate_train_options',
     'validate_NP_options',
-    'write_basic_options_memo',
     'write_train_options_memo',
     'write_GNN_options_memo',
     'write_GSAE_options_memo',

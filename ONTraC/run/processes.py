@@ -22,34 +22,36 @@ def load_parameters(opt_validate_func: Callable, prepare_optparser_func: Callabl
     :return: options, rel_params
     """
     options = opt_validate_func(prepare_optparser_func())
-    params = read_yaml_file(f'{options.input}/samples.yaml')
+    params = read_yaml_file(f'{options.preprocessing_dir}/samples.yaml')
     rel_params = get_rel_params(options, params)
-    os.makedirs(options.output, exist_ok=True)
+    os.makedirs(options.GNN_dir, exist_ok=True)
 
     return options, rel_params
 
 
-def load_data(options: Values, rel_params: Dict) -> Tuple[SpatailOmicsDataset, DenseDataLoader]:
+def load_data(options: Values) -> Tuple[SpatailOmicsDataset, DenseDataLoader]:
     """
     Load data
     :param options: options
     :param rel_params: rel_params
     :return: dataset, sample_loader
     """
+    params = read_yaml_file(f'{options.preprocessing_dir}/samples.yaml')
+    rel_params = get_rel_params(options, params)
     dataset = create_torch_dataset(options, rel_params)
     batch_size = options.batch_size if options.batch_size > 0 else len(dataset)
     sample_loader = DenseDataLoader(dataset, batch_size=batch_size)
     return dataset, sample_loader
 
 
-def tain_prepare(options) -> torch.device:
-    if options.device.startswith('cuda') and not torch.cuda.is_available():
+def device_validate(device_name: str) -> torch.device:
+    if device_name.startswith('cuda') and not torch.cuda.is_available():
         warning('CUDA is not available, use CPU instead.')
-        options.device = 'cpu'
-    if options.device.startswith('mps') and not torch.backends.mps.is_available():
+        device_name = 'cpu'
+    if device_name.startswith('mps') and not torch.backends.mps.is_available():
         warning('MPS is not available, use CPU instead.')
-        options.device = 'cpu'
-    device = torch.device(options.device)
+        device_name = 'cpu'
+    device = torch.device(device=device_name)
 
     return device
 
@@ -76,9 +78,9 @@ def train(nn_model: Type[torch.nn.Module], options: Values, BatchTrain: Type[Sub
                       max_patience=options.patience,
                       min_delta=options.min_delta,
                       min_epochs=options.min_epochs,
-                      output=options.output,
+                      output=options.GNN_dir,
                       **loss_weight_args)
-    batch_train.save(path=f'{options.output}/model_state_dict.pt')
+    batch_train.save(path=f'{options.GNN_dir}/model_state_dict.pt')
     return batch_train
 
 
@@ -147,7 +149,7 @@ def predict(output_dir: str, batch_train: SubBatchTrainProtocol, dataset: Spatai
         return None, None
 
 
-def NTScore(options: Values, rel_params: Dict, dataset: SpatailOmicsDataset, consolidate_s_array: ndarray,
+def NTScore(options: Values, dataset: SpatailOmicsDataset, consolidate_s_array: ndarray,
             consolidate_out_adj_array: ndarray) -> None:
     """
     Pseudotime calculateion process
@@ -157,12 +159,15 @@ def NTScore(options: Values, rel_params: Dict, dataset: SpatailOmicsDataset, con
     :return: None
     """
 
+    params = read_yaml_file(f'{options.preprocessing_dir}/samples.yaml')
+    rel_params = get_rel_params(options, params)
+
     niche_cluster_score, niche_level_NTScore = get_niche_NTScore(niche_cluster_loading=consolidate_s_array,
                                                                  niche_adj_matrix=consolidate_out_adj_array)
     cell_level_NTScore = niche_to_cell_NTScore(dataset=dataset,
                                                rel_params=rel_params,
                                                niche_level_NTScore=niche_level_NTScore)
 
-    np.savetxt(fname=f'{options.output}/niche_cluster_score.csv.gz', X=niche_cluster_score, delimiter=',')
-    np.savetxt(fname=f'{options.output}/niche_NTScore.csv.gz', X=niche_level_NTScore, delimiter=',')
-    np.savetxt(fname=f'{options.output}/cell_NTScore.csv.gz', X=cell_level_NTScore, delimiter=',')
+    np.savetxt(fname=f'{options.NTScore_dir}/niche_cluster_score.csv.gz', X=niche_cluster_score, delimiter=',')
+    np.savetxt(fname=f'{options.NTScore_dir}/niche_NTScore.csv.gz', X=niche_level_NTScore, delimiter=',')
+    np.savetxt(fname=f'{options.NTScore_dir}/cell_NTScore.csv.gz', X=cell_level_NTScore, delimiter=',')

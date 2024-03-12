@@ -1,23 +1,32 @@
 import os
 import sys
-from optparse import OptionGroup, OptionParser, Values
+from optparse import OptionParser, Values
 
 from ..log import *
+from ._IO import *
 from ._train import *
 
+# ------------------------------------
+# Constants
+# ------------------------------------
+IO_OPTIONS = ['preprocessing_dir', 'GNN_dir', 'NTScore_dir']
 
+
+# ------------------------------------
+# Functions
+# ------------------------------------
 def prepare_NT_optparser() -> OptionParser:
     """
     Prepare optparser object. New options will be added in thisfunction first.
     """
     program_name = os.path.basename(sys.argv[0])
-    usage = f'''USAGE: {program_name} <-i INPUT> [-o OUTPUT] [--oc OUTPUT]'''
+    usage = f'''USAGE: {program_name} <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR>'''
     description = 'PseudoTime: Calculate PseudoTime for each node in a graph'
 
     # option processor
     optparser = OptionParser(version=f'{program_name} 0.1', description=description, usage=usage, add_help_option=True)
 
-    group_basic = add_basic_options_group(optparser)
+    add_IO_options_group(optparser=optparser, io_options=IO_OPTIONS)
 
     return optparser
 
@@ -31,10 +40,12 @@ def opt_NT_validate(optparser: OptionParser) -> Values:
     (options, args) = optparser.parse_args()
 
     validate_basic_options(optparser, options, output_dir_exist_OK=True)
+    validate_pseudotime_options(optparser, options)
 
     # print parameters to stdout
     info('--------------------- RUN memo ---------------------')
     write_basic_options_memo(options)
+    write_pseudotime_options_memo(options)
     info('----------------------------------------------------')
 
     return options

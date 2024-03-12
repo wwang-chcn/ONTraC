@@ -7,7 +7,6 @@ import yaml
 from scipy.sparse import csr_matrix, save_npz
 from scipy.spatial import cKDTree
 
-
 def load_original_data(options: Values, data_file: str) -> pd.DataFrame:
     """
     Load original data
@@ -21,7 +20,7 @@ def load_original_data(options: Values, data_file: str) -> pd.DataFrame:
         1. original data with Cell_ID, Sample, Cell_Type, x, and y columns
         2. samples
     """
-
+    
     # read original data file
     ori_data_df = pd.read_csv(data_file)
 
@@ -43,7 +42,7 @@ def load_original_data(options: Values, data_file: str) -> pd.DataFrame:
     ori_data_df['Cell_Type'] = ori_data_df['Cell_Type'].astype('category')
     # save mappings of the categorical data
     cell_type_code = pd.DataFrame(enumerate(ori_data_df['Cell_Type'].cat.categories), columns=['Code', 'Cell_Type'])
-    cell_type_code.to_csv(f'{options.output}/cell_type_code.csv', index=False)
+    cell_type_code.to_csv(f'{options.preprocessing_dir}/cell_type_code.csv', index=False)
 
     return ori_data_df
 
@@ -80,14 +79,13 @@ def construct_niche_network_sample(options: Values, sample_data_df: pd.DataFrame
     # get coordinates
     # TODO: support 3D coordinates
     coord_df = sample_data_df[['Cell_ID', 'x', 'y']]
-    coord_df.to_csv(f'{options.output}/{sample_name}_Coordinates.csv', index=False)
+    coord_df.to_csv(f'{options.preprocessing_dir}/{sample_name}_Coordinates.csv', index=False)
 
     # build KDTree
     coordinates = sample_data_df[['x', 'y']].values
     kdtree = cKDTree(data=coordinates)
     dis_matrix, indices_matrix = kdtree.query(x=coordinates, k=options.n_neighbors + 1)  # include self
-    np.savetxt(f'{options.output}/{sample_name}_NeighborIndicesMatrix.csv.gz', indices_matrix,
-               delimiter=',')  # save indices matrix
+    np.savetxt(f'{options.preprocessing_dir}/{sample_name}_NeighborIndicesMatrix.csv.gz', indices_matrix, delimiter=',')  # save indices matrix
 
     # save edge index file
     # 1) convert edge index to csr_matrix
@@ -100,7 +98,7 @@ def construct_niche_network_sample(options: Values, sample_data_df: pd.DataFrame
                             shape=(N, N))  # convert to csr_matrix
     adj_matrix = adj_matrix + adj_matrix.transpose()  # make it bidirectional
     edge_index = np.argwhere(adj_matrix.todense() > 0)  # convert it to edge index back
-    edge_index_file = f'{options.output}/{sample_name}_EdgeIndex.csv.gz'
+    edge_index_file = f'{options.preprocessing_dir}/{sample_name}_EdgeIndex.csv.gz'
     np.savetxt(edge_index_file, edge_index, delimiter=',', fmt='%d')
 
     # calculate niche_weight_matrix and normalize it using self node and 20-th neighbor using a gaussian kernel
@@ -111,7 +109,7 @@ def construct_niche_network_sample(options: Values, sample_data_df: pd.DataFrame
     dst_indices = indices_matrix.flatten()  # include self
     niche_weight_matrix_csr = csr_matrix((niche_weight_matrix.flatten(), (src_indices, dst_indices)),
                                          shape=(N, N))  # convert to csr_matrix
-    save_npz(file=f'{options.output}/{sample_name}_NicheWeightMatrix.npz',
+    save_npz(file=f'{options.preprocessing_dir}/{sample_name}_NicheWeightMatrix.npz',
              matrix=niche_weight_matrix_csr)  # save weight matrix
     cell_to_niche_matrix = niche_weight_matrix_csr / niche_weight_matrix_csr.sum(axis=1)  # N x N
 
@@ -122,7 +120,7 @@ def construct_niche_network_sample(options: Values, sample_data_df: pd.DataFrame
     cell_type_composition = cell_to_niche_matrix @ one_hot_matrix  # N x n_cell_type
 
     # save cell type composition
-    np.savetxt(f'{options.output}/{sample_name}_CellTypeComposition.csv.gz', cell_type_composition, delimiter=',')
+    np.savetxt(f'{options.preprocessing_dir}/{sample_name}_CellTypeComposition.csv.gz', cell_type_composition, delimiter=',')
 
 
 def construct_niche_network(options: Values, ori_data_df: pd.DataFrame) -> None:
@@ -159,6 +157,6 @@ def gen_samples_yaml(options: Values, ori_data_df: pd.DataFrame) -> None:
             'NeighborIndicesMatrix': f'{sample}_NeighborIndicesMatrix.csv.gz'
         })
 
-    yaml_file = f'{options.output}/samples.yaml'
+    yaml_file = f'{options.preprocessing_dir}/samples.yaml'
     with open(yaml_file, 'w') as fhd:
         yaml.dump(data, fhd)

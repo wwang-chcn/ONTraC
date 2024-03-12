@@ -67,12 +67,11 @@ def max_nodes(samples: List[Dict[str, str]]) -> int:
 
 
 def load_dataset(options: Values) -> Tuple[SpatailOmicsDataset, Data]:
-    device = torch.device(options.device if torch.cuda.is_available() else 'cpu')
-    params = read_yaml_file(f'{options.input}/samples.yaml')
+    params = read_yaml_file(f'{options.preprocessing_dir}/samples.yaml')
     rel_params = get_rel_params(options, params)
     dataset = create_torch_dataset(options, rel_params)
     all_sample_loader = DenseDataLoader(dataset, batch_size=len(dataset))
-    data = next(iter(all_sample_loader)).to(device)
+    data = next(iter(all_sample_loader)).to(options.device)
     return dataset, data
 
 
@@ -96,7 +95,7 @@ def create_torch_dataset(options: Values, params: Dict) -> SpatailOmicsDataset:
 
     # ------------------------------------
     # Step 2: Create torch dataset
-    dataset = SpatailOmicsDataset(root=options.input, params=params,
+    dataset = SpatailOmicsDataset(root=options.preprocessing_dir, params=params,
                                   transform=T.ToDense(m_nodes))  # transform edge_index to adj matrix
     # dataset = SpatailOmicsDataset(root=options.input, params=params)
     return dataset
