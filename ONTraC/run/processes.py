@@ -1,4 +1,3 @@
-import os
 from optparse import Values
 from typing import Callable, Dict, List, Optional, Tuple, Type
 
@@ -8,32 +7,28 @@ from numpy import ndarray
 from torch_geometric.loader import DenseDataLoader
 
 from ONTraC.data import SpatailOmicsDataset, create_torch_dataset
-from ONTraC.log import debug, info, warning
+from ONTraC.log import *
 from ONTraC.train import SubBatchTrainProtocol
 from ONTraC.utils import get_rel_params, read_yaml_file
 from ONTraC.utils.NTScore import get_niche_NTScore, niche_to_cell_NTScore
 
 
-def load_parameters(opt_validate_func: Callable, prepare_optparser_func: Callable) -> Tuple[Values, Dict]:
+def load_parameters(opt_validate_func: Callable, prepare_optparser_func: Callable) -> Values:
     """
     Load parameters
     :param opt_validate_func: validate function
     :param prepare_optparser_func: prepare optparser function
-    :return: options, rel_params
+    :return: options
     """
     options = opt_validate_func(prepare_optparser_func())
-    params = read_yaml_file(f'{options.preprocessing_dir}/samples.yaml')
-    rel_params = get_rel_params(options, params)
-    os.makedirs(options.GNN_dir, exist_ok=True)
 
-    return options, rel_params
+    return options
 
 
 def load_data(options: Values) -> Tuple[SpatailOmicsDataset, DenseDataLoader]:
     """
     Load data
     :param options: options
-    :param rel_params: rel_params
     :return: dataset, sample_loader
     """
     params = read_yaml_file(f'{options.preprocessing_dir}/samples.yaml')
@@ -42,18 +37,6 @@ def load_data(options: Values) -> Tuple[SpatailOmicsDataset, DenseDataLoader]:
     batch_size = options.batch_size if options.batch_size > 0 else len(dataset)
     sample_loader = DenseDataLoader(dataset, batch_size=batch_size)
     return dataset, sample_loader
-
-
-def device_validate(device_name: str) -> torch.device:
-    if device_name.startswith('cuda') and not torch.cuda.is_available():
-        warning('CUDA is not available, use CPU instead.')
-        device_name = 'cpu'
-    if device_name.startswith('mps') and not torch.backends.mps.is_available():
-        warning('MPS is not available, use CPU instead.')
-        device_name = 'cpu'
-    device = torch.device(device=device_name)
-
-    return device
 
 
 def train(nn_model: Type[torch.nn.Module], options: Values, BatchTrain: Type[SubBatchTrainProtocol],

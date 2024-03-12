@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import sys
-from typing import Optional
 
 import numpy as np
 
@@ -21,10 +20,9 @@ def main() -> None:
 
     # ----- prepare -----
     # --- load parameters ---
-    options, rel_params = load_parameters(opt_validate_func=opt_NT_validate,
-                                          prepare_optparser_func=prepare_NT_optparser)
+    options = load_parameters(opt_validate_func=opt_NT_validate, prepare_optparser_func=prepare_NT_optparser)
     # --- load data ---
-    dataset, data = load_dataset(options=options)
+    dataset, _ = load_dataset(options=options)
     # load consolidated s_array and out_adj_array
     consolidate_s_array = np.loadtxt(fname=f'{options.GNN_dir}/consolidate_s.csv.gz', delimiter=',')
     consolidate_out_adj_array = np.loadtxt(fname=f'{options.GNN_dir}/consolidate_out_adj.csv.gz', delimiter=',')
@@ -32,7 +30,6 @@ def main() -> None:
     # ----- Pseudotime -----
     if consolidate_s_array is not None and consolidate_out_adj_array is not None:
         NTScore(options=options,
-                rel_params=rel_params,
                 dataset=dataset,
                 consolidate_s_array=consolidate_s_array,
                 consolidate_out_adj_array=consolidate_out_adj_array)

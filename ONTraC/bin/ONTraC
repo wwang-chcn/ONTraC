@@ -14,7 +14,7 @@ from ONTraC.run.processes import *
 from ONTraC.train import GPBatchTrain, SubBatchTrainProtocol
 from ONTraC.train.inspect_funcs import loss_record
 from ONTraC.utils.niche_net_constr import (construct_niche_network,
-                                           gen_samples_yaml,
+                                           device_validate, gen_samples_yaml,
                                            load_original_data)
 
 
@@ -41,7 +41,7 @@ def main() -> None:
     """
 
     # prepare options
-    options = opt_ontrac_validate(prepare_ontrac_optparser())
+    options = load_parameters(opt_validate_func=opt_ontrac_validate, prepare_optparser_func=prepare_ontrac_optparser)
 
     # ----- Niche Network Construct -----
     # load original data
