@@ -47,8 +47,8 @@ def validate_io_options(optparser: OptionParser, options: Values, io_options: Op
             error(f'The input file ({options.dataset}) you given does not exist.')
             optparser.print_help()
             sys.exit(1)
-        if options.dataset.endswith(('csv', 'csv.gz')):
-            error('The input file should be in csv format.')
+        if not options.dataset.endswith(('csv', 'csv.gz')):
+            error(f'The input file ({options.dataset}) should be in csv format.')
             optparser.print_help()
             sys.exit(1)
 
