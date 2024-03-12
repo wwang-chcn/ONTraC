@@ -1,7 +1,6 @@
 import os
 import sys
 from optparse import OptionGroup, OptionParser, Values
-from random import randint
 from typing import List, Optional
 
 from ..log import *

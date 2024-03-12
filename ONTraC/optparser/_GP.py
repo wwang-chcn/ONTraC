@@ -1,8 +1,6 @@
 import os
 import sys
-from optparse import OptionGroup, OptionParser, Values
-
-from numpy import add
+from optparse import OptionParser, Values
 
 from ..log import *
 from ._IO import *

@@ -1,4 +1,3 @@
-import os
 import sys
 from optparse import OptionGroup, OptionParser, Values
 from random import randint
