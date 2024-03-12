@@ -63,9 +63,9 @@ def load_embedding_data(options: Values, data: Data, adata_dict: Dict[str, AnnDa
     loadindg embedding data
     """
     for index, name in enumerate(adata_dict.keys()):
-        embedding_file = f"{options.output}/{name}_z.csv"
+        embedding_file = f"{options.GNN_dir}/{name}_z.csv"
         if not os.path.exists(embedding_file):
-            embedding_file = f"{options.output}/{name}_z.csv.gz"
+            embedding_file = f"{options.GNN_dir}/{name}_z.csv.gz"
             if not os.path.exists(embedding_file):
                 raise FileNotFoundError(f"Cannot find embedding file: {embedding_file}.")
         embedding_arr = np.loadtxt(embedding_file, delimiter=',')[data.mask[index].detach().cpu().numpy()]
@@ -80,9 +80,9 @@ def load_graph_pooling_results(options: Values, data: Data, adata_dict: Dict[str
     loading graph pooling results
     """
     for index, name in enumerate(adata_dict.keys()):
-        soft_assign_file = f'{options.output}/{name}_s.csv'
+        soft_assign_file = f'{options.GNN_dir}/{name}_s.csv'
         if not os.path.exists(soft_assign_file):
-            soft_assign_file = f'{options.output}/{name}_s.csv.gz'
+            soft_assign_file = f'{options.GNN_dir}/{name}_s.csv.gz'
             if not os.path.exists(soft_assign_file):
                 raise FileNotFoundError(f"Cannot find soft assignment file: {soft_assign_file}.")
         soft_assign_arr = np.loadtxt(soft_assign_file,
@@ -98,9 +98,9 @@ def load_NTScore(options: Values, data: Data, adata_dict: Dict[str, AnnData], ad
     loading NTScore
     """
     for NTScore, NTScore_file_ in zip(NT_SCORE_FEATS, NT_SCORE_FEAT_FILES):
-        NTScore_file = f'{options.output}/{NTScore_file_}'
+        NTScore_file = f'{options.GNN_dir}/{NTScore_file_}'
         if not os.path.exists(NTScore_file):
-            NTScore_file = f'{options.output}/{NTScore_file_}.gz'
+            NTScore_file = f'{options.GNN_dir}/{NTScore_file_}.gz'
             if not os.path.exists(NTScore_file):
                 raise FileNotFoundError(f"Cannot find NTScore file: {NTScore_file}.")
         NTScore_file_arr = np.loadtxt(NTScore_file, delimiter=',')[data.mask.flatten().detach().cpu().numpy()]

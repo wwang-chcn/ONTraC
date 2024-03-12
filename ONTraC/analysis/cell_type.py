@@ -22,7 +22,7 @@ def cell_type_dis_in_cluster(options: Values, data: Data, meta_df: pd.DataFrame)
     Plot cell type distribution in each cluster.
     """
 
-    soft_assign_file = f'{options.output}/consolidate_s.csv.gz'
+    soft_assign_file = f'{options.GNN_dir}/consolidate_s.csv.gz'
     mask = data.mask.flatten().detach().cpu().numpy()
     soft_assign = np.loadtxt(soft_assign_file, delimiter=',')[mask]  # N x n_clusters
     meta_df['Cell_Type'] = meta_df['Cell_Type'].astype('category')

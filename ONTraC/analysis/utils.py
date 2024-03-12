@@ -46,7 +46,7 @@ def plot_max_pro_cluster(options: Values, data: Data) -> None:
                              }):
 
         for index, name in enumerate(data.name):
-            soft_assign_file = f'{options.output}/{name}_s.csv'
+            soft_assign_file = f'{options.GNN_dir}/{name}_s.csv'
             soft_assign_file = soft_assign_file if os.path.isfile(soft_assign_file) else f'{soft_assign_file}.gz'
             if not os.path.isfile(soft_assign_file):  # skip if soft_assign_file not exist
                 continue
@@ -75,9 +75,9 @@ def plot_max_pro_cluster(options: Values, data: Data) -> None:
 
 
 def cluster_order_by_pseudotime(options: Values, soft_assign: np.ndarray):
-    pseudotime_cluster_file = f'{options.output}/niche_cluster_score.csv.gz'
+    pseudotime_cluster_file = f'{options.NTScore_dir}/niche_cluster_score.csv.gz'
     if not os.path.exists(pseudotime_cluster_file):
-        pseudotime_cluster_file = f'{options.output}/niche_cluster_score.csv'
+        pseudotime_cluster_file = f'{options.NTScore_dir}/niche_cluster_score.csv'
         if not os.path.exists(pseudotime_cluster_file):
             warning(f'File not found: {pseudotime_cluster_file}')
             return np.arange(soft_assign.shape[1])
@@ -88,8 +88,8 @@ def cluster_order_by_pseudotime(options: Values, soft_assign: np.ndarray):
 
 
 def plot_each_cluster_proportion(options: Values, data: Data):
-    if not os.path.exists(f'{options.output}/consolidate_s.csv.gz'):
-        warning(f'File not found: {options.output}/consolidate_s.csv.gz')
+    if not os.path.exists(f'{options.GNN_dir}/consolidate_s.csv.gz'):
+        warning(f'File not found: {options.GNN_dir}/consolidate_s.csv.gz')
         return {}
 
     soft_assign_df = {}
@@ -107,7 +107,7 @@ def plot_each_cluster_proportion(options: Values, data: Data):
                              }):
 
         for index, name in enumerate(data.name):
-            soft_assign_file = f'{options.output}/{name}_s.csv'
+            soft_assign_file = f'{options.GNN_dir}/{name}_s.csv'
             soft_assign_file = soft_assign_file if os.path.isfile(path=soft_assign_file) else f'{soft_assign_file}.gz'
             if not os.path.isfile(soft_assign_file):  # skip if soft_assign_file not exist
                 continue
@@ -160,14 +160,14 @@ def plot_each_cluster_proportion(options: Values, data: Data):
 
 
 def cluster_connectivity(options: Values) -> None:
-    adj_file = f'{options.output}/consolidate_out_adj.csv.gz'
+    adj_file = f'{options.GNN_dir}/consolidate_out_adj.csv.gz'
     if not os.path.isfile(adj_file):
-        adj_file = f'{options.output}/consolidate_out_adj.csv'
+        adj_file = f'{options.GNN_dir}/consolidate_out_adj.csv'
     if not os.path.isfile(adj_file):  # skip if adj_file not exist
         warning(f'File not found: {adj_file}')
         return
 
-    adj_matrix = np.loadtxt(f'{options.output}/consolidate_out_adj.csv.gz', delimiter=',')
+    adj_matrix = np.loadtxt(f'{options.GNN_dir}/consolidate_out_adj.csv.gz', delimiter=',')
     G = nx.Graph(adj_matrix)
 
     # Drawing the graph
@@ -213,7 +213,7 @@ def cluster_spatial_continuity_gen(s: Tensor, data: Data) -> Generator:
 
 
 def cluster_spatial_continuity(options: Values, data: Data):
-    s_arr = np.loadtxt(f'{options.output}/consolidate_s.csv.gz', delimiter=',')
+    s_arr = np.loadtxt(f'{options.GNN_dir}/consolidate_s.csv.gz', delimiter=',')
     s_tensor = torch.Tensor(s_arr.reshape((data.x.shape[0], data.x.shape[1], -1)))
     cluster_moran = pd.DataFrame(cluster_spatial_continuity_gen(s_tensor, data),
                                  columns=['moran_I', 'sample', 'cluster'])

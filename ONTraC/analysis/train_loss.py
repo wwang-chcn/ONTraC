@@ -67,11 +67,10 @@ def plot_train_loss(options: Values) -> None:
         options: Options from optparse.
     """
     # load training loss
-    log_file = f'log/{options.name}.log'
-    if not os.path.exists(log_file):
-        warn(f'Log file not found: {log_file}')
+    if not os.path.exists(options.log):
+        warn(f'Log file not found: {options.log}')
         return
-    loss_df, final_loss_dict = loss_record_df(options.output, log_file)
+    loss_df, final_loss_dict = loss_record_df(options.output, options.log)
 
     with sns.axes_style('white', rc={
             'xtick.bottom': True,
