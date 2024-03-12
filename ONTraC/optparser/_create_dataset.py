@@ -81,7 +81,7 @@ def opt_create_ds_validate(optparser) -> Values:
 
     # print parameters to stdout
     info('------------------ RUN params memo ------------------ ')
-    write_io_options_memo(options)
+    write_io_options_memo(options, IO_OPTIONS)
     write_niche_net_constr_memo(options)
     info('--------------- RUN params memo end ----------------- ')
 

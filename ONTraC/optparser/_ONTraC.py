@@ -71,7 +71,7 @@ def opt_ontrac_validate(optparser) -> Values:
 
     # print parameters to stdout
     info('------------------ RUN params memo ------------------ ')
-    write_io_options_memo(options)
+    write_io_options_memo(options, IO_OPTIONS)
     write_niche_net_constr_memo(options)
     write_train_options_memo(options)
     write_GNN_options_memo(options)

@@ -43,7 +43,7 @@ def opt_NT_validate(optparser: OptionParser) -> Values:
 
     # print parameters to stdout
     info('------------------ RUN params memo ------------------ ')
-    write_io_options_memo(options)
+    write_io_options_memo(options, IO_OPTIONS)
     info('--------------- RUN params memo end ----------------- ')
 
     return options
