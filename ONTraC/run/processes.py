@@ -117,7 +117,6 @@ def predict(output_dir: str, batch_train: SubBatchTrainProtocol, dataset: Spatai
         # consolidate s
         consolidate_s = torch.cat(consolidate_s_list, dim=0)
         # consolidate out_adj
-        consolidate_out_adj = consolidate_out_adj / len(dataset)  # type: ignore
         ind = torch.arange(consolidate_s.shape[-1], device=consolidate_out_adj.device)
         consolidate_out_adj[ind, ind] = 0
         d = torch.einsum('ij->i', consolidate_out_adj)
