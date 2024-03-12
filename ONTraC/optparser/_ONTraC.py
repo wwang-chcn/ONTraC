@@ -5,7 +5,6 @@ from optparse import OptionGroup, OptionParser, Values
 
 from ..log import *
 from ._create_dataset import write_niche_net_constr_memo
-from ._GP import *
 from ._IO import *
 from ._train import *
 
@@ -15,7 +14,7 @@ from ._train import *
 IO_OPTIONS = ['dataset', 'preprocessing_dir', 'GNN_dir', 'NTScore_dir']
 
 
-# ------------------------------------
+# ------------------------------ß------
 # Functions
 # ------------------------------------
 def prepare_ontrac_optparser() -> OptionParser:

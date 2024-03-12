@@ -125,43 +125,6 @@ def add_NP_options_group(group_train: OptionGroup) -> None:
                            help='Exponent for assignment. Default is 1.')
 
 
-def validate_basic_options(optparser: OptionParser, options: Values, output_dir_exist_OK: bool = False) -> Values:
-    """
-    Validate input and output options.
-    :param optparser: OptionParser object.
-    :param options: Options object.
-    :return: Validated options object.
-    """
-
-    # check input directory
-    if getattr(options, 'preprocessing_dir') is None:
-        error(f'Input directory is not specified, exit!\n')
-        optparser.print_help()
-        sys.exit(1)
-    elif not os.path.isdir(options.preprocessing_dir):
-        error(f'Input directory does not exist, exit: {options.preprocessing_dir}')
-        sys.exit(1)
-
-    # check output directory
-    if getattr(options, 'GNN_dir') is None:
-        error(f'GNN directory is not specified, exit!\n')
-        optparser.print_help()
-        sys.exit(1)
-    elif not os.path.isdir(options.GNN_dir):
-        error(f'GNN directory does not exist, exit: {options.GNN_dir}')
-        sys.exit(1)
-
-    # check NTScore directory
-    if getattr(options, 'NTScore_dir') is None:
-        error(f'NTScore directory is not specified, exit!\n')
-        optparser.print_help()
-        sys.exit(1)
-    elif not os.path.isdir(options.NTScore_dir):
-        error(f'NTScore directory does not exist, exit: {options.NTScore_dir}')
-        sys.exit(1)
-    return options
-
-
 def validate_train_options(optparser: OptionParser, options: Values) -> Values:
     """
     Validate train options.
@@ -191,19 +154,6 @@ def validate_NP_options(optparser: OptionParser, options: Values) -> Values:
         sys.exit(1)
 
     return options
-
-
-def write_basic_options_memo(options: Values) -> None:
-    """
-    Write basic options memo to stdout.
-    :param options: Options object.
-    :return: None.
-    """
-
-    info('           -------- basic options -------            ')
-    info(f'preprocessing directory:   {options.preprocessing_dir}')
-    info(f'GNN directory:  {options.GNN_dir}')
-    info(f'NTScore directory: {options.NTScore_dir}')
 
 
 def write_train_options_memo(options: Values) -> None:
@@ -260,15 +210,12 @@ def write_NP_options_memo(options: Values) -> None:
 
 
 __all__ = [
-    'add_basic_options_group',
     'add_train_options_group',
     'add_GNN_options_group',
     'add_GSAE_options_group',
     'add_NP_options_group',
-    'validate_basic_options',
     'validate_train_options',
     'validate_NP_options',
-    'write_basic_options_memo',
     'write_train_options_memo',
     'write_GNN_options_memo',
     'write_GSAE_options_memo',
