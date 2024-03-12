@@ -10,7 +10,8 @@ from ONTraC.data import SpatailOmicsDataset, create_torch_dataset
 from ONTraC.log import *
 from ONTraC.train import SubBatchTrainProtocol
 from ONTraC.utils import get_rel_params, read_yaml_file
-from ONTraC.utils.NTScore import get_niche_NTScore, niche_to_cell_NTScore
+from ONTraC.utils.NTScore import (NTScore_table, get_niche_NTScore,
+                                  niche_to_cell_NTScore)
 
 
 def load_parameters(opt_validate_func: Callable, prepare_optparser_func: Callable) -> Values:
@@ -147,10 +148,14 @@ def NTScore(options: Values, dataset: SpatailOmicsDataset, consolidate_s_array: 
 
     niche_cluster_score, niche_level_NTScore = get_niche_NTScore(niche_cluster_loading=consolidate_s_array,
                                                                  niche_adj_matrix=consolidate_out_adj_array)
-    cell_level_NTScore = niche_to_cell_NTScore(dataset=dataset,
-                                               rel_params=rel_params,
-                                               niche_level_NTScore=niche_level_NTScore)
+    cell_level_NTScore, all_niche_level_NTScore_dict, all_cell_level_NTScore_dict = niche_to_cell_NTScore(
+        dataset=dataset, rel_params=rel_params, niche_level_NTScore=niche_level_NTScore)
 
     np.savetxt(fname=f'{options.NTScore_dir}/niche_cluster_score.csv.gz', X=niche_cluster_score, delimiter=',')
     np.savetxt(fname=f'{options.NTScore_dir}/niche_NTScore.csv.gz', X=niche_level_NTScore, delimiter=',')
     np.savetxt(fname=f'{options.NTScore_dir}/cell_NTScore.csv.gz', X=cell_level_NTScore, delimiter=',')
+
+    NTScore_table(options=options,
+                  rel_params=rel_params,
+                  all_niche_level_NTScore_dict=all_niche_level_NTScore_dict,
+                  all_cell_level_NTScore_dict=all_cell_level_NTScore_dict)
