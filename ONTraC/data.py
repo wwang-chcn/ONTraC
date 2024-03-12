@@ -1,13 +1,15 @@
 from optparse import Values
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 import numpy as np
+import pandas as pd
 import torch
 import torch_geometric.transforms as T
 from torch_geometric.data import Data, InMemoryDataset
+from torch_geometric.loader import DenseDataLoader
 
 from .log import *
-from .utils import count_lines
+from .utils import count_lines, device_validate, get_rel_params, read_yaml_file
 
 
 # ------------------------------------
@@ -37,19 +39,13 @@ class SpatailOmicsDataset(InMemoryDataset):
         data_list = []
         for index, sample in enumerate(self.params['Data']):
             info(f'Processing sample {index + 1} of {len(self.params["Data"])}')
-            if self.params['Label']:
-                data = Data(x=torch.from_numpy(np.loadtxt(sample['Features'], dtype=np.float32, delimiter=',')),
-                            y=torch.from_numpy(np.loadtxt(sample['Label'], dtype=np.int8, delimiter=',')),
-                            edge_index=torch.from_numpy(np.loadtxt(sample['EdgeIndex'], dtype=np.int64,
-                                                                   delimiter=',')).t().contiguous(),
-                            pos=torch.from_numpy(np.loadtxt(sample['Coordinates'], dtype=np.float32, delimiter=',')),
-                            name=sample['Name'])
-            else:
-                data = Data(x=torch.from_numpy(np.loadtxt(sample['Features'], dtype=np.float32, delimiter=',')),
-                            edge_index=torch.from_numpy(np.loadtxt(sample['EdgeIndex'], dtype=np.int64,
-                                                                   delimiter=',')).t().contiguous(),
-                            pos=torch.from_numpy(np.loadtxt(sample['Coordinates'], dtype=np.float32, delimiter=',')),
-                            name=sample['Name'])
+            data = Data(
+                x=torch.from_numpy(np.loadtxt(sample['Features'], dtype=np.float32, delimiter=',')),
+                edge_index=torch.from_numpy(np.loadtxt(sample['EdgeIndex'], dtype=np.int64,
+                                                       delimiter=',')).t().contiguous(),
+                # TODO: support 3D coordinates
+                pos=torch.from_numpy(pd.read_csv(sample['Coordinates'])[['x', 'y']].values),
+                name=sample['Name'])
             data_list.append(data)
         data, slices = self.collate(data_list)
         torch.save((data, slices), self.processed_paths[0])
@@ -68,6 +64,16 @@ def max_nodes(samples: List[Dict[str, str]]) -> int:
     for sample in samples:
         max_nodes = max(max_nodes, count_lines(sample['Coordinates']))
     return max_nodes
+
+
+def load_dataset(options: Values) -> Tuple[SpatailOmicsDataset, Data]:
+    device = device_validate()
+    params = read_yaml_file(f'{options.preprocessing_dir}/samples.yaml')
+    rel_params = get_rel_params(options, params)
+    dataset = create_torch_dataset(options, rel_params)
+    all_sample_loader = DenseDataLoader(dataset, batch_size=len(dataset))
+    data = next(iter(all_sample_loader)).to(device)
+    return dataset, data
 
 
 # ------------------------------------
@@ -90,6 +96,7 @@ def create_torch_dataset(options: Values, params: Dict) -> SpatailOmicsDataset:
 
     # ------------------------------------
     # Step 2: Create torch dataset
-    dataset = SpatailOmicsDataset(root=options.input, params=params, transform=T.ToDense(m_nodes))  # transform edge_index to adj matrix
+    dataset = SpatailOmicsDataset(root=options.preprocessing_dir, params=params,
+                                  transform=T.ToDense(m_nodes))  # transform edge_index to adj matrix
     # dataset = SpatailOmicsDataset(root=options.input, params=params)
     return dataset

@@ -1,4 +1,3 @@
-import os
 from optparse import Values
 from typing import Callable, Dict, List, Optional, Tuple, Type
 
@@ -8,50 +7,37 @@ from numpy import ndarray
 from torch_geometric.loader import DenseDataLoader
 
 from ONTraC.data import SpatailOmicsDataset, create_torch_dataset
-from ONTraC.log import debug, info, warning
+from ONTraC.log import *
 from ONTraC.train import SubBatchTrainProtocol
 from ONTraC.utils import get_rel_params, read_yaml_file
-from ONTraC.utils.pseudo_time import get_pseudo_time_line, get_niche_trajectory
+from ONTraC.utils.NTScore import (NTScore_table, get_niche_NTScore,
+                                  niche_to_cell_NTScore)
 
 
-def load_parameters(opt_validate_func: Callable, prepare_optparser_func: Callable) -> Tuple[Values, Dict]:
+def load_parameters(opt_validate_func: Callable, prepare_optparser_func: Callable) -> Values:
     """
     Load parameters
     :param opt_validate_func: validate function
     :param prepare_optparser_func: prepare optparser function
-    :return: options, rel_params
+    :return: options
     """
     options = opt_validate_func(prepare_optparser_func())
-    params = read_yaml_file(f'{options.input}/samples.yaml')
-    rel_params = get_rel_params(options, params)
-    os.makedirs(options.output, exist_ok=True)
 
-    return options, rel_params
+    return options
 
 
-def load_data(options: Values, rel_params: Dict) -> Tuple[SpatailOmicsDataset, DenseDataLoader]:
+def load_data(options: Values) -> Tuple[SpatailOmicsDataset, DenseDataLoader]:
     """
     Load data
     :param options: options
-    :param rel_params: rel_params
     :return: dataset, sample_loader
     """
+    params = read_yaml_file(f'{options.preprocessing_dir}/samples.yaml')
+    rel_params = get_rel_params(options, params)
     dataset = create_torch_dataset(options, rel_params)
     batch_size = options.batch_size if options.batch_size > 0 else len(dataset)
     sample_loader = DenseDataLoader(dataset, batch_size=batch_size)
     return dataset, sample_loader
-
-
-def tain_prepare(options) -> torch.device:
-    if options.device.startswith('cuda') and not torch.cuda.is_available():
-        warning('CUDA is not available, use CPU instead.')
-        options.device = 'cpu'
-    if options.device.startswith('mps') and not torch.backends.mps.is_available():
-        warning('MPS is not available, use CPU instead.')
-        options.device = 'cpu'
-    device = torch.device(options.device)
-
-    return device
 
 
 def train(nn_model: Type[torch.nn.Module], options: Values, BatchTrain: Type[SubBatchTrainProtocol],
@@ -61,7 +47,6 @@ def train(nn_model: Type[torch.nn.Module], options: Values, BatchTrain: Type[Sub
     model = nn_model(input_feats=dataset.num_features,
                      hidden_feats=options.hidden_feats,
                      k=options.k,
-                     dropout=options.dropout,
                      exponent=options.assign_exponent)
     optimizer = torch.optim.Adam(model.parameters(), lr=options.lr)
     batch_train = BatchTrain(model=model, device=device, data_loader=sample_loader)  # type: ignore
@@ -77,9 +62,9 @@ def train(nn_model: Type[torch.nn.Module], options: Values, BatchTrain: Type[Sub
                       max_patience=options.patience,
                       min_delta=options.min_delta,
                       min_epochs=options.min_epochs,
-                      output=options.output,
+                      output=options.GNN_dir,
                       **loss_weight_args)
-    batch_train.save(path=f'{options.output}/model_state_dict.pt')
+    batch_train.save(path=f'{options.GNN_dir}/model_state_dict.pt')
     return batch_train
 
 
@@ -133,7 +118,6 @@ def predict(output_dir: str, batch_train: SubBatchTrainProtocol, dataset: Spatai
         # consolidate s
         consolidate_s = torch.cat(consolidate_s_list, dim=0)
         # consolidate out_adj
-        consolidate_out_adj = consolidate_out_adj / len(dataset)  # type: ignore
         ind = torch.arange(consolidate_s.shape[-1], device=consolidate_out_adj.device)
         consolidate_out_adj[ind, ind] = 0
         d = torch.einsum('ij->i', consolidate_out_adj)
@@ -149,7 +133,8 @@ def predict(output_dir: str, batch_train: SubBatchTrainProtocol, dataset: Spatai
         return None, None
 
 
-def pseudotime(options: Values, consolidate_s_array: ndarray, consolidate_out_adj_array: ndarray) -> None:
+def NTScore(options: Values, dataset: SpatailOmicsDataset, consolidate_s_array: ndarray,
+            consolidate_out_adj_array: ndarray) -> None:
     """
     Pseudotime calculateion process
     :param options: options
@@ -158,13 +143,19 @@ def pseudotime(options: Values, consolidate_s_array: ndarray, consolidate_out_ad
     :return: None
     """
 
-    # all_sample_loader = DenseDataLoader(dataset, batch_size=len(dataset))
-    # data = next(iter(all_sample_loader))
-    # pseudotime_cluster, pseudotime_node = get_pseudo_time_line(data=data,
-    #                                                            out_adj=consolidate_out_adj_array,
-    #                                                            s=consolidate_s_array,
-    #                                                            init_node_label=options.init_node_label)
-    niche_level_NTScore, cell_level_NTScore = get_niche_trajectory(niche_cluster_loading=consolidate_s_array,
-                                                                   niche_adj_matrix=consolidate_out_adj_array)
-    np.savetxt(fname=f'{options.output}/niche_NTScore.csv.gz', X=niche_level_NTScore, delimiter=',')
-    np.savetxt(fname=f'{options.output}/cell_NTScore.csv.gz', X=cell_level_NTScore, delimiter=',')
+    params = read_yaml_file(f'{options.preprocessing_dir}/samples.yaml')
+    rel_params = get_rel_params(options, params)
+
+    niche_cluster_score, niche_level_NTScore = get_niche_NTScore(niche_cluster_loading=consolidate_s_array,
+                                                                 niche_adj_matrix=consolidate_out_adj_array)
+    cell_level_NTScore, all_niche_level_NTScore_dict, all_cell_level_NTScore_dict = niche_to_cell_NTScore(
+        dataset=dataset, rel_params=rel_params, niche_level_NTScore=niche_level_NTScore)
+
+    np.savetxt(fname=f'{options.NTScore_dir}/niche_cluster_score.csv.gz', X=niche_cluster_score, delimiter=',')
+    np.savetxt(fname=f'{options.NTScore_dir}/niche_NTScore.csv.gz', X=niche_level_NTScore, delimiter=',')
+    np.savetxt(fname=f'{options.NTScore_dir}/cell_NTScore.csv.gz', X=cell_level_NTScore, delimiter=',')
+
+    NTScore_table(options=options,
+                  rel_params=rel_params,
+                  all_niche_level_NTScore_dict=all_niche_level_NTScore_dict,
+                  all_cell_level_NTScore_dict=all_cell_level_NTScore_dict)

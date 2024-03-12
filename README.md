@@ -49,4 +49,17 @@ torch_geometric=2.3.1
   cd ONTraC && pip install .
   ```
 
+## File Format
+
+### Original_data.csv
+
+This file contains all input formation with five columns: Cell_ID, Sample, Cell_Type, x, and y.
+
+| Cell_ID         | Sample   | Cell_Type | x       | y     |
+| --------------- | -------- | --------- | ------- | ----- |
+| E12_E1S3_100034 | E12_E1S3 | Fibro     | 15940   | 18584 |
+| E12_E1S3_100035 | E12_E1S3 | Fibro     | 15942   | 18623 |
+| ...             | ...      | ...       | ...     | ...   |
+| E16_E2S7_326412 | E16_E2S7 | Fibro     | 32990.5 | 14475 |
+
 ## Citation
