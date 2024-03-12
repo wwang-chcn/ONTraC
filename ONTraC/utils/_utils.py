@@ -1,8 +1,11 @@
 from copy import deepcopy
 from optparse import Values
-from typing import Dict
+from typing import Dict, Optional
 
+import torch
 import yaml
+
+from ..log import warning
 
 
 def read_yaml_file(yaml_file: str) -> dict:
@@ -63,3 +66,17 @@ def round_epoch_filter(epoch: int) -> bool:
         return n % (10**(num - 1)) == 0
 
     return epoch < 10 or _is_power_of_10(epoch)
+
+
+def device_validate(device_name: Optional[str] = None) -> torch.device:
+    if device_name is None:
+        device_name = 'cpu'
+    if device_name.startswith('cuda') and not torch.cuda.is_available():
+        warning('CUDA is not available, use CPU instead.')
+        device_name = 'cpu'
+    if device_name.startswith('mps') and not torch.backends.mps.is_available():
+        warning('MPS is not available, use CPU instead.')
+        device_name = 'cpu'
+    device = torch.device(device=device_name)
+
+    return device

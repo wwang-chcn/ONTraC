@@ -1,4 +1,3 @@
-import os
 from optparse import Values
 from typing import Callable, Dict, List, Optional, Tuple, Type
 
@@ -38,18 +37,6 @@ def load_data(options: Values) -> Tuple[SpatailOmicsDataset, DenseDataLoader]:
     batch_size = options.batch_size if options.batch_size > 0 else len(dataset)
     sample_loader = DenseDataLoader(dataset, batch_size=batch_size)
     return dataset, sample_loader
-
-
-def device_validate(device_name: str) -> torch.device:
-    if device_name.startswith('cuda') and not torch.cuda.is_available():
-        warning('CUDA is not available, use CPU instead.')
-        device_name = 'cpu'
-    if device_name.startswith('mps') and not torch.backends.mps.is_available():
-        warning('MPS is not available, use CPU instead.')
-        device_name = 'cpu'
-    device = torch.device(device=device_name)
-
-    return device
 
 
 def train(nn_model: Type[torch.nn.Module], options: Values, BatchTrain: Type[SubBatchTrainProtocol],

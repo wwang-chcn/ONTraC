@@ -11,6 +11,7 @@ from ONTraC.optparser import opt_GP_validate, prepare_GP_optparser
 from ONTraC.run.processes import *
 from ONTraC.train import GPBatchTrain, SubBatchTrainProtocol
 from ONTraC.train.inspect_funcs import loss_record
+from ONTraC.utils import device_validate
 
 # ------------------------------------
 # Classes
@@ -40,7 +41,7 @@ def main() -> None:
     """
 
     # ----- prepare -----
-    # oad parameters
+    # load parameters
     options = load_parameters(opt_validate_func=opt_GP_validate, prepare_optparser_func=prepare_GP_optparser)
     # device
     device: torch.device = device_validate(device_name=options.device)
