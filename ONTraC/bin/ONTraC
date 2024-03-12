@@ -43,7 +43,7 @@ def main() -> None:
     # prepare options
     options = opt_ontrac_validate(prepare_ontrac_optparser())
 
-    # ----- Create Dataset -----
+    # ----- Niche Network Construct -----
     # load original data
     ori_data_df = load_original_data(options=options, data_file=options.dataset)
 

@@ -3,9 +3,18 @@ import sys
 from optparse import OptionGroup, OptionParser, Values
 
 from ..log import *
+from ._IO import *
 from ._train import *
 
+# ------------------------------------
+# Constants
+# ------------------------------------
+IO_OPTIONS = ['preprocessing_dir', 'GNN_dir', 'NTScore_dir']
 
+
+# ------------------------------------
+# Functions
+# ------------------------------------
 def prepare_NT_optparser() -> OptionParser:
     """
     Prepare optparser object. New options will be added in thisfunction first.
@@ -17,7 +26,7 @@ def prepare_NT_optparser() -> OptionParser:
     # option processor
     optparser = OptionParser(version=f'{program_name} 0.1', description=description, usage=usage, add_help_option=True)
 
-    group_basic = add_basic_options_group(optparser)
+    add_IO_options_group(optparser=optparser, io_options=IO_OPTIONS)
 
     return optparser
 
@@ -30,11 +39,11 @@ def opt_NT_validate(optparser: OptionParser) -> Values:
 
     (options, args) = optparser.parse_args()
 
-    validate_basic_options(optparser, options, output_dir_exist_OK=True)
+    validate_io_options(optparser, options, IO_OPTIONS)
 
     # print parameters to stdout
-    info('--------------------- RUN memo ---------------------')
-    write_basic_options_memo(options)
-    info('----------------------------------------------------')
+    info('------------------ RUN params memo ------------------ ')
+    write_io_options_memo(options)
+    info('--------------- RUN params memo end ----------------- ')
 
     return options

@@ -5,30 +5,6 @@ from random import randint
 
 from ..log import *
 
-def add_basic_options_group(optparser: OptionParser) -> OptionGroup:
-    """
-    Add basic options group to optparser.
-    :param optparser: OptionParser object.
-    :return: OptionGroup object.
-    """
-
-    # basic options group
-    group_basic = OptionGroup(optparser, "Basic options")
-    optparser.add_option_group(group_basic)
-    group_basic.add_option('--preprocessing-dir',
-                           dest='preprocessing_dir',
-                           type='string',
-                           help='Directory for preprocessing outputs.')
-    group_basic.add_option('--GNN-dir',
-                           dest='GNN_dir',
-                           type='string',
-                           help='Directory for the GNN output.')
-    group_basic.add_option('--NTScore-dir',
-                           dest='NTScore_dir',
-                           type='string',
-                           help='Directory for the NTScore output')
-    
-    return group_basic
 
 def add_train_options_group(optparser: OptionParser) -> OptionGroup:
     """
@@ -213,11 +189,6 @@ def validate_NP_options(optparser: OptionParser, options: Values) -> Values:
     if getattr(options, 'k') < 2:
         error(f'k must be greater than 1, exit!')
         sys.exit(1)
-
-    # check assign_exponent
-    if getattr(options, 'assign_exponent') < 1:
-        warning(f'assign_exponent must be greater than 1, using default value!')
-        options.assign_exponent = 1
 
     return options
 
