@@ -111,10 +111,10 @@ def NTScore_table(options: Values, rel_params: Dict, all_niche_level_NTScore_dic
 
     NTScore_table = pd.DataFrame()
     for sample in rel_params['Data']:
-        coordinates_df = pd.read_csv(sample['Coordinates'])
+        coordinates_df = pd.read_csv(sample['Coordinates'], index_col=0)
         coordinates_df['Niche_NTScore'] = all_niche_level_NTScore_dict[sample['Name']]
         coordinates_df['Cell_NTScore'] = all_cell_level_NTScore_dict[sample['Name']]
-        coordinates_df.to_csv(f'{options.NTScore_dir}/{sample["Name"]}_NTScore.csv')
+        coordinates_df.to_csv(f'{options.NTScore_dir}/{sample["Name"]}_NTScore.csv.gz')
         NTScore_table = pd.concat([NTScore_table, coordinates_df])
 
-    NTScore_table.to_csv(f'{options.NTScore_dir}/NTScore.csv')
+    NTScore_table.to_csv(f'{options.NTScore_dir}/NTScore.csv.gz')
