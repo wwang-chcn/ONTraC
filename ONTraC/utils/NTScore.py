@@ -1,7 +1,9 @@
 import itertools
+from optparse import Values
 from typing import Dict, List, Tuple
 
 import numpy as np
+import pandas as pd
 from numpy import ndarray
 from scipy.sparse import load_npz
 
@@ -58,16 +60,21 @@ def get_niche_NTScore(niche_cluster_loading: ndarray, niche_adj_matrix: ndarray)
     return niche_cluster_score, niche_level_NTScore
 
 
-def niche_to_cell_NTScore(dataset: SpatailOmicsDataset, rel_params: Dict, niche_level_NTScore: ndarray) -> ndarray:
+def niche_to_cell_NTScore(dataset: SpatailOmicsDataset, rel_params: Dict,
+                          niche_level_NTScore: ndarray) -> Tuple[ndarray, Dict[str, ndarray], Dict[str, ndarray]]:
     """
-    Get cell-level NTScore
-    :param dataset: SpatailOmicsDataset, the dataset
-    :param real_param: Dict, the real parameters
-    :param niche_level_NTScore: ndarray, the niche-level NTScore
-    :return: ndarray, the cell-level NTScore
+    get cell-level NTScore
+    :param dataset: SpatailOmicsDataset, dataset
+    :param rel_params: Dict, relative paths
+    :param niche_level_NTScore: ndarray, niche-level NTScore
+    :return: Tuple[ndarray, Dict[str, ndarray], Dict[str, ndarray]], the cell-level NTScore, all niche-level NTScore dict,
+    and all cell-level NTScore dict
     """
 
     cell_level_NTScore = np.zeros(niche_level_NTScore.shape[0])
+
+    all_niche_level_NTScore_dict: Dict[str, ndarray] = {}
+    all_cell_level_NTScore_dict: Dict[str, ndarray] = {}
 
     for i, data in enumerate(dataset):
         # the slice of data in each sample
@@ -78,11 +85,36 @@ def niche_to_cell_NTScore(dataset: SpatailOmicsDataset, rel_params: Dict, niche_
         niche_weight_matrix = load_npz(rel_params['Data'][i]['NicheWeightMatrix'])
         niche_to_cell_matrix = (
             niche_weight_matrix /
-            niche_weight_matrix.sum(axis=0)).T  # normalize by the all niches associated with each cell
+            niche_weight_matrix.sum(axis=0)).T  # normalize by the all niches associated with each cell, N x N
 
         # cell-level NTScore
-        niche_level_NTScore_ = niche_level_NTScore[slice_].reshape(-1, 1)
-        cell_level_NTScore_ = niche_to_cell_matrix * niche_level_NTScore_
+        niche_level_NTScore_ = niche_level_NTScore[slice_].reshape(-1, 1)  # N x 1
+        cell_level_NTScore_ = niche_to_cell_matrix @ niche_level_NTScore_
         cell_level_NTScore[slice_] = cell_level_NTScore_.reshape(-1)
 
-    return cell_level_NTScore
+        all_niche_level_NTScore_dict[data.Name] = niche_level_NTScore_
+        all_cell_level_NTScore_dict[data.Name] = cell_level_NTScore_
+
+    return cell_level_NTScore, all_niche_level_NTScore_dict, all_cell_level_NTScore_dict
+
+
+def NTScore_table(options: Values, rel_params: Dict, all_niche_level_NTScore_dict: Dict[str, ndarray],
+                  all_cell_level_NTScore_dict: Dict[str, ndarray]) -> None:
+    """
+    Generate NTScore table and save it
+    :param options: Values, options
+    :param rel_params: Dict, relative paths
+    :param all_niche_level_NTScore_dict: Dict[str, ndarray], all niche-level NTScore dict
+    :param all_cell_level_NTScore_dict: Dict[str, ndarray], all cell-level NTScore dict
+    :return: pd.DataFrame, NTScore table
+    """
+
+    NTScore_table = pd.DataFrame()
+    for sample in rel_params['Data']:
+        coordinates_df = pd.read_csv(sample['Coordinates'])
+        coordinates_df['Niche_NTScore'] = all_niche_level_NTScore_dict[sample['Name']]
+        coordinates_df['Cell_NTScore'] = all_cell_level_NTScore_dict[sample['Name']]
+        coordinates_df.to_csv(f'{options.NTScore_dir}/{sample["Name"]}_NTScore.csv')
+        NTScore_table = pd.concat([NTScore_table, coordinates_df])
+
+    NTScore_table.to_csv(f'{options.NTScore_dir}/NTScore.csv')
