@@ -9,7 +9,7 @@ from torch_geometric.data import Data, InMemoryDataset
 from torch_geometric.loader import DenseDataLoader
 
 from .log import *
-from .utils import count_lines, get_rel_params, read_yaml_file
+from .utils import count_lines, device_validate, get_rel_params, read_yaml_file
 
 
 # ------------------------------------
@@ -67,7 +67,7 @@ def max_nodes(samples: List[Dict[str, str]]) -> int:
 
 
 def load_dataset(options: Values) -> Tuple[SpatailOmicsDataset, Data]:
-    device = torch.device(options.device if torch.cuda.is_available() else 'cpu')
+    device = device_validate()
     params = read_yaml_file(f'{options.preprocessing_dir}/samples.yaml')
     rel_params = get_rel_params(options, params)
     dataset = create_torch_dataset(options, rel_params)
