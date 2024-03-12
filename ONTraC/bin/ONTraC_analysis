@@ -79,6 +79,13 @@ def opt_validate(optparser: OptionParser) -> Values:
 
     validate_io_options(optparser, options, IO_OPTIONS)
 
+    if not options.output:
+        error('Output directory is required.')
+        sys.exit(1)
+    if not os.path.isdir(options.output):
+        warning(f'Output directory not found: {options.output}')
+        os.makedirs(options.output)
+
     if not options.log:
         error('Log file is required.')
         sys.exit(1)
@@ -86,7 +93,7 @@ def opt_validate(optparser: OptionParser) -> Values:
         error(f'Log file not found: {options.log}')
         sys.exit(1)
 
-    options.yaml = f'{options.preprocessing_dir}/params.yaml'
+    options.yaml = f'{options.preprocessing_dir}/samples.yaml'
     if not os.path.exists(options.yaml):
         error(f'File not found: {options.yaml}')
         sys.exit(1)
