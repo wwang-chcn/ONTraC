@@ -57,18 +57,39 @@ def validate_io_options(optparser: OptionParser, options: Values, io_options: Op
             error('Please provide a directory for preprocessing outputs.')
             optparser.print_help()
             sys.exit(1)
+        if os.path.isdir(options.preprocessing_dir):
+            warning(f'The directory ({options.preprocessing_dir}) you given already exists.')
+            optparser.print_help()
+            sys.exit(1)
+        else:
+            info(f'Creating directory: {options.preprocessing_dir}')
+            os.makedirs(options.preprocessing_dir)
 
     if 'GNN_dir' in io_options:
         if not options.GNN_dir:
             error('Please provide a directory for the GNN output.')
             optparser.print_help()
             sys.exit(1)
+        if os.path.isdir(options.GNN_dir):
+            warning(f'The directory ({options.GNN_dir}) you given already exists.')
+            optparser.print_help()
+            sys.exit(1)
+        else:
+            info(f'Creating directory: {options.GNN_dir}')
+            os.makedirs(options.GNN_dir)
 
     if 'NTScore_dir' in io_options:
         if not options.NTScore_dir:
             error('Please provide a directory for the NTScore output.')
             optparser.print_help()
             sys.exit(1)
+        if os.path.isdir(options.NTScore_dir):
+            warning(f'The directory ({options.NTScore_dir}) you given already exists.')
+            optparser.print_help()
+            sys.exit(1)
+        else:
+            info(f'Creating directory: {options.NTScore_dir}')
+            os.makedirs(options.NTScore_dir)
 
 
 def write_io_options_memo(options: Values) -> None:
