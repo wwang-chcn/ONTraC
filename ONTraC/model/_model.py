@@ -1,13 +1,11 @@
 from typing import Optional, Tuple
-import typing
 
 import torch
 from torch import Tensor
-from torch_geometric.nn.dense import DenseGCNConv
 
-from .norm_dense_gcn_conv import NormDenseGCNConv
-from .dmon_exp_pool import DMoNPooling
 from ..log import *
+from .dmon_exp_pool import DMoNPooling
+from .norm_dense_gcn_conv import NormDenseGCNConv
 
 
 class GraphEncoder(torch.nn.Module):
@@ -133,7 +131,7 @@ class GSAE(torch.nn.Module):
                 """
         z = self.encode(x=x, adj=adj, mask=mask)
         return z
-    
+
     def predict_recon(self, x: Tensor, adj: Tensor, mask: Optional[Tensor] = None) -> Tensor:
         r"""
         predict function
@@ -204,7 +202,14 @@ class GSAP(torch.nn.Module):
     GSAP
     """
 
-    def __init__(self, input_feats: int, hidden_feats: int, k: int, dropout: float =0, exponent: float = 1, *args, **kwargs) -> None:
+    def __init__(self,
+                 input_feats: int,
+                 hidden_feats: int,
+                 k: int,
+                 dropout: float = 0,
+                 exponent: float = 1,
+                 *args,
+                 **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.GSAE = GSAE(input_feats=input_feats, hidden_feats=hidden_feats)
         self.pool = NodePooling(input_feats=hidden_feats, k=k, dropout=dropout, exponent=exponent)
@@ -241,7 +246,11 @@ class GSAP(torch.nn.Module):
         s, out, out_adj, spectral_loss, ortho_loss, cluster_loss = self.pool(x=z, adj=adj, mask=mask)
         return recon_x, z, s, out, out_adj, spectral_loss, ortho_loss, cluster_loss
 
-    def evaluate(self, x: Tensor, adj: Tensor, mask: Optional[Tensor] = None) -> Tuple[Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor]:
+    def evaluate(
+            self,
+            x: Tensor,
+            adj: Tensor,
+            mask: Optional[Tensor] = None) -> Tuple[Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor]:
         recon_x, z = self.GSAE(x=x, adj=adj, mask=mask)  # type: ignore
         s, out, out_adj, spectral_loss, ortho_loss, cluster_loss = self.pool(x=z, adj=adj, mask=mask)
         return recon_x, z, s, out, out_adj, spectral_loss, ortho_loss, cluster_loss
@@ -272,7 +281,7 @@ class GSAP(torch.nn.Module):
         z = self.GSAE.predict(x=x, adj=adj, mask=mask)  # type: ignore
         s, out, out_adj, *_ = self.pool(x=z, adj=adj, mask=mask)
         return z, s, out, out_adj
-    
+
     def predict_recon(self, x: Tensor, adj: Tensor, mask: Optional[Tensor] = None) -> Tensor:
         return self.GSAE.predict_recon(x=x, adj=adj, mask=mask)
 
@@ -282,7 +291,14 @@ class GraphPooling(torch.nn.Module):
     GNN with Node Pooling
     """
 
-    def __init__(self, input_feats: int, hidden_feats: int, k: int, dropout: float = 0, exponent: float = 1, *args, **kwargs) -> None:
+    def __init__(self,
+                 input_feats: int,
+                 hidden_feats: int,
+                 k: int,
+                 dropout: float = 0,
+                 exponent: float = 1,
+                 *args,
+                 **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.gcn1 = NormDenseGCNConv(input_feats, hidden_feats)
         self.activation1 = torch.nn.SELU()
@@ -295,9 +311,7 @@ class GraphPooling(torch.nn.Module):
 
     def reset_parameters(self) -> None:
         self.gcn1.reset_parameters()
-        self.activation1.reset_parameters()
         self.gcn2.reset_parameters()
-        self.activation2.reset_parameters()
         self.pool.reset_parameters()
 
     def forward(self,
@@ -328,7 +342,10 @@ class GraphPooling(torch.nn.Module):
         s, out, out_adj, spectral_loss, ortho_loss, cluster_loss = self.pool(x=x, adj=adj, mask=mask)
         return s, out, out_adj, spectral_loss, ortho_loss, cluster_loss
 
-    def evaluate(self, x: Tensor, adj: Tensor, mask: Optional[Tensor] = None) -> Tuple[Tensor, Tensor, Tensor, Tensor, Tensor, Tensor]:
+    def evaluate(self,
+                 x: Tensor,
+                 adj: Tensor,
+                 mask: Optional[Tensor] = None) -> Tuple[Tensor, Tensor, Tensor, Tensor, Tensor, Tensor]:
         x = self.activation1(self.gcn1(x=x, adj=adj, mask=mask))
         x = self.activation2(self.gcn2(x=x, adj=adj, mask=mask))
         s, out, out_adj, spectral_loss, ortho_loss, cluster_loss = self.pool(x=x, adj=adj, mask=mask)
@@ -359,7 +376,7 @@ class GraphPooling(torch.nn.Module):
         x = self.activation2(self.gcn2(x=x, adj=adj, mask=mask))
         s, out, out_adj, *_ = self.pool(x=x, adj=adj, mask=mask)
         return s, out, out_adj
-    
+
     def predict_embed(self, x: Tensor, adj: Tensor, mask: Optional[Tensor] = None) -> Tensor:
         x = self.activation1(self.gcn1(x=x, adj=adj, mask=mask))
         x = self.activation2(self.gcn2(x=x, adj=adj, mask=mask))
