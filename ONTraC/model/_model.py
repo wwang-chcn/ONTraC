@@ -20,6 +20,8 @@ class GraphEncoder(torch.nn.Module):
         self.gcn1 = NormDenseGCNConv(input_feats, output_feats)
         self.gcn2 = NormDenseGCNConv(output_feats, output_feats)
 
+        self.reset_parameters()
+
     def reset_parameters(self) -> None:
         self.gcn1.reset_parameters()
         self.gcn2.reset_parameters()
@@ -57,6 +59,8 @@ class GraphDecoder(torch.nn.Module):
         self.gcn1 = NormDenseGCNConv(input_feats, output_feats)
         self.gcn2 = NormDenseGCNConv(output_feats, output_feats)
 
+        self.reset_parameters()
+
     def reset_parameters(self) -> None:
         self.gcn1.reset_parameters()
         self.gcn2.reset_parameters()
@@ -93,6 +97,8 @@ class GSAE(torch.nn.Module):
         super().__init__(*args, **kwargs)
         self.encoder = GraphEncoder(input_feats, hidden_feats)
         self.decoder = GraphDecoder(hidden_feats, input_feats)
+
+        self.reset_parameters()
 
     def reset_parameters(self) -> None:
         self.encoder.reset_parameters()
@@ -161,6 +167,8 @@ class NodePooling(torch.nn.Module):
         self.pool = DMoNPooling(channels=input_feats, k=k, dropout=0, exponent=self.exponent)
         self.k = k
 
+        self.reset_parameters()
+
     def reset_parameters(self) -> None:
         self.pool.reset_parameters()
 
@@ -201,6 +209,8 @@ class GSAP(torch.nn.Module):
         self.GSAE = GSAE(input_feats=input_feats, hidden_feats=hidden_feats)
         self.pool = NodePooling(input_feats=hidden_feats, k=k, dropout=dropout, exponent=exponent)
         self.k = k
+
+        self.reset_parameters()
 
     def reset_parameters(self) -> None:
         self.GSAE.reset_parameters()
@@ -280,6 +290,8 @@ class GraphPooling(torch.nn.Module):
         self.activation2 = torch.nn.SELU()
         self.pool = NodePooling(input_feats=hidden_feats, k=k, dropout=dropout, exponent=exponent)
         self.k = k
+
+        self.reset_parameters()
 
     def reset_parameters(self) -> None:
         self.gcn1.reset_parameters()
