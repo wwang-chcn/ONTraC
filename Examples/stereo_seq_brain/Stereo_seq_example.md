@@ -28,6 +28,8 @@ ONTraC -d data/stereo_seq_brain/original_data.csv --preprocessing-dir data/stere
   --hidden-feats 4 -k 6 --spectral-loss-weight 0.3 --cluster-loss-weight 0.1 --feat-similarity-loss-weight 300 --assign-exponent 0.03 > stereo_seq_final.log
 ```
 
+Runs for about 15 minutes on an 8-core CPU.
+
 ## Post-analysis
 
 ### Cell-type composition
