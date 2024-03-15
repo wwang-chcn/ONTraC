@@ -131,6 +131,47 @@ def load_annotation_data(options: Values, data: Data, adata_dict: Dict[str, AnnD
         warning(str(e))
 
 
+def spatial_plots(options: Values, use_rep: str, adata_dict: Dict[str, AnnData]):
+    """
+    spatial plots on each sample
+    """
+
+    color_sets = []
+    adata_example = adata_dict[list(adata_dict.keys())[0]]
+    if 'leiden' in adata_example.obs.columns:
+        color_sets.append('leiden')
+    if 'kmeans_cluster' in adata_example.obs.columns:
+        color_sets.append('kmeans_cluster')
+    if 'annot' in adata_example.obs.columns:
+        color_sets.append('annot')
+    if 'annot_niche_max' in adata_example.obs.columns:
+        color_sets.append('annot_niche_max')
+    if 'graph_pooling' in adata_example.obs.columns:
+        color_sets.append('graph_pooling')
+    if 'pseudo_time' in adata_example.obs.columns:
+        color_sets.append('pseudo_time')
+    if 'dpt_niche' in adata_example.obs.columns:
+        color_sets.append('dpt_niche')
+    if 'dpt_sct' in adata_example.obs.columns:
+        color_sets.append('dpt_sct')
+    if 'Cell_NTScore' in adata_example.obs.columns:
+        color_sets.append('Cell_NTScore')
+    if 'Niche_NTScore' in adata_example.obs.columns:
+        color_sets.append('Niche_NTScore')
+
+    if len(color_sets) == 0:
+        return
+
+    for name in adata_dict.keys():
+        sq.pl.spatial_scatter(
+            adata_dict[name],
+            size=1,  # type: ignore
+            shape=None,  # type: ignore
+            # library_id='spatial',  # type: ignore
+            color=color_sets,  # type: ignore
+            save=f'{options.output}/{name}_spatial.pdf')  # type: ignore
+
+
 def plot_NTScore(options: Values, data: Data, adata_dict: Dict[str, AnnData]) -> None:
     """
     Plot NTScore
@@ -224,7 +265,7 @@ def anndata_based_analysis(
         # 1. umap plots
         # umap_plots(options, 'trained_embedding', adata_dict, adata_combined)
         # 2. spatial plots
-        # spatial_plots(options, 'trained_embedding', adata_dict)
+    spatial_plots(options, 'trained_embedding', adata_dict)
 
     if 'NTScore' in adata_combined.obs.columns:
         # 3. plot NT score
