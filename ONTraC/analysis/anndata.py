@@ -160,6 +160,7 @@ def spatial_plots(options: Values, use_rep: str, adata_dict: Dict[str, AnnData])
         color_sets.append('Niche_NTScore')
 
     if len(color_sets) == 0:
+        warning('No color sets found for spatial plots.')
         return
 
     for name in adata_dict.keys():
