@@ -19,7 +19,7 @@ def add_train_options_group(optparser: OptionParser) -> OptionGroup:
     group_train.add_option('--device',
                            dest='device',
                            type='string',
-                           help='Device for training. Auto select if not specified.')
+                           help='Device for training. We support cpu and cuda now. Auto select if not specified.')
     group_train.add_option('--epochs',
                            dest='epochs',
                            type='int',
