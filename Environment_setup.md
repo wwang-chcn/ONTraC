@@ -12,5 +12,5 @@ Second, install the dependency packages.
 
 ```bash
 conda activate ONTraC
-pip install pyyaml pandas==2.2.1 torch==2.2.1 torchvision torchaudio torch_geometric==2.5.0
+pip install pyyaml pandas==2.2.1 torch==2.2.1 torch_geometric==2.5.0
 ```
