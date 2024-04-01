@@ -13,6 +13,8 @@ responses from all the cells in association with continuous tissue microenvironm
 
 ![ONTraC Structure](docs/source/_static/images/ONTraC_structure.png)
 
+## Required packages
+
 pyyaml=6.0.1
 pandas=2.1.1
 pytorch=2.2.1
