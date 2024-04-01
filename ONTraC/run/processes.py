@@ -50,6 +50,7 @@ def train(nn_model: Type[torch.nn.Module], options: Values, BatchTrain: Type[Sub
                      exponent=options.assign_exponent)
     optimizer = torch.optim.Adam(model.parameters(), lr=options.lr)
     batch_train = BatchTrain(model=model, device=device, data_loader=sample_loader)  # type: ignore
+    batch_train.save(path=f'{options.GNN_dir}/epoch_0.pt')
 
     loss_weight_args: dict[str, float] = {
         key: value

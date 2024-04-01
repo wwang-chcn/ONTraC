@@ -71,12 +71,15 @@ def round_epoch_filter(epoch: int) -> bool:
 def device_validate(device_name: Optional[str] = None) -> torch.device:
     if device_name is None:
         device_name = 'cpu'
-    if device_name.startswith('cuda') and not torch.cuda.is_available():
+    elif device_name.startswith('cuda') and not torch.cuda.is_available():
         warning('CUDA is not available, use CPU instead.')
         device_name = 'cpu'
-    if device_name.startswith('mps') and not torch.backends.mps.is_available():
-        warning('MPS is not available, use CPU instead.')
+    # elif device_name.startswith('mps') and not torch.backends.mps.is_available():
+    #     warning('MPS is not available, use CPU instead.')
+    #     device_name = 'cpu'
+    else:
         device_name = 'cpu'
+
     device = torch.device(device=device_name)
 
     return device

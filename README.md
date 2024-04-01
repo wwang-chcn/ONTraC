@@ -1,4 +1,4 @@
-# **Ordered Niche Trajectory Construction** (ONTraC)
+# **ONTraC**
 
 ONTraC (Ordered Niche Trajectory Construction) is a niche-centered, machine learning
 method for constructing spatially continuous trajectories. ONTraC differs from existing tools in
@@ -11,7 +11,7 @@ representation of the tissue microenvironment continuum. By disentangling cell-l
 level properties, niche trajectory analysis provides a coherent framework to study coordinated
 responses from all the cells in association with continuous tissue microenvironment variations.
 
-## Software dependencies
+![ONTraC Structure](docs/source/_static/images/ONTraC_structure.png)
 
 pyyaml=6.0.1
 pandas=2.1.1

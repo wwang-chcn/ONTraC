@@ -50,6 +50,10 @@ class DMoNPooling(torch.nn.Module):
         <https://github.com/pyg-team/pytorch_geometric/blob
         /master/examples/proteins_dmon_pool.py>`_.
 
+    .. note::
+
+        correction of original DMONPooing implemente have been merged into PyG #8285 <https://github.com/pyg-team/pytorch_geometric/pull/8285>
+
     Args:
         channels (int or List[int]): Size of each input sample. If given as a
             list, will construct an MLP based on the given feature sizes.
@@ -110,8 +114,7 @@ class DMoNPooling(torch.nn.Module):
         (batch_size, num_nodes, _), k = x.size(), s.size(-1)
 
         if mask is None:
-            mask = torch.ones(batch_size, num_nodes, dtype=torch.bool,
-                              device=s.device)
+            mask = torch.ones(batch_size, num_nodes, dtype=torch.bool, device=s.device)
         mask = mask.view(batch_size, num_nodes, 1).to(x.dtype)
         x, s = x * mask, s * mask
 
@@ -121,7 +124,7 @@ class DMoNPooling(torch.nn.Module):
         # Spectral loss:
         # -Tr(S^T B S) / 2m
         degrees = torch.einsum('ijk->ij', adj).unsqueeze(-1) * mask  # B x N x 1
-        degrees_t = degrees.transpose(1,2)  # B x 1 x N
+        degrees_t = degrees.transpose(1, 2)  # B x 1 x N
         m = torch.einsum('ijk->i', degrees) / 2  # B
         m_expand = m.unsqueeze(-1).unsqueeze(-1).expand(-1, k, k)  # B x k x k
         # print(f'm: {m}')

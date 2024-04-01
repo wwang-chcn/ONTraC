@@ -2,6 +2,8 @@ import sys
 from optparse import OptionGroup, OptionParser, Values
 from random import randint
 
+import torch
+
 from ..log import *
 
 
@@ -17,18 +19,17 @@ def add_train_options_group(optparser: OptionParser) -> OptionGroup:
     group_train.add_option('--device',
                            dest='device',
                            type='string',
-                           default='cuda',
-                           help='Device for training. Default is cuda.')
+                           help='Device for training. We support cpu and cuda now. Auto select if not specified.')
     group_train.add_option('--epochs',
                            dest='epochs',
                            type='int',
-                           default=100,
-                           help='Number of maximum epochs for training. Default is 100.')
+                           default=1000,
+                           help='Number of maximum epochs for training. Default is 1000.')
     group_train.add_option('--patience',
                            dest='patience',
                            type='int',
-                           default=50,
-                           help='Number of epochs wait for better result. Default is 50.')
+                           default=100,
+                           help='Number of epochs wait for better result. Default is 100.')
     group_train.add_option('--min-delta',
                            dest='min_delta',
                            type='float',
@@ -37,8 +38,8 @@ def add_train_options_group(optparser: OptionParser) -> OptionGroup:
     group_train.add_option('--min-epochs',
                            dest='min_epochs',
                            type='int',
-                           default=100,
-                           help='Minimum number of epochs for training. Default is 100. Set to 0 to disable.')
+                           default=50,
+                           help='Minimum number of epochs for training. Default is 50. Set to 0 to disable.')
     group_train.add_option('--batch-size',
                            dest='batch_size',
                            type='int',
@@ -48,8 +49,8 @@ def add_train_options_group(optparser: OptionParser) -> OptionGroup:
     group_train.add_option('--lr',
                            dest='lr',
                            type='float',
-                           default=1e-3,
-                           help='Learning rate for training. Default is 1e-3.')
+                           default=0.03,
+                           help='Learning rate for training. Default is 0.03.')
     return group_train
 
 
@@ -65,7 +66,7 @@ def add_GNN_options_group(group_train: OptionGroup) -> None:
                            dest='hidden_feats',
                            type='int',
                            default=32,
-                           help='Number of hidden features. Default is 32.')
+                           help='Number of hidden features. Default is 4.')
 
 
 def add_GSAE_options_group(group_train: OptionGroup) -> None:
@@ -101,27 +102,27 @@ def add_NP_options_group(group_train: OptionGroup) -> None:
                            dest='k',
                            type='int',
                            default=8,
-                           help='Number of spatial clusters. Default is 8.')
+                           help='Number of spatial clusters. Default is 6.')
     group_train.add_option('--spectral-loss-weight',
                            dest='spectral_loss_weight',
                            type='float',
                            default=1,
-                           help='Weight for spectral loss. Default is 1.')
+                           help='Weight for spectral loss. Default is 0.3.')
     group_train.add_option('--cluster-loss-weight',
                            dest='cluster_loss_weight',
                            type='float',
                            default=1,
-                           help='Weight for cluster loss. Default is 1.')
+                           help='Weight for cluster loss. Default is 0.1.')
     group_train.add_option('--feat-similarity-loss-weight',
                            dest='feat_similarity_loss_weight',
                            type='float',
                            default=0,
-                           help='Weight for feature similarity loss. Default is 0.')
+                           help='Weight for feature similarity loss. Default is 300.')
     group_train.add_option('--assign-exponent',
                            dest='assign_exponent',
                            type='float',
                            default=1,
-                           help='Exponent for assignment. Default is 1.')
+                           help='Exponent for assignment. Default is 0.3.')
 
 
 def validate_train_options(optparser: OptionParser, options: Values) -> Values:
@@ -131,6 +132,18 @@ def validate_train_options(optparser: OptionParser, options: Values) -> Values:
     :param options: Options object.
     :return: Validated options object.
     """
+
+    # device
+    if not options.device:
+        if torch.cuda.is_available():
+            options.device = 'cuda'
+        elif torch.backends.mps.is_available():
+            options.device = 'mps'
+        else:
+            options.device = 'cpu'
+    if not options.device.startswith(('cuda', 'mps', 'cpu')):
+        error(f'Invalid device {options.device}, exit!')
+        sys.exit(1)
 
     # determin random seed
     if getattr(options, 'seed') is None:
