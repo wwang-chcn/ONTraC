@@ -50,8 +50,10 @@ torch_geometric=2.3.1
   ```
 
 ## Tutorial
+
 ### Input File
-A sample input file is provided in `Examples/stereo_seq_brain/original_data.csv`. 
+
+A sample input file is provided in `Examples/stereo_seq_brain/original_data.csv`.
 This file contains all input formation with five columns: Cell_ID, Sample, Cell_Type, x, and y.
 
 | Cell_ID         | Sample   | Cell_Type | x       | y     |
@@ -65,13 +67,15 @@ This file contains all input formation with five columns: Cell_ID, Sample, Cell_
 
 The required options for running ONTraC are the paths to the input file and the three output directories:
 
-* **preprocessing-dir:** This directory stores preprocessed data and other intermediary datasets for analysis.
-* **GNN-dir:** This directory stores output from running the GP (Graph Pooling) algorithm.
-* **NTScore-dir:** This directory stores NTScore output.
+- **preprocessing-dir:** This directory stores preprocessed data and other intermediary datasets for analysis.
+- **GNN-dir:** This directory stores output from running the GP (Graph Pooling) algorithm.
+- **NTScore-dir:** This directory stores NTScore output.
 
 ```{sh}
-ONTraC -d path/to/input/data --preprocessing-dir path/to/preprocessing/dir --GNN-dir path/to/gnn/dir --NTScore-dir path/to/ntscore
+cd Examples/stereo_seq_brain
+ONTraC -d original_data.csv --preprocessing-dir stereo_seq_preprocessing_dir --GNN-dir stereo_seq_GNN --NTScore-dir stereo_seq_NTScore
 ```
+
 All available parameter options are listed below. 
 
 ```{sh}
@@ -127,8 +131,11 @@ Options:
 ```
 
 ### Post-analysis
+
 Below is an example of the kinds of post-analysis that could be performed. 
-* Loading results
+
+- Loading results
+
 ```python
 from optparse import Values
 from typing import List, Tuple
@@ -136,7 +143,7 @@ from typing import List, Tuple
 import numpy as np
 import pandas as pd
 
-from ONTraC.ONTraC.utils import read_yaml_file, get_rel_params
+from ONTraC.utils import read_yaml_file, get_rel_params
 
 
 def load_data(options: Values) -> pd.DataFrame:
@@ -165,22 +172,29 @@ def load_data(options: Values) -> pd.DataFrame:
 
 ```python
 options = Values()
-options.dataset = 'data/stereo_seq_brain/original_data.csv'
-options.preprocessing_dir = 'data/stereo_seq_brain_preprocessing_dir'
-options.NTScore_dif = 'output/stereo_seq_0312_comb_1_00426_NTScore/'
+options.dataset = 'original_data.csv'
+options.preprocessing_dir = 'stereo_seq_preprocessing_dir'
+options.NTScore_dif = 'stereo_seq_NTScore'
 
 data_df = load_data(options = options)
 samples = data_df['sample'].unique().tolist()
 cell_types = data_df['Cell_Type'].unique().tolist()
 ```
 
+```{sh}
+pip install matplotlib seaborn
+```
+
 ```python
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+mpl.rcParams['pdf.fonttype'] = 42
+mpl.rcParams['ps.fonttype'] = 42
+mpl.rcParams['font.sans-serif'] = 'Arial'
 import seaborn as sns
 ```
 
-* Cell-type composition
+- Cell-type composition
 
 ```python
 M, N = len(samples), len(cell_types)
@@ -198,9 +212,11 @@ for i, sample in enumerate(samples):
 fig.tight_layout()
 fig.savefig('test_cell_type_compostion_bwr_color.pdf', transparent=True)
 ```
-![](Images/test_cell_type_compostion_bwr_color.png)
 
-* Cell-level NT score spatial distribution
+![cell_type_composition_image](Images/test_cell_type_compostion_bwr_color.png)
+
+- Cell-level NT score spatial distribution
+
 ```python
 N = len(samples)
 fig, axes = plt.subplots(1, N, figsize = (3.5 * N, 3))
@@ -217,9 +233,11 @@ for i, sample in enumerate(samples):
 fig.tight_layout()
 fig.savefig('test_cell_level_NT_score.pdf', transparent=True)
 ```
-![](Images/test_cell_level_NT_score.png)
 
-* Niche-level NT score spatial distribution
+![cell_level_NT_score_image](Images/test_cell_level_NT_score.png)
+
+- Niche-level NT score spatial distribution
+
 ```python
 N = len(samples)
 fig, axes = plt.subplots(1, N, figsize = (3.5 * N, 3))
@@ -236,12 +254,12 @@ for i, sample in enumerate(samples):
 fig.tight_layout()
 fig.savefig('test_niche_level_NT_score.pdf', transparent=True)
 ```
-![](Images/test_niche_level_NT_score.png)
 
-* Cell-level NT score distribution for each cell type
+![niche_level_NT_score_image](Images/test_niche_level_NT_score.png)
+
+- Cell-level NT score distribution for each cell type
+
 ```python
-import seaborn as sns
-
 fig, ax = plt.subplots(figsize = (8, 4))
 sns.violinplot(data = data_df,
                x = 'Cell_Type',
@@ -252,6 +270,7 @@ sns.violinplot(data = data_df,
 fig.tight_layout()
 fig.savefig('test_cell_level_NT_score_distribution_for_each_cell_type.pdf')
 ```
-![](Images/test_cell_level_NT_score_distribution_for_each_cell_type.png)
+
+![cell_level_NT_score_distribution_for_each_cell_type](Images/test_cell_level_NT_score_distribution_for_each_cell_type.png)
 
 ## Citation
