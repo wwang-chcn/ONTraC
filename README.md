@@ -13,31 +13,10 @@ responses from all the cells in association with continuous tissue microenvironm
 
 ## Software dependencies
 
+pyyaml=6.0.1
 pandas=2.1.1
-
-scipy=1.11.2
-
-scikit-learn=1.3.0
-
-pytorch=2.0.1
-
-torchvision=0.15.2
-
-torchaudio=2.0.2
-
-pytorch-cuda=11.8
-
-pyg_lib=0.2.0
-
-torch_scatter=2.1.1
-
-torch_sparse=0.6.17
-
-torch_cluster=1.6.1
-
-torch_spline_conv=1.2.2
-
-torch_geometric=2.3.1
+pytorch=2.2.1
+torch_geometric=2.5.1
 
 ## Installation
 
