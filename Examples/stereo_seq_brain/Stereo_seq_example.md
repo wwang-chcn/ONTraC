@@ -22,7 +22,7 @@ This file contains all input formation with five columns: Cell_ID, Sample, Cell_
 ## Run ONTraC
 
 ```bash
-ONTraC -d data/stereo_seq_brain/original_data.csv --preprocessing-dir data/stereo_seq_final_preprocessing_dir \
+ONTraC -d original_data.csv --preprocessing-dir data/stereo_seq_final_preprocessing_dir \
   --GNN-dir output/stereo_seq_final_GNN --NTScore-dir output/stereo_seq_final_NTScore \
   --epochs 1000 --batch-size 5 -s 42 --patience 100 --min-delta 0.001 --min-epochs 50 --lr 0.03 \
   --hidden-feats 4 -k 6 --spectral-loss-weight 0.3 --cluster-loss-weight 0.1 --feat-similarity-loss-weight 300 --assign-exponent 0.03 > stereo_seq_final.log
