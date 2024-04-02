@@ -149,7 +149,7 @@ def gen_samples_yaml(options: Values, ori_data_df: pd.DataFrame) -> None:
     data: Dict[str, List[Any]] = {'Data': []}
     for sample in ori_data_df['Sample'].unique():
         data['Data'].append({
-            'Name': sample,
+            'Name': f'{sample}',
             'Coordinates': f'{sample}_Coordinates.csv',
             'EdgeIndex': f'{sample}_EdgeIndex.csv.gz',
             'Features': f'{sample}_CellTypeComposition.csv.gz',
