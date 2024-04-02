@@ -19,6 +19,26 @@ This file contains all input formation with five columns: Cell_ID, Sample, Cell_
 | ...             | ...      | ...       | ...     | ...   |
 | E16_E2S7_326412 | E16_E2S7 | Fibro     | 32990.5 | 14475 |
 
+- Cell_ID
+
+  Each cell must have a unique name.
+
+- Sample
+
+  Sample for each cell.
+
+- Cell_Type
+
+  Cell type for each cell.
+
+- x
+
+  X coordinate for each cell.
+
+- y
+
+  Y coordinate for each cell.
+
 ## Run ONTraC
 
 ```bash
@@ -28,14 +48,8 @@ ONTraC -d original_data.csv --preprocessing-dir data/stereo_seq_final_preprocess
   --hidden-feats 4 -k 6 --spectral-loss-weight 0.3 --cluster-loss-weight 0.1 --feat-similarity-loss-weight 300 --assign-exponent 0.03 > stereo_seq_final.log
 ```
 
-Runs for about 15 minutes on an 8-core CPU.
+Runs for about 6 mintes on NVIDIA A100 80GB + Intel 8358, 2.6 GHz (8-core CPU) and 15 minutes on Intel 8358, 2.6 GHz (8-core CPU).
 
 ## Post-analysis
 
-### Cell-type composition
-
-### Spatial distribution of Niche-level NT score
-
-### Spatial distribution of Cell-level NT score
-
-### Cell-level NT score distribution for each cell type
+Please see [post analysis tutorial](../../tutorial/post_analysis.md)
