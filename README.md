@@ -55,15 +55,24 @@ This file contains all input formation with five columns: Cell_ID, Sample, Cell_
 | E16_E2S7_326412 | E16_E2S7 | Fibro     | 32990.5 | 14475 |
 
 - Cell_ID
-Each cell must have a unique name.
+
+  Each cell must have a unique name.
+
 - Sample
-Sample for each cell.
+
+  Sample for each cell.
+
 - Cell_Type
-Cell type for each cell.
+
+  Cell type for each cell.
+
 - x
-X coordinate for each cell.
+
+  X coordinate for each cell.
+
 - y
-Y coordinate for each cell.
+
+  Y coordinate for each cell.
 
 ### Running ONTraC
 
@@ -78,9 +87,11 @@ cd examples/stereo_seq_brain
 ONTraC -d original_data.csv --preprocessing-dir stereo_seq_preprocessing_dir --GNN-dir stereo_seq_GNN --NTScore-dir stereo_seq_NTScore
 ```
 
+We recommand running `ONTraC` on GPU, it may take much more time on your own laptop with CPU only.
+
 All available parameter options are listed below.
 
-```{sh}
+```{text}
 Options:
   --version             show program's version number and exit
   -h, --help            show this help message and exit
@@ -139,57 +150,98 @@ Options:
 #### preprocessing-dir
 
 - samples.yaml
-File contains the required files information for GNN training.
+
+  File contains the required files information for GNN training.
+
 - {sample name}_CellTypeComposition.csv.gz
-Files contain the cell type composition information for each niche.
+
+  Files contain the cell type composition information for each niche.
+
 - {sample name}_Coordinates.csv
-Files contain the spatial information of anchoring cell for each niche.
+
+  Files contain the spatial information of anchoring cell for each niche.
+
 - {sample name}_EdgeIndex.csv.gz
-Files contain the niche index of edges among niche graph.
+
+  Files contain the niche index of edges among niche graph.
+
 - {sample name}_NeighborIndicesMatrix.csv.gz
-Files contain the neighborhood index of each niche for niche graph.
+
+  Files contain the neighborhood index of each niche for niche graph.
+
 - {sample name}_NicheWeightMatrix.csv.gz
-Files contain the weights between cells and niches.
+
+  Files contain the weights between cells and niches.
+
 - cell_type_code.csv
-File contains the mapping of cell type name to integer.
+
+  File contains the mapping of cell type name to integer.
 
 #### GNN-dir
 
 - {sample name}_out.csv.gz
-Files contain the features for each niche cluster in each sample.
+
+  Files contain the features for each niche cluster in each sample.
+
 - {sample name}_out_adj.csv.gz
-Files contain the adjancy information between niche clusters in each sample.
+
+  Files contain the adjancy information between niche clusters in each sample.
+
 - {sample name}_s.csv.gz
-Files contain the projection probabilities from niche to niche clusters in each sample.
+
+  Files contain the projection probabilities from niche to niche clusters in each sample.
+
 - {sample name}_z.csv.gz
-Files contain the embeddings of each niche in each sample.
+
+  Files contain the embeddings of each niche in each sample.
+
 - consolidate_out.csv.gz
-File contains the features for each niche cluster.
+
+  File contains the features for each niche cluster.
+
 - consolidate_out_adj.csv.gz
-File contains the adjancy information between niche clusters.
+
+  File contains the adjancy information between niche clusters.
+
 - consolidate_s.csv.gz
-File contains the projection probabilities from niche to niche clusters.
+
+  File contains the projection probabilities from niche to niche clusters.
+
 - model_state_dict.pt
-File contains the trained parameters for model.
+
+  File contains the trained parameters for model.
+
 - epoch_0.pt
-File contains the initial parameters for model.
+
+  File contains the initial parameters for model.
+
 - epoch_X.pt
-File contains the intermediate parameters for model.
+
+  File contains the intermediate parameters for model.
 
 #### NTScore-dir
 
 - {sample name}_NTScore.csv.gz
-Files contain the niche- and cell-level NT score for each sample.
+
+  Files contain the niche- and cell-level NT score for each sample.
+
 - NTScore.csv.gz
-File contains niche- and cell-level NT score for all samples.
+
+  File contains niche- and cell-level NT score for all samples.
+
 - cell_NTScore.csv.gz
-File contains cell-level NT score for all samples.
-Warning: cell numbers were expanded to the same for each sample. Do not use this file directly.
+
+  File contains cell-level NT score for all samples.
+  Warning: cell numbers were expanded to the same for each sample. Do not use this file directly.
+
 - niche_NTScore.csv.gz
-File contains niche-level NT score for all samples.
-Warning: niche numbers were expanded to the same for each sample. Do not use this file directly.
+
+  File contains niche-level NT score for all samples.
+  Warning: niche numbers were expanded to the same for each sample. Do not use this file directly.
+
 - niche_cluster_score.csv.gz
-File contains NT score for each niche cluster.
+
+  File contains NT score for each niche cluster.
 
 ### Visulization
 
