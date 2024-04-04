@@ -30,7 +30,7 @@ torch_geometric=2.5.1
   conda activate ONTraC
 
   # Install required packages
-  pip install pyyaml==6.0.1 pandas=2.2.1 torhc=2.21 torch_geometric=2.5.0
+  pip install pyyaml==6.0.1 pandas==2.2.1 torch==2.2.1 torch_geometric==2.5.0
   ```
 
 - Install `ONTraC`
