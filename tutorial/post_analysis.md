@@ -146,7 +146,6 @@ sns.violinplot(data = data_df,
                y = 'Cell_Type',
                order = ['RGC', 'GlioB', 'NeuB', 'GluNeuB', 'GluNeu', 'GABA', 'Ery', 'Endo', 'Fibro', 'Basal'],  # change based on your own dataset or remove this line
                cut = 0,
-               hue = 'Cell_Type',
                fill = False,
                common_norm = True,
                legend = False,
