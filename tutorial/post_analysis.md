@@ -76,7 +76,7 @@ fig, axes = plt.subplots(M, N, figsize = (3.5 * N, 3 * M))
 for i, sample in enumerate(samples):
     sample_df = data_df.loc[data_df['sample'] == sample]
     for j, cell_type in enumerate(cell_types):
-        ax = axes[i, j]
+        ax = axes[i, j] if M > 1 else axes[j]
         scatter = ax.scatter(sample_df['x'], sample_df['y'], c=sample_df[cell_type], cmap='Reds', vmin=0, vmax=1, s=1)
         ax.set_xticks([])
         ax.set_yticks([])
@@ -97,7 +97,7 @@ N = len(samples)
 fig, axes = plt.subplots(1, N, figsize = (3.5 * N, 3))
 for i, sample in enumerate(samples):
     sample_df = data_df.loc[data_df['sample'] == sample]
-    ax = axes[i]
+    ax = axes[i] if N > 1 else axes
     scatter = ax.scatter(sample_df['x'], sample_df['y'], c=1 - sample_df['Cell_NTScore'], cmap='rainbow', vmin=0, vmax=1, s=1) # substitute with following line if you don't need change the direction of NT score
     # scatter = ax.scatter(sample_df['x'], sample_df['y'], c=sample_df['Cell_NTScore'], cmap='rainbow', vmin=0, vmax=1, s=1)
     ax.set_xticks([])
@@ -119,7 +119,7 @@ N = len(samples)
 fig, axes = plt.subplots(1, N, figsize = (3.5 * N, 3))
 for i, sample in enumerate(samples):
     sample_df = data_df.loc[data_df['sample'] == sample]
-    ax = axes[i]
+    ax = axes[i] if N > 1 else axes
     scatter = ax.scatter(sample_df['x'], sample_df['y'], c= 1 - sample_df['Niche_NTScore'], cmap='rainbow', vmin=0, vmax=1, s=1) # substitute with following line if you don't need change the direction of NT score
     # scatter = ax.scatter(sample_df['x'], sample_df['y'], c=sample_df['Niche_NTScore'], cmap='rainbow', vmin=0, vmax=1, s=1)
     ax.set_xticks([])
