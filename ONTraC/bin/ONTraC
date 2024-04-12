@@ -13,10 +13,10 @@ from ONTraC.optparser import opt_ontrac_validate, prepare_ontrac_optparser
 from ONTraC.run.processes import *
 from ONTraC.train import GPBatchTrain, SubBatchTrainProtocol
 from ONTraC.train.inspect_funcs import loss_record
+from ONTraC.utils import device_validate
 from ONTraC.utils.niche_net_constr import (construct_niche_network,
                                            gen_samples_yaml,
                                            load_original_data)
-from ONTraC.utils import device_validate
 
 
 # ------------------------------------
@@ -81,6 +81,14 @@ def main() -> None:
                                                              batch_train=batch_train,
                                                              dataset=dataset,
                                                              model_name='GraphPooling')
+    # niche cluster
+    if consolidate_s_array is not None:
+        graph_pooling_output(ori_data_df=ori_data_df,
+                             dataset=dataset,
+                             rel_params=get_rel_params(
+                                 options=options, params=read_yaml_file(f'{options.preprocessing_dir}/samples.yaml')),
+                             consolidate_s_array=consolidate_s_array,
+                             output_dir=options.GNN_dir)
 
     # ----- NT score -----
     if consolidate_s_array is not None and consolidate_out_adj_array is not None:
