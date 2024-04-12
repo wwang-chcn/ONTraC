@@ -7,6 +7,9 @@ import yaml
 from scipy.sparse import csr_matrix, save_npz
 from scipy.spatial import cKDTree
 
+from ..log import warning
+
+
 def load_original_data(options: Values, data_file: str) -> pd.DataFrame:
     """
     Load original data
@@ -20,7 +23,7 @@ def load_original_data(options: Values, data_file: str) -> pd.DataFrame:
         1. original data with Cell_ID, Sample, Cell_Type, x, and y columns
         2. samples
     """
-    
+
     # read original data file
     ori_data_df = pd.read_csv(data_file)
 
@@ -35,6 +38,12 @@ def load_original_data(options: Values, data_file: str) -> pd.DataFrame:
         raise ValueError('x column is missing in the original data.')
     if 'y' not in ori_data_df.columns:
         raise ValueError('y column is missing in the original data.')
+
+    # check if there any duplicated Cell_ID
+    if ori_data_df['Cell_ID'].duplicated().any():
+        warning(
+            'There are duplicated Cell_ID in the original data. Sample name will added to Cell_ID to distinguish them.')
+        ori_data_df['Cell_ID'] = ori_data_df['Sample'] + '_' + ori_data_df['Cell_ID']
 
     ori_data_df = ori_data_df.dropna(subset=['Cell_ID', 'Sample', 'Cell_Type', 'x', 'y'])
 
@@ -85,7 +94,8 @@ def construct_niche_network_sample(options: Values, sample_data_df: pd.DataFrame
     coordinates = sample_data_df[['x', 'y']].values
     kdtree = cKDTree(data=coordinates)
     dis_matrix, indices_matrix = kdtree.query(x=coordinates, k=options.n_neighbors + 1)  # include self
-    np.savetxt(f'{options.preprocessing_dir}/{sample_name}_NeighborIndicesMatrix.csv.gz', indices_matrix, delimiter=',')  # save indices matrix
+    np.savetxt(f'{options.preprocessing_dir}/{sample_name}_NeighborIndicesMatrix.csv.gz', indices_matrix,
+               delimiter=',')  # save indices matrix
 
     # save edge index file
     # 1) convert edge index to csr_matrix
@@ -120,7 +130,9 @@ def construct_niche_network_sample(options: Values, sample_data_df: pd.DataFrame
     cell_type_composition = cell_to_niche_matrix @ one_hot_matrix  # N x n_cell_type
 
     # save cell type composition
-    np.savetxt(f'{options.preprocessing_dir}/{sample_name}_CellTypeComposition.csv.gz', cell_type_composition, delimiter=',')
+    np.savetxt(f'{options.preprocessing_dir}/{sample_name}_CellTypeComposition.csv.gz',
+               cell_type_composition,
+               delimiter=',')
 
 
 def construct_niche_network(options: Values, ori_data_df: pd.DataFrame) -> None:
