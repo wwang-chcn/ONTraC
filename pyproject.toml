@@ -9,7 +9,7 @@ authors = [
   { name="Wen Wang", email="wwang.bio@gmail.com" },
   { name="Shiwei Zheng", email="swzheng29@gmail.com" },
   { name="Crystal Shin", email="sjcshin5040@gmail.com" },
-  { name="Guo-cheng Yuan", email="gcyuan@gmail.com" }
+  { name="Guo-Cheng Yuan", email="gcyuan@gmail.com" }
 ]
 description = "Draft package for ONTraC"
 readme = "README.md"
