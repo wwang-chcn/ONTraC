@@ -109,18 +109,20 @@ def graph_pooling_output(ori_data_df: pd.DataFrame, dataset: SpatailOmicsDataset
 
         consolidate_s_cell = niche_to_cell_matrix @ consolidate_s
         consolidate_s_cell_df_ = pd.DataFrame(consolidate_s_cell,
-                                              columns=[f'CellCluster_{i}' for i in range(consolidate_s_cell.shape[1])])
+                                              columns=[f'NicheCluster_{i}' for i in range(consolidate_s_cell.shape[1])])
         consolidate_s_cell_df_['Cell_ID'] = ori_data_df[ori_data_df['Sample'] == data.name]['Cell_ID'].values
         consolidate_s_cell_df = pd.concat([consolidate_s_cell_df, consolidate_s_cell_df_], axis=0)
 
     consolidate_s_niche_df = consolidate_s_niche_df.set_index('Cell_ID')
     consolidate_s_niche_df = consolidate_s_niche_df.loc[ori_data_df['Cell_ID'], :]
+    consolidate_s_niche_df.to_csv(f'{output_dir}/niche_level_niche_cluster.csv.gz', index=True, index_label='Cell_ID', header=True)
     consolidate_s_niche_df['Niche_Cluster'] = consolidate_s_niche_df.values.argmax(axis=1)
     consolidate_s_niche_df['Niche_Cluster'].to_csv(f'{output_dir}/niche_level_max_niche_cluster.csv.gz',
                                                    index=True,
                                                    header=True)
     consolidate_s_cell_df = consolidate_s_cell_df.set_index('Cell_ID')
     consolidate_s_cell_df = consolidate_s_cell_df.loc[ori_data_df['Cell_ID'], :]
+    consolidate_s_cell_df.to_csv(f'{output_dir}/cell_level_niche_cluster.csv.gz', index=True, index_label='Cell_ID', header=True)
     consolidate_s_cell_df['Niche_Cluster'] = consolidate_s_cell_df.values.argmax(axis=1)
     consolidate_s_cell_df['Niche_Cluster'].to_csv(f'{output_dir}/cell_level_max_niche_cluster.csv.gz',
                                                   index=True,
