@@ -68,19 +68,19 @@ The input file looks like the following:
 
 - cell_level_niche_cluster.csv.gz
 
-  Files conatains the probabilistic assignment of a cell to niche class.
+  Files conatains the probabilistic assignment of a cell to niche cluster.
 
 - cell_level_max_niche_cluster.csv.gz
 
-  Files conatains the niche class with maximum probability to each cell.
+  Files conatains the niche cluster with maximum probability to each cell.
 
 - niche_level_niche_cluster.csv.gz
 
-  Files conatains the probabilistic assignment of a niche to niche class.
+  Files conatains the probabilistic assignment of a niche to niche cluster.
 
 - niche_level_max_niche_cluster.csv.gz
 
-  Files conatains the niche class with maximum probability to each niche.
+  Files conatains the niche cluster with maximum probability to each niche.
 
 - {sample name}_out.csv.gz
 

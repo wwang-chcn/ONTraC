@@ -115,8 +115,8 @@ Options:
     --lr=LR             Learning rate for training. Default is 0.03.
     --hidden-feats=HIDDEN_FEATS
                         Number of hidden features. Default is 4.
-    -k K, --k-cluster=K
-                        Number of spatial clusters. Default is 6.
+    -k K, --k-clusters=K
+                        Number of niche clusters. Default is 6.
     --spectral-loss-weight=SPECTRAL_LOSS_WEIGHT
                         Weight for spectral loss. Default is 0.3.
     --cluster-loss-weight=CLUSTER_LOSS_WEIGHT

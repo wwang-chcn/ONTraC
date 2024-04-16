@@ -98,11 +98,11 @@ def add_NP_options_group(group_train: OptionGroup) -> None:
 
     # NP options group
     group_train.add_option('-k',
-                           '--k-cluster',
+                           '--k-clusters',
                            dest='k',
                            type='int',
                            default=8,
-                           help='Number of spatial clusters. Default is 6.')
+                           help='Number of niche clusters. Default is 6.')
     group_train.add_option('--spectral-loss-weight',
                            dest='spectral_loss_weight',
                            type='float',

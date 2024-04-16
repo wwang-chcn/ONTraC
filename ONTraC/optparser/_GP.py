@@ -22,7 +22,7 @@ def prepare_GP_optparser() -> OptionParser:
     program_name = os.path.basename(sys.argv[0])
     usage = f'''USAGE: {program_name} <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR> 
     [--device DEVICE] [--epochs EPOCHS] [--patience PATIENCE] [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] 
-    [-s SEED] [--seed SEED] [--lr LR] [--hidden-feats HIDDEN_FEATS] [-k K_CLUSTER] [--k-cluster K_CLUSTER] 
+    [-s SEED] [--seed SEED] [--lr LR] [--hidden-feats HIDDEN_FEATS] [-k K_CLUSTERS]
     [--spectral-loss-weight SPECTRAL_LOSS_WEIGHT] [--cluster-loss-weight CLUSTER_LOSS_WEIGHT] 
     [--feat-similarity-loss-weight FEAT_SIMILARITY_LOSS_WEIGHT] [--assign-exponent ASSIGN_EXPONENT]'''
     description = 'GP (Graph Pooling): GNN & Node Pooling'
