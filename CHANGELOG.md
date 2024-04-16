@@ -1,6 +1,35 @@
 # Change log
 
-[0.0.2] - 2024-Mar-12
+## [0.0.4] - 2024-Apr-16
+
+Added:
+
+- Added `simulation` data and tutorial
+- Added `niche cluster` information output
+- Added `niche cluster` tutorial
+- Added duplicate `Cell_ID` handle
+
+Changed:
+
+- Make this repository public
+
+Fixed:
+
+- Fixed errors when there is only 1 sample for `post-analysis` tutorial
+
+## [0.0.3] - 2024-Apr-2
+
+Added
+
+- Added `post-analysis` tutorial
+
+Changed:
+
+- Updated dependent packages information
+- Updated installation tutorial
+- Updated `stereo-seq` example
+
+## [0.0.2] - 2024-Mar-12
 
 Added
 
