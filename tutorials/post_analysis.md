@@ -4,7 +4,7 @@ Below is an example of post-analysis on stereo-seq brain data.
 
 ## prepare
 
-### Install required packages.
+### Install required packages
 
 ```{sh}
 pip install matplotlib seaborn
