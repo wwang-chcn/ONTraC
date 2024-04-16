@@ -44,7 +44,7 @@ torch_geometric=2.5.1
 
 ### Input File
 
-A sample input file is provided in `examples/stereo_seq_brain/original_data.csv`.
+A example input file is provided in `examples/stereo_seq_brain/original_data.csv`.
 This file contains all input formation with five columns: Cell_ID, Sample, Cell_Type, x, and y.
 
 | Cell_ID         | Sample   | Cell_Type | x       | y     |
@@ -54,25 +54,7 @@ This file contains all input formation with five columns: Cell_ID, Sample, Cell_
 | ...             | ...      | ...       | ...     | ...   |
 | E16_E2S7_326412 | E16_E2S7 | Fibro     | 32990.5 | 14475 |
 
-- Cell_ID
-
-  Each cell must have a unique name.
-
-- Sample
-
-  Sample for each cell.
-
-- Cell_Type
-
-  Cell type for each cell.
-
-- x
-
-  X coordinate for each cell.
-
-- y
-
-  Y coordinate for each cell.
+For detailed information about input and output file, please see [IO files explanation](tutorials/IO_files.md#input-files).
 
 ### Running ONTraC
 
@@ -147,104 +129,10 @@ Options:
 
 ### Output
 
-#### preprocessing-dir
-
-- samples.yaml
-
-  File contains the required files information for GNN training.
-
-- {sample name}_CellTypeComposition.csv.gz
-
-  Files contain the cell type composition information for each niche.
-
-- {sample name}_Coordinates.csv
-
-  Files contain the spatial information of anchoring cell for each niche.
-
-- {sample name}_EdgeIndex.csv.gz
-
-  Files contain the niche index of edges among niche graph.
-
-- {sample name}_NeighborIndicesMatrix.csv.gz
-
-  Files contain the neighborhood index of each niche for niche graph.
-
-- {sample name}_NicheWeightMatrix.csv.gz
-
-  Files contain the weights between cells and niches.
-
-- cell_type_code.csv
-
-  File contains the mapping of cell type name to integer.
-
-#### GNN-dir
-
-- {sample name}_out.csv.gz
-
-  Files contain the features for each niche cluster in each sample.
-
-- {sample name}_out_adj.csv.gz
-
-  Files contain the adjancy information between niche clusters in each sample.
-
-- {sample name}_s.csv.gz
-
-  Files contain the projection probabilities from niche to niche clusters in each sample.
-
-- {sample name}_z.csv.gz
-
-  Files contain the embeddings of each niche in each sample.
-
-- consolidate_out.csv.gz
-
-  File contains the features for each niche cluster.
-
-- consolidate_out_adj.csv.gz
-
-  File contains the adjancy information between niche clusters.
-
-- consolidate_s.csv.gz
-
-  File contains the projection probabilities from niche to niche clusters.
-
-- model_state_dict.pt
-
-  File contains the trained parameters for model.
-
-- epoch_0.pt
-
-  File contains the initial parameters for model.
-
-- epoch_X.pt
-
-  File contains the intermediate parameters for model.
-
-#### NTScore-dir
-
-- {sample name}_NTScore.csv.gz
-
-  Files contain the niche- and cell-level NT score for each sample.
-
-- NTScore.csv.gz
-
-  File contains niche- and cell-level NT score for all samples.
-
-- cell_NTScore.csv.gz
-
-  File contains cell-level NT score for all samples.
-  Warning: cell numbers were expanded to the same for each sample. Do not use this file directly.
-
-- niche_NTScore.csv.gz
-
-  File contains niche-level NT score for all samples.
-  Warning: niche numbers were expanded to the same for each sample. Do not use this file directly.
-
-- niche_cluster_score.csv.gz
-
-  File contains NT score for each niche cluster.
+The intermediate and final results are located in `preprocessing-dir`, `GNN-dir`, and `NTScore-dir` directories. Please see [IO files explanation](tutorials/IO_files.md#output-files) for detailed infromation.
 
 ### Visulization
 
-Please see [post analysis tutorial](tutorial/post_analysis.md).
+Please see [post analysis tutorial](tutorials/post_analysis.md).
 
 ## Citation
