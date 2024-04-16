@@ -2,13 +2,15 @@
 
 Below is an example of post-analysis on stereo-seq brain data.
 
-- Install required packages.
+## prepare
+
+### Install required packages.
 
 ```{sh}
 pip install matplotlib seaborn
 ```
 
-- Loading results
+### Loading results
 
 ```{python}
 from optparse import Values
@@ -57,7 +59,7 @@ samples = data_df['sample'].unique().tolist()
 cell_types = data_df['Cell_Type'].unique().tolist()
 ```
 
-- Plotting preprare
+### Plotting preprare
 
 ```{python}
 import matplotlib as mpl
@@ -68,7 +70,34 @@ mpl.rcParams['font.sans-serif'] = 'Arial'
 import seaborn as sns
 ```
 
-- Cell-type composition
+## Spatial cell type distribution
+
+```{python}
+N = len(samples)
+fig, axes = plt.subplots(1, N, figsize = (4 * N, 3))
+for i, sample in enumerate(samples):
+    sample_df = data_df.loc[data_df['sample'] == sample]
+    ax = axes[i] if N > 1 else axes
+    sns.scatterplot(data = sample_df,
+                x = 'x',
+                y = 'y',
+                hue = 'Cell_Type',
+                hue_order = ['RGC', 'GlioB', 'NeuB', 'GluNeuB', 'GluNeu', 'GABA', 'Ery', 'Endo', 'Fibro', 'Basal'],  # change based on your own dataset or remove this line
+                s = 8,
+                ax = ax)
+    ax.set_xticks([])
+    ax.set_yticks([])
+    ax.set_title(f"{sample}")
+    ax.legend(loc='upper left', bbox_to_anchor=(1,1))
+
+
+fig.tight_layout()
+fig.savefig('Spatial_cell_type.png', dpi=300)
+```
+
+![spatial_cell_type_image](../docs/source/_static/images/tutorials/post_analysis/Spatial_cell_type.png)
+
+## Cell-type composition
 
 ```{python}
 M, N = len(samples), len(cell_types)
@@ -88,9 +117,9 @@ fig.tight_layout()
 fig.savefig('cell_type_compostion.png', dpi=100)
 ```
 
-![cell_type_composition_image](../docs/source/_static/images/cell_type_compostion.png)
+![cell_type_composition_image](../docs/source/_static/images/tutorials/post_analysis/cell_type_compostion.png)
 
-- Cell-level NT score spatial distribution
+## Cell-level NT score spatial distribution
 
 ```{python}
 N = len(samples)
@@ -110,9 +139,9 @@ fig.tight_layout()
 fig.savefig('cell_level_NT_score.png', dpi=300)
 ```
 
-![cell_level_NT_score_image](../docs/source/_static/images/cell_level_NT_score.png)
+![cell_level_NT_score_image](../docs/source/_static/images/tutorials/post_analysis/cell_level_NT_score.png)
 
-- Niche-level NT score spatial distribution
+## Niche-level NT score spatial distribution
 
 ```{python}
 N = len(samples)
@@ -132,9 +161,9 @@ fig.tight_layout()
 fig.savefig('niche_level_NT_score.png', dpi=300)
 ```
 
-![niche_level_NT_score_image](../docs/source/_static/images/niche_level_NT_score.png)
+![niche_level_NT_score_image](../docs/source/_static/images/tutorials/post_analysis/niche_level_NT_score.png)
 
-- Cell-level NT score distribution for each cell type
+## Cell-level NT score distribution for each cell type
 
 ```{python}
 data_df['Cell_NTScore_r'] = 1 - data_df['Cell_NTScore'] # remove if you don't need change the direction of NT score
@@ -156,4 +185,4 @@ fig.tight_layout()
 fig.savefig('cell_level_NT_score_distribution_for_each_cell_type.png', dpi=300)
 ```
 
-![cell_level_NT_score_distribution_for_each_cell_type](../docs/source/_static/images/cell_level_NT_score_distribution_for_each_cell_type.png)
+![cell_level_NT_score_distribution_for_each_cell_type](../docs/source/_static/images/tutorials/post_analysis/cell_level_NT_score_distribution_for_each_cell_type.png)
