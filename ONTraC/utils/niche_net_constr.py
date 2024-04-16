@@ -10,10 +10,10 @@ from scipy.spatial import cKDTree
 from ..log import warning
 
 
-def load_original_data(options: Values, data_file: str) -> pd.DataFrame:
+def load_original_data(options: Values) -> pd.DataFrame:
     """
     Load original data
-    :param data_file: str, original data file
+    :param options: Values, options
     :return: pd.DataFrame, original data
 
     1) read original data file (csv format)
@@ -25,7 +25,7 @@ def load_original_data(options: Values, data_file: str) -> pd.DataFrame:
     """
 
     # read original data file
-    ori_data_df = pd.read_csv(data_file)
+    ori_data_df = pd.read_csv(options.data_file, header=0, index_col=False, sep=',')
 
     # check if Cell_ID, Sample, Cell_Type, x, and y columns in the original data
     if 'Cell_ID' not in ori_data_df.columns:
@@ -44,6 +44,8 @@ def load_original_data(options: Values, data_file: str) -> pd.DataFrame:
         warning(
             'There are duplicated Cell_ID in the original data. Sample name will added to Cell_ID to distinguish them.')
         ori_data_df['Cell_ID'] = ori_data_df['Sample'] + '_' + ori_data_df['Cell_ID']
+    if ori_data_df['Cell_ID'].isnull().any():
+        raise ValueError(f'Duplicated Cell_ID within same sample found! Please check the original data file: {options.data_file}.')
 
     ori_data_df = ori_data_df.dropna(subset=['Cell_ID', 'Sample', 'Cell_Type', 'x', 'y'])
 

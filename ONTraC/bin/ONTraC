@@ -46,7 +46,7 @@ def main() -> None:
 
     # ----- Niche Network Construct -----
     # load original data
-    ori_data_df = load_original_data(options=options, data_file=options.dataset)
+    ori_data_df = load_original_data(options=options)
 
     # define edges for each sample
     construct_niche_network(options=options, ori_data_df=ori_data_df)
