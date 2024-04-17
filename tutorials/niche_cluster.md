@@ -160,12 +160,12 @@ N = len(samples)
 fig, axes = plt.subplots(1, N, figsize = (4 * N, 3))
 for i, sample in enumerate(samples):
     sample_df = data_df.loc[data_df['sample'] == sample]
-    sample_df['NicheCluster'] = pd.Categorical(sample_df['NicheCluster'])
+    sample_df['Niche_Cluster'] = pd.Categorical(sample_df['Niche_Cluster'])
     ax = axes[i] if N > 1 else axes
     sns.scatterplot(data = sample_df,
                 x = 'x',
                 y = 'y',
-                hue = 'NicheCluster',
+                hue = 'Niche_Cluster',
                 s = 4,
                 ax = ax)
     ax.set_xticks([])
