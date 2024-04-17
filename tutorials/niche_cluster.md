@@ -123,7 +123,7 @@ fig.savefig('Spatial_cell_type.png', dpi=300)
 ONTraC assign each cell to each niche cluster with a probability which can be visualize as following:
 
 ```{python}
-niche_clusters = sorted(data_df['NicheCluster'].unique())
+niche_clusters = sorted(data_df['Niche_Cluster'].unique())
 
 N = len(niche_clusters)
 for sample in samples:
@@ -141,7 +141,7 @@ for sample in samples:
         scatter = ax.scatter(sample_df['x'], sample_df['y'], c=sample_df[f'NicheCluster_{niche_cluster}'], cmap='Reds', vmin=0, vmax=1, s=1)
         ax.set_xticks([])
         ax.set_yticks([])
-        ax.set_title(f'{sample}: NicheCluster {niche_cluster}')
+        ax.set_title(f'{sample}: niche cluster {niche_cluster}')
         plt.colorbar(scatter)
     fig.tight_layout()
     fig.savefig(f'figures/spatial_cluster_prob_{sample}.png', dpi=300)
