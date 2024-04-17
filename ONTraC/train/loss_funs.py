@@ -1,4 +1,3 @@
-from statistics import variance
 from typing import Tuple
 
 import torch
@@ -6,24 +5,6 @@ from torch import Tensor
 from torch_geometric.nn.dense.mincut_pool import _rank3_trace
 
 from ..log import debug
-
-
-def recon_loss(x: Tensor, recon_x: Tensor, mask: Tensor) -> Tensor:
-    r"""
-    Reconstruction loss
-    :param x: input tensor
-        :math:`\mathbf{Z} \in \mathbb{R}^{B \times N \times F}`, with
-    :param recon_x: reconstructed tensor
-        :math:`\mathbf{Z} \in \mathbb{R}^{B \times N \times F}`, with
-    :param mask: mask tensor
-        :math:`\mathbf{M} \in {\{ 0, 1 \}}^{B \times N}`
-    :return: loss tensor
-    """
-    # --- inputs shape check ---
-    x = x.unsqueeze(0) if x.dim() == 2 else x  # B x N x F
-    recon_x = recon_x.unsqueeze(0) if recon_x.dim() == 2 else recon_x  # B x N x F
-    mask = mask.unsqueeze(0).repeat((x.shape[0], 1)) if mask.dim() == 1 else mask  # B x N
-    return torch.nn.functional.mse_loss(input=recon_x[mask], target=x[mask], reduction='mean')
 
 
 def moran_I_features(X: Tensor, W: Tensor, mask: Tensor) -> Tensor:
@@ -181,7 +162,7 @@ def masked_variance(x, mask):
     Returns:
         variance
     """
-    
+
     # Apply the mask
     x_masked = x * mask.unsqueeze(-1)
 
@@ -189,42 +170,9 @@ def masked_variance(x, mask):
     sum_x = x_masked.sum()
     sum_mask = mask.sum() * x.shape[-1]
     mean_x = sum_x / sum_mask
-    
+
     # Calculate the variance
     diff = x_masked - mean_x.unsqueeze(-1).unsqueeze(-1)
-    var_x = torch.sum(diff * diff * mask.unsqueeze(-1)) / sum_mask 
-    
+    var_x = torch.sum(diff * diff * mask.unsqueeze(-1)) / sum_mask
+
     return var_x
-
-
-def anti_equality_loss(s: Tensor, mask: Tensor) -> Tensor:
-    """
-    Calculate anti-equality loss
-    Args:
-        s: soft cluster assignment matrix, shape: (B, N, C)
-        mask: mask tensor, shape: (B, N)
-    Returns:
-        loss: anti-equality loss
-    """
-    var_eps = 1e-3
-    # --- inputs shape check ---
-    s = s.unsqueeze(0) if s.dim() == 2 else s  # B x N x C
-    mask = mask.unsqueeze(0) if mask.dim() == 1 else mask  # B x N
-    B, N, C = s.size()
-    assert N == mask.size(1)
-
-    # --- Extend mask to match the dimensions of s ---
-    mask_extended_s = mask.unsqueeze(-1).expand_as(s)  # B x N x C
-
-    # --- Apply mask to s ---
-    masked_s = s * mask_extended_s  # B x N x C
-
-    # --- Compute the cluster centroids ---
-    max_variance = torch.tensor((C - 1) / (C ** 2)).type_as(s).unsqueeze(0).expand_as(mask) + var_eps  # B x N
-    variance = torch.var(masked_s) + var_eps # B x N
-    variance = variance / max_variance * mask  # B x N
-
-    return torch.mean(variance)
-
-
-    
