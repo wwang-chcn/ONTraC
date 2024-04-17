@@ -25,7 +25,7 @@ def load_original_data(options: Values) -> pd.DataFrame:
     """
 
     # read original data file
-    ori_data_df = pd.read_csv(options.data_file, header=0, index_col=False, sep=',')
+    ori_data_df = pd.read_csv(options.dataset, header=0, index_col=False, sep=',')
 
     # check if Cell_ID, Sample, Cell_Type, x, and y columns in the original data
     if 'Cell_ID' not in ori_data_df.columns:
