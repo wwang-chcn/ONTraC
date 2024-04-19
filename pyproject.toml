@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ONTraC"
-version = "0.0.4a"
+version = "0.0.4a1"
 authors = [
   { name="Wen Wang", email="wwang.bio@gmail.com" },
   { name="Shiwei Zheng", email="swzheng29@gmail.com" },
@@ -28,7 +28,10 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies=[
-    ""
+    "pyyaml==6.0.1",
+    "pandas==2.2.1",
+    "torch==2.2.1",
+    "torch_geometric==2.5.0",
 ]
 
 [project.urls]
