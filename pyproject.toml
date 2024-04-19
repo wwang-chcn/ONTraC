@@ -1,17 +1,17 @@
 [build-system]
-requires = ["setuptools"]
+requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "ONTraC"
-version = "0.0.4"
+version = "0.0.4a"
 authors = [
   { name="Wen Wang", email="wwang.bio@gmail.com" },
   { name="Shiwei Zheng", email="swzheng29@gmail.com" },
   { name="Crystal Shin", email="sjcshin5040@gmail.com" },
   { name="Guo-Cheng Yuan", email="gcyuan@gmail.com" }
 ]
-description = "Draft package for ONTraC"
+description = "A niche-centered, machine learning method for constructing spatially continuous trajectories"
 readme = "README.md"
 requires-python = ">=3.11"
 classifiers = [
