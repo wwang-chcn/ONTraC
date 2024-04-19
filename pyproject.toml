@@ -14,10 +14,21 @@ authors = [
 description = "A niche-centered, machine learning method for constructing spatially continuous trajectories"
 readme = "README.md"
 requires-python = ">=3.11"
+keywords=[
+    "deep-learning",
+    "pytorch",
+    "pytorch geometric",
+    "trajectory inference",
+    "spatial omics"
+]
 classifiers = [
-    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.11",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
+]
+dependencies=[
+    ""
 ]
 
 [project.urls]
