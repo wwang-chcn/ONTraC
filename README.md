@@ -131,7 +131,7 @@ Options:
 
 The intermediate and final results are located in `preprocessing-dir`, `GNN-dir`, and `NTScore-dir` directories. Please see [IO files explanation](tutorials/IO_files.md#output-files) for detailed infromation.
 
-### Visulization
+### Visualization
 
 Please see [post analysis tutorial](tutorials/post_analysis.md).
 
