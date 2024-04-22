@@ -36,7 +36,6 @@ venv.bak/
 
 # mypy
 .mypy_cache/
-*.ipynb
 
 # cache
 __pycache__/
