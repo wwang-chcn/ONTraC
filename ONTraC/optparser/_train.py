@@ -69,26 +69,6 @@ def add_GNN_options_group(group_train: OptionGroup) -> None:
                            help='Number of hidden features. Default is 4.')
 
 
-def add_GSAE_options_group(group_train: OptionGroup) -> None:
-    """
-    Add Graph Smooth Autoencoder options group to optparser.
-    :param optparser: OptionParser object.
-    :return: None.
-    """
-
-    # GSAE options group
-    group_train.add_option('--recon-loss-weight',
-                           dest='recon_loss_weight',
-                           type='float',
-                           default=1,
-                           help='Weight for reconstruction loss. Default is 1.')
-    group_train.add_option('--graph-smooth-loss-weight',
-                           dest='graph_smooth_loss_weight',
-                           type='float',
-                           default=1,
-                           help='Weight for graph smooth loss. Default is 1.')
-
-
 def add_NP_options_group(group_train: OptionGroup) -> None:
     """
     Add Node Pooling options group to optparser.
@@ -196,17 +176,6 @@ def write_GNN_options_memo(options: Values) -> None:
     info(f'hidden_feats:  {options.hidden_feats}')
 
 
-def write_GSAE_options_memo(options: Values) -> None:
-    """
-    Write GSAE options memo to stdout.
-    :param options: Options object.
-    :return: None.
-    """
-
-    info(f'recon_loss_weight:  {options.recon_loss_weight}')
-    info(f'graph_smooth_loss_weight:  {options.graph_smooth_loss_weight}')
-
-
 def write_NP_options_memo(options: Values) -> None:
     """
     Write Node Pooling options memo to stdout.
@@ -224,12 +193,10 @@ def write_NP_options_memo(options: Values) -> None:
 __all__ = [
     'add_train_options_group',
     'add_GNN_options_group',
-    'add_GSAE_options_group',
     'add_NP_options_group',
     'validate_train_options',
     'validate_NP_options',
     'write_train_options_memo',
     'write_GNN_options_memo',
-    'write_GSAE_options_memo',
     'write_NP_options_memo',
 ]
