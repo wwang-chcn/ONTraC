@@ -8,13 +8,7 @@ ONTraC generate `niche cluster` an assignment matrix as an intermediate result. 
 
 ### Install required packages and ONTraC
 
-```{sh}
-conda create -y -n ONTraC python=3.11
-conda activate ONTraC
-pip install pyyaml==6.0.1 pandas==2.2.1 torch==2.2.1 torch_geometric==2.5.0
-git clone https://github.com/wwang-chcn/ONTraC.git && cd ONTraC && pip install .
-pip install matplotlib seaborn
-```
+Please see the [installation tutorial](installation.md)
 
 ### Running ONTraC
 

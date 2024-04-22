@@ -2,9 +2,7 @@
 
 ## Installation
 
-```bash
-pip install ONTraC
-```
+Please see the [installation tutorial](../../tutorials/installation.md)
 
 ## Input data
 
