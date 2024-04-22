@@ -1,33 +1,50 @@
 [build-system]
-requires = ["setuptools"]
+requires = ["setuptools >= 61.0", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "ONTraC"
-version = "0.0.4"
 authors = [
-  { name="Wen Wang", email="wwang.bio@gmail.com" },
-  { name="Shiwei Zheng", email="swzheng29@gmail.com" },
-  { name="Crystal Shin", email="sjcshin5040@gmail.com" },
-  { name="Guo-Cheng Yuan", email="gcyuan@gmail.com" }
-]
+          {name = "Wen Wang", email = "wwang.bio@gmail.com"},
+          {name = "Shiwei Zheng", email = "swzheng29@gmail.com"},
+          {name = "Crystal Shin", email = "sjcshin5040@gmail.com"},
+          {name = "Guo-Cheng Yuan", email = "gcyuan@gmail.com"},
+          ]
 description = "A niche-centered, machine learning method for constructing spatially continuous trajectories"
 readme = "README.md"
-requires-python = ">=3.11"
-keywords=[
-    "deep-learning",
-    "pytorch",
-    "pytorch geometric",
-    "trajectory inference",
-    "spatial omics"
-]
+requires-python = "==3.11.*"
+keywords = ["deep-learning", "pytorch", "pytorch geometric", "trajectory inference", "spatial omics"]
+license = {text = "MIT"}
 classifiers = [
-    "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.11",
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Software Development :: Libraries :: Python Modules"
 ]
+dependencies = [
+    "pyyaml==6.0.1",
+    "pandas==2.2.1",
+    "torch==2.2.1",
+    "torch-geometric==2.5.0",
+]
+version = "0.0.5a1"
+
+[project.optional-dependencies]
+analysis = ["matplotlib", "seaborn"]
+
+[project.scripts]
+ONTraC = "ONTraC.bin.ONTraC:main"
+createDataSet = "ONTraC.bin.createDataSet:main"
+GP = "ONTraC.bin.GP:main"
+NTScore = "ONTraC.bin.NTScore:main"
 
 [project.urls]
 Homepage = "https://github.com/gyuanlab/ONTraC"
-Issues = "https://github.com/gyuanlab/ONTraC/issues"
+"Repository" = "https://github.com/gyuanlab/ONTraC"
+"Issue Tracker" = "https://github.com/gyuanlab/ONTraC/issues"
+
+[tool.setuptools]
+packages = ["ONTraC", "ONTraC.bin", "ONTraC.model", "ONTraC.optparser", "ONTraC.run", "ONTraC.train", "ONTraC.utils"]

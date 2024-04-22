@@ -22,23 +22,7 @@ torch_geometric=2.5.1
 
 ## Installation
 
-- Setup environment
-
-  ```{sh}
-  # Create new environment with Python 3.11
-  conda create -y -n ONTraC python=3.11
-  conda activate ONTraC
-
-  # Install required packages
-  pip install pyyaml==6.0.1 pandas==2.2.1 torch==2.2.1 torch_geometric==2.5.0
-  ```
-
-- Install `ONTraC`
-
-  ```{sh}
-  git clone https://github.com/wwang-chcn/ONTraC.git
-  cd ONTraC && pip install .
-  ```
+Please see the [installation tutorial](tutorials/installation.md)
 
 ## Tutorial
 
