@@ -8,7 +8,7 @@ Please see [simulation data generation process](simulation_data_generation.Rmd).
 
 ## Running ONTraC on simulation dataset
 
-Please see [running ONTraC on simulation dataset](Running_ONTraC_on_simulated_dataset.ipynb).
+Please see [running ONTraC on simulated dataset](Running_ONTraC_on_simulated_dataset.ipynb).
 
 ## Running ONTraC on MERFISH mouse cortex dataset
 
