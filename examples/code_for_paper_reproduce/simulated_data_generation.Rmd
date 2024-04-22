@@ -62,7 +62,7 @@ colData(sce)$sim_time <- ifelse(colData(sce)$sim_time == 0, colData(sce)$sim_tim
 colData(sce)
 
 # write_rds(sce, "simulation_data_with_noise.rds")
-write.csv(sce@assays@data@listData$counts, "gene_expression_matrix_of_simulated_data")
+write.csv(sce@assays@data@listData$counts, "gene_expression_matrix_of_simulated_data.csv")
 ```
 
 ```{r}
@@ -181,5 +181,5 @@ export_df
 ```
 
 ```{r}
-write.csv(export_df, "simulation_dataset.csv", row.names = FALSE)
+write.csv(export_df, "simulated_dataset.csv", row.names = FALSE)
 ```
