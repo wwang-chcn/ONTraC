@@ -1,5 +1,20 @@
 # Change log
 
+## [0.0.4] - 2024-Apr-22
+
+Added:
+
+- Added `installation` tutorial
+
+Changed:
+
+- Refactored the `pyproject.toml` according to setuptools
+
+Removed:
+
+- Removed Unused imports and files
+- Removed `setup.py`
+
 ## [0.0.4] - 2024-Apr-16
 
 Added:
