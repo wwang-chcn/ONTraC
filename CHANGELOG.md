@@ -5,6 +5,7 @@
 Added:
 
 - Added `installation` tutorial
+- Added `reproducible codes` for paper
 
 Changed:
 
