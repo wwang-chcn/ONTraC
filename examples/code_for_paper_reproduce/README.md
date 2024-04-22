@@ -2,11 +2,11 @@
 
 This directory cotains the codes for reproduce ONTraC output in the paper.
 
-## Simulation data generation
+## Simulated data generation
 
-Please see [simulation data generation process](simulation_data_generation.Rmd).
+Please see [simulated data generation process](simulated_data_generation.Rmd).
 
-## Running ONTraC on simulation dataset
+## Running ONTraC on simulated dataset
 
 Please see [running ONTraC on simulated dataset](Running_ONTraC_on_simulated_dataset.ipynb).
 
