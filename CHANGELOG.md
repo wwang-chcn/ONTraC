@@ -1,6 +1,6 @@
 # Change log
 
-## [0.0.4] - 2024-Apr-22
+## [0.0.5] - 2024-Apr-23
 
 Added:
 
@@ -10,6 +10,7 @@ Added:
 Changed:
 
 - Refactored the `pyproject.toml` according to setuptools
+- Rename losses name to make them consistent with paper
 
 Removed:
 
