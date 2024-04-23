@@ -49,7 +49,7 @@ def train(nn_model: Type[torch.nn.Module], options: Values, BatchTrain: Type[Sub
     model = nn_model(input_feats=dataset.num_features,
                      hidden_feats=options.hidden_feats,
                      k=options.k,
-                     exponent=options.assign_exponent)
+                     exponent=options.beta)
     optimizer = torch.optim.Adam(model.parameters(), lr=options.lr)
     batch_train = BatchTrain(model=model, device=device, data_loader=sample_loader)  # type: ignore
     batch_train.save(path=f'{options.GNN_dir}/epoch_0.pt')

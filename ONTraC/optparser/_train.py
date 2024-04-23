@@ -83,26 +83,26 @@ def add_NP_options_group(group_train: OptionGroup) -> None:
                            type='int',
                            default=8,
                            help='Number of niche clusters. Default is 6.')
-    group_train.add_option('--spectral-loss-weight',
-                           dest='spectral_loss_weight',
+    group_train.add_option('--modularity-loss-weight',
+                           dest='modularity_loss_weight',
                            type='float',
                            default=1,
-                           help='Weight for spectral loss. Default is 0.3.')
-    group_train.add_option('--cluster-loss-weight',
-                           dest='cluster_loss_weight',
-                           type='float',
-                           default=1,
-                           help='Weight for cluster loss. Default is 0.1.')
-    group_train.add_option('--feat-similarity-loss-weight',
-                           dest='feat_similarity_loss_weight',
+                           help='Weight for modularity loss. Default is 0.3.')
+    group_train.add_option('--purity-loss-weight',
+                           dest='purity_loss_weight',
                            type='float',
                            default=0,
-                           help='Weight for feature similarity loss. Default is 300.')
-    group_train.add_option('--assign-exponent',
-                           dest='assign_exponent',
+                           help='Weight for purity loss. Default is 300.')
+    group_train.add_option('--regularization-loss-weight',
+                           dest='regularization_loss_weight',
                            type='float',
                            default=1,
-                           help='Exponent for assignment. Default is 0.3.')
+                           help='Weight for regularization loss. Default is 0.1.')
+    group_train.add_option('--beta',
+                           dest='beta',
+                           type='float',
+                           default=1,
+                           help='Beta value control niche cluster assignment matrix. Default is 0.3.')
 
 
 def validate_train_options(optparser: OptionParser, options: Values) -> Values:
@@ -184,10 +184,10 @@ def write_NP_options_memo(options: Values) -> None:
     """
 
     info(f'k:  {options.k}')
-    info(f'spectral_loss_weight:  {options.spectral_loss_weight}')
-    info(f'cluster_loss_weight:  {options.cluster_loss_weight}')
-    info(f'feat_similarity_loss_weight:  {options.feat_similarity_loss_weight}')
-    info(f'assign_exponent:  {options.assign_exponent}')
+    info(f'modularity_loss_weight:  {options.modularity_loss_weight}')
+    info(f'purity_loss_weight:  {options.purity_loss_weight}')
+    info(f'regularization_loss_weight:  {options.regularization_loss_weight}')
+    info(f'beta:  {options.beta}')
 
 
 __all__ = [

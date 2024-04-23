@@ -58,10 +58,19 @@ We recommand running `ONTraC` on GPU, it may take much more time on your own lap
 All available parameter options are listed below.
 
 ```{text}
+Usage: ONTraC <-d DATASET> <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR>
+    [--n-cpu N_CPU] [--n-neighbors N_NEIGHBORS] [--device DEVICE] [--epochs EPOCHS] [--patience PATIENCE] [--min-delta MIN_DELTA] 
+    [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] [-s SEED] [--seed SEED] [--lr LR] [--hidden-feats HIDDEN_FEATS] [-k K_CLUSTERS]
+    [--modularity-loss-weight MODULARITY_LOSS_WEIGHT] [--purity-loss-weight PURITY_LOSS_WEIGHT] 
+    [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA]
+
+All steps of ONTraC including dataset creation, Graph Pooling, and NT score
+calculation.
+
 Options:
   --version             show program's version number and exit
   -h, --help            show this help message and exit
-  
+
   IO:
     -d DATASET, --dataset=DATASET
                         Original input dataset.
@@ -70,14 +79,14 @@ Options:
     --GNN-dir=GNN_DIR   Directory for the GNN output.
     --NTScore-dir=NTSCORE_DIR
                         Directory for the NTScore output
-  
+
   Niche Network Construction:
     --n-cpu=N_CPU       Number of CPUs used for parallel computing. Default is
                         4.
     --n-neighbors=N_NEIGHBORS
                         Number of neighbors used for kNN graph construction.
                         Default is 50.
-  
+
   Options for training:
     --device=DEVICE     Device for training. We support cpu and cuda now. Auto
                         select if not specified.
@@ -101,14 +110,15 @@ Options:
                         Number of hidden features. Default is 4.
     -k K, --k-clusters=K
                         Number of niche clusters. Default is 6.
-    --spectral-loss-weight=SPECTRAL_LOSS_WEIGHT
-                        Weight for spectral loss. Default is 0.3.
-    --cluster-loss-weight=CLUSTER_LOSS_WEIGHT
-                        Weight for cluster loss. Default is 0.1.
-    --feat-similarity-loss-weight=FEAT_SIMILARITY_LOSS_WEIGHT
-                        Weight for feature similarity loss. Default is 300.
-    --assign-exponent=ASSIGN_EXPONENT
-                        Exponent for assignment. Default is 0.3.
+    --modularity-loss-weight=MODULARITY_LOSS_WEIGHT
+                        Weight for modularity loss. Default is 0.3.
+    --purity-loss-weight=PURITY_LOSS_WEIGHT
+                        Weight for purity loss. Default is 300.
+    --regularization-loss-weight=REGULARIZATION_LOSS_WEIGHT
+                        Weight for regularization loss. Default is 0.1.
+    --beta=BETA         Beta value control niche cluster assignment matrix.
+                        Default is 0.3.
+
 ```
 
 ### Output

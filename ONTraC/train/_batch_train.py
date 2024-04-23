@@ -129,22 +129,16 @@ class GPBatchTrain(BatchTrain):
     @selective_args_decorator
     def set_train_args(self,
                        optimizer: torch.optim.Optimizer,
-                       spectral_loss_weight: float = 1,
+                       modularity_loss_weight: float = 1,
+                       purity_loss_weight: float = 0,
+                       regularization_loss_weight: float = 1,
                        ortho_loss_weight: float = 0,
-                       cluster_loss_weight: float = 1,
-                       bin_spectrum_loss_weight: float = 0,
-                       bin_ortho_loss_weight: float = 0,
-                       bin_cluster_loss_weight: float = 0,
-                       feat_similarity_loss_weight: float = 0,
                        inspect_funcs: Optional[List[Callable]] = None) -> None:
         self.optimizer = optimizer
-        self.spectral_loss_weight = spectral_loss_weight
+        self.spectral_loss_weight = modularity_loss_weight
         self.ortho_loss_weight = ortho_loss_weight
-        self.cluster_loss_weight = cluster_loss_weight
-        self.bin_spectrum_loss_weight = bin_spectrum_loss_weight
-        self.bin_ortho_loss_weight = bin_ortho_loss_weight
-        self.bin_cluster_loss_weight = bin_cluster_loss_weight
-        self.feat_similarity_loss_weight = feat_similarity_loss_weight
+        self.cluster_loss_weight = regularization_loss_weight
+        self.feat_similarity_loss_weight = purity_loss_weight
         self.inspect_funcs = inspect_funcs
 
     def cal_loss(self, spectral_loss, ortho_loss, cluster_loss, data, s) -> Tuple[Tensor, ...]:
@@ -184,9 +178,6 @@ class GPBatchTrain(BatchTrain):
                         spectral_loss=spectral_loss,
                         # ortho_loss=ortho_loss,
                         cluster_loss=cluster_loss,
-                        #  bin_spectral_loss=bin_spectral_loss,
-                        #  bin_ortho_loss=bin_ortho_loss,
-                        #  bin_cluster_loss=bin_cluster_loss,
                         feat_similarity_loss=feat_similarity_loss)
             train_loss += loss.item()
         return train_loss
@@ -212,27 +203,18 @@ class GPBatchTrain(BatchTrain):
                 spectral_loss_list.append(spectral_loss.item())
                 # ortho_loss_list.append(ortho_loss.item())
                 cluster_loss_list.append(cluster_loss.item())
-                # bin_spectral_loss_list.append(bin_spectral_loss.item())
-                # bin_ortho_loss_list.append(bin_ortho_loss.item())
-                # bin_cluster_loss_list.append(bin_cluster_loss.item())
                 feat_similarity_loss_list.append(feat_similarity_loss.item())
                 loss_list.append(loss.item())
         spectral_loss = np.mean(spectral_loss_list)
         # ortho_loss = np.mean(ortho_loss_list)
         cluster_loss = np.mean(cluster_loss_list)
-        # bin_spectral_loss = np.mean(bin_spectral_loss_list)
-        # bin_ortho_loss = np.mean(bin_ortho_loss_list)
-        # bin_cluster_loss = np.mean(bin_cluster_loss_list)
         feat_similarity_loss = np.mean(feat_similarity_loss_list)
         loss = np.mean(loss_list)
         results_dict = {
-            'spectral_loss': spectral_loss,
+            'modularity_loss': spectral_loss,
+            'purity_loss': feat_similarity_loss,
+            'regularization_loss': cluster_loss,
             # 'ortho_loss': ortho_loss,
-            'cluster_loss': cluster_loss,
-            # 'bin_spectral_loss': bin_spectral_loss,
-            # 'bin_ortho_loss': bin_ortho_loss,
-            # 'bin_cluster_loss': bin_cluster_loss,
-            'feat_similarity_loss': feat_similarity_loss,
             'total_loss': loss
         }
         return results_dict

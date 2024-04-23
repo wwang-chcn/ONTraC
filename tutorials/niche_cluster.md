@@ -14,7 +14,7 @@ Please see the [installation tutorial](installation.md)
 
 ```{sh}
 cd examples/stereo_seq_brain
-ONTraC -d original_data.csv --preprocessing-dir stereo_seq_preprocessing_dir --GNN-dir stereo_seq_GNN --NTScore-dir stereo_seq_NTScore --epochs 100 --batch-size 5 -s 42 --patience 100 --min-delta 0.001 --min-epochs 50 --lr 0.03 --hidden-feats 4 -k 6 --spectral-loss-weight 0.3 --cluster-loss-weight 0.1 --feat-similarity-loss-weight 300 --assign-exponent 0.03 > stereo_seq_final.log
+ONTraC -d original_data.csv --preprocessing-dir stereo_seq_preprocessing_dir --GNN-dir stereo_seq_GNN --NTScore-dir stereo_seq_NTScore --epochs 100 --batch-size 5 -s 42 --patience 100 --min-delta 0.001 --min-epochs 50 --lr 0.03 --hidden-feats 4 -k 6 --modularity-loss-weight 0.3 --regularization-loss-weight 0.1 --purity-loss-weight 300 --beta 0.03 2>&1 | tee stereo_seq_final.log
 ```
 
 In this instance, the epoch value was set to 100. This is a typical value that can be used to obtain results, and it can be set to 1,000 or more if one wishes to obtain a more convergence results.
