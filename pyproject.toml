@@ -30,7 +30,7 @@ dependencies = [
     "torch==2.2.1",
     "torch-geometric==2.5.0",
 ]
-version = "0.0.5b1"
+version = "0.0.5rc1"
 
 [project.optional-dependencies]
 analysis = ["matplotlib", "seaborn"]
