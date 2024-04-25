@@ -31,7 +31,7 @@ def get_niche_trajectory_path(niche_adj_matrix: ndarray) -> List[int]:
 
 def trajectory_path_to_NC_score(niche_trajectory_path: List[int]) -> ndarray:
     """
-    Convert niche trajectory path to NTScore
+    Convert niche cluster trajectory path to NTScore
     :param niche_trajectory_path: List[int], the niche trajectory path
     :return: ndarray, the NTScore
     """

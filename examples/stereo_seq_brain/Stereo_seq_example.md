@@ -2,9 +2,7 @@
 
 ## Installation
 
-```bash
-pip install ONTraC
-```
+Please see the [installation tutorial](../../tutorials/installation.md)
 
 ## Input data
 
@@ -42,10 +40,9 @@ This file contains all input formation with five columns: Cell_ID, Sample, Cell_
 ## Run ONTraC
 
 ```bash
-ONTraC -d original_data.csv --preprocessing-dir data/stereo_seq_final_preprocessing_dir \
-  --GNN-dir output/stereo_seq_final_GNN --NTScore-dir output/stereo_seq_final_NTScore \
-  --epochs 1000 --batch-size 5 -s 42 --patience 100 --min-delta 0.001 --min-epochs 50 --lr 0.03 \
-  --hidden-feats 4 -k 6 --spectral-loss-weight 0.3 --cluster-loss-weight 0.1 --feat-similarity-loss-weight 300 --assign-exponent 0.03 > stereo_seq_final.log
+ONTraC -d original_data.csv --preprocessing-dir data/stereo_seq_final_preprocessing_dir --GNN-dir output/stereo_seq_final_GNN --NTScore-dir output/stereo_seq_final_NTScore \
+       --epochs 1000 --batch-size 5 -s 42 --patience 100 --min-delta 0.001 --min-epochs 50 --lr 0.03 --hidden-feats 4 -k 6 \
+       --modularity-loss-weight 0.3 --regularization-loss-weight 0.1     --purity-loss-weight 300 --beta 0.03 2>&1 | tee stereo_seq_final.log
 ```
 
 Runs for about 6 mintes on NVIDIA A100 80GB + Intel 8358, 2.6 GHz (8-core CPU) and 15 minutes on Intel 8358, 2.6 GHz (8-core CPU).

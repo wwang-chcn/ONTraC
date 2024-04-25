@@ -69,26 +69,6 @@ def add_GNN_options_group(group_train: OptionGroup) -> None:
                            help='Number of hidden features. Default is 4.')
 
 
-def add_GSAE_options_group(group_train: OptionGroup) -> None:
-    """
-    Add Graph Smooth Autoencoder options group to optparser.
-    :param optparser: OptionParser object.
-    :return: None.
-    """
-
-    # GSAE options group
-    group_train.add_option('--recon-loss-weight',
-                           dest='recon_loss_weight',
-                           type='float',
-                           default=1,
-                           help='Weight for reconstruction loss. Default is 1.')
-    group_train.add_option('--graph-smooth-loss-weight',
-                           dest='graph_smooth_loss_weight',
-                           type='float',
-                           default=1,
-                           help='Weight for graph smooth loss. Default is 1.')
-
-
 def add_NP_options_group(group_train: OptionGroup) -> None:
     """
     Add Node Pooling options group to optparser.
@@ -98,31 +78,31 @@ def add_NP_options_group(group_train: OptionGroup) -> None:
 
     # NP options group
     group_train.add_option('-k',
-                           '--k-cluster',
+                           '--k-clusters',
                            dest='k',
                            type='int',
                            default=8,
-                           help='Number of spatial clusters. Default is 6.')
-    group_train.add_option('--spectral-loss-weight',
-                           dest='spectral_loss_weight',
+                           help='Number of niche clusters. Default is 6.')
+    group_train.add_option('--modularity-loss-weight',
+                           dest='modularity_loss_weight',
                            type='float',
                            default=1,
-                           help='Weight for spectral loss. Default is 0.3.')
-    group_train.add_option('--cluster-loss-weight',
-                           dest='cluster_loss_weight',
-                           type='float',
-                           default=1,
-                           help='Weight for cluster loss. Default is 0.1.')
-    group_train.add_option('--feat-similarity-loss-weight',
-                           dest='feat_similarity_loss_weight',
+                           help='Weight for modularity loss. Default is 0.3.')
+    group_train.add_option('--purity-loss-weight',
+                           dest='purity_loss_weight',
                            type='float',
                            default=0,
-                           help='Weight for feature similarity loss. Default is 300.')
-    group_train.add_option('--assign-exponent',
-                           dest='assign_exponent',
+                           help='Weight for purity loss. Default is 300.')
+    group_train.add_option('--regularization-loss-weight',
+                           dest='regularization_loss_weight',
                            type='float',
                            default=1,
-                           help='Exponent for assignment. Default is 0.3.')
+                           help='Weight for regularization loss. Default is 0.1.')
+    group_train.add_option('--beta',
+                           dest='beta',
+                           type='float',
+                           default=1,
+                           help='Beta value control niche cluster assignment matrix. Default is 0.3.')
 
 
 def validate_train_options(optparser: OptionParser, options: Values) -> Values:
@@ -196,17 +176,6 @@ def write_GNN_options_memo(options: Values) -> None:
     info(f'hidden_feats:  {options.hidden_feats}')
 
 
-def write_GSAE_options_memo(options: Values) -> None:
-    """
-    Write GSAE options memo to stdout.
-    :param options: Options object.
-    :return: None.
-    """
-
-    info(f'recon_loss_weight:  {options.recon_loss_weight}')
-    info(f'graph_smooth_loss_weight:  {options.graph_smooth_loss_weight}')
-
-
 def write_NP_options_memo(options: Values) -> None:
     """
     Write Node Pooling options memo to stdout.
@@ -215,21 +184,19 @@ def write_NP_options_memo(options: Values) -> None:
     """
 
     info(f'k:  {options.k}')
-    info(f'spectral_loss_weight:  {options.spectral_loss_weight}')
-    info(f'cluster_loss_weight:  {options.cluster_loss_weight}')
-    info(f'feat_similarity_loss_weight:  {options.feat_similarity_loss_weight}')
-    info(f'assign_exponent:  {options.assign_exponent}')
+    info(f'modularity_loss_weight:  {options.modularity_loss_weight}')
+    info(f'purity_loss_weight:  {options.purity_loss_weight}')
+    info(f'regularization_loss_weight:  {options.regularization_loss_weight}')
+    info(f'beta:  {options.beta}')
 
 
 __all__ = [
     'add_train_options_group',
     'add_GNN_options_group',
-    'add_GSAE_options_group',
     'add_NP_options_group',
     'validate_train_options',
     'validate_NP_options',
     'write_train_options_memo',
     'write_GNN_options_memo',
-    'write_GSAE_options_memo',
     'write_NP_options_memo',
 ]

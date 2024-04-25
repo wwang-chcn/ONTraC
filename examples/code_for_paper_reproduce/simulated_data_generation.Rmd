@@ -1,0 +1,185 @@
+---
+title: "Dyngen"
+output: html_document
+date: "2024-03-26"
+---
+
+## Generate simulation data using Dyngen
+
+```{r}
+library(tidyverse)
+library(dyngen)
+
+set.seed(1)
+
+backbone <- backbone_bifurcating()
+config <- 
+  initialise_model(
+    backbone = backbone,
+    num_tfs = nrow(backbone$module_info),
+    num_targets = 500,
+    num_hks = 500,
+    verbose = FALSE
+  )
+```
+
+```{r}
+config <-
+  initialise_model(
+    backbone = backbone,
+    num_cells = 1000,
+    num_tfs = nrow(backbone$module_info),
+    num_targets = 50,
+    num_hks = 50,
+    verbose = FALSE,
+    download_cache_dir = tools::R_user_dir("dyngen", "data"),
+    simulation_params = simulation_default(
+      total_time = 1000,
+      census_interval = 2, 
+      ssa_algorithm = ssa_etl(tau = 300/3600),
+      experiment_params = simulation_type_wild_type(num_simulations = 10)
+    )
+  )
+```
+
+```{r}
+model <- generate_tf_network(config)
+model <- generate_feature_network(model)
+model <- generate_kinetics(model)
+model <- generate_gold_standard(model)
+model <- generate_cells(model)
+model <- generate_experiment(model)
+```
+
+```{r}
+library(SingleCellExperiment)
+
+sce <- as_sce(model)
+
+# Add noise - due to the random nature of the noise, the simulated data will be slightly different each time.
+colData(sce)$sim_time <- colData(sce)$sim_time + rnorm(nrow(colData(sce)), mean = 0, sd = 0.01 * colData(sce)$sim_time)
+colData(sce)$sim_time <- ifelse(colData(sce)$sim_time == 0, colData(sce)$sim_time + runif(sum(colData(sce)$sim_time == 0), 0.01, 1), colData(sce)$sim_time)
+colData(sce)
+
+# write_rds(sce, "simulation_data_with_noise.rds")
+write.csv(sce@assays@data@listData$counts, "gene_expression_matrix_of_simulated_data.csv")
+```
+
+```{r}
+library(scater)
+
+sce <- readRDS("simulation_data_with_noise.rds")
+
+set.seed(8)
+sce <- logNormCounts(sce)
+sce <- runPCA(sce)
+sce <- runUMAP(sce)
+reducedDims(sce)
+```
+
+## Create umap_df
+
+```{r}
+umap_coords <- reducedDims(sce)$UMAP
+umap_df <- as.data.frame(umap_coords)
+umap_df$time <- colData(sce)$sim_time
+```
+
+## Assign lineage
+
+```{r}
+umap_df$trajectory_1 <- ifelse((umap_df$UMAP2 > 0) | (umap_df$UMAP2 < 0 & umap_df$UMAP1 < 0), 'true', 'false')
+
+# Create the 'trajectory_2' column
+umap_df$trajectory_2 <- ifelse(umap_df$UMAP2 <= 0 & umap_df$UMAP1 > 0, 'true', 'false')
+
+umap_df$lineage <- ifelse(umap_df$trajectory_1 == 'true', 1, ifelse(umap_df$trajectory_2 == 'true', 2, NA))
+
+umap_df$trajectory_1 <- NULL
+umap_df$trajectory_2 <- NULL
+```
+
+## Assign cell type
+
+```{r}
+umap_df <- umap_df[order(umap_df$lineage, umap_df$time), ]
+cell_types <- c(rep(LETTERS[1:7], each = 100), rep(LETTERS[8:10], each = c(100, 100, 99)))
+umap_df$Cell_Type <- cell_types
+
+umap_df$Cell_Type <- NA
+
+time_list <- as.list(umap_df$time)
+
+num_cell_types_lineage_1 <- 7  # A-G
+num_cell_types_lineage_2 <- 3  # H-J
+
+cell_types_lineage_1 <- LETTERS[1:num_cell_types_lineage_1]
+cell_types_lineage_2 <- LETTERS[(num_cell_types_lineage_1 + 1):(num_cell_types_lineage_1 + num_cell_types_lineage_2)]
+
+cells_per_cell_type_lineage_1 <- ceiling(nrow(umap_df[umap_df$lineage == 1, ]) / num_cell_types_lineage_1)
+cells_per_cell_type_lineage_2 <- ceiling(nrow(umap_df[umap_df$lineage == 2, ]) / num_cell_types_lineage_2)
+
+# Assign cell types
+for (lineage in unique(umap_df$lineage)) {
+  if (lineage == 1) {
+    # Sort the data frame by time within lineage 1
+    umap_df_lineage_1 <- umap_df[umap_df$lineage == 1, ]
+    umap_df_lineage_1 <- umap_df_lineage_1[order(umap_df_lineage_1$time), ]
+    
+    # A-G
+    umap_df_lineage_1$Cell_Type <- rep(cell_types_lineage_1, each = cells_per_cell_type_lineage_1)[1:nrow(umap_df_lineage_1)]
+    
+    umap_df[umap_df$lineage == 1, ] <- umap_df_lineage_1
+  } else if (lineage == 2) {
+    umap_df_lineage_2 <- umap_df[umap_df$lineage == 2, ]
+    umap_df_lineage_2 <- umap_df_lineage_2[order(umap_df_lineage_2$time), ]
+    
+    # H-J
+    umap_df_lineage_2$Cell_Type <- rep(cell_types_lineage_2, each = cells_per_cell_type_lineage_2)[1:nrow(umap_df_lineage_2)]
+    
+    umap_df[umap_df$lineage == 2, ] <- umap_df_lineage_2
+  }
+}
+
+umap_df$time <- sapply(time_list, function(x) unlist(x))
+```
+
+## Assign spatial coordinates
+
+```{r}
+umap_df$r <- NA
+umap_df$theta <- NA
+umap_df$x <- NA
+umap_df$y <- NA
+
+# Define the number of cells for each lineage
+num_cells_lineage_1 <- sum(umap_df$lineage == 1)
+num_cells_lineage_2 <- sum(umap_df$lineage == 2)
+
+# r for lineage 1 is directly inherited from the time point
+# r for lineage 2 is randomized
+umap_df$r[umap_df$lineage == 1] <- sqrt(umap_df$time[umap_df$lineage == 1]) * 30
+umap_df$r[umap_df$lineage == 2] <- runif(num_cells_lineage_2, min = 0, max = 1000)
+
+# theta for lineage 1 is between 40-50
+# theta for lineage 2 is between 0-90
+umap_df$theta[umap_df$lineage == 1] <- runif(num_cells_lineage_1, 0, 360)
+umap_df$theta[umap_df$lineage == 2] <- runif(num_cells_lineage_2, 0, 360)
+umap_df$x <- umap_df$r * cos(umap_df$theta * pi / 180)
+umap_df$y <- umap_df$r * sin(umap_df$theta * pi / 180)
+```
+
+## Prepare input file for ONTraC
+
+```{r}
+export_df <- umap_df[c("Cell_Type","x","y","time","r","lineage")]
+export_df <- data.frame(Cell_ID = rownames(export_df), export_df, row.names = NULL)
+export_df <- data.frame(export_df[,1], Sample = "Simulation", export_df[, -1])
+names(export_df)[1] <- "Cell_ID"
+colnames(export_df)[6] <- "sim_time"
+export_df
+```
+
+```{r}
+write.csv(export_df, "simulated_dataset.csv", row.names = FALSE)
+```

@@ -1,13 +1,10 @@
-from optparse import Values
-from typing import Callable, Optional, Union
-
 import numpy as np
 import torch
 from torch import Tensor
-from torch_geometric.data import Data, Batch
+from torch_geometric.data import Batch, Data
 
 from ..log import *
-from ..utils.decorators import selective_args_decorator, epoch_filter_decorator
+from ..utils.decorators import epoch_filter_decorator, selective_args_decorator
 
 
 def loss_record(epoch: int, batch: int, loss: Tensor, **kwargs):
@@ -72,7 +69,7 @@ def moran_I(output_dir: str, step: int, epoch: int, data: Data, z: Tensor) -> No
     :param z: hidden embedding tensor
     :return: None
     """
-    
+
     # --- check if epoch is multiple of step ---
     if epoch % step != 0:
         return
@@ -85,7 +82,8 @@ def moran_I(output_dir: str, step: int, epoch: int, data: Data, z: Tensor) -> No
 
     # --- calculate moran's I ---
     MI_list = np.array(
-        list(_moran_I_factor_tensor(z[i, :, :], adj[i], mask[i]).detach().cpu().numpy() for i in range(B))).reshape(B, F)
+        list(_moran_I_factor_tensor(z[i, :, :], adj[i], mask[i]).detach().cpu().numpy()
+             for i in range(B))).reshape(B, F)
 
     np.savetxt(fname=f'{output_dir}/moran_I_{epoch}.csv', X=MI_list, delimiter=',')
 
@@ -105,10 +103,12 @@ def z_record(output_dir: str, epoch: int, z: Tensor, data: Batch) -> None:
     # --- inputs shape check ---
     z = z.unsqueeze(0) if z.dim() == 2 else z
     B, N, F = z.size()
-    assert B == len(data.x) # type: ignore
+    assert B == len(data.x)  # type: ignore
 
-    for index, name in enumerate(data.name): # type: ignore
-        np.savetxt(fname=f'{output_dir}/Epoch_{epoch}/{name}_z.csv.gz', X=z[index].detach().cpu().numpy(), delimiter=',')
+    for index, name in enumerate(data.name):  # type: ignore
+        np.savetxt(fname=f'{output_dir}/Epoch_{epoch}/{name}_z.csv.gz',
+                   X=z[index].detach().cpu().numpy(),
+                   delimiter=',')
 
 
 @selective_args_decorator
@@ -126,10 +126,12 @@ def s_record(output_dir: str, epoch: int, s: Tensor, data: Batch) -> None:
     # --- inputs shape check ---
     s = s.unsqueeze(0) if s.dim() == 2 else s
     B, N, F = s.size()
-    assert B == len(data.x) # type: ignore
+    assert B == len(data.x)  # type: ignore
 
-    for index, name in enumerate(data.name): # type: ignore
-        np.savetxt(fname=f'{output_dir}/Epoch_{epoch}/{name}_s.csv.gz', X=s[index].detach().cpu().numpy(), delimiter=',')
+    for index, name in enumerate(data.name):  # type: ignore
+        np.savetxt(fname=f'{output_dir}/Epoch_{epoch}/{name}_s.csv.gz',
+                   X=s[index].detach().cpu().numpy(),
+                   delimiter=',')
 
 
 @selective_args_decorator
@@ -147,10 +149,12 @@ def out_record(output_dir: str, epoch: int, out: Tensor, data: Batch) -> None:
     # --- inputs shape check ---
     out = out.unsqueeze(0) if out.dim() == 2 else out
     B, N, F = out.size()
-    assert B == len(data.x) # type: ignore
+    assert B == len(data.x)  # type: ignore
 
-    for index, name in enumerate(data.name): # type: ignore
-        np.savetxt(fname=f'{output_dir}/Epoch_{epoch}/{name}_out.csv.gz', X=out[index].detach().cpu().numpy(), delimiter=',')
+    for index, name in enumerate(data.name):  # type: ignore
+        np.savetxt(fname=f'{output_dir}/Epoch_{epoch}/{name}_out.csv.gz',
+                   X=out[index].detach().cpu().numpy(),
+                   delimiter=',')
 
 
 @selective_args_decorator
@@ -168,7 +172,9 @@ def out_adj_record(output_dir: str, epoch: int, out_adj: Tensor, data: Batch) ->
     # --- inputs shape check ---
     out_adj = out_adj.unsqueeze(0) if out_adj.dim() == 2 else out_adj
     B, N, F = out_adj.size()
-    assert B == len(data.x) # type: ignore
+    assert B == len(data.x)  # type: ignore
 
-    for index, name in enumerate(data.name): # type: ignore
-        np.savetxt(fname=f'{output_dir}/Epoch_{epoch}/{name}_out_adj.csv.gz', X=out_adj[index].detach().cpu().numpy(), delimiter=',')
+    for index, name in enumerate(data.name):  # type: ignore
+        np.savetxt(fname=f'{output_dir}/Epoch_{epoch}/{name}_out_adj.csv.gz',
+                   X=out_adj[index].detach().cpu().numpy(),
+                   delimiter=',')
