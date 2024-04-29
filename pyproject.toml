@@ -30,7 +30,7 @@ dependencies = [
     "torch==2.2.1",
     "torch-geometric==2.5.0",
 ]
-version = "0.0.5"
+version = "0.0.6a1"
 
 [project.optional-dependencies]
 analysis = ["matplotlib", "seaborn"]
@@ -40,6 +40,7 @@ ONTraC = "ONTraC.bin.ONTraC:main"
 createDataSet = "ONTraC.bin.createDataSet:main"
 GP = "ONTraC.bin.GP:main"
 NTScore = "ONTraC.bin.NTScore:main"
+ONTraC_analysis = "ONTraC.bin.ONTraC_analysis:main"
 
 [project.urls]
 Homepage = "https://github.com/gyuanlab/ONTraC"
@@ -47,4 +48,4 @@ Homepage = "https://github.com/gyuanlab/ONTraC"
 "Issue Tracker" = "https://github.com/gyuanlab/ONTraC/issues"
 
 [tool.setuptools]
-packages = ["ONTraC", "ONTraC.bin", "ONTraC.model", "ONTraC.optparser", "ONTraC.run", "ONTraC.train", "ONTraC.utils"]
+packages = ["ONTraC", "ONTraC.analysis", "ONTraC.bin", "ONTraC.model", "ONTraC.optparser", "ONTraC.run", "ONTraC.train", "ONTraC.utils"]

@@ -3,16 +3,15 @@
 import sys
 from optparse import OptionParser, Values
 
-from ONTraC.analysis.anndata import anndata_based_analysis
-from ONTraC.analysis.cell_type import (NTScore_in_each_cell_type,
-                                       cell_type_dis_in_cluster)
-from ONTraC.analysis.train_loss import plot_train_loss
-from ONTraC.analysis.utils import *
-from ONTraC.data import load_dataset
-from ONTraC.log import *
-from ONTraC.optparser._IO import add_IO_options_group, validate_io_options
-from ONTraC.run.processes import load_data
-from ONTraC.utils import *
+from ..analysis.cell_type import cell_type_visualization
+from ..analysis.data import AnaData
+from ..analysis.niche_cluster import niche_cluster_visualization
+from ..analysis.spatial import spatial_visualization
+from ..analysis.train_loss import train_loss_visualiztion
+from ..analysis.utils import *
+from ..log import *
+from ..optparser._IO import add_IO_options_group, validate_io_options
+from ..utils import *
 
 # ------------------------------------
 # Constants
@@ -24,34 +23,20 @@ IO_OPTIONS = ['dataset', 'preprocessing_dir', 'GNN_dir', 'NTScore_dir']
 # Functions
 # ------------------------------------
 def analysis_pipeline(options: Values, rel_params: Dict) -> None:
-    # 0. prepare data
-    # load data
-    dataset, data = load_dataset(options=options)
+    # 0. load data class
+    ana_data = AnaData(options)
 
-    # 1. trainging loss
-    plot_train_loss(options)
-    # 2. soft assignment plots
-    plot_max_pro_cluster(options, data)
-    plot_each_cluster_proportion(options, data)
-    # 3. cluster spatial continuity
-    cluster_spatial_continuity(options, data)
-    # 4. AnnData based analysis
-    try:
-        meta_df = anndata_based_analysis(options, data)
-    except Exception as e:
-        error(f'Error in AnnData based analysis: {e}')
-        meta_df = None
-    if meta_df is not None:
-        # 5. cell type distribution
-        cell_type_dis_in_cluster(options, data, meta_df)
-        # 6. NT Score in each cell type
-        NTScore_in_each_cell_type(options, meta_df)
-    # 7. cluster connectivity
-    cluster_connectivity(options)
+    # part 1: train loss
+    train_loss_visualiztion(ana_data=ana_data)
 
-    # if options.process:
-    #     # 10. process
-    #     process_analysis(options=options, dataset=dataset, data=data)
+    # part 2: spatial based output
+    spatial_visualization(ana_data=ana_data)
+
+    # part 3: niche cluster
+    niche_cluster_visualization(ana_data=ana_data)
+
+    # part 4: cell type based output
+    cell_type_visualization(ana_data=ana_data)
 
 
 def prepare_optparser() -> OptionParser:
@@ -59,12 +44,18 @@ def prepare_optparser() -> OptionParser:
 
     Ret: OptParser object.
     """
-    usage = "usage: %prog <-d DATASET> <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR> <-l LOG_FILE> <-o OUTPUT_DIR>"
+    usage = "usage: %prog <-d DATASET> <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR> <-l LOG_FILE> <-o OUTPUT_DIR> [-r REVERSE]"
     description = "Analysis the results of ONTraC."
     optparser = OptionParser(usage=usage, description=description, add_help_option=False)
     optparser.add_option('-h', '--help', action='help', help='Show this help message and exit.')
     optparser.add_option('-o', '--output', dest='output', type='string', help='Output directory.')
     optparser.add_option('-l', '--log', dest='log', type='string', help='Log file.')
+    optparser.add_option('-r',
+                         '--reverse',
+                         dest='reverse',
+                         action='store_true',
+                         default=False,
+                         help='Reverse the NT score.')
     add_IO_options_group(optparser=optparser, io_options=IO_OPTIONS)
     return optparser
 
