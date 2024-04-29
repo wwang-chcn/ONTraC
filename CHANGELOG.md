@@ -1,5 +1,16 @@
 # Change log
 
+## [0.0.6] - XXXX-XXX-XX
+
+Changed:
+
+- Update imports in `createDataSet.py`, `GP.py`, and `NTScore.py`
+- Added `niche cluster` part in `GP.py`
+
+Fixed:
+
+- Fixed bug in `createDataSet.py`
+
 ## [0.0.5] - 2024-Apr-25
 
 Added:
