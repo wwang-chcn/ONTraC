@@ -7,6 +7,7 @@ import numpy as np
 from ..data import load_dataset
 from ..optparser import opt_NT_validate, prepare_NT_optparser
 from ..run.processes import *
+from ..utils import write_version_info
 
 
 # ------------------------------------
@@ -17,6 +18,9 @@ def main() -> None:
     Main function
     :return: None
     """
+
+    # write version information
+    write_version_info()
 
     # ----- prepare -----
     # --- load parameters ---

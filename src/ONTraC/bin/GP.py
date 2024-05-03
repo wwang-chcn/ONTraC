@@ -11,7 +11,7 @@ from ..optparser import opt_GP_validate, prepare_GP_optparser
 from ..run.processes import *
 from ..train import GPBatchTrain, SubBatchTrainProtocol
 from ..train.inspect_funcs import loss_record
-from ..utils import device_validate
+from ..utils import device_validate, write_version_info
 from ..utils.niche_net_constr import load_original_data
 
 # ------------------------------------
@@ -40,6 +40,9 @@ def main() -> None:
     Main function
     :return: None
     """
+
+    # write version information
+    write_version_info()
 
     # ----- prepare -----
     # load parameters

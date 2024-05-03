@@ -1,3 +1,4 @@
+import sys
 from copy import deepcopy
 from optparse import Values
 from typing import Dict, Optional
@@ -6,6 +7,28 @@ import torch
 import yaml
 
 from ..log import warning
+
+
+def write_version_info() -> None:
+    """
+    Write version information to stdout
+    """
+    from .. import __version__
+    template = f'''########################################################
+
+ ▄▄█▀▀██   ▀█▄   ▀█▀ █▀▀██▀▀█                   ▄▄█▀▀▀▄█
+▄█▀    ██   █▀█   █     ██    ▄▄▄ ▄▄   ▄▄▄▄   ▄█▀     ▀
+██      ██  █ ▀█▄ █     ██     ██▀ ▀▀ ▀▀ ▄██  ██
+▀█▄     ██  █   ███     ██     ██     ▄█▀ ██  ▀█▄      ▄
+ ▀▀█▄▄▄█▀  ▄█▄   ▀█    ▄██▄   ▄██▄    ▀█▄▄▀█▀  ▀▀█▄▄▄▄▀
+
+                version: {__version__}
+
+########################################################
+'''
+
+    sys.stdout.write(template)
+    sys.stdout.flush()
 
 
 def read_yaml_file(yaml_file: str) -> dict:

@@ -92,6 +92,10 @@ def opt_validate(optparser: OptionParser) -> Values:
 
 
 def main():
+
+    # write version information
+    write_version_info()
+
     optparser = prepare_optparser()
     options = opt_validate(optparser)
 
