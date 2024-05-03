@@ -2,10 +2,16 @@
 
 ## [0.0.6] - XXXX-XXX-XX
 
+Added:
+
+- Added `ONTraC_analysis` and `analysis` module
+- Added `niche cluster` part in `GP.py`
+
 Changed:
 
+- Update package structures
 - Update imports in `createDataSet.py`, `GP.py`, and `NTScore.py`
-- Added `niche cluster` part in `GP.py`
+- Update package buildup settings in `pyproject.toml` and `MANIFEST.in`
 
 Fixed:
 
