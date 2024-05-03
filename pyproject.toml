@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools >= 61.0", "setuptools-scm"]
+requires = ["setuptools >= 61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -30,7 +30,7 @@ dependencies = [
     "torch==2.2.1",
     "torch-geometric==2.5.0",
 ]
-version = "0.0.6a1"
+dynamic = ["version"]
 
 [project.optional-dependencies]
 analysis = ["matplotlib", "seaborn"]
@@ -47,5 +47,9 @@ Homepage = "https://github.com/gyuanlab/ONTraC"
 "Repository" = "https://github.com/gyuanlab/ONTraC"
 "Issue Tracker" = "https://github.com/gyuanlab/ONTraC/issues"
 
-[tool.setuptools]
-packages = ["ONTraC", "ONTraC.analysis", "ONTraC.bin", "ONTraC.model", "ONTraC.optparser", "ONTraC.run", "ONTraC.train", "ONTraC.utils"]
+[tool.setuptools.dynamic]
+version = {attr = "ONTraC.__version__"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
