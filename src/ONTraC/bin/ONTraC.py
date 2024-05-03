@@ -7,14 +7,16 @@ from typing import Optional
 import numpy as np
 import torch
 
-from ..log import *
-from ..model import GraphPooling
-from ..optparser import opt_ontrac_validate, prepare_ontrac_optparser
-from ..run.processes import *
-from ..train import GPBatchTrain, SubBatchTrainProtocol
-from ..train.inspect_funcs import loss_record
-from ..utils import device_validate, write_version_info
-from ..utils.niche_net_constr import construct_niche_network, gen_samples_yaml, load_original_data
+from ONTraC.log import *
+from ONTraC.model import GraphPooling
+from ONTraC.optparser import opt_ontrac_validate, prepare_ontrac_optparser
+from ONTraC.run.processes import *
+from ONTraC.train import GPBatchTrain, SubBatchTrainProtocol
+from ONTraC.train.inspect_funcs import loss_record
+from ONTraC.utils import device_validate, write_version_info
+from ONTraC.utils.niche_net_constr import (construct_niche_network,
+                                           ct_coding_adjust, gen_samples_yaml,
+                                           load_original_data)
 
 
 # ------------------------------------
@@ -54,6 +56,10 @@ def main() -> None:
 
     # save samples.yaml
     gen_samples_yaml(options=options, ori_data_df=ori_data_df)
+
+    # cell type coding adjust
+    if options.embedding_adjust:
+        ct_coding_adjust(options=options, ori_data_df=ori_data_df)
 
     # ----- Graph Pooling -----
     # device

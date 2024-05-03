@@ -1,13 +1,15 @@
+import os
 from optparse import Values
 from typing import Any, Dict, List
 
 import numpy as np
 import pandas as pd
 import yaml
+from scipy.linalg import cholesky, eigh
 from scipy.sparse import csr_matrix, save_npz
-from scipy.spatial import cKDTree
+from scipy.spatial import cKDTree, distance
 
-from ..log import warning
+from ..log import info, warning
 
 
 def load_original_data(options: Values) -> pd.DataFrame:
@@ -45,7 +47,8 @@ def load_original_data(options: Values) -> pd.DataFrame:
             'There are duplicated Cell_ID in the original data. Sample name will added to Cell_ID to distinguish them.')
         ori_data_df['Cell_ID'] = ori_data_df['Sample'] + '_' + ori_data_df['Cell_ID']
     if ori_data_df['Cell_ID'].isnull().any():
-        raise ValueError(f'Duplicated Cell_ID within same sample found! Please check the original data file: {options.data_file}.')
+        raise ValueError(
+            f'Duplicated Cell_ID within same sample found! Please check the original data file: {options.data_file}.')
 
     ori_data_df = ori_data_df.dropna(subset=['Cell_ID', 'Sample', 'Cell_Type', 'x', 'y'])
 
@@ -174,3 +177,72 @@ def gen_samples_yaml(options: Values, ori_data_df: pd.DataFrame) -> None:
     yaml_file = f'{options.preprocessing_dir}/samples.yaml'
     with open(yaml_file, 'w') as fhd:
         yaml.dump(data, fhd)
+
+
+def get_embedding_columns(ori_data_df: pd.DataFrame) -> List[str]:
+    """
+    Get embedding columns from the original data
+    :param ori_data_df: pd.DataFrame, original data
+    :return: List[str], embedding columns
+    """
+    embedding_start_column = [x for x in ori_data_df.columns if x.startswith('Embedding_')]
+    embedding_columns = []
+    i = 0
+    while True:
+        i += 1
+        if f'Embedding_{i}' in embedding_start_column:
+            embedding_columns.append(f'Embedding_{i}')
+        else:
+            break
+
+    return embedding_columns
+
+
+def ct_coding_adjust(options: Values, ori_data_df: pd.DataFrame):
+    """
+    Adjust the cell type coding according to embeddings
+
+    1) check the embedding info in the original data
+    2) calculate embedding postion for each cell type
+    3) calculate distance between each cell type
+    4) calculate the M
+    5) got the new basis for cell type coding
+    6) adjust the cell type coding
+
+    :param options: Values, options
+    :param ori_data_df: pd.DataFrame, original data
+    :return: None
+    """
+
+    # check the embedding info in the original data
+    embedding_columns = get_embedding_columns(ori_data_df)
+    if len(embedding_columns) < 2:
+        warning('At least two (Embedding_1 and Embedding_2) should be in the original data. Skip the adjustment.')
+        return
+
+    # calculate embedding postion for each cell type
+    ct_embedding = ori_data_df[embedding_columns + ['Cell_Type']].groupby('Cell_Type').mean()
+
+    # calculate distance between each cell type
+    raw_distance = distance.cdist(ct_embedding[embedding_columns].values, ct_embedding[embedding_columns].values,
+                                  'euclidean')
+    median_distance = np.median(raw_distance[np.triu_indices(raw_distance.shape[0], k=1)])
+    info(f'Median distance between cell types: {median_distance}')
+
+    # calculate the M
+    M = np.exp(-raw_distance**2 / median_distance**2)
+
+    # got the new basis for cell type coding
+    eig_val, eig_vec = eigh(M)
+    if np.any(eig_val < 0):
+        warning('Negative eigenvalues found. Skip the adjustment.')
+        return
+    L = cholesky(M)
+
+    # adjust the cell type coding
+    for sample in ori_data_df['Sample'].unique():
+        feat_file = f'{options.preprocessing_dir}/{sample}_CellTypeComposition.csv.gz'
+        ctc_raw = np.loadtxt(feat_file, delimiter=',')
+        ctc_new = ctc_raw @ L
+        os.rename(feat_file, f'{options.preprocessing_dir}/{sample}_Raw_CellTypeComposition.csv.gz')
+        np.savetxt(feat_file, ctc_new, delimiter=',')

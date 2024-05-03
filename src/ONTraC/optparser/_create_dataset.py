@@ -32,6 +32,11 @@ def add_niche_net_constr_options_group(optparser: OptionParser) -> None:
                            type='int',
                            default=50,
                            help='Number of neighbors used for kNN graph construction. Default is 50.')
+    group_niche.add_option('--embedding-adjust',
+                           dest='embedding_adjust',
+                           action='store_true',
+                           default=False,
+                           help='Adjust the cell type coding according to embeddings. Default is False. At least two (Embedding_1 and Embedding_2) should be in the original data if embedding_adjust is True.')
     optparser.add_option_group(group_niche)
 
 
@@ -46,6 +51,7 @@ def write_niche_net_constr_memo(options: Values):
     info('      -------- niche net constr options -------      ')
     info(f'n_cpu:   {options.n_cpu}')
     info(f'n_neighbors: {options.n_neighbors}')
+    info(f'embedding_adjust: {options.embedding_adjust}')
 
 
 def prepare_create_ds_optparser() -> OptionParser:
@@ -54,7 +60,7 @@ def prepare_create_ds_optparser() -> OptionParser:
     """
 
     prog_name = os.path.basename(sys.argv[0])
-    usage = f'''USAGE: {prog_name} <-d DATASET> <--preprocessing-dir PREPROCESSING_DIR> [--n-cpu N_CPU] [--n-neighbors N_NEIGHBORS]'''
+    usage = f'''USAGE: {prog_name} <-d DATASET> <--preprocessing-dir PREPROCESSING_DIR> [--n-cpu N_CPU] [--n-neighbors N_NEIGHBORS] [--embedding-adjust]'''
     description = 'Create dataset for follwoing analysis.'
 
     # option processor

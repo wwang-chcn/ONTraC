@@ -6,8 +6,7 @@ from ..log import *
 from ..optparser import opt_create_ds_validate, prepare_create_ds_optparser
 from ..run.processes import *
 from ..utils import write_version_info
-from ..utils.niche_net_constr import (construct_niche_network,
-                                      gen_samples_yaml, load_original_data)
+from ..utils.niche_net_constr import construct_niche_network, ct_coding_adjust, gen_samples_yaml, load_original_data
 
 
 # ------------------------------------
@@ -33,6 +32,10 @@ def main() -> None:
 
     # save samples.yaml
     gen_samples_yaml(options=options, ori_data_df=ori_data_df)
+
+    # cell type coding adjust
+    if options.embedding_adjust:
+        ct_coding_adjust(options=options, ori_data_df=ori_data_df)
 
 
 # ------------------------------------
