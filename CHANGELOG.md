@@ -6,6 +6,7 @@ Added:
 
 - Added `ONTraC_analysis` and `analysis` module
 - Added `niche cluster` part in `GP.py`
+- Added version information at the top of the output
 
 Changed:
 
