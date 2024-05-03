@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-
+import os
 import sys
 from optparse import OptionParser, Values
 
@@ -8,7 +7,6 @@ from ..analysis.data import AnaData
 from ..analysis.niche_cluster import niche_cluster_visualization
 from ..analysis.spatial import spatial_visualization
 from ..analysis.train_loss import train_loss_visualiztion
-from ..analysis.utils import *
 from ..log import *
 from ..optparser._IO import add_IO_options_group, validate_io_options
 from ..utils import *
@@ -22,7 +20,7 @@ IO_OPTIONS = ['dataset', 'preprocessing_dir', 'GNN_dir', 'NTScore_dir']
 # ------------------------------------
 # Functions
 # ------------------------------------
-def analysis_pipeline(options: Values, rel_params: Dict) -> None:
+def analysis_pipeline(options: Values) -> None:
     # 0. load data class
     ana_data = AnaData(options)
 
@@ -96,10 +94,8 @@ def opt_validate(optparser: OptionParser) -> Values:
 def main():
     optparser = prepare_optparser()
     options = opt_validate(optparser)
-    params = read_yaml_file(options.yaml)
-    options.data = rel_params = get_rel_params(options, params)
 
-    analysis_pipeline(options, rel_params)
+    analysis_pipeline(options)
 
 
 if __name__ == '__main__':

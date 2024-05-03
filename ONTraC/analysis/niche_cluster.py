@@ -3,6 +3,7 @@ from typing import List, Optional, Tuple
 import matplotlib as mpl
 import networkx as nx
 import numpy as np
+import pandas as pd
 from matplotlib.cm import ScalarMappable
 from matplotlib.colors import Normalize
 
@@ -14,6 +15,7 @@ import seaborn as sns
 
 from ..log import warning
 from .data import AnaData
+from .utils import gini
 
 
 def plot_niche_cluster_connectivity(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.Axes]]:
@@ -170,7 +172,7 @@ def plot_max_niche_cluster(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.
     samples: List[str] = ana_data.cell_type_composition['sample'].unique().tolist()
     M = len(samples)
 
-    fig, axes = plt.subplots(1, M, figsize=(4 * M, 3))
+    fig, axes = plt.subplots(1, M, figsize=(5 * M, 3))
     for i, sample in enumerate(samples):
         ax = axes[i] if M > 1 else axes
         sample_df = ana_data.cell_level_max_niche_cluster.loc[ana_data.cell_type_composition[
@@ -183,7 +185,7 @@ def plot_max_niche_cluster(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.
                         hue='Niche_Cluster',
                         hue_order=[f'niche cluster {j}' for j in nc_scores.argsort()],
                         palette=palette,
-                        s=4,
+                        s=10,
                         ax=ax)
         ax.set_title(f'{sample}')
         ax.legend(loc='upper left', bbox_to_anchor=(1, 1))
@@ -193,6 +195,37 @@ def plot_max_niche_cluster(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.
         return None
     else:
         return fig, axes
+
+
+def plot_niche_cluster_gini(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.Axes]]:
+    """
+    Plot the Gini coefficient of each niche cluster.
+    :param ana_data: AnaData, the data for analysis.
+    :return: None or Tuple[plt.Figure, plt.Axes]
+    """
+    try:
+        if ana_data.cell_level_niche_cluster_assign is None:
+            warning("No niche cluster assign data found.")
+            return None
+    except FileNotFoundError as e:
+        warning(str(e))
+        return None
+    intra_cluster_gini = ana_data.cell_level_niche_cluster_assign.apply(gini, axis=0).values
+    intra_cluster_gini_df = pd.DataFrame(data={
+        'gini': intra_cluster_gini,
+        'cluster': ana_data.cell_level_niche_cluster_assign.columns
+    })
+    fig, ax = plt.subplots(figsize=(6, 4))
+    sns.barplot(data=intra_cluster_gini_df, x='cluster', y='gini', ax=ax)
+    ax.set_xlabel('Niche Cluster')
+    ax.set_ylabel('Gini coefficient across each cell')
+    ax.set_xticklabels(ax.get_xticklabels(), rotation=45, horizontalalignment='right')
+    fig.tight_layout()
+    if ana_data.options.output is not None:
+        fig.savefig(f'{ana_data.options.output}/niche_cluster_gini.pdf')
+        return None
+    else:
+        return fig, ax
 
 
 def niche_cluster_visualization(ana_data: AnaData) -> None:
@@ -213,4 +246,6 @@ def niche_cluster_visualization(ana_data: AnaData) -> None:
     # 4. maximum niche cluster for each cell
     plot_max_niche_cluster(ana_data=ana_data)
 
-    # TODO: 1) cluster moran's I 2) cell type distribution in each cluster
+    # 5. gini coefficient of each niche cluster
+    plot_niche_cluster_gini(ana_data=ana_data)
+

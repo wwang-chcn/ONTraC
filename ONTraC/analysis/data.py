@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 from pandas import DataFrame
 
+from ..log import info
 from ..utils import get_rel_params, read_yaml_file
 
 
@@ -114,7 +115,8 @@ def load_niche_level_niche_cluster_assign(options: Values) -> pd.DataFrame:
     if not os.path.isfile(niche_level_niche_cluster_assign_file):
         niche_level_niche_cluster_assign_file = f'{options.GNN_dir}/niche_level_niche_cluster.csv'
     if not os.path.isfile(niche_level_niche_cluster_assign_file):  # skip if file not exist
-        raise FileNotFoundError(f"Cannot find niche level niche cluster assign file: {niche_level_niche_cluster_assign_file}.")
+        raise FileNotFoundError(
+            f"Cannot find niche level niche cluster assign file: {niche_level_niche_cluster_assign_file}.")
 
     return pd.read_csv(niche_level_niche_cluster_assign_file, index_col=0)
 
@@ -132,7 +134,8 @@ def load_cell_level_niche_cluster_assign(options: Values) -> pd.DataFrame:
     if not os.path.isfile(cell_level_niche_cluster_assign_file):
         cell_level_niche_cluster_assign_file = f'{options.GNN_dir}/cell_level_niche_cluster.csv'
     if not os.path.isfile(cell_level_niche_cluster_assign_file):  # skip if file not exist
-        raise FileNotFoundError(f"Cannot find cell level niche cluster assign file: {cell_level_niche_cluster_assign_file}.")
+        raise FileNotFoundError(
+            f"Cannot find cell level niche cluster assign file: {cell_level_niche_cluster_assign_file}.")
 
     return pd.read_csv(cell_level_niche_cluster_assign_file, index_col=0)
 
@@ -150,7 +153,8 @@ def load_niche_level_max_niche_cluster(options: Values) -> pd.DataFrame:
     if not os.path.isfile(niche_level_max_niche_cluster_file):
         niche_level_max_niche_cluster_file = f'{options.GNN_dir}/niche_level_max_niche_cluster.csv'
     if not os.path.isfile(niche_level_max_niche_cluster_file):  # skip if file not exist
-        raise FileNotFoundError(f"Cannot find niche level max niche cluster file: {niche_level_max_niche_cluster_file}.")
+        raise FileNotFoundError(
+            f"Cannot find niche level max niche cluster file: {niche_level_max_niche_cluster_file}.")
 
     return pd.read_csv(niche_level_max_niche_cluster_file, index_col=0)
 
@@ -182,13 +186,19 @@ class AnaData:
     """
     Class to store the data for analysis
     This class have the following attributes:
-        options: Values, the options from optparse
-        train_loss: pd.DataFrame, the training loss.
-        cell_type_composition: pd.DataFrame, the cell type composition.
-        niche_cluster: pd.DataFrame, the niche cluster.
-        niche_cluster_connectivity: pd.DataFrame, the niche cluster connectivity.
-        niche_cluster_score: List[float], score for each niche cluster.
-        NT_score: pd.DataFrame, the NT score.
+    - options: Values, the options from optparse
+    - rel_params: Dict, the relative paths for params
+    - cell_id: pd.DataFrame, the original Cell ID and Cell Type
+    - train_loss: Dict, the training loss
+    - cell_type_codes: pd.DataFrame, the cell type codes
+    - cell_type_composition: pd.DataFrame, the cell type composition
+    - NT_score: pd.DataFrame, the NT score
+    - niche_cluster_connectivity: np.ndarray, the niche cluster connectivity
+    - niche_cluster_score: np.ndarray, the niche cluster score
+    - niche_level_niche_cluster_assign: pd.DataFrame, the niche cluster assignment for each niche level
+    - cell_level_niche_cluster_assign: pd.DataFrame, the niche cluster assignment for each cell level
+    - niche_level_max_niche_cluster: pd.DataFrame, the max niche cluster assignment for each niche level
+    - cell_level_max_niche_cluster: pd.DataFrame, the max niche cluster assignment for each cell level
     """
 
     def __init__(self, options: Values) -> None:
@@ -218,6 +228,10 @@ class AnaData:
     def _load_cell_type_composition_and_NT_score(self) -> None:
         data_df = pd.DataFrame()
         for sample in self.rel_params['Data']:
+            feature_file = f"{sample['Features'][:-26]}_Raw_CellTypeComposition.csv.gz"
+            if not os.path.isfile(feature_file):
+                info('Raw cell type composition file not found, use the original one.')
+                feature_file = sample['Features']
             cell_type_composition_df = pd.read_csv(sample['Features'], header=None)
             cell_type_composition_df.columns = self.cell_type_codes.loc[np.arange(cell_type_composition_df.shape[1]),
                                                                         'Cell_Type'].tolist()  # type: ignore
@@ -256,7 +270,7 @@ class AnaData:
             # FileNotFoundError will be raised if the file does not exist
             self._niche_cluster_score = load_niche_cluster_score(self.options)
         return self._niche_cluster_score
-    
+
     @property
     def niche_level_niche_cluster_assign(self) -> pd.DataFrame:
         if not hasattr(self, '_niche_level_niche_cluster_assign'):
@@ -266,7 +280,7 @@ class AnaData:
             except:
                 pass
         return self._niche_level_niche_cluster_assign
-    
+
     @property
     def cell_level_niche_cluster_assign(self) -> pd.DataFrame:
         if not hasattr(self, '_cell_level_niche_cluster_assign'):
@@ -276,7 +290,7 @@ class AnaData:
             except:
                 pass
         return self._cell_level_niche_cluster_assign
-    
+
     @property
     def niche_level_max_niche_cluster(self) -> pd.DataFrame:
         if not hasattr(self, '_niche_level_max_niche_cluster'):
@@ -286,7 +300,7 @@ class AnaData:
             except:
                 pass
         return self._niche_level_max_niche_cluster
-    
+
     @property
     def cell_level_max_niche_cluster(self) -> pd.DataFrame:
         if not hasattr(self, '_cell_level_max_niche_cluster'):
