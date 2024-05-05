@@ -1,5 +1,12 @@
 # Change log
 
+## [0.0.5.post1] - 2024-May-5
+
+Changed:
+
+- Update package structures
+- Update package buildup settings in `pyproject.toml` and `MANIFEST.in`
+
 ## [0.0.5] - 2024-Apr-25
 
 Added:
