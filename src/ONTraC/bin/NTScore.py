@@ -4,9 +4,10 @@ import sys
 
 import numpy as np
 
-from ONTraC.data import load_dataset
-from ONTraC.optparser import opt_NT_validate, prepare_NT_optparser
-from ONTraC.run.processes import *
+from ..data import load_dataset
+from ..optparser import opt_NT_validate, prepare_NT_optparser
+from ..run.processes import *
+from ..utils import write_version_info
 
 
 # ------------------------------------
@@ -18,6 +19,9 @@ def main() -> None:
     :return: None
     """
 
+    # write version information
+    write_version_info()
+    
     # ----- prepare -----
     # --- load parameters ---
     options = load_parameters(opt_validate_func=opt_NT_validate, prepare_optparser_func=prepare_NT_optparser)

@@ -2,10 +2,19 @@
 
 ## [0.0.5.post1] - 2024-May-5
 
+Added:
+
+- Added `niche cluster` part in `GP.py`
+- Added version information at the top of the output
+
 Changed:
 
 - Update package structures
 - Update package buildup settings in `pyproject.toml` and `MANIFEST.in`
+
+Fixed:
+
+- Fixed bug in `createDataSet.py`
 
 ## [0.0.5] - 2024-Apr-25
 

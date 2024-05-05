@@ -7,16 +7,14 @@ from typing import Optional
 import numpy as np
 import torch
 
-from ONTraC.log import *
-from ONTraC.model import GraphPooling
-from ONTraC.optparser import opt_ontrac_validate, prepare_ontrac_optparser
-from ONTraC.run.processes import *
-from ONTraC.train import GPBatchTrain, SubBatchTrainProtocol
-from ONTraC.train.inspect_funcs import loss_record
-from ONTraC.utils import device_validate
-from ONTraC.utils.niche_net_constr import (construct_niche_network,
-                                           gen_samples_yaml,
-                                           load_original_data)
+from ..log import *
+from ..model import GraphPooling
+from ..optparser import opt_ontrac_validate, prepare_ontrac_optparser
+from ..run.processes import *
+from ..train import GPBatchTrain, SubBatchTrainProtocol
+from ..train.inspect_funcs import loss_record
+from ..utils import device_validate, write_version_info
+from ..utils.niche_net_constr import construct_niche_network, gen_samples_yaml, load_original_data
 
 
 # ------------------------------------
@@ -41,6 +39,9 @@ def main() -> None:
     Input data files information should be stored in a YAML file.
     """
 
+    # write version information
+    write_version_info()
+    
     # prepare options
     options = load_parameters(opt_validate_func=opt_ontrac_validate, prepare_optparser_func=prepare_ontrac_optparser)
 
