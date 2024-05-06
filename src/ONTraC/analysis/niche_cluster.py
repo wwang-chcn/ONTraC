@@ -190,7 +190,8 @@ def plot_niche_cluster_loadings_sample(ana_data: AnaData) -> Optional[List[Tuple
     return output if len(output) > 0 else None
 
 
-def plot_niche_cluster_loadings(ana_data: AnaData) -> Optional[Union[List[Tuple[plt.Figure, plt.Axes]], Tuple[plt.Figure, plt.Axes]]]:
+def plot_niche_cluster_loadings(
+        ana_data: AnaData) -> Optional[Union[List[Tuple[plt.Figure, plt.Axes]], Tuple[plt.Figure, plt.Axes]]]:
     """
     Plot niche cluster loadings for each cell.
     :param ana_data: AnaData, the data for analysis.
@@ -270,8 +271,7 @@ def plot_max_niche_cluster_sample(ana_data: AnaData) -> Optional[List[Tuple[plt.
     norm = Normalize(vmin=0, vmax=1)
     sm = ScalarMappable(cmap=plt.cm.rainbow, norm=norm)  # type: ignore
     nc_scores = 1 - ana_data.niche_cluster_score if ana_data.options.reverse else ana_data.niche_cluster_score
-    niche_cluster_colors = [sm.to_rgba(nc_scores[n]) for n in np.arange(ana_data.niche_cluster_score.shape[0)]
-                            ]
+    niche_cluster_colors = [sm.to_rgba(nc_scores[n]) for n in np.arange(ana_data.niche_cluster_score.shape[0])]
     palette = {f'niche cluster {i}': niche_cluster_colors[i] for i in range(ana_data.niche_cluster_score.shape[0])}
     samples: List[str] = ana_data.cell_type_composition['sample'].unique().tolist()
 
@@ -299,7 +299,8 @@ def plot_max_niche_cluster_sample(ana_data: AnaData) -> Optional[List[Tuple[plt.
     return output if len(output) > 0 else None
 
 
-def plot_max_niche_cluster(ana_data: AnaData) -> Optional[Union[List[Tuple[plt.Figure, plt.Axes]], Tuple[plt.Figure, plt.Axes]]]:
+def plot_max_niche_cluster(
+        ana_data: AnaData) -> Optional[Union[List[Tuple[plt.Figure, plt.Axes]], Tuple[plt.Figure, plt.Axes]]]:
     """
     Plot the maximum niche cluster for each cell.
     :param ana_data: AnaData, the data for analysis.
@@ -362,4 +363,3 @@ def niche_cluster_visualization(ana_data: AnaData) -> None:
 
     # 5. gini coefficient of each niche cluster
     plot_niche_cluster_gini(ana_data=ana_data)
-
