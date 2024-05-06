@@ -228,7 +228,7 @@ class AnaData:
     def _load_cell_type_composition_and_NT_score(self) -> None:
         data_df = pd.DataFrame()
         for sample in self.rel_params['Data']:
-            feature_file = f"{sample['Features'][:-26]}_Raw_CellTypeComposition.csv.gz"
+            feature_file = f"{sample['Features'][:-27]}_Raw_CellTypeComposition.csv.gz"
             if not os.path.isfile(feature_file):
                 info('Raw cell type composition file not found, use the original one.')
                 feature_file = sample['Features']
