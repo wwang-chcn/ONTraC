@@ -1,25 +1,55 @@
 [build-system]
-requires = ["setuptools"]
+requires = ["setuptools >= 61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "ONTraC"
-version = "0.0.4"
 authors = [
-  { name="Wen Wang", email="wwang.bio@gmail.com" },
-  { name="Shiwei Zheng", email="swzheng29@gmail.com" },
-  { name="Crystal Shin", email="sjcshin5040@gmail.com" },
-  { name="Guo-Cheng Yuan", email="gcyuan@gmail.com" }
-]
-description = "Draft package for ONTraC"
+          {name = "Wen Wang", email = "wwang.bio@gmail.com"},
+          {name = "Shiwei Zheng", email = "swzheng29@gmail.com"},
+          {name = "Crystal Shin", email = "sjcshin5040@gmail.com"},
+          {name = "Guo-Cheng Yuan", email = "gcyuan@gmail.com"},
+          ]
+description = "A niche-centered, machine learning method for constructing spatially continuous trajectories"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = "==3.11.*"
+keywords = ["deep-learning", "pytorch", "pytorch geometric", "trajectory inference", "spatial omics"]
+license = {text = "MIT"}
 classifiers = [
-    "Programming Language :: Python :: 3",
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Software Development :: Libraries :: Python Modules"
 ]
+dependencies = [
+    "pyyaml==6.0.1",
+    "pandas==2.2.1",
+    "torch==2.2.1",
+    "torch-geometric==2.5.0",
+]
+dynamic = ["version"]
+
+[project.optional-dependencies]
+analysis = ["matplotlib", "seaborn"]
+
+[project.scripts]
+ONTraC = "ONTraC.bin.ONTraC:main"
+createDataSet = "ONTraC.bin.createDataSet:main"
+GP = "ONTraC.bin.GP:main"
+NTScore = "ONTraC.bin.NTScore:main"
+ONTraC_analysis = "ONTraC.bin.ONTraC_analysis:main"
 
 [project.urls]
-Homepage = "https://github.com/pypa/sampleproject"
-Issues = "https://github.com/pypa/sampleproject/issues"
+Homepage = "https://github.com/gyuanlab/ONTraC"
+"Repository" = "https://github.com/gyuanlab/ONTraC"
+"Issue Tracker" = "https://github.com/gyuanlab/ONTraC/issues"
+
+[tool.setuptools.dynamic]
+version = {attr = "ONTraC.__version__"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+

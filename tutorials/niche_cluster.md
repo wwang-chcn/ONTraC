@@ -8,19 +8,13 @@ ONTraC generate `niche cluster` an assignment matrix as an intermediate result. 
 
 ### Install required packages and ONTraC
 
-```{sh}
-conda create -y -n ONTraC python=3.11
-conda activate ONTraC
-pip install pyyaml==6.0.1 pandas==2.2.1 torch==2.2.1 torch_geometric==2.5.0
-git clone https://github.com/wwang-chcn/ONTraC.git && cd ONTraC && pip install .
-pip install matplotlib seaborn
-```
+Please see the [installation tutorial](installation.md)
 
 ### Running ONTraC
 
 ```{sh}
 cd examples/stereo_seq_brain
-ONTraC -d original_data.csv --preprocessing-dir stereo_seq_preprocessing_dir --GNN-dir stereo_seq_GNN --NTScore-dir stereo_seq_NTScore --epochs 100 --batch-size 5 -s 42 --patience 100 --min-delta 0.001 --min-epochs 50 --lr 0.03 --hidden-feats 4 -k 6 --spectral-loss-weight 0.3 --cluster-loss-weight 0.1 --feat-similarity-loss-weight 300 --assign-exponent 0.03 > stereo_seq_final.log
+ONTraC -d original_data.csv --preprocessing-dir stereo_seq_preprocessing_dir --GNN-dir stereo_seq_GNN --NTScore-dir stereo_seq_NTScore --epochs 100 --batch-size 5 -s 42 --patience 100 --min-delta 0.001 --min-epochs 50 --lr 0.03 --hidden-feats 4 -k 6 --modularity-loss-weight 0.3 --regularization-loss-weight 0.1 --purity-loss-weight 300 --beta 0.03 2>&1 | tee stereo_seq_final.log
 ```
 
 In this instance, the epoch value was set to 100. This is a typical value that can be used to obtain results, and it can be set to 1,000 or more if one wishes to obtain a more convergence results.
@@ -123,7 +117,7 @@ fig.savefig('Spatial_cell_type.png', dpi=300)
 ONTraC assign each cell to each niche cluster with a probability which can be visualize as following:
 
 ```{python}
-niche_clusters = sorted(data_df['NicheCluster'].unique())
+niche_clusters = sorted(data_df['Niche_Cluster'].unique())
 
 N = len(niche_clusters)
 for sample in samples:
@@ -141,7 +135,7 @@ for sample in samples:
         scatter = ax.scatter(sample_df['x'], sample_df['y'], c=sample_df[f'NicheCluster_{niche_cluster}'], cmap='Reds', vmin=0, vmax=1, s=1)
         ax.set_xticks([])
         ax.set_yticks([])
-        ax.set_title(f'{sample}: NicheCluster {niche_cluster}')
+        ax.set_title(f'{sample}: niche cluster {niche_cluster}')
         plt.colorbar(scatter)
     fig.tight_layout()
     fig.savefig(f'figures/spatial_cluster_prob_{sample}.png', dpi=300)
@@ -160,12 +154,12 @@ N = len(samples)
 fig, axes = plt.subplots(1, N, figsize = (4 * N, 3))
 for i, sample in enumerate(samples):
     sample_df = data_df.loc[data_df['sample'] == sample]
-    sample_df['NicheCluster'] = pd.Categorical(sample_df['NicheCluster'])
+    sample_df['Niche_Cluster'] = pd.Categorical(sample_df['Niche_Cluster'])
     ax = axes[i] if N > 1 else axes
     sns.scatterplot(data = sample_df,
                 x = 'x',
                 y = 'y',
-                hue = 'NicheCluster',
+                hue = 'Niche_Cluster',
                 s = 4,
                 ax = ax)
     ax.set_xticks([])

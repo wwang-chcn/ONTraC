@@ -1,5 +1,40 @@
 # Change log
 
+## [0.0.6] - 2024-May-5
+
+Added:
+
+- Added `ONTraC_analysis` and `analysis` module
+- Added `niche cluster` part in `GP.py`
+- Added version information at the top of the output
+
+Changed:
+
+- Update package structures
+- Update imports in `createDataSet.py`, `GP.py`, and `NTScore.py`
+- Update package buildup settings in `pyproject.toml` and `MANIFEST.in`
+
+Fixed:
+
+- Fixed bug in `createDataSet.py`
+
+## [0.0.5] - 2024-Apr-25
+
+Added:
+
+- Added `installation` tutorial
+- Added `reproducible codes` for paper
+
+Changed:
+
+- Refactored the `pyproject.toml` according to setuptools
+- Rename losses name to make them consistent with paper
+
+Removed:
+
+- Removed Unused imports and files
+- Removed `setup.py`
+
 ## [0.0.4] - 2024-Apr-16
 
 Added:
