@@ -1,6 +1,12 @@
 # Change log
 
-## [0.0.6] - XXXX-XXX-XX
+## [0.0.6.post1] - 2024-May-5
+
+Fixed:
+
+- Fixed cell type composition read in analysis
+
+## [0.0.6] - 2024-May-5
 
 Added:
 
