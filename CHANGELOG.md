@@ -1,5 +1,9 @@
 # Change log
 
+## [0.0.7] - XXXX-XXX-XX
+
+- Added flexible cell type coding option
+
 ## [0.0.6.post1] - 2024-May-5
 
 Fixed:
@@ -13,7 +17,6 @@ Added:
 - Added `ONTraC_analysis` and `analysis` module
 - Added `niche cluster` part in `GP.py`
 - Added version information at the top of the output
-- Added flexible cell type coding option
 
 Changed:
 
