@@ -1,5 +1,16 @@
 # Change log
 
+## [XXXX] - XXXX-XXX-XX
+
+Added:
+
+- New parameter `sample` in `analysis` module for plot by sample
+- Multiple cell type check in input data
+
+Changed:
+
+- Flexible figure size for some visualization
+
 ## [0.0.6.post1] - 2024-May-5
 
 Fixed:
