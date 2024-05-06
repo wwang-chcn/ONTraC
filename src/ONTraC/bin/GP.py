@@ -2,21 +2,21 @@
 
 import random
 import sys
-from typing import Optional
 
 import numpy as np
 import torch
 
-from ONTraC.log import *
-from ONTraC.model import GraphPooling
-from ONTraC.optparser import opt_ontrac_validate, prepare_ontrac_optparser
-from ONTraC.run.processes import *
-from ONTraC.train import GPBatchTrain, SubBatchTrainProtocol
-from ONTraC.train.inspect_funcs import loss_record
-from ONTraC.utils import device_validate
-from ONTraC.utils.niche_net_constr import (construct_niche_network,
-                                           gen_samples_yaml,
-                                           load_original_data)
+from ..model import GraphPooling
+from ..optparser import opt_GP_validate, prepare_GP_optparser
+from ..run.processes import *
+from ..train import GPBatchTrain, SubBatchTrainProtocol
+from ..train.inspect_funcs import loss_record
+from ..utils import device_validate, write_version_info
+from ..utils.niche_net_constr import load_original_data
+
+# ------------------------------------
+# Classes
+# ------------------------------------
 
 
 # ------------------------------------
@@ -37,24 +37,16 @@ def get_inspect_funcs() -> Optional[list[Callable]]:
 # ------------------------------------
 def main() -> None:
     """
-    main function
-    Input data files information should be stored in a YAML file.
+    Main function
+    :return: None
     """
 
-    # prepare options
-    options = load_parameters(opt_validate_func=opt_ontrac_validate, prepare_optparser_func=prepare_ontrac_optparser)
+    # write version information
+    write_version_info()
 
-    # ----- Niche Network Construct -----
-    # load original data
-    ori_data_df = load_original_data(options=options)
-
-    # define edges for each sample
-    construct_niche_network(options=options, ori_data_df=ori_data_df)
-
-    # save samples.yaml
-    gen_samples_yaml(options=options, ori_data_df=ori_data_df)
-
-    # ----- Graph Pooling -----
+    # ----- prepare -----
+    # load parameters
+    options = load_parameters(opt_validate_func=opt_GP_validate, prepare_optparser_func=prepare_GP_optparser)
     # device
     device: torch.device = device_validate(device_name=options.device)
     # load data
@@ -64,7 +56,8 @@ def main() -> None:
     random.seed(a=r_seed)
     torch.manual_seed(seed=t_seed)
     np.random.seed(seed=n_seed)
-    # train
+
+    # ----- train -----
     inspect_funcs_list = get_inspect_funcs()
     batch_train: SubBatchTrainProtocol = train(nn_model=GraphPooling,
                                                options=options,
@@ -74,15 +67,19 @@ def main() -> None:
                                                sample_loader=sample_loader,
                                                inspect_funcs=inspect_funcs_list,
                                                model_name='GraphPooling')
-    # evaluate
+
+    # --- evaluate ---
     evaluate(batch_train=batch_train, model_name='GraphPooling')
-    # predict
+
+    # ----- predict -----
     consolidate_s_array, consolidate_out_adj_array = predict(output_dir=options.GNN_dir,
                                                              batch_train=batch_train,
                                                              dataset=dataset,
                                                              model_name='GraphPooling')
-    # niche cluster
+
+    # ----- niche cluster -----
     if consolidate_s_array is not None:
+        ori_data_df = load_original_data(options=options)
         graph_pooling_output(ori_data_df=ori_data_df,
                              dataset=dataset,
                              rel_params=get_rel_params(
