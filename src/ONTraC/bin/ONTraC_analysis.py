@@ -72,7 +72,7 @@ def opt_validate(optparser: OptionParser) -> Values:
     """
     (options, args) = optparser.parse_args()
 
-    validate_io_options(optparser, options, IO_OPTIONS)
+    validate_io_options(optparser, options, IO_OPTIONS, overwrite_validation=False)
 
     if not options.output:
         error('Output directory is required.')
@@ -105,7 +105,7 @@ def main():
     write_version_info()
 
     optparser = prepare_optparser()
-    options = opt_validate(optparser, overwrite_validation=False)
+    options = opt_validate(optparser)
 
     analysis_pipeline(options)
 
