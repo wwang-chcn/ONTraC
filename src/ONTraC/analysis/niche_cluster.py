@@ -1,4 +1,4 @@
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Union
 
 import matplotlib as mpl
 import networkx as nx
@@ -105,7 +105,7 @@ def plot_cluster_proportion(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt
         return fig, ax
 
 
-def plot_niche_cluster_loadings(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.Axes]]:
+def plot_niche_cluster_loadings_dataset(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.Axes]]:
     """
     Plot niche cluster loadings for each cell.
     :param ana_data: AnaData, the data for analysis.
@@ -148,7 +148,61 @@ def plot_niche_cluster_loadings(ana_data: AnaData) -> Optional[Tuple[plt.Figure,
         return fig, ax
 
 
-def plot_max_niche_cluster(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.Axes]]:
+def plot_niche_cluster_loadings_sample(ana_data: AnaData) -> Optional[List[Tuple[plt.Figure, plt.Axes]]]:
+    """
+    Plot niche cluster loadings for each cell.
+    :param ana_data: AnaData, the data for analysis.
+    :return: None or List[Tuple[plt.Figure, plt.Axes]]
+    """
+
+    try:
+        if ana_data.niche_cluster_score is None or ana_data.cell_type_composition is None or ana_data.cell_level_niche_cluster_assign is None:
+            warning("No niche cluster score, cell type composition or cluster assign data found.")
+            return None
+    except FileNotFoundError as e:
+        warning(str(e))
+        return None
+
+    nc_scores = 1 - ana_data.niche_cluster_score if ana_data.options.reverse else ana_data.niche_cluster_score
+    samples: List[str] = ana_data.cell_type_composition['sample'].unique().tolist()
+
+    output = []
+    for sample in enumerate(samples):
+        sample_df = ana_data.cell_level_niche_cluster_assign.loc[ana_data.cell_type_composition[
+            ana_data.cell_type_composition['sample'] == sample].index]
+        sample_df = sample_df.join(ana_data.cell_type_composition[['x', 'y']])
+        fig, axes = plt.subplots(1, nc_scores.shape[0], figsize=(3.3 * nc_scores.shape[0], 3))
+        for j, c_index in enumerate(nc_scores.argsort()):
+            ax = axes[j]  #  there should more than one niche cluster
+            scatter = ax.scatter(sample_df['x'],
+                                 sample_df['y'],
+                                 c=sample_df[f'NicheCluster_{c_index}'],
+                                 cmap='Reds',
+                                 vmin=0,
+                                 vmax=1,
+                                 s=4)
+            ax.set_title(f'{sample}: niche cluster {c_index}')
+            plt.colorbar(scatter)
+        fig.tight_layout()
+        output.append((fig, axes))
+        if ana_data.options.output is not None:
+            fig.savefig(f'{ana_data.options.output}/niche_cluster_loadings_{sample}.pdf')
+    return output if len(output) > 0 else None
+
+
+def plot_niche_cluster_loadings(ana_data: AnaData) -> Optional[Union[List[Tuple[plt.Figure, plt.Axes]], Tuple[plt.Figure, plt.Axes]]]:
+    """
+    Plot niche cluster loadings for each cell.
+    :param ana_data: AnaData, the data for analysis.
+    :return: None or Tuple[plt.Figure, plt.Axes]
+    """
+    if hasattr(ana_data.options, 'sample') and ana_data.options.sample:
+        return plot_niche_cluster_loadings_sample(ana_data=ana_data)
+    else:
+        return plot_niche_cluster_loadings_dataset(ana_data=ana_data)
+
+
+def plot_max_niche_cluster_dataset(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.Axes]]:
     """
     Plot the maximum niche cluster for each cell.
     :param ana_data: AnaData, the data for analysis.
@@ -195,6 +249,66 @@ def plot_max_niche_cluster(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.
         return None
     else:
         return fig, axes
+
+
+def plot_max_niche_cluster_sample(ana_data: AnaData) -> Optional[List[Tuple[plt.Figure, plt.Axes]]]:
+    """
+    Plot the maximum niche cluster for each cell.
+    :param ana_data: AnaData, the data for analysis.
+    :return: None or List[Tuple[plt.Figure, plt.Axes]]
+    """
+
+    try:
+        if ana_data.niche_cluster_score is None or ana_data.cell_type_composition is None or ana_data.cell_level_max_niche_cluster is None:
+            warning("No niche cluster score, cell type composition or max niche cluster data found.")
+            return None
+    except FileNotFoundError as e:
+        warning(str(e))
+        return None
+
+    # colors
+    norm = Normalize(vmin=0, vmax=1)
+    sm = ScalarMappable(cmap=plt.cm.rainbow, norm=norm)  # type: ignore
+    nc_scores = 1 - ana_data.niche_cluster_score if ana_data.options.reverse else ana_data.niche_cluster_score
+    niche_cluster_colors = [sm.to_rgba(nc_scores[n]) for n in np.arange(ana_data.niche_cluster_score.shape[0)]
+                            ]
+    palette = {f'niche cluster {i}': niche_cluster_colors[i] for i in range(ana_data.niche_cluster_score.shape[0])}
+    samples: List[str] = ana_data.cell_type_composition['sample'].unique().tolist()
+
+    output = []
+    for sample in enumerate(samples):
+        sample_df = ana_data.cell_level_max_niche_cluster.loc[ana_data.cell_type_composition[
+            ana_data.cell_type_composition['sample'] == sample].index]
+        sample_df = sample_df.join(ana_data.cell_type_composition[['x', 'y']])
+        sample_df['Niche_Cluster'] = 'niche cluster ' + sample_df['Niche_Cluster'].astype(str)
+        fig, ax = plt.subplots(1, 1, figsize=(5, 3))
+        sns.scatterplot(data=sample_df,
+                        x='x',
+                        y='y',
+                        hue='Niche_Cluster',
+                        hue_order=[f'niche cluster {j}' for j in nc_scores.argsort()],
+                        palette=palette,
+                        s=10,
+                        ax=ax)
+        ax.set_title(f'{sample}')
+        ax.legend(loc='upper left', bbox_to_anchor=(1, 1))
+        fig.tight_layout()
+        output.append((fig, ax))
+        if ana_data.options.output is not None:
+            fig.savefig(f'{ana_data.options.output}/max_niche_cluster_{sample}.pdf')
+    return output if len(output) > 0 else None
+
+
+def plot_max_niche_cluster(ana_data: AnaData) -> Optional[Union[List[Tuple[plt.Figure, plt.Axes]], Tuple[plt.Figure, plt.Axes]]]:
+    """
+    Plot the maximum niche cluster for each cell.
+    :param ana_data: AnaData, the data for analysis.
+    :return: None or Tuple[plt.Figure, plt.Axes]
+    """
+    if hasattr(ana_data.options, 'sample') and ana_data.options.sample:
+        return plot_max_niche_cluster_sample(ana_data=ana_data)
+    else:
+        return plot_max_niche_cluster_dataset(ana_data=ana_data)
 
 
 def plot_niche_cluster_gini(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.Axes]]:

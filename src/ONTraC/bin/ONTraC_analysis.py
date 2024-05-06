@@ -54,6 +54,12 @@ def prepare_optparser() -> OptionParser:
                          action='store_true',
                          default=False,
                          help='Reverse the NT score.')
+    optparser.add_option('-s',
+                         '--sample',
+                         dest='sample',
+                         action='store_true',
+                         default=False,
+                         help='Plot each sample separately.')
     add_IO_options_group(optparser=optparser, io_options=IO_OPTIONS)
     return optparser
 
@@ -72,8 +78,10 @@ def opt_validate(optparser: OptionParser) -> Values:
         error('Output directory is required.')
         sys.exit(1)
     if not os.path.isdir(options.output):
-        warning(f'Output directory not found: {options.output}')
+        info(f'Output directory not found: {options.output}, will create it.')
         os.makedirs(options.output)
+    else:
+        warning(f'Output directory already exists: {options.output}, will overwrite it.')
 
     if not options.log:
         error('Log file is required.')
@@ -97,7 +105,7 @@ def main():
     write_version_info()
 
     optparser = prepare_optparser()
-    options = opt_validate(optparser)
+    options = opt_validate(optparser, overwrite_validation=False)
 
     analysis_pipeline(options)
 
