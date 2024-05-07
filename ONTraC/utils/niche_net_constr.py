@@ -120,9 +120,11 @@ def construct_niche_network_sample(options: Values, sample_data_df: pd.DataFrame
 
     deconvolution = pd.read_csv('data/visium_brain_proportion.txt', sep = '\t', index_col = 0).values
 
-    str = "cell_to_niche:" + cell_to_niche_matrix.shape + " one_hot_matrix: " + one_hot_matrix.shape + " deconvolution: " + deconvolution.shape
+    str = "cell_to_niche:" + str(cell_to_niche_matrix.shape) + " one_hot_matrix: " + str(one_hot_matrix.shape) + " deconvolution: " + str(deconvolution.shape)
 
-    np.savetxt(f'{options.preprocessing_dir}/dimensions.txt', str)
+    with open("dimensions.txt", "w") as file:
+    # Write the string to the file
+        file.write(str)
 
     cell_type_composition = cell_to_niche_matrix @ deconvolution  # N x n_cell_type
 
