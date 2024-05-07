@@ -13,6 +13,8 @@ responses from all the cells in association with continuous tissue microenvironm
 
 ![ONTraC Structure](docs/source/_static/images/ONTraC_structure.png)
 
+## Required packages
+
 pyyaml=6.0.1
 pandas=2.1.1
 pytorch=2.2.1
@@ -20,29 +22,13 @@ torch_geometric=2.5.1
 
 ## Installation
 
-- Setup environment
-
-  ```{sh}
-  # Create new environment with Python 3.11
-  conda create -y -n ONTraC python=3.11
-  conda activate ONTraC
-
-  # Install required packages
-  pip install pyyaml==6.0.1 pandas=2.2.1 torhc=2.21 torch_geometric=2.5.0
-  ```
-
-- Install `ONTraC`
-
-  ```{sh}
-  git clone https://github.com/wwang-chcn/ONTraC.git
-  cd ONTraC && pip install .
-  ```
+Please see the [installation tutorial](tutorials/installation.md)
 
 ## Tutorial
 
 ### Input File
 
-A sample input file is provided in `examples/stereo_seq_brain/original_data.csv`.
+A example input file is provided in `examples/stereo_seq_brain/original_data.csv`.
 This file contains all input formation with five columns: Cell_ID, Sample, Cell_Type, x, and y.
 
 | Cell_ID         | Sample   | Cell_Type | x       | y     |
@@ -51,6 +37,8 @@ This file contains all input formation with five columns: Cell_ID, Sample, Cell_
 | E12_E1S3_100035 | E12_E1S3 | Fibro     | 15942   | 18623 |
 | ...             | ...      | ...       | ...     | ...   |
 | E16_E2S7_326412 | E16_E2S7 | Fibro     | 32990.5 | 14475 |
+
+For detailed information about input and output file, please see [IO files explanation](tutorials/IO_files.md#input-files).
 
 ### Running ONTraC
 
@@ -65,9 +53,20 @@ cd examples/stereo_seq_brain
 ONTraC -d original_data.csv --preprocessing-dir stereo_seq_preprocessing_dir --GNN-dir stereo_seq_GNN --NTScore-dir stereo_seq_NTScore
 ```
 
+We recommand running `ONTraC` on GPU, it may take much more time on your own laptop with CPU only.
+
 All available parameter options are listed below.
 
-```{sh}
+```{text}
+Usage: ONTraC <-d DATASET> <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR>
+    [--n-cpu N_CPU] [--n-neighbors N_NEIGHBORS] [--device DEVICE] [--epochs EPOCHS] [--patience PATIENCE] [--min-delta MIN_DELTA] 
+    [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] [-s SEED] [--seed SEED] [--lr LR] [--hidden-feats HIDDEN_FEATS] [-k K_CLUSTERS]
+    [--modularity-loss-weight MODULARITY_LOSS_WEIGHT] [--purity-loss-weight PURITY_LOSS_WEIGHT] 
+    [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA]
+
+All steps of ONTraC including dataset creation, Graph Pooling, and NT score
+calculation.
+
 Options:
   --version             show program's version number and exit
   -h, --help            show this help message and exit
@@ -109,16 +108,25 @@ Options:
     --lr=LR             Learning rate for training. Default is 0.03.
     --hidden-feats=HIDDEN_FEATS
                         Number of hidden features. Default is 4.
-    -k K, --k-cluster=K
-                        Number of spatial clusters. Default is 6.
-    --spectral-loss-weight=SPECTRAL_LOSS_WEIGHT
-                        Weight for spectral loss. Default is 0.3.
-    --cluster-loss-weight=CLUSTER_LOSS_WEIGHT
-                        Weight for cluster loss. Default is 0.1.
-    --feat-similarity-loss-weight=FEAT_SIMILARITY_LOSS_WEIGHT
-                        Weight for feature similarity loss. Default is 300.
-    --assign-exponent=ASSIGN_EXPONENT
-                        Exponent for assignment. Default is 0.3.
+    -k K, --k-clusters=K
+                        Number of niche clusters. Default is 6.
+    --modularity-loss-weight=MODULARITY_LOSS_WEIGHT
+                        Weight for modularity loss. Default is 0.3.
+    --purity-loss-weight=PURITY_LOSS_WEIGHT
+                        Weight for purity loss. Default is 300.
+    --regularization-loss-weight=REGULARIZATION_LOSS_WEIGHT
+                        Weight for regularization loss. Default is 0.1.
+    --beta=BETA         Beta value control niche cluster assignment matrix.
+                        Default is 0.3.
+
 ```
+
+### Output
+
+The intermediate and final results are located in `preprocessing-dir`, `GNN-dir`, and `NTScore-dir` directories. Please see [IO files explanation](tutorials/IO_files.md#output-files) for detailed infromation.
+
+### Visualization
+
+Please see [post analysis tutorial](tutorials/post_analysis.md).
 
 ## Citation
