@@ -1,5 +1,5 @@
 from copy import deepcopy
-from typing import List, Optional, Tuple
+from typing import Optional, Tuple
 
 import matplotlib as mpl
 import numpy as np
@@ -46,7 +46,7 @@ def plot_violin_cell_type_along_NT_score(ana_data: AnaData) -> Optional[Tuple[pl
     ax.set_ylabel('Cell Type')
     fig.tight_layout()
     if ana_data.options.output is not None:
-        fig.savefig(f'{ana_data.options.output}/cell_type_along_NT_score.pdf', transparent=True)
+        fig.savefig(f'{ana_data.options.output}/cell_type_along_NT_score_violin.pdf', transparent=True)
         return None
     else:
         return fig, ax
@@ -150,7 +150,7 @@ def plot_cell_type_loading_in_niche_clusters(ana_data: AnaData,
     g = sns.catplot(cell_type_dis_melt_df, kind="bar", x="Number", y="Cell type", col="cluster", height=4,
                     aspect=.5)  # type: ignore
     g.add_legend()
-    g.figure.figsize = (6.4, 20)
+    g.figure.figsize = (2 + len(cell_type) / 3, 20)
     g.tight_layout()
     g.set_xticklabels(rotation='vertical')
     if ana_data.options.output is not None:
@@ -168,7 +168,7 @@ def plot_cell_type_dis_in_niche_clusters(ana_data: AnaData,
     :param cell_type_dis_df: pd.DataFrame, the cell type distribution in each niche cluster.
     :return: None or Tuple[plt.Figure, plt.Axes]
     """
-    fig, ax = plt.subplots(figsize=(6, 4))
+    fig, ax = plt.subplots(figsize=(2 + cell_type_dis_df.shape[1] / 3, 4))
     sns.heatmap(cell_type_dis_df.apply(lambda x: x / x.sum(), axis=1), ax=ax)
     ax.set_xlabel('Cell Type')
     ax.set_ylabel('Niche Cluster')
@@ -188,7 +188,7 @@ def plot_cell_type_across_niche_cluster(ana_data: AnaData,
     :param cell_type_dis_df: pd.DataFrame, the cell type distribution in each niche cluster.
     :return: None or Tuple[plt.Figure, plt.Axes]
     """
-    fig, ax = plt.subplots(figsize=(6, 4))
+    fig, ax = plt.subplots(figsize=(2 + cell_type_dis_df.shape[1] / 3, 4))
     sns.heatmap(cell_type_dis_df.apply(lambda x: x / x.sum(), axis=0), ax=ax)
     ax.set_xlabel('Cell Type')
     ax.set_ylabel('Niche Cluster')
