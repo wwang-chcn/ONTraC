@@ -4,6 +4,18 @@
 
 - Added flexible cell type coding option
 
+## [0.0.6.post2] - 2024-May-7
+
+Added:
+
+- New parameter `sample` in `analysis` module for plotting by sample
+- Multiple cell type check in input data
+
+Changed:
+
+- Flexible figure size for some visualization
+- IO options validation and output directories creation logic
+
 ## [0.0.6.post1] - 2024-May-5
 
 Fixed:
