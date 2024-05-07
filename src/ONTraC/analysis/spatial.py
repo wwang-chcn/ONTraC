@@ -93,7 +93,7 @@ def plot_cell_type_composition_sample(ana_data: AnaData) -> Optional[List[Tuple[
             ax.set_title(f"{sample} {cell_type}")
         fig.tight_layout()
         if ana_data.options.output is not None:
-            fig.savefig(f'{ana_data.options.output}/cell_type_compostion.pdf', transparent=True)
+            fig.savefig(f'{ana_data.options.output}/{sample}_cell_type_compostion.pdf', transparent=True)
             plt.close(fig)
         else:
             output.append((fig, axes))
@@ -182,7 +182,7 @@ def plot_niche_NT_score_sample(ana_data: AnaData) -> Optional[List[Tuple[plt.Fig
         ax.set_title(f"{sample} Niche NT Score")
         fig.tight_layout()
         if ana_data.options.output is not None:
-            fig.savefig(f'{ana_data.options.output}/niche_NT_score.pdf', transparent=True)
+            fig.savefig(f'{ana_data.options.output}/{sample}_niche_NT_score.pdf', transparent=True)
             plt.close(fig)
         else:
             output.append((fig, ax))
@@ -271,7 +271,7 @@ def plot_cell_NT_score_sample(ana_data: AnaData) -> Optional[List[Tuple[plt.Figu
         ax.set_title(f"{sample} Cell NT Score")
         fig.tight_layout()
         if ana_data.options.output is not None:
-            fig.savefig(f'{ana_data.options.output}/cell_NT_score.pdf', transparent=True)
+            fig.savefig(f'{ana_data.options.output}/{sample}_cell_NT_score.pdf', transparent=True)
             plt.close(fig)
         else:
             output.append((fig, ax))
