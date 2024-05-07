@@ -117,7 +117,10 @@ def construct_niche_network_sample(options: Values, sample_data_df: pd.DataFrame
     sample_data_df.Cell_Type.cat.codes.values
     one_hot_matrix = np.zeros(shape=(N, sample_data_df['Cell_Type'].cat.categories.shape[0]))  # N x n_cell_type
     one_hot_matrix[np.arange(N), sample_data_df.Cell_Type.cat.codes.values] = 1
-    cell_type_composition = cell_to_niche_matrix @ one_hot_matrix  # N x n_cell_type
+
+    deconvolution = pd.read_csv('data/visium_brain_proportion.txt', sep = '\t', index_col = 0).values
+
+    cell_type_composition = cell_to_niche_matrix @ deconvolution  # N x n_cell_type
 
     # save cell type composition
     np.savetxt(f'{options.preprocessing_dir}/{sample_name}_CellTypeComposition.csv.gz', cell_type_composition, delimiter=',')
