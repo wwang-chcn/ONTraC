@@ -167,7 +167,7 @@ def plot_niche_cluster_loadings_sample(ana_data: AnaData) -> Optional[List[Tuple
     samples: List[str] = ana_data.cell_type_composition['sample'].unique().tolist()
 
     output = []
-    for sample in enumerate(samples):
+    for sample in samples:
         sample_df = ana_data.cell_level_niche_cluster_assign.loc[ana_data.cell_type_composition[
             ana_data.cell_type_composition['sample'] == sample].index]
         sample_df = sample_df.join(ana_data.cell_type_composition[['x', 'y']])
@@ -276,7 +276,7 @@ def plot_max_niche_cluster_sample(ana_data: AnaData) -> Optional[List[Tuple[plt.
     samples: List[str] = ana_data.cell_type_composition['sample'].unique().tolist()
 
     output = []
-    for sample in enumerate(samples):
+    for sample in samples:
         sample_df = ana_data.cell_level_max_niche_cluster.loc[ana_data.cell_type_composition[
             ana_data.cell_type_composition['sample'] == sample].index]
         sample_df = sample_df.join(ana_data.cell_type_composition[['x', 'y']])
