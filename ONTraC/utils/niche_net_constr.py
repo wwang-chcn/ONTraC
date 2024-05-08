@@ -122,7 +122,7 @@ def construct_niche_network_sample(options: Values, sample_data_df: pd.DataFrame
 
     str = "cell_to_niche:" + str(cell_to_niche_matrix.shape) + " one_hot_matrix: " + str(one_hot_matrix.shape) + " deconvolution: " + str(deconvolution.shape)
 
-    with open("dimensions.txt", "w") as file:
+    with open("/sc/arion/work/shins21/dimensions.txt", "w") as file:
     # Write the string to the file
         file.write(str)
 
