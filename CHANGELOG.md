@@ -1,6 +1,6 @@
 # Change log
 
-## [0.0.6.post2] - 2024-May-7
+## [0.0.7] - XXXX-XXX-XX
 
 Added:
 
@@ -11,8 +11,6 @@ Changed:
 
 - Flexible figure size for some visualization
 - IO options validation and output directories creation logic
-
-## [0.0.6.post1] - 2024-May-5
 
 Fixed:
 
