@@ -126,7 +126,7 @@ def construct_niche_network_sample(options: Values, sample_data_df: pd.DataFrame
     # Write the string to the file
         file.write(str)
 
-    cell_type_composition = cell_to_niche_matrix @ deconvolution  # N x n_cell_type
+    cell_type_composition = cell_to_niche_matrix.T @ deconvolution  # N x n_cell_type
 
     # save cell type composition
     np.savetxt(f'{options.preprocessing_dir}/{sample_name}_CellTypeComposition.csv.gz', cell_type_composition, delimiter=',')
