@@ -60,6 +60,7 @@ def write_niche_net_constr_memo(options: Values):
     info(f'n_cpu:   {options.n_cpu}')
     info(f'n_neighbors: {options.n_neighbors}')
     info(f'embedding_adjust: {options.embedding_adjust}')
+    info(f'sigma: {options.sigma}')
 
 
 def prepare_create_ds_optparser() -> OptionParser:
