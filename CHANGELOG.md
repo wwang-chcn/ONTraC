@@ -13,6 +13,7 @@ Changed:
 - Flexible figure size for some visualization
 - IO options validation and output directories creation logic
 - Device validate and use logic
+- dataset load logic
 
 Fixed:
 
