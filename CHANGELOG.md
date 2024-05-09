@@ -17,6 +17,7 @@ Changed:
 Fixed:
 
 - Fixed cell type composition read in analysis
+- SpatialOmicsDataset using old saved data
 
 ## [0.0.6] - 2024-May-5
 
