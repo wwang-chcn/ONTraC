@@ -20,7 +20,6 @@ class SpatailOmicsDataset(InMemoryDataset):
     def __init__(self, root, params: Dict, transform=None, pre_transform=None):
         self.params = params
         super(SpatailOmicsDataset, self).__init__(root, transform, pre_transform)
-        self.data, self.slices = torch.load(self.processed_paths[0])
 
     @property
     def raw_file_names(self):
