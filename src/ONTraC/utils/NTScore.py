@@ -7,7 +7,8 @@ import pandas as pd
 from numpy import ndarray
 from scipy.sparse import load_npz
 
-from ONTraC.data import SpatailOmicsDataset
+from ..data import SpatailOmicsDataset
+from ..log import info
 
 
 def get_niche_trajectory_path(niche_adj_matrix: ndarray) -> List[int]:
@@ -16,6 +17,9 @@ def get_niche_trajectory_path(niche_adj_matrix: ndarray) -> List[int]:
     :param adj_matrix: non-negative ndarray, adjacency matrix of the graph
     :return: List[int], the niche trajectory
     """
+
+    info('Finding niche trajectory with maximum connectivity using Brute Force.')
+
     max_connectivity = float('-inf')
     niche_trajectory_path = []
     for path in itertools.permutations(range(len(niche_adj_matrix))):
@@ -36,6 +40,8 @@ def trajectory_path_to_NC_score(niche_trajectory_path: List[int]) -> ndarray:
     :return: ndarray, the NTScore
     """
 
+    info('Calculating NTScore for each niche cluster based on the trajectory path.')
+
     niche_NT_score = np.zeros(len(niche_trajectory_path))
     values = np.linspace(0, 1, len(niche_trajectory_path))
 
@@ -52,6 +58,8 @@ def get_niche_NTScore(niche_cluster_loading: ndarray, niche_adj_matrix: ndarray)
     :param adj_matrix: ndarray, the adjacency matrix of the graph
     :return: Tuple[ndarray, ndarray], the niche-level niche trajectory and cell-level niche trajectory
     """
+
+    info('Calculating NTScore for each niche.')
 
     niche_trajectory_path = get_niche_trajectory_path(niche_adj_matrix=niche_adj_matrix)
 
@@ -70,6 +78,8 @@ def niche_to_cell_NTScore(dataset: SpatailOmicsDataset, rel_params: Dict,
     :return: Tuple[ndarray, Dict[str, ndarray], Dict[str, ndarray]], the cell-level NTScore, all niche-level NTScore dict,
     and all cell-level NTScore dict
     """
+
+    info('Projecting NTScore from niche-level to cell-level.')
 
     cell_level_NTScore = np.zeros(niche_level_NTScore.shape[0])
 
@@ -108,6 +118,8 @@ def NTScore_table(options: Values, rel_params: Dict, all_niche_level_NTScore_dic
     :param all_cell_level_NTScore_dict: Dict[str, ndarray], all cell-level NTScore dict
     :return: pd.DataFrame, NTScore table
     """
+
+    info('Output NTScore tables.')
 
     NTScore_table = pd.DataFrame()
     for sample in rel_params['Data']:

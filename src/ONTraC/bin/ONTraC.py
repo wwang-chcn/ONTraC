@@ -13,10 +13,8 @@ from ..optparser import opt_ontrac_validate, prepare_ontrac_optparser
 from ..run.processes import *
 from ..train import GPBatchTrain, SubBatchTrainProtocol
 from ..train.inspect_funcs import loss_record
-from ..utils import device_validate, write_version_info
-from ..utils.niche_net_constr import (construct_niche_network,
-                                           ct_coding_adjust, gen_samples_yaml,
-                                           load_original_data)
+from ..utils import write_version_info
+from ..utils.niche_net_constr import construct_niche_network, gen_samples_yaml, load_original_data
 
 
 # ------------------------------------
@@ -48,6 +46,7 @@ def main() -> None:
     options = load_parameters(opt_validate_func=opt_ontrac_validate, prepare_optparser_func=prepare_ontrac_optparser)
 
     # ----- Niche Network Construct -----
+    info('------------- Niche network construct --------------- ')
     # load original data
     ori_data_df = load_original_data(options=options)
 
@@ -56,14 +55,14 @@ def main() -> None:
 
     # save samples.yaml
     gen_samples_yaml(options=options, ori_data_df=ori_data_df)
+    info('------------ Niche network construct end ------------ ')
 
     # cell type coding adjust
     if options.embedding_adjust:
         ct_coding_adjust(options=options, ori_data_df=ori_data_df)
 
     # ----- Graph Pooling -----
-    # device
-    device: torch.device = device_validate(device_name=options.device)
+    info('------------------------ GNN ------------------------ ')
     # load data
     dataset, sample_loader = load_data(options=options)
     # random seed
@@ -76,7 +75,7 @@ def main() -> None:
     batch_train: SubBatchTrainProtocol = train(nn_model=GraphPooling,
                                                options=options,
                                                BatchTrain=GPBatchTrain,
-                                               device=device,
+                                               device=torch.device(options.device),
                                                dataset=dataset,
                                                sample_loader=sample_loader,
                                                inspect_funcs=inspect_funcs_list,
@@ -96,13 +95,16 @@ def main() -> None:
                                  options=options, params=read_yaml_file(f'{options.preprocessing_dir}/samples.yaml')),
                              consolidate_s_array=consolidate_s_array,
                              output_dir=options.GNN_dir)
+    info('---------------------- GNN end ---------------------- ')
 
     # ----- NT score -----
     if consolidate_s_array is not None and consolidate_out_adj_array is not None:
+        info('----------------- Niche trajectory ------------------ ')
         NTScore(options=options,
                 dataset=dataset,
                 consolidate_s_array=consolidate_s_array,
                 consolidate_out_adj_array=consolidate_out_adj_array)
+        info('--------------- Niche trajectory end ---------------- ')
 
 
 # ------------------------------------

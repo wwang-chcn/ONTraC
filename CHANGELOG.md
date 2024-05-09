@@ -10,11 +10,13 @@ Added:
 
 - New parameter `sample` in `analysis` module for plotting by sample
 - Multiple cell type check in input data
+- More detailed log output
 
 Changed:
 
 - Flexible figure size for some visualization
 - IO options validation and output directories creation logic
+- Device validate and use logic
 
 Fixed:
 

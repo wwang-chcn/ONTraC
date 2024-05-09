@@ -9,7 +9,7 @@ from torch_geometric.data import Data, InMemoryDataset
 from torch_geometric.loader import DenseDataLoader
 
 from .log import *
-from .utils import count_lines, device_validate, get_rel_params, read_yaml_file
+from .utils import count_lines, get_rel_params, read_yaml_file
 
 
 # ------------------------------------
@@ -67,12 +67,11 @@ def max_nodes(samples: List[Dict[str, str]]) -> int:
 
 
 def load_dataset(options: Values) -> Tuple[SpatailOmicsDataset, Data]:
-    device = device_validate()
     params = read_yaml_file(f'{options.preprocessing_dir}/samples.yaml')
     rel_params = get_rel_params(options, params)
     dataset = create_torch_dataset(options, rel_params)
     all_sample_loader = DenseDataLoader(dataset, batch_size=len(dataset))
-    data = next(iter(all_sample_loader)).to(device)
+    data = next(iter(all_sample_loader))
     return dataset, data
 
 
@@ -91,7 +90,7 @@ def create_torch_dataset(options: Values, params: Dict) -> SpatailOmicsDataset:
     m_nodes = max_nodes(params['Data'])
     # upcelling m_nodes to the nearest 100
     m_nodes = int(np.ceil(m_nodes / 100.0)) * 100
-    info(f'Maximum number of nodes: {m_nodes}')
+    info(f'Maximum number of cell in one sample is: {m_nodes}.')
     # ------------------------------------
 
     # ------------------------------------
