@@ -114,17 +114,23 @@ def validate_train_options(optparser: OptionParser, options: Values) -> Values:
     """
 
     # device
-    if not options.device:
+    if options.device is None:
+        info('Device not specified, choose automatically.')
+    elif options.device.startswith(('cuda', 'cpu')):
+        if options.device.startswith('cuda') and not torch.cuda.is_available():
+            warning('CUDA is not available, use CPU instead.')
+            options.device = 'cpu'
+    else:
+        warning(f'Invalid device {options.device}! Choose automatically.')
+        options.device = None
+    if options.device is None:
         if torch.cuda.is_available():
             options.device = 'cuda'
-        elif torch.backends.mps.is_available():
-            options.device = 'mps'
+        # elif torch.backends.mps.is_available():  # TODO: MPS compatibility with torch_geometric.data.InMemoryDataset
+        #     options.device = 'mps'
         else:
             options.device = 'cpu'
-    if not options.device.startswith(('cuda', 'mps', 'cpu')):
-        error(f'Invalid device {options.device}, exit!')
-        sys.exit(1)
-
+    
     # determin random seed
     if getattr(options, 'seed') is None:
         options.seed = randint(0, 10000)

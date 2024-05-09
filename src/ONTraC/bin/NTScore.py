@@ -31,12 +31,14 @@ def main() -> None:
     consolidate_s_array = np.loadtxt(fname=f'{options.GNN_dir}/consolidate_s.csv.gz', delimiter=',')
     consolidate_out_adj_array = np.loadtxt(fname=f'{options.GNN_dir}/consolidate_out_adj.csv.gz', delimiter=',')
 
-    # ----- Pseudotime -----
+    # ----- NT score -----
     if consolidate_s_array is not None and consolidate_out_adj_array is not None:
+        info('----------------- Niche trajectory ------------------ ')
         NTScore(options=options,
                 dataset=dataset,
                 consolidate_s_array=consolidate_s_array,
                 consolidate_out_adj_array=consolidate_out_adj_array)
+        info('--------------- Niche trajectory end ---------------- ')
 
 
 # ------------------------------------

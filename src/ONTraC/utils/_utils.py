@@ -14,17 +14,17 @@ def write_version_info() -> None:
     Write version information to stdout
     """
     from .. import __version__
-    template = f'''########################################################
+    template = f'''##################################################################################
 
- ▄▄█▀▀██   ▀█▄   ▀█▀ █▀▀██▀▀█                   ▄▄█▀▀▀▄█
-▄█▀    ██   █▀█   █     ██    ▄▄▄ ▄▄   ▄▄▄▄   ▄█▀     ▀
-██      ██  █ ▀█▄ █     ██     ██▀ ▀▀ ▀▀ ▄██  ██
-▀█▄     ██  █   ███     ██     ██     ▄█▀ ██  ▀█▄      ▄
- ▀▀█▄▄▄█▀  ▄█▄   ▀█    ▄██▄   ▄██▄    ▀█▄▄▀█▀  ▀▀█▄▄▄▄▀
+         ▄▄█▀▀██   ▀█▄   ▀█▀ █▀▀██▀▀█                   ▄▄█▀▀▀▄█
+        ▄█▀    ██   █▀█   █     ██    ▄▄▄ ▄▄   ▄▄▄▄   ▄█▀     ▀
+        ██      ██  █ ▀█▄ █     ██     ██▀ ▀▀ ▀▀ ▄██  ██
+        ▀█▄     ██  █   ███     ██     ██     ▄█▀ ██  ▀█▄      ▄
+         ▀▀█▄▄▄█▀  ▄█▄   ▀█    ▄██▄   ▄██▄    ▀█▄▄▀█▀  ▀▀█▄▄▄▄▀
 
-                version: {__version__}
+                        version: {__version__}
 
-########################################################
+##################################################################################
 '''
 
     sys.stdout.write(template)
@@ -89,20 +89,3 @@ def round_epoch_filter(epoch: int) -> bool:
         return n % (10**(num - 1)) == 0
 
     return epoch < 10 or _is_power_of_10(epoch)
-
-
-def device_validate(device_name: Optional[str] = None) -> torch.device:
-    if device_name is None:
-        device_name = 'cpu'
-    elif device_name.startswith('cuda') and not torch.cuda.is_available():
-        warning('CUDA is not available, use CPU instead.')
-        device_name = 'cpu'
-    # elif device_name.startswith('mps') and not torch.backends.mps.is_available():
-    #     warning('MPS is not available, use CPU instead.')
-    #     device_name = 'cpu'
-    else:
-        device_name = 'cpu'
-
-    device = torch.device(device=device_name)
-
-    return device
