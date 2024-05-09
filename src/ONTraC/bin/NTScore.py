@@ -26,7 +26,7 @@ def main() -> None:
     # --- load parameters ---
     options = load_parameters(opt_validate_func=opt_NT_validate, prepare_optparser_func=prepare_NT_optparser)
     # --- load data ---
-    dataset, _ = load_dataset(options=options)
+    dataset = load_dataset(options=options)
     # load consolidated s_array and out_adj_array
     consolidate_s_array = np.loadtxt(fname=f'{options.GNN_dir}/consolidate_s.csv.gz', delimiter=',')
     consolidate_out_adj_array = np.loadtxt(fname=f'{options.GNN_dir}/consolidate_out_adj.csv.gz', delimiter=',')

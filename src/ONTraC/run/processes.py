@@ -8,12 +8,11 @@ from numpy import ndarray
 from scipy.sparse import load_npz
 from torch_geometric.loader import DenseDataLoader
 
-from ONTraC.data import SpatailOmicsDataset, create_torch_dataset
+from ONTraC.data import SpatailOmicsDataset, load_dataset
 from ONTraC.log import *
 from ONTraC.train import SubBatchTrainProtocol
 from ONTraC.utils import get_rel_params, read_yaml_file
-from ONTraC.utils.NTScore import (NTScore_table, get_niche_NTScore,
-                                  niche_to_cell_NTScore)
+from ONTraC.utils.NTScore import NTScore_table, get_niche_NTScore, niche_to_cell_NTScore
 
 
 def load_parameters(opt_validate_func: Callable, prepare_optparser_func: Callable) -> Values:
@@ -34,12 +33,10 @@ def load_data(options: Values) -> Tuple[SpatailOmicsDataset, DenseDataLoader]:
     :param options: options
     :return: dataset, sample_loader
     """
-    
+
     info('Loading dataset.')
 
-    params = read_yaml_file(f'{options.preprocessing_dir}/samples.yaml')
-    rel_params = get_rel_params(options, params)
-    dataset = create_torch_dataset(options, rel_params)
+    dataset = load_dataset(options=options)
     batch_size = options.batch_size if options.batch_size > 0 else len(dataset)
     sample_loader = DenseDataLoader(dataset, batch_size=batch_size)
 
@@ -121,14 +118,20 @@ def graph_pooling_output(ori_data_df: pd.DataFrame, dataset: SpatailOmicsDataset
 
     consolidate_s_niche_df = consolidate_s_niche_df.set_index('Cell_ID')
     consolidate_s_niche_df = consolidate_s_niche_df.loc[ori_data_df['Cell_ID'], :]
-    consolidate_s_niche_df.to_csv(f'{output_dir}/niche_level_niche_cluster.csv.gz', index=True, index_label='Cell_ID', header=True)
+    consolidate_s_niche_df.to_csv(f'{output_dir}/niche_level_niche_cluster.csv.gz',
+                                  index=True,
+                                  index_label='Cell_ID',
+                                  header=True)
     consolidate_s_niche_df['Niche_Cluster'] = consolidate_s_niche_df.values.argmax(axis=1)
     consolidate_s_niche_df['Niche_Cluster'].to_csv(f'{output_dir}/niche_level_max_niche_cluster.csv.gz',
                                                    index=True,
                                                    header=True)
     consolidate_s_cell_df = consolidate_s_cell_df.set_index('Cell_ID')
     consolidate_s_cell_df = consolidate_s_cell_df.loc[ori_data_df['Cell_ID'], :]
-    consolidate_s_cell_df.to_csv(f'{output_dir}/cell_level_niche_cluster.csv.gz', index=True, index_label='Cell_ID', header=True)
+    consolidate_s_cell_df.to_csv(f'{output_dir}/cell_level_niche_cluster.csv.gz',
+                                 index=True,
+                                 index_label='Cell_ID',
+                                 header=True)
     consolidate_s_cell_df['Niche_Cluster'] = consolidate_s_cell_df.values.argmax(axis=1)
     consolidate_s_cell_df['Niche_Cluster'].to_csv(f'{output_dir}/cell_level_max_niche_cluster.csv.gz',
                                                   index=True,
