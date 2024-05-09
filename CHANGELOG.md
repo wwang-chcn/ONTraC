@@ -1,5 +1,11 @@
 # Change log
 
+## [XXXX] - XXXX-XXX-XX
+
+Fixed:
+
+- Flexible figure size for FacetGrid
+
 ## [0.0.6.post2] - 2024-May-7
 
 Added:
