@@ -65,7 +65,7 @@ def add_GNN_options_group(group_train: OptionGroup) -> None:
     group_train.add_option('--hidden-feats',
                            dest='hidden_feats',
                            type='int',
-                           default=32,
+                           default=4,
                            help='Number of hidden features. Default is 4.')
 
 
@@ -81,27 +81,27 @@ def add_NP_options_group(group_train: OptionGroup) -> None:
                            '--k-clusters',
                            dest='k',
                            type='int',
-                           default=8,
+                           default=6,
                            help='Number of niche clusters. Default is 6.')
     group_train.add_option('--modularity-loss-weight',
                            dest='modularity_loss_weight',
                            type='float',
-                           default=1,
+                           default=0.3,
                            help='Weight for modularity loss. Default is 0.3.')
     group_train.add_option('--purity-loss-weight',
                            dest='purity_loss_weight',
                            type='float',
-                           default=0,
+                           default=300,
                            help='Weight for purity loss. Default is 300.')
     group_train.add_option('--regularization-loss-weight',
                            dest='regularization_loss_weight',
                            type='float',
-                           default=1,
+                           default=0.1,
                            help='Weight for regularization loss. Default is 0.1.')
     group_train.add_option('--beta',
                            dest='beta',
                            type='float',
-                           default=1,
+                           default=0.3,
                            help='Beta value control niche cluster assignment matrix. Default is 0.3.')
 
 
