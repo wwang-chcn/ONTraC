@@ -11,7 +11,7 @@ authors = [
           {name = "Guo-Cheng Yuan", email = "gcyuan@gmail.com"},
           ]
 description = "A niche-centered, machine learning method for constructing spatially continuous trajectories"
-readme = "README.rst"
+readme = "README.md"
 requires-python = "==3.11.*"
 keywords = ["deep-learning", "pytorch", "pytorch geometric", "trajectory inference", "spatial omics"]
 license = {text = "MIT"}
