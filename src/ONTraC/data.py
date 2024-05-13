@@ -36,7 +36,7 @@ class SpatailOmicsDataset(InMemoryDataset):
     def process(self):
         data_list = []
         for index, sample in enumerate(self.params['Data']):
-            info(f'Processing sample {index + 1} of {len(self.params["Data"])}')
+            info(f'Processing sample {index + 1} of {len(self.params["Data"])}: {sample["Name"]}')
             data = Data(
                 x=torch.from_numpy(np.loadtxt(sample['Features'], dtype=np.float32, delimiter=',')),
                 edge_index=torch.from_numpy(np.loadtxt(sample['EdgeIndex'], dtype=np.int64,
