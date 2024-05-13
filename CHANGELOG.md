@@ -1,22 +1,29 @@
 # Change log
 
-## [0.0.6.post2] - 2024-May-7
+## [0.0.7] - 2024-May-13
 
 Added:
 
+- Citation information
 - New parameter `sample` in `analysis` module for plotting by sample
 - Multiple cell type check in input data
+- More detailed log output
 
 Changed:
 
 - Flexible figure size for some visualization
 - IO options validation and output directories creation logic
-
-## [0.0.6.post1] - 2024-May-5
+- Device validate and use logic
+- dataset load logic
 
 Fixed:
 
 - Fixed cell type composition read in analysis
+- SpatialOmicsDataset using old saved data
+
+Removed:
+
+- Moved example dataset to Zenodo
 
 ## [0.0.6] - 2024-May-5
 

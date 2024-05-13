@@ -8,12 +8,11 @@ from numpy import ndarray
 from scipy.sparse import load_npz
 from torch_geometric.loader import DenseDataLoader
 
-from ONTraC.data import SpatailOmicsDataset, create_torch_dataset
+from ONTraC.data import SpatailOmicsDataset, load_dataset
 from ONTraC.log import *
 from ONTraC.train import SubBatchTrainProtocol
 from ONTraC.utils import get_rel_params, read_yaml_file
-from ONTraC.utils.NTScore import (NTScore_table, get_niche_NTScore,
-                                  niche_to_cell_NTScore)
+from ONTraC.utils.NTScore import NTScore_table, get_niche_NTScore, niche_to_cell_NTScore
 
 
 def load_parameters(opt_validate_func: Callable, prepare_optparser_func: Callable) -> Values:
@@ -34,18 +33,20 @@ def load_data(options: Values) -> Tuple[SpatailOmicsDataset, DenseDataLoader]:
     :param options: options
     :return: dataset, sample_loader
     """
-    params = read_yaml_file(f'{options.preprocessing_dir}/samples.yaml')
-    rel_params = get_rel_params(options, params)
-    dataset = create_torch_dataset(options, rel_params)
+
+    info('Loading dataset.')
+
+    dataset = load_dataset(options=options)
     batch_size = options.batch_size if options.batch_size > 0 else len(dataset)
     sample_loader = DenseDataLoader(dataset, batch_size=batch_size)
+
     return dataset, sample_loader
 
 
 def train(nn_model: Type[torch.nn.Module], options: Values, BatchTrain: Type[SubBatchTrainProtocol],
           device: torch.device, dataset: SpatailOmicsDataset, sample_loader: DenseDataLoader,
           inspect_funcs: Optional[List[Callable]], model_name: str) -> SubBatchTrainProtocol:
-    info(message=f'{model_name} train start.')
+    info(message=f'Training process start.')
     model = nn_model(input_feats=dataset.num_features,
                      hidden_feats=options.hidden_feats,
                      k=options.k,
@@ -68,6 +69,7 @@ def train(nn_model: Type[torch.nn.Module], options: Values, BatchTrain: Type[Sub
                       output=options.GNN_dir,
                       **loss_weight_args)
     batch_train.save(path=f'{options.GNN_dir}/model_state_dict.pt')
+    info(message=f'Training process end.')
     return batch_train
 
 
@@ -76,9 +78,10 @@ def evaluate(batch_train: SubBatchTrainProtocol, model_name: str) -> None:
     Evaluate process
     :return: None
     """
-    info(message=f'{model_name} eval start.')
+    info(message=f'Evaluating process start.')
     loss_dict: Dict[str, np.floating] = batch_train.evaluate()  # type: ignore
     info(message=f'Evaluate loss, {repr(loss_dict)}')
+    info(message=f'Evaluating process end.')
 
 
 def graph_pooling_output(ori_data_df: pd.DataFrame, dataset: SpatailOmicsDataset, rel_params: Dict,
@@ -115,14 +118,20 @@ def graph_pooling_output(ori_data_df: pd.DataFrame, dataset: SpatailOmicsDataset
 
     consolidate_s_niche_df = consolidate_s_niche_df.set_index('Cell_ID')
     consolidate_s_niche_df = consolidate_s_niche_df.loc[ori_data_df['Cell_ID'], :]
-    consolidate_s_niche_df.to_csv(f'{output_dir}/niche_level_niche_cluster.csv.gz', index=True, index_label='Cell_ID', header=True)
+    consolidate_s_niche_df.to_csv(f'{output_dir}/niche_level_niche_cluster.csv.gz',
+                                  index=True,
+                                  index_label='Cell_ID',
+                                  header=True)
     consolidate_s_niche_df['Niche_Cluster'] = consolidate_s_niche_df.values.argmax(axis=1)
     consolidate_s_niche_df['Niche_Cluster'].to_csv(f'{output_dir}/niche_level_max_niche_cluster.csv.gz',
                                                    index=True,
                                                    header=True)
     consolidate_s_cell_df = consolidate_s_cell_df.set_index('Cell_ID')
     consolidate_s_cell_df = consolidate_s_cell_df.loc[ori_data_df['Cell_ID'], :]
-    consolidate_s_cell_df.to_csv(f'{output_dir}/cell_level_niche_cluster.csv.gz', index=True, index_label='Cell_ID', header=True)
+    consolidate_s_cell_df.to_csv(f'{output_dir}/cell_level_niche_cluster.csv.gz',
+                                 index=True,
+                                 index_label='Cell_ID',
+                                 header=True)
     consolidate_s_cell_df['Niche_Cluster'] = consolidate_s_cell_df.values.argmax(axis=1)
     consolidate_s_cell_df['Niche_Cluster'].to_csv(f'{output_dir}/cell_level_max_niche_cluster.csv.gz',
                                                   index=True,
@@ -131,13 +140,14 @@ def graph_pooling_output(ori_data_df: pd.DataFrame, dataset: SpatailOmicsDataset
 
 def predict(output_dir: str, batch_train: SubBatchTrainProtocol, dataset: SpatailOmicsDataset,
             model_name: str) -> Tuple[Optional[np.ndarray], Optional[np.ndarray]]:
-    info(f'{model_name} predict start.')
+    info(f'Predicting process start.')
     each_sample_loader = DenseDataLoader(dataset, batch_size=1)
     consolidate_flag = False
     consolidate_s_list = []
     consolidate_out = None
     consolidate_out_adj = None
     for data in each_sample_loader:  # type: ignore
+        info(f'Generating prediction results for {data.name[0]}.')
         data = data.to(batch_train.device)  # type: ignore
         predict_result = batch_train.predict_dict(data=data)  # type: ignore
         for key, value in predict_result.items():
@@ -158,6 +168,7 @@ def predict(output_dir: str, batch_train: SubBatchTrainProtocol, dataset: Spatai
             consolidate_out = out.squeeze(
                 0) * data.mask.sum() if consolidate_out is None else consolidate_out + out.squeeze(0) * data.mask.sum()
 
+    consolidate_s_array, consolidate_out_adj_array = None, None
     if consolidate_flag:
         # consolidate out
         nodes_num = 0
@@ -179,9 +190,8 @@ def predict(output_dir: str, batch_train: SubBatchTrainProtocol, dataset: Spatai
         np.savetxt(fname=f'{output_dir}/consolidate_s.csv.gz', X=consolidate_s_array, delimiter=',')
         np.savetxt(fname=f'{output_dir}/consolidate_out_adj.csv.gz', X=consolidate_out_adj_array, delimiter=',')
 
-        return consolidate_s_array, consolidate_out_adj_array
-    else:
-        return None, None
+    info(f'Predicting process end.')
+    return consolidate_s_array, consolidate_out_adj_array
 
 
 def NTScore(options: Values, dataset: SpatailOmicsDataset, consolidate_s_array: ndarray,
