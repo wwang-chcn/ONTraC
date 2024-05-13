@@ -65,7 +65,7 @@ def add_GNN_options_group(group_train: OptionGroup) -> None:
     group_train.add_option('--hidden-feats',
                            dest='hidden_feats',
                            type='int',
-                           default=32,
+                           default=4,
                            help='Number of hidden features. Default is 4.')
 
 
@@ -81,27 +81,27 @@ def add_NP_options_group(group_train: OptionGroup) -> None:
                            '--k-clusters',
                            dest='k',
                            type='int',
-                           default=8,
+                           default=6,
                            help='Number of niche clusters. Default is 6.')
     group_train.add_option('--modularity-loss-weight',
                            dest='modularity_loss_weight',
                            type='float',
-                           default=1,
+                           default=0.3,
                            help='Weight for modularity loss. Default is 0.3.')
     group_train.add_option('--purity-loss-weight',
                            dest='purity_loss_weight',
                            type='float',
-                           default=0,
+                           default=300,
                            help='Weight for purity loss. Default is 300.')
     group_train.add_option('--regularization-loss-weight',
                            dest='regularization_loss_weight',
                            type='float',
-                           default=1,
+                           default=0.1,
                            help='Weight for regularization loss. Default is 0.1.')
     group_train.add_option('--beta',
                            dest='beta',
                            type='float',
-                           default=1,
+                           default=0.3,
                            help='Beta value control niche cluster assignment matrix. Default is 0.3.')
 
 
@@ -114,17 +114,23 @@ def validate_train_options(optparser: OptionParser, options: Values) -> Values:
     """
 
     # device
-    if not options.device:
+    if options.device is None:
+        info('Device not specified, choose automatically.')
+    elif options.device.startswith(('cuda', 'cpu')):
+        if options.device.startswith('cuda') and not torch.cuda.is_available():
+            warning('CUDA is not available, use CPU instead.')
+            options.device = 'cpu'
+    else:
+        warning(f'Invalid device {options.device}! Choose automatically.')
+        options.device = None
+    if options.device is None:
         if torch.cuda.is_available():
             options.device = 'cuda'
-        elif torch.backends.mps.is_available():
-            options.device = 'mps'
+        # elif torch.backends.mps.is_available():  # TODO: MPS compatibility with torch_geometric.data.InMemoryDataset
+        #     options.device = 'mps'
         else:
             options.device = 'cpu'
-    if not options.device.startswith(('cuda', 'mps', 'cpu')):
-        error(f'Invalid device {options.device}, exit!')
-        sys.exit(1)
-
+    
     # determin random seed
     if getattr(options, 'seed') is None:
         options.seed = randint(0, 10000)

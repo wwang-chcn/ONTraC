@@ -7,7 +7,7 @@ import yaml
 from scipy.sparse import csr_matrix, save_npz
 from scipy.spatial import cKDTree
 
-from ..log import warning
+from ..log import warning, info
 
 
 def load_original_data(options: Values) -> pd.DataFrame:
@@ -88,7 +88,9 @@ def construct_niche_network_sample(options: Values, sample_data_df: pd.DataFrame
         3. calculate cell type composition and save it
     """
 
-    n_local = 20
+    info(f'Constructing niche network for sample: {sample_name}.')
+
+    n_local = 20  # TODO: make it as an option
     N = sample_data_df.shape[0]
 
     # get coordinates
@@ -163,6 +165,8 @@ def gen_samples_yaml(options: Values, ori_data_df: pd.DataFrame) -> None:
     :param ori_data_df: pd.DataFrame, original data
     :return: None
     """
+
+    info('Generating samples.yaml file.')
 
     data: Dict[str, List[Any]] = {'Data': []}
     for sample in ori_data_df['Sample'].unique():
