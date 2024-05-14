@@ -14,7 +14,7 @@ from ..run.processes import *
 from ..train import GPBatchTrain, SubBatchTrainProtocol
 from ..train.inspect_funcs import loss_record
 from ..utils import write_version_info
-from ..utils.niche_net_constr import construct_niche_network, gen_samples_yaml, load_original_data
+from ..utils.niche_net_constr import construct_niche_network, ct_coding_adjust, gen_samples_yaml, load_original_data
 
 
 # ------------------------------------

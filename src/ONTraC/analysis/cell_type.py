@@ -147,10 +147,9 @@ def plot_cell_type_loading_in_niche_clusters(ana_data: AnaData,
         value_vars=cell_type,  # type: ignore
         value_name='Number')
     # g = sns.catplot(cell_type_dis_melt_df, kind="bar", x="Number", y="Cell type", col="cluster", col_order= nc_order, height=4,
-    g = sns.catplot(cell_type_dis_melt_df, kind="bar", x="Number", y="Cell type", col="cluster", height=4,
+    g = sns.catplot(cell_type_dis_melt_df, kind="bar", x="Number", y="Cell type", col="cluster", height=2 + len(cell_type) / 6,
                     aspect=.5)  # type: ignore
     g.add_legend()
-    g.figure.figsize = (2 + len(cell_type) / 3, 20)
     g.tight_layout()
     g.set_xticklabels(rotation='vertical')
     if ana_data.options.output is not None:

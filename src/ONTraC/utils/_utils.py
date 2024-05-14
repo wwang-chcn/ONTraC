@@ -1,12 +1,9 @@
 import sys
 from copy import deepcopy
 from optparse import Values
-from typing import Dict, Optional
+from typing import Dict
 
-import torch
 import yaml
-
-from ..log import warning
 
 
 def write_version_info() -> None:

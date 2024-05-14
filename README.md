@@ -1,5 +1,12 @@
 # **ONTraC**
 
+[![PyPI Latest Release](https://img.shields.io/pypi/v/ONTraC.svg)](https://pypi.org/project/ONTraC/)
+[![Python versions](https://img.shields.io/pypi/pyversions/ONTraC.svg)](https://pypi.org/project/ONTraC/)
+[![Downloads](https://static.pepy.tech/badge/ONTraC)](https://pepy.tech/project/ONTraC)
+[![PyPI Downloads](https://img.shields.io/pypi/dm/ONTraC.svg?label=PyPI%20downloads)](https://pypi.org/project/ONTraC/)
+[![GitHub stars](https://badgen.net/github/stars/gyuanlab/ONTraC)](https://github.com/gyuanlab/ONTraC)
+[![GitHub license](https://img.shields.io/github/license/gyuanlab/ONTraC.svg)](https://github.com/gyuanlab/ONTraC/blob/master/LICENSE)
+
 ONTraC (Ordered Niche Trajectory Construction) is a niche-centered, machine learning
 method for constructing spatially continuous trajectories. ONTraC differs from existing tools in
 that it treats a niche, rather than an individual cell, as the basic unit for spatial trajectory
@@ -130,3 +137,5 @@ The intermediate and final results are located in `preprocessing-dir`, `GNN-dir`
 Please see [post analysis tutorial](tutorials/post_analysis.md).
 
 ## Citation
+
+**Wang, W.\*, Zheng, S.\*, Shin, C. S. & Yuan, G. C.$**. [Characterizing Spatially Continuous Variations in Tissue Microenvironment through Niche Trajectory Analysis](https://www.biorxiv.org/content/10.1101/2024.04.23.590827v1). *bioRxiv*, 2024.
