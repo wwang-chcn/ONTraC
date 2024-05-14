@@ -16,7 +16,7 @@ requires-python = "==3.11.*"
 keywords = ["deep-learning", "pytorch", "pytorch geometric", "trajectory inference", "spatial omics"]
 license = {text = "MIT"}
 classifiers = [
-    "Development Status :: 5 - Production/Stable",
+    "Development Status :: 3 - Alpha",
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
