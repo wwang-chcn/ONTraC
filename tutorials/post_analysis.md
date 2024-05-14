@@ -7,7 +7,7 @@ Below is an example of post-analysis on stereo-seq brain data.
 ### Install required packages
 
 ```{sh}
-pip install matplotlib seaborn
+pip install ONTraC[analysis]
 ```
 
 ### Loading results
