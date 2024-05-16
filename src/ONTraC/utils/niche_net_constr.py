@@ -134,7 +134,7 @@ def construct_niche_network_sample(options: Values, sample_data_df: pd.DataFrame
     one_hot_matrix = np.zeros(shape=(N, sample_data_df['Cell_Type'].cat.categories.shape[0]))  # N x n_cell_type
     one_hot_matrix[np.arange(N), sample_data_df.Cell_Type.cat.codes.values] = 1
 
-    deconvolution = pd.read_csv("data/visium_brain_proportion_filtered.csv")
+    deconvolution = pd.read_csv("data/TBI_STdeconvolve_output_filtered.csv")
     deconvolution = deconvolution.drop(deconvolution.columns[0], axis=1)
     deconvolution = deconvolution.to_numpy()
 
