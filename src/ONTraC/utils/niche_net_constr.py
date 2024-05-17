@@ -134,14 +134,9 @@ def construct_niche_network_sample(options: Values, sample_data_df: pd.DataFrame
     one_hot_matrix = np.zeros(shape=(N, sample_data_df['Cell_Type'].cat.categories.shape[0]))  # N x n_cell_type
     one_hot_matrix[np.arange(N), sample_data_df.Cell_Type.cat.codes.values] = 1
 
-    deconvolution = pd.read_csv("data/TBI_STdeconvolve_output_filtered.csv")
+    deconvolution = pd.read_csv("data/spatialLIBD_deconvolution.csv")
     deconvolution = deconvolution.drop(deconvolution.columns[0], axis=1)
     deconvolution = deconvolution.to_numpy()
-
-    # str = "cell_to_niche:" + str(cell_to_niche_matrix.shape) + " one_hot_matrix: " + str(one_hot_matrix.shape) + " deconvolution: " + str(deconvolution.shape)
-    print("cell_to_niche: ", cell_to_niche_matrix.shape)
-    print("one_hot_matrix: ", one_hot_matrix.shape)
-    print("deconvolution: ",deconvolution.shape)
 
     # with open("/sc/arion/work/shins21/dimensions.txt", "w") as file:
     # # Write the string to the file
