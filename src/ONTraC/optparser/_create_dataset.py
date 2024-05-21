@@ -3,6 +3,7 @@ import sys
 from optparse import OptionGroup, OptionParser, Values
 
 from ..log import *
+from ..version import __version__
 from ._IO import *
 
 # ------------------------------------
@@ -58,7 +59,10 @@ def prepare_create_ds_optparser() -> OptionParser:
     description = 'Create dataset for follwoing analysis.'
 
     # option processor
-    optparser = OptionParser(version=f'{prog_name} 0.1', description=description, usage=usage, add_help_option=True)
+    optparser = OptionParser(version=f'{prog_name} {__version__}',
+                             description=description,
+                             usage=usage,
+                             add_help_option=True)
 
     # I/O options group
     add_IO_options_group(optparser=optparser, io_options=IO_OPTIONS)

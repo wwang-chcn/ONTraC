@@ -10,6 +10,7 @@ from ..analysis.train_loss import train_loss_visualiztion
 from ..log import *
 from ..optparser._IO import add_IO_options_group, validate_io_options
 from ..utils import *
+from ..version import __version__
 
 # ------------------------------------
 # Constants
@@ -42,9 +43,13 @@ def prepare_optparser() -> OptionParser:
 
     Ret: OptParser object.
     """
+    program_name = os.path.basename(sys.argv[0])
     usage = "usage: %prog <-d DATASET> <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR> <-l LOG_FILE> <-o OUTPUT_DIR> [-r REVERSE]"
     description = "Analysis the results of ONTraC."
-    optparser = OptionParser(usage=usage, description=description, add_help_option=False)
+    optparser = OptionParser(version=f'{program_name} {__version__}',
+                             usage=usage,
+                             description=description,
+                             add_help_option=False)
     optparser.add_option('-h', '--help', action='help', help='Show this help message and exit.')
     optparser.add_option('-o', '--output', dest='output', type='string', help='Output directory.')
     optparser.add_option('-l', '--log', dest='log', type='string', help='Log file.')

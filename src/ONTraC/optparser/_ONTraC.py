@@ -3,6 +3,7 @@ import sys
 from optparse import OptionGroup, OptionParser, Values
 
 from ..log import *
+from ..version import __version__
 from ._create_dataset import write_niche_net_constr_memo
 from ._IO import *
 from ._train import *
@@ -29,7 +30,10 @@ def prepare_ontrac_optparser() -> OptionParser:
     description = 'All steps of ONTraC including dataset creation, Graph Pooling, and NT score calculation.'
 
     # option processor
-    optparser = OptionParser(version=f'{program_name} 0.1', description=description, usage=usage, add_help_option=True)
+    optparser = OptionParser(version=f'{program_name} {__version__}',
+                             description=description,
+                             usage=usage,
+                             add_help_option=True)
 
     # I/O options group
     add_IO_options_group(optparser=optparser, io_options=IO_OPTIONS)

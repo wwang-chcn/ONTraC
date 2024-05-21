@@ -3,6 +3,7 @@ import sys
 from optparse import OptionParser, Values
 
 from ..log import *
+from ..version import __version__
 from ._IO import *
 from ._train import *
 
@@ -28,7 +29,10 @@ def prepare_GP_optparser() -> OptionParser:
     description = 'GP (Graph Pooling): GNN & Node Pooling'
 
     # option processor
-    optparser = OptionParser(version=f'{program_name} 0.1', description=description, usage=usage, add_help_option=True)
+    optparser = OptionParser(version=f'{program_name} {__version__}',
+                             description=description,
+                             usage=usage,
+                             add_help_option=True)
 
     # I/O options group
     add_IO_options_group(optparser=optparser, io_options=IO_OPTIONS)
