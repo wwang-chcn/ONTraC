@@ -1,5 +1,11 @@
 # Change log
 
+## [XXXXX] - XXXX-XXX-XX
+
+Fixed:
+
+- Incorrect version display
+
 ## [0.0.7] - 2024-May-13
 
 Added:
