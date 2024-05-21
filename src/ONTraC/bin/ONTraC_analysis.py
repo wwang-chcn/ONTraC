@@ -45,7 +45,7 @@ def prepare_optparser() -> OptionParser:
     Ret: OptParser object.
     """
     program_name = os.path.basename(sys.argv[0])
-    usage = "usage: %prog <-d DATASET> <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR> <-l LOG_FILE> <-o OUTPUT_DIR> [-r REVERSE]"
+    usage = "usage: %prog <-d DATASET> <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR> <-o OUTPUT_DIR> [-l LOG_FILE] [-r REVERSE]"
     description = "Analysis the results of ONTraC."
     optparser = OptionParser(version=f'{program_name} {__version__}',
                              usage=usage,
@@ -89,9 +89,6 @@ def opt_validate(optparser: OptionParser) -> Values:
     else:
         warning(f'Output directory already exists: {options.output}, will overwrite it.')
 
-    if not options.log:
-        error('Log file is required.')
-        sys.exit(1)
     if not os.path.exists(options.log):
         error(f'Log file not found: {options.log}')
         sys.exit(1)

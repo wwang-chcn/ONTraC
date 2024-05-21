@@ -1,6 +1,6 @@
 import os
 from optparse import Values
-from typing import Dict
+from typing import Dict, Union
 
 import numpy as np
 import pandas as pd
@@ -13,7 +13,7 @@ from ..utils import get_rel_params, read_yaml_file
 # ----------------------------
 # Misc Functions
 # ----------------------------
-def load_loss_record_data(options) -> Dict:
+def load_loss_record_data(options) -> Union[Dict, None]:
     """
     Parse the log file and save the training loss to a csv file.
     Args:
@@ -27,6 +27,8 @@ def load_loss_record_data(options) -> Dict:
         16:31:47 --- INFO: epoch: 1, batch: 1, loss: 8.554190635681152, spectral_loss: -6.64739809508319e-06, cluster_loss: 0.06959901750087738, feat_similarity_loss: 8.484598159790039
     """
     loss, loss_name = [], []  # type: ignore
+    if options.log is None:
+        return None
     with open(options.log, 'r') as fhd:
         for line in fhd:
             # train loss record
