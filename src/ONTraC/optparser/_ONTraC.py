@@ -13,7 +13,7 @@ from ._train import *
 IO_OPTIONS = ['dataset', 'preprocessing_dir', 'GNN_dir', 'NTScore_dir']
 
 
-# ------------------------------ß------
+# ------------------------------------
 # Functions
 # ------------------------------------
 def prepare_ontrac_optparser() -> OptionParser:
