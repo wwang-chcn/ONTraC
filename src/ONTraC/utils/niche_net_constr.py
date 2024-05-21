@@ -7,7 +7,7 @@ import yaml
 from scipy.sparse import csr_matrix, save_npz
 from scipy.spatial import cKDTree
 
-from ..log import warning
+from ..log import warning, debug
 
 
 def load_original_data(options: Values) -> pd.DataFrame:
@@ -128,6 +128,7 @@ def construct_niche_network_sample(options: Values, sample_data_df: pd.DataFrame
     save_npz(file=f'{options.preprocessing_dir}/{sample_name}_NicheWeightMatrix.npz',
              matrix=niche_weight_matrix_csr)  # save weight matrix
     cell_to_niche_matrix = niche_weight_matrix_csr / niche_weight_matrix_csr.sum(axis=1)  # N x N
+    debug(f'cell to niche matrix shape: {cell_to_niche_matrix.shape}')
 
     # calculate cell type composition
     sample_data_df.Cell_Type.cat.codes.values
@@ -137,12 +138,14 @@ def construct_niche_network_sample(options: Values, sample_data_df: pd.DataFrame
     deconvolution = pd.read_csv("data/spatialLIBD_deconvolution.csv")
     deconvolution = deconvolution.drop(deconvolution.columns[0], axis=1)
     deconvolution = deconvolution.to_numpy()
+    debug(f'deconvolution matrix shape: {deconvolution.shape}')
 
     # with open("/sc/arion/work/shins21/dimensions.txt", "w") as file:
     # # Write the string to the file
     #     file.write(str)
 
     cell_type_composition = cell_to_niche_matrix @ deconvolution  # N x n_cell_type
+    debug(f'cell type composition shape: {cell_type_composition.shape}')
 
     # save cell type composition
     np.savetxt(f'{options.preprocessing_dir}/{sample_name}_CellTypeComposition.csv.gz',
