@@ -5,6 +5,7 @@
 Changed:
 
 - Instruction for `analysis` installation
+- Make log file and train loss in `analysis` part optional
 
 Fixed:
 
