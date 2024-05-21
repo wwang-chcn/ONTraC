@@ -15,6 +15,7 @@ from ONTraC.utils import get_rel_params, read_yaml_file
 from ONTraC.utils.NTScore import NTScore_table, get_niche_NTScore, niche_to_cell_NTScore
 
 
+# TODO: reorganize with utils
 def load_parameters(opt_validate_func: Callable, prepare_optparser_func: Callable) -> Values:
     """
     Load parameters

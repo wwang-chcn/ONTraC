@@ -3,6 +3,7 @@ import sys
 from optparse import OptionGroup, OptionParser, Values
 
 from ..log import *
+from ..version import __version__
 from ._IO import *
 
 # ------------------------------------
@@ -53,12 +54,14 @@ def prepare_create_ds_optparser() -> OptionParser:
     Prepare optparser object. New options will be added in thisfunction first.
     """
 
-    prog_name = os.path.basename(sys.argv[0])
-    usage = f'''USAGE: {prog_name} <-d DATASET> <--preprocessing-dir PREPROCESSING_DIR> [--n-cpu N_CPU] [--n-neighbors N_NEIGHBORS]'''
+    usage = f'''USAGE: %prog <-d DATASET> <--preprocessing-dir PREPROCESSING_DIR> [--n-cpu N_CPU] [--n-neighbors N_NEIGHBORS]'''
     description = 'Create dataset for follwoing analysis.'
 
     # option processor
-    optparser = OptionParser(version=f'{prog_name} 0.1', description=description, usage=usage, add_help_option=True)
+    optparser = OptionParser(version=f'%prog {__version__}',
+                             description=description,
+                             usage=usage,
+                             add_help_option=True)
 
     # I/O options group
     add_IO_options_group(optparser=optparser, io_options=IO_OPTIONS)

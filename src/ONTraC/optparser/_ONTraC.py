@@ -3,6 +3,7 @@ import sys
 from optparse import OptionGroup, OptionParser, Values
 
 from ..log import *
+from ..version import __version__
 from ._create_dataset import write_niche_net_constr_memo
 from ._IO import *
 from ._train import *
@@ -13,15 +14,14 @@ from ._train import *
 IO_OPTIONS = ['dataset', 'preprocessing_dir', 'GNN_dir', 'NTScore_dir']
 
 
-# ------------------------------ß------
+# ------------------------------------
 # Functions
 # ------------------------------------
 def prepare_ontrac_optparser() -> OptionParser:
     """
     Prepare optparser object. New options will be added in this function first.
     """
-    program_name = os.path.basename(sys.argv[0])
-    usage = f'''USAGE: {program_name} <-d DATASET> <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR>
+    usage = f'''USAGE: %prog <-d DATASET> <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR>
     [--n-cpu N_CPU] [--n-neighbors N_NEIGHBORS] [--device DEVICE] [--epochs EPOCHS] [--patience PATIENCE] [--min-delta MIN_DELTA] 
     [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] [-s SEED] [--seed SEED] [--lr LR] [--hidden-feats HIDDEN_FEATS] [-k K_CLUSTERS]
     [--modularity-loss-weight MODULARITY_LOSS_WEIGHT] [--purity-loss-weight PURITY_LOSS_WEIGHT] 
@@ -29,7 +29,10 @@ def prepare_ontrac_optparser() -> OptionParser:
     description = 'All steps of ONTraC including dataset creation, Graph Pooling, and NT score calculation.'
 
     # option processor
-    optparser = OptionParser(version=f'{program_name} 0.1', description=description, usage=usage, add_help_option=True)
+    optparser = OptionParser(version=f'%prog {__version__}',
+                             description=description,
+                             usage=usage,
+                             add_help_option=True)
 
     # I/O options group
     add_IO_options_group(optparser=optparser, io_options=IO_OPTIONS)

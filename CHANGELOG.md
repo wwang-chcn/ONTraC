@@ -1,5 +1,16 @@
 # Change log
 
+## [XXXXX] - XXXX-XXX-XX
+
+Changed:
+
+- Instruction for `analysis` installation
+- Make log file and train loss in `analysis` part optional
+
+Fixed:
+
+- Incorrect version display
+
 ## [0.0.7] - 2024-May-13
 
 Added:
