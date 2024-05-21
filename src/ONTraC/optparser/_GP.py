@@ -20,8 +20,7 @@ def prepare_GP_optparser() -> OptionParser:
     """
     Prepare optparser object. New options will be added in thisfunction first.
     """
-    program_name = os.path.basename(sys.argv[0])
-    usage = f'''USAGE: {program_name} <-d DATASET> <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR> 
+    usage = f'''USAGE: %prog <-d DATASET> <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR> 
     [--device DEVICE] [--epochs EPOCHS] [--patience PATIENCE] [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] 
     [-s SEED] [--seed SEED] [--lr LR] [--hidden-feats HIDDEN_FEATS] [-k K_CLUSTERS]
     [--modularity-loss-weight MODULARITY_LOSS_WEIGHT] [--purity-loss-weight PURITY_LOSS_WEIGHT] 
@@ -29,7 +28,7 @@ def prepare_GP_optparser() -> OptionParser:
     description = 'GP (Graph Pooling): GNN & Node Pooling'
 
     # option processor
-    optparser = OptionParser(version=f'{program_name} {__version__}',
+    optparser = OptionParser(version=f'%prog {__version__}',
                              description=description,
                              usage=usage,
                              add_help_option=True)

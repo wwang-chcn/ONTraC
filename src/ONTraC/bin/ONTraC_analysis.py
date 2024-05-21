@@ -44,10 +44,9 @@ def prepare_optparser() -> OptionParser:
 
     Ret: OptParser object.
     """
-    program_name = os.path.basename(sys.argv[0])
-    usage = "usage: %prog <-d DATASET> <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR> <-l LOG_FILE> <-o OUTPUT_DIR> [-r REVERSE]"
+    usage = "USAGE: %prog <-d DATASET> <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR> <-l LOG_FILE> <-o OUTPUT_DIR> [-r REVERSE]"
     description = "Analysis the results of ONTraC."
-    optparser = OptionParser(version=f'{program_name} {__version__}',
+    optparser = OptionParser(version=f'%prog {__version__}',
                              usage=usage,
                              description=description,
                              add_help_option=False)

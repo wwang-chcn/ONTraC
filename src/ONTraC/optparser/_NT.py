@@ -20,12 +20,11 @@ def prepare_NT_optparser() -> OptionParser:
     """
     Prepare optparser object. New options will be added in thisfunction first.
     """
-    program_name = os.path.basename(sys.argv[0])
-    usage = f'''USAGE: {program_name} <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR>'''
+    usage = f'''USAGE: %prog <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR>'''
     description = 'PseudoTime: Calculate PseudoTime for each node in a graph'
 
     # option processor
-    optparser = OptionParser(version=f'{program_name} {__version__}',
+    optparser = OptionParser(version=f'%prog {__version__}',
                              description=description,
                              usage=usage,
                              add_help_option=True)
