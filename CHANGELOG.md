@@ -2,6 +2,10 @@
 
 ## [XXXXX] - XXXX-XXX-XX
 
+Changed:
+
+- Instruction for `analysis` installation
+
 Fixed:
 
 - Incorrect version display
