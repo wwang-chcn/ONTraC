@@ -38,6 +38,7 @@ def analysis_pipeline(options: Values) -> None:
     cell_type_visualization(ana_data=ana_data)
 
 
+# TODO: move to optparser
 def prepare_optparser() -> OptionParser:
     """Prepare optparser object. New options will be added in this function first.
 
