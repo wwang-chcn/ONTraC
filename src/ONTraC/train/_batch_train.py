@@ -175,10 +175,10 @@ class GPBatchTrain(BatchTrain):
                         out=out,
                         out_adj=out_adj,
                         loss=loss,
-                        spectral_loss=spectral_loss,
+                        modularity_loss=spectral_loss,
                         # ortho_loss=ortho_loss,
-                        cluster_loss=cluster_loss,
-                        feat_similarity_loss=feat_similarity_loss)
+                        purity_loss=feat_similarity_loss
+                        regularization_loss=cluster_loss,)
             train_loss += loss.item()
         return train_loss
 

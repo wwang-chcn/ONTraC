@@ -27,6 +27,7 @@ def train_loss_visualiztion(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt
                                  ha='right',
                                  va='top',
                                  fontsize=12)
+            axes[index].set_ylabel(loss_name.replace('_', ' ').capitalize())
     fig.tight_layout()
     if ana_data.options.output is not None:
         fig.savefig(f'{ana_data.options.output}/train_loss.pdf', dpi=300)
