@@ -2,6 +2,11 @@
 
 ## [XXXXX] - XXXX-XXX-XX
 
+Added:
+
+- Cell type composition visualization suppression parameter
+- Niche cluster loadings visualization suppression parameter
+
 Changed:
 
 - Instruction for `analysis` installation

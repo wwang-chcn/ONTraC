@@ -299,7 +299,9 @@ def spatial_visualization(ana_data: AnaData) -> None:
     """
 
     # 1. cell type compostion
-    plot_cell_type_composition(ana_data=ana_data)
+    if not hasattr(ana_data.options,
+                   'suppress_cell_type_composition') or not ana_data.options.suppress_cell_type_composition:
+        plot_cell_type_composition(ana_data=ana_data)
 
     # 2. NT score
     plot_niche_NT_score(ana_data=ana_data)
