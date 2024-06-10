@@ -1,6 +1,6 @@
 import os
 import sys
-from optparse import OptionParser, Values
+from optparse import OptionGroup, OptionParser, Values
 
 from ..analysis.cell_type import cell_type_visualization
 from ..analysis.data import AnaData
@@ -39,6 +39,21 @@ def analysis_pipeline(options: Values) -> None:
 
 
 # TODO: move to optparser
+def add_suppress_group(optparser: OptionParser) -> None:
+    group = OptionGroup(optparser, 'Suppress options')
+    group.add_option('--suppress-cell-type-composition',
+                     dest='suppress_cell_type_composition',
+                     action='store_true',
+                     default=False,
+                     help='Suppress the cell type composition visualization.')
+    group.add_option('--suppress-niche-cluster-loadings',
+                     dest='suppress_niche_cluster_loadings',
+                     action='store_true',
+                     default=False,
+                     help='Suppress the niche cluster loadings visualization.')
+    optparser.add_option_group(group)
+
+
 def prepare_optparser() -> OptionParser:
     """Prepare optparser object. New options will be added in this function first.
 
@@ -66,6 +81,7 @@ def prepare_optparser() -> OptionParser:
                          default=False,
                          help='Plot each sample separately.')
     add_IO_options_group(optparser=optparser, io_options=IO_OPTIONS)
+    add_suppress_group(optparser)
     return optparser
 
 

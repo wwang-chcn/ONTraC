@@ -1,6 +1,11 @@
 # Change log
 
-## [XXXXX] - XXXX-XXX-XX
+## [0.0.8] - 2024-Jun-10
+
+Added:
+
+- Cell type composition visualization suppression parameter
+- Niche cluster loadings visualization suppression parameter
 
 Changed:
 
