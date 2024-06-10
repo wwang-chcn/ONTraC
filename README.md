@@ -124,7 +124,7 @@ Options:
     --regularization-loss-weight=REGULARIZATION_LOSS_WEIGHT
                         Weight for regularization loss. Default is 0.1.
     --beta=BETA         Beta value control niche cluster assignment matrix.
-                        Default is 0.3.
+                        Default is 0.03.
 
 ```
 

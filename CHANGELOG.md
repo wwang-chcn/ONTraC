@@ -1,5 +1,11 @@
 # Change log
 
+## [XXXXX] - XXXX-XXX-XX
+
+Changed:
+
+- Make the default value of beta consistent with our paper
+
 ## [0.0.8] - 2024-Jun-10
 
 Added:
