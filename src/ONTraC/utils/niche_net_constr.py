@@ -7,7 +7,7 @@ import yaml
 from scipy.sparse import csr_matrix, save_npz
 from scipy.spatial import cKDTree
 
-from ..log import warning, info
+from ..log import info, warning
 
 
 def load_original_data(options: Values) -> pd.DataFrame:
@@ -45,7 +45,8 @@ def load_original_data(options: Values) -> pd.DataFrame:
             'There are duplicated Cell_ID in the original data. Sample name will added to Cell_ID to distinguish them.')
         ori_data_df['Cell_ID'] = ori_data_df['Sample'] + '_' + ori_data_df['Cell_ID']
     if ori_data_df['Cell_ID'].isnull().any():
-        raise ValueError(f'Duplicated Cell_ID within same sample found! Please check the original data file: {options.data_file}.')
+        raise ValueError(
+            f'Duplicated Cell_ID within same sample found! Please check the original data file: {options.data_file}.')
 
     ori_data_df = ori_data_df.dropna(subset=['Cell_ID', 'Sample', 'Cell_Type', 'x', 'y'])
 
@@ -115,7 +116,7 @@ def construct_niche_network_sample(options: Values, sample_data_df: pd.DataFrame
     adj_matrix = csr_matrix((np.ones(dst_indices.shape[0]), (src_indices, dst_indices)),
                             shape=(N, N))  # convert to csr_matrix
     adj_matrix = adj_matrix + adj_matrix.transpose()  # make it bidirectional
-    edge_index = np.argwhere(adj_matrix.todense() > 0)  # convert it to edge index back
+    edge_index = np.argwhere(adj_matrix > 0)  # convert it to edge index back
     edge_index_file = f'{options.preprocessing_dir}/{sample_name}_EdgeIndex.csv.gz'
     np.savetxt(edge_index_file, edge_index, delimiter=',', fmt='%d')
 
