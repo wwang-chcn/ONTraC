@@ -56,6 +56,9 @@ def load_original_data(options: Values) -> pd.DataFrame:
     if len(ori_data_df['Cell_Type'].cat.categories) < 2:
         raise ValueError('At least two cell types are required.')
 
+    # make the Sample column string
+    ori_data_df['Sample'] = ori_data_df['Sample'].astype(str)
+
     # save mappings of the categorical data
     cell_type_code = pd.DataFrame(enumerate(ori_data_df['Cell_Type'].cat.categories), columns=['Code', 'Cell_Type'])
     cell_type_code.to_csv(f'{options.preprocessing_dir}/cell_type_code.csv', index=False)
