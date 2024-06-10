@@ -33,7 +33,7 @@ dependencies = [
 dynamic = ["version"]
 
 [project.optional-dependencies]
-analysis = ["matplotlib", "seaborn"]
+analysis = ["seaborn"]
 
 [project.scripts]
 ONTraC = "ONTraC.bin.ONTraC:main"

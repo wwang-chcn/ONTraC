@@ -356,7 +356,9 @@ def niche_cluster_visualization(ana_data: AnaData) -> None:
     plot_cluster_proportion(ana_data=ana_data)
 
     # 3. niche cluster loadings for each cell
-    plot_niche_cluster_loadings(ana_data=ana_data)
+    if not hasattr(ana_data.options,
+                   'suppress_niche_cluster_loadings') or not ana_data.options.suppress_niche_cluster_loadings:
+        plot_niche_cluster_loadings(ana_data=ana_data)
 
     # 4. maximum niche cluster for each cell
     plot_max_niche_cluster(ana_data=ana_data)

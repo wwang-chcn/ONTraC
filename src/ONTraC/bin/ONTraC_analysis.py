@@ -1,6 +1,6 @@
 import os
 import sys
-from optparse import OptionParser, Values
+from optparse import OptionGroup, OptionParser, Values
 
 from ..analysis.cell_type import cell_type_visualization
 from ..analysis.data import AnaData
@@ -10,6 +10,7 @@ from ..analysis.train_loss import train_loss_visualiztion
 from ..log import *
 from ..optparser._IO import add_IO_options_group, validate_io_options
 from ..utils import *
+from ..version import __version__
 
 # ------------------------------------
 # Constants
@@ -37,14 +38,33 @@ def analysis_pipeline(options: Values) -> None:
     cell_type_visualization(ana_data=ana_data)
 
 
+# TODO: move to optparser
+def add_suppress_group(optparser: OptionParser) -> None:
+    group = OptionGroup(optparser, 'Suppress options')
+    group.add_option('--suppress-cell-type-composition',
+                     dest='suppress_cell_type_composition',
+                     action='store_true',
+                     default=False,
+                     help='Suppress the cell type composition visualization.')
+    group.add_option('--suppress-niche-cluster-loadings',
+                     dest='suppress_niche_cluster_loadings',
+                     action='store_true',
+                     default=False,
+                     help='Suppress the niche cluster loadings visualization.')
+    optparser.add_option_group(group)
+
+
 def prepare_optparser() -> OptionParser:
     """Prepare optparser object. New options will be added in this function first.
 
     Ret: OptParser object.
     """
-    usage = "usage: %prog <-d DATASET> <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR> <-l LOG_FILE> <-o OUTPUT_DIR> [-r REVERSE]"
+    usage = "USAGE: %prog <-d DATASET> <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR> <-o OUTPUT_DIR> [-l LOG_FILE] [-r REVERSE]"
     description = "Analysis the results of ONTraC."
-    optparser = OptionParser(usage=usage, description=description, add_help_option=False)
+    optparser = OptionParser(version=f'%prog {__version__}',
+                             usage=usage,
+                             description=description,
+                             add_help_option=False)
     optparser.add_option('-h', '--help', action='help', help='Show this help message and exit.')
     optparser.add_option('-o', '--output', dest='output', type='string', help='Output directory.')
     optparser.add_option('-l', '--log', dest='log', type='string', help='Log file.')
@@ -61,6 +81,7 @@ def prepare_optparser() -> OptionParser:
                          default=False,
                          help='Plot each sample separately.')
     add_IO_options_group(optparser=optparser, io_options=IO_OPTIONS)
+    add_suppress_group(optparser)
     return optparser
 
 
@@ -83,9 +104,6 @@ def opt_validate(optparser: OptionParser) -> Values:
     else:
         warning(f'Output directory already exists: {options.output}, will overwrite it.')
 
-    if not options.log:
-        error('Log file is required.')
-        sys.exit(1)
     if not os.path.exists(options.log):
         error(f'Log file not found: {options.log}')
         sys.exit(1)
