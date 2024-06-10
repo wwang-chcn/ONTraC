@@ -1,5 +1,15 @@
 # Change log
 
+## [0.0.8.post1] - 2024-Jun-10
+
+Changed:
+
+- Make the default value of beta consistent with our paper
+
+Fixed:
+
+- Input table handling: support int format for sample
+
 ## [0.0.8] - 2024-Jun-10
 
 Added:

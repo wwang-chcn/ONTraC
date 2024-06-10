@@ -101,8 +101,8 @@ def add_NP_options_group(group_train: OptionGroup) -> None:
     group_train.add_option('--beta',
                            dest='beta',
                            type='float',
-                           default=0.3,
-                           help='Beta value control niche cluster assignment matrix. Default is 0.3.')
+                           default=0.03,
+                           help='Beta value control niche cluster assignment matrix. Default is 0.03.')
 
 
 def validate_train_options(optparser: OptionParser, options: Values) -> Values:
