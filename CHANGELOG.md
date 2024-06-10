@@ -4,6 +4,24 @@
 
 - Added flexible cell type coding option
 
+## [0.0.8] - 2024-Jun-10
+
+Added:
+
+- Cell type composition visualization suppression parameter
+- Niche cluster loadings visualization suppression parameter
+
+Changed:
+
+- Instruction for `analysis` installation
+- Make log file and train loss in `analysis` part optional
+- Get `edge_index` directly in `niche_net_constr` module
+- Make losses name consistent with the paper
+
+Fixed:
+
+- Incorrect version display
+
 ## [0.0.7] - 2024-May-13
 
 Added:

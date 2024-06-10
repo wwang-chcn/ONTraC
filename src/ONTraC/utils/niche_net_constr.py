@@ -118,7 +118,7 @@ def construct_niche_network_sample(options: Values, sample_data_df: pd.DataFrame
     adj_matrix = csr_matrix((np.ones(dst_indices.shape[0]), (src_indices, dst_indices)),
                             shape=(N, N))  # convert to csr_matrix
     adj_matrix = adj_matrix + adj_matrix.transpose()  # make it bidirectional
-    edge_index = np.argwhere(adj_matrix.todense() > 0)  # convert it to edge index back
+    edge_index = np.argwhere(adj_matrix > 0)  # convert it to edge index back
     edge_index_file = f'{options.preprocessing_dir}/{sample_name}_EdgeIndex.csv.gz'
     np.savetxt(edge_index_file, edge_index, delimiter=',', fmt='%d')
 
