@@ -14,7 +14,8 @@ The input file looks like the following:
 
 - Cell_ID
 
-  The name of each cell. Duplicated Cell_IDs within the same sample are not permitted. In the event of duplicated Cell_IDs across samples, the sample name will be prefixed to Cell_ID.
+  The name of each cell.
+  Warning: Duplicated Cell_IDs within the same sample are not permitted. In the event of duplicated Cell_IDs across samples, the sample name will be prefixed to Cell_ID.
 
 - Sample
 
@@ -56,7 +57,7 @@ The input file looks like the following:
 
   Files contain the neighborhood index of each niche for niche graph.
 
-- {sample name}_NicheWeightMatrix.csv.gz
+- {sample name}_NicheWeightMatrix.npz
 
   Files contain the weights between cells and niches.
 
@@ -126,7 +127,7 @@ The input file looks like the following:
 
 - {sample name}_NTScore.csv.gz
 
-  Files contain the niche- and cell-level NT score for each sample.
+  Files contain the niche- and cell-level NT score for each niche/cell.
 
 - NTScore.csv.gz
 
@@ -139,9 +140,9 @@ The input file looks like the following:
 - cell_NTScore.csv.gz
 
   File contains cell-level NT score for all samples.
-  Warning: cell numbers were expanded to the same for each sample. Do not use this file directly.
+  Warning: the number of rows were expanded to same for paralle processing using pytorch. Do not use this file directly.
 
 - niche_NTScore.csv.gz
 
   File contains niche-level NT score for all samples.
-  Warning: niche numbers were expanded to the same for each sample. Do not use this file directly.
+  Warning: the number of rows were expanded to same for paralle processing using pytorch. Do not use this file directly.
