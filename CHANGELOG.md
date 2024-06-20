@@ -1,8 +1,25 @@
 # Change log
 
-## [XXXXX] - XXXX-XXX-XX
+## [2.0.0] - XXXX-XXX-XX
+
+Added:
 
 - Added flexible cell type coding option
+
+Fixed:
+
+- Fixed bug in regularization loss calculation for multi-sample in batch
+
+## [0.0.9] - 2024-Jun-20
+
+Changed:
+
+- Make the default value of beta consistent with our paper
+- Update tutorials
+
+Fixed:
+
+- Input table handling: support int format for sample
 
 ## [0.0.8] - 2024-Jun-10
 

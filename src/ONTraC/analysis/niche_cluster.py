@@ -96,7 +96,7 @@ def plot_cluster_proportion(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt
            autopct='%1.1f%%',
            pctdistance=1.25,
            labeldistance=.6)
-    ax.set_title(f'Niche propotions for each niche cluster')
+    ax.set_title(f'Niche proportions for each niche cluster')
     fig.tight_layout()
     if ana_data.options.output is not None:
         fig.savefig(f'{ana_data.options.output}/niche_cluster_proportion.pdf')

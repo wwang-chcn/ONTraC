@@ -26,7 +26,7 @@ def add_IO_options_group(optparser: OptionParser, io_options: Optional[List[str]
     if 'GNN_dir' in io_options:
         group_io.add_option('--GNN-dir', dest='GNN_dir', type='string', help='Directory for the GNN output.')
     if 'NTScore_dir' in io_options:
-        group_io.add_option('--NTScore-dir', dest='NTScore_dir', type='string', help='Directory for the NTScore output')
+        group_io.add_option('--NTScore-dir', dest='NTScore_dir', type='string', help='Directory for the NTScore output.')
 
     optparser.add_option_group(group_io)
 

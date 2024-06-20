@@ -20,13 +20,6 @@ responses from all the cells in association with continuous tissue microenvironm
 
 ![ONTraC Structure](docs/source/_static/images/ONTraC_structure.png)
 
-## Required packages
-
-pyyaml=6.0.1
-pandas=2.1.1
-pytorch=2.2.1
-torch_geometric=2.5.1
-
 ## Installation
 
 Please see the [installation tutorial](tutorials/installation.md)
@@ -55,78 +48,15 @@ The required options for running ONTraC are the paths to the input file and the 
 - **GNN-dir:** This directory stores output from running the GP (Graph Pooling) algorithm.
 - **NTScore-dir:** This directory stores NTScore output.
 
+For detailed description about all parameters, please see [Parameters explanation](tutorials/parameters.md).
+
 ```{sh}
-cd examples/stereo_seq_brain
-ONTraC -d original_data.csv --preprocessing-dir stereo_seq_preprocessing_dir --GNN-dir stereo_seq_GNN --NTScore-dir stereo_seq_NTScore
+ONTraC -d simulated_dataset.csv --preprocessing-dir simulation_preprocessing_dir --GNN-dir simulation_GNN --NTScore-dir simulation_NTScore --hidden-feats 4 -k 6 --modularity-loss-weight 0.3 --purity-loss-weight 300 --regularization-loss-weight 0.1 --beta 0.03 2>&1 | tee simulation.log
 ```
+
+The input dataset and output files could be downloaded from [Zenodo](https://zenodo.org/records/11186620).
 
 We recommand running `ONTraC` on GPU, it may take much more time on your own laptop with CPU only.
-
-All available parameter options are listed below.
-
-```{text}
-Usage: ONTraC <-d DATASET> <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR>
-    [--n-cpu N_CPU] [--n-neighbors N_NEIGHBORS] [--device DEVICE] [--epochs EPOCHS] [--patience PATIENCE] [--min-delta MIN_DELTA] 
-    [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] [-s SEED] [--seed SEED] [--lr LR] [--hidden-feats HIDDEN_FEATS] [-k K_CLUSTERS]
-    [--modularity-loss-weight MODULARITY_LOSS_WEIGHT] [--purity-loss-weight PURITY_LOSS_WEIGHT] 
-    [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA]
-
-All steps of ONTraC including dataset creation, Graph Pooling, and NT score
-calculation.
-
-Options:
-  --version             show program's version number and exit
-  -h, --help            show this help message and exit
-
-  IO:
-    -d DATASET, --dataset=DATASET
-                        Original input dataset.
-    --preprocessing-dir=PREPROCESSING_DIR
-                        Directory for preprocessing outputs.
-    --GNN-dir=GNN_DIR   Directory for the GNN output.
-    --NTScore-dir=NTSCORE_DIR
-                        Directory for the NTScore output
-
-  Niche Network Construction:
-    --n-cpu=N_CPU       Number of CPUs used for parallel computing. Default is
-                        4.
-    --n-neighbors=N_NEIGHBORS
-                        Number of neighbors used for kNN graph construction.
-                        Default is 50.
-
-  Options for training:
-    --device=DEVICE     Device for training. We support cpu and cuda now. Auto
-                        select if not specified.
-    --epochs=EPOCHS     Number of maximum epochs for training. Default is
-                        1000.
-    --patience=PATIENCE
-                        Number of epochs wait for better result. Default is
-                        100.
-    --min-delta=MIN_DELTA
-                        Minimum delta for better result. Default is 0.001
-    --min-epochs=MIN_EPOCHS
-                        Minimum number of epochs for training. Default is 50.
-                        Set to 0 to disable.
-    --batch-size=BATCH_SIZE
-                        Batch size for training. Default is 0 for whole
-                        dataset.
-    -s SEED, --seed=SEED
-                        Random seed for training. Default is random.
-    --lr=LR             Learning rate for training. Default is 0.03.
-    --hidden-feats=HIDDEN_FEATS
-                        Number of hidden features. Default is 4.
-    -k K, --k-clusters=K
-                        Number of niche clusters. Default is 6.
-    --modularity-loss-weight=MODULARITY_LOSS_WEIGHT
-                        Weight for modularity loss. Default is 0.3.
-    --purity-loss-weight=PURITY_LOSS_WEIGHT
-                        Weight for purity loss. Default is 300.
-    --regularization-loss-weight=REGULARIZATION_LOSS_WEIGHT
-                        Weight for regularization loss. Default is 0.1.
-    --beta=BETA         Beta value control niche cluster assignment matrix.
-                        Default is 0.3.
-
-```
 
 ### Output
 
