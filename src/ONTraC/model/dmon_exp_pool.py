@@ -151,7 +151,7 @@ class DMoNPooling(torch.nn.Module):
         # Cluster loss:
         # || sum_i S_ij ||_F / N
         cluster_size = torch.einsum('ijk->ik', s)  # B x C
-        cluster_loss = torch.norm(input=cluster_size, dim=1) / mask.sum(1) * torch.norm(i_s)
+        cluster_loss = torch.norm(input=cluster_size, dim=1) / mask.sum(1).view(-1) * torch.norm(i_s)
         cluster_loss = torch.mean(cluster_loss)
 
         # Fix and normalize coarsened adjacency matrix:

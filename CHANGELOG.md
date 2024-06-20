@@ -2,6 +2,10 @@
 
 ## [2.0.0] - XXXX-XXX-XX
 
+Fixed:
+
+- Fixed bug in regularization loss calculation for multi-sample in batch
+
 ## [0.0.9] - 2024-Jun-20
 
 Changed:
