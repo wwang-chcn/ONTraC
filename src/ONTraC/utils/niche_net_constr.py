@@ -126,14 +126,14 @@ def construct_niche_network_sample(options: Values, sample_data_df: pd.DataFrame
     # calculate niche_weight_matrix and normalize it using self node and 20-th neighbor using a gaussian kernel
     # calculate cell_to_niche_matrix
     niche_weight_matrix = np.apply_along_axis(func1d=gauss_dist_1d, axis=1, arr=dis_matrix,
-                                              n_local=n_local)  # N x (k + 1)
+                                              n_local=n_local)  # N x (k + 1), #niche x #cell
     src_indices = np.repeat(np.arange(coordinates.shape[0]), options.n_neighbors + 1)
     dst_indices = indices_matrix.flatten()  # include self
     niche_weight_matrix_csr = csr_matrix((niche_weight_matrix.flatten(), (src_indices, dst_indices)),
-                                         shape=(N, N))  # convert to csr_matrix
+                                         shape=(N, N))  # convert to csr_matrix, N x N, #niche x #cell
     save_npz(file=f'{options.preprocessing_dir}/{sample_name}_NicheWeightMatrix.npz',
              matrix=niche_weight_matrix_csr)  # save weight matrix
-    cell_to_niche_matrix = niche_weight_matrix_csr / niche_weight_matrix_csr.sum(axis=1)  # N x N
+    cell_to_niche_matrix = niche_weight_matrix_csr / niche_weight_matrix_csr.sum(axis=1)  # N x N, #niche x #cell
 
     # calculate cell type composition
     sample_data_df.Cell_Type.cat.codes.values
