@@ -1,10 +1,11 @@
 # Change log
 
-## [0.0.8.post1] - 2024-Jun-10
+## [0.0.9] - 2024-Jun-20
 
 Changed:
 
 - Make the default value of beta consistent with our paper
+- Update tutorials
 
 Fixed:
 
