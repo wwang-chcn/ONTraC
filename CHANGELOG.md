@@ -1,5 +1,7 @@
 # Change log
 
+## [2.0.0] - XXXX-XXX-XX
+
 ## [0.0.9] - 2024-Jun-20
 
 Changed:
