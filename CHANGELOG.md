@@ -6,6 +6,10 @@ Added:
 
 - Added flexible cell type coding option
 
+Changed:
+
+- Default value of train loss weights
+
 Fixed:
 
 - Fixed bug in regularization loss calculation for multi-sample in batch
