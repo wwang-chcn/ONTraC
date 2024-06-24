@@ -255,6 +255,6 @@ def ct_coding_adjust(options: Values, ori_data_df: pd.DataFrame):
     for sample in ori_data_df['Sample'].unique():
         feat_file = f'{options.preprocessing_dir}/{sample}_CellTypeComposition.csv.gz'
         ctc_raw = np.loadtxt(feat_file, delimiter=',')
-        ctc_new = ctc_raw @ L
+        ctc_new = ctc_raw @ L.T
         os.rename(feat_file, f'{options.preprocessing_dir}/{sample}_Raw_CellTypeComposition.csv.gz')
         np.savetxt(feat_file, ctc_new, delimiter=',')
