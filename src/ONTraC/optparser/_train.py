@@ -86,18 +86,18 @@ def add_NP_options_group(group_train: OptionGroup) -> None:
     group_train.add_option('--modularity-loss-weight',
                            dest='modularity_loss_weight',
                            type='float',
-                           default=0.3,
-                           help='Weight for modularity loss. Default is 0.3.')
+                           default=3,
+                           help='Weight for modularity loss. Default is 3.')
     group_train.add_option('--purity-loss-weight',
                            dest='purity_loss_weight',
                            type='float',
-                           default=300,
-                           help='Weight for purity loss. Default is 300.')
+                           default=1000,
+                           help='Weight for purity loss. Default is 1000.')
     group_train.add_option('--regularization-loss-weight',
                            dest='regularization_loss_weight',
                            type='float',
-                           default=0.1,
-                           help='Weight for regularization loss. Default is 0.1.')
+                           default=1,
+                           help='Weight for regularization loss. Default is 1.')
     group_train.add_option('--beta',
                            dest='beta',
                            type='float',

@@ -2,6 +2,10 @@
 
 ## [2.0.0] - XXXX-XXX-XX
 
+Changed:
+
+- Default value of train loss weights
+
 Fixed:
 
 - Fixed bug in regularization loss calculation for multi-sample in batch
