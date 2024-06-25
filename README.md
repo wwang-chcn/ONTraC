@@ -51,7 +51,7 @@ The required options for running ONTraC are the paths to the input file and the 
 For detailed description about all parameters, please see [Parameters explanation](tutorials/parameters.md).
 
 ```{sh}
-ONTraC -d simulated_dataset.csv --preprocessing-dir simulation_preprocessing_dir --GNN-dir simulation_GNN --NTScore-dir simulation_NTScore --hidden-feats 4 -k 6 --modularity-loss-weight 0.3 --purity-loss-weight 300 --regularization-loss-weight 0.1 --beta 0.03 2>&1 | tee simulation.log
+ONTraC -d simulated_dataset.csv --preprocessing-dir simulation_preprocessing_dir --GNN-dir simulation_GNN --NTScore-dir simulation_NTScore --hidden-feats 4 -k 6 --modularity-loss-weight 1 --purity-loss-weight 30 --regularization-loss-weight 0.1 --beta 0.03 2>&1 | tee simulation.log
 ```
 
 The input dataset and output files could be downloaded from [Zenodo](https://zenodo.org/records/11186620).
