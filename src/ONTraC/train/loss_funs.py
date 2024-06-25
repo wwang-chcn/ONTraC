@@ -101,7 +101,7 @@ def within_cluster_variance_loss(x: Tensor, s: Tensor, mask: Tensor) -> Tensor:
     squared_distance = (masked_x - expanded_centroids)**2  # B x N x F
 
     # --- Compute the loss ---
-    loss = torch.sum(squared_distance * mask_extended_x) / mask.sum() / x.shape[-1]  # average over all nodes with mask
+    loss = torch.sum(squared_distance * mask_extended_x) / mask.sum()  # average over all nodes with mask
 
     return loss
 
