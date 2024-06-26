@@ -8,11 +8,12 @@ Added:
 
 Changed:
 
-- Default value of train loss weights
+- Updated default values for train loss weights
+- Modified purity loss calculation to be independent of cell type number
 
 Fixed:
 
-- Fixed bug in regularization loss calculation for multi-sample in batch
+- Resolved bug in regularization loss calculation for multi-sample batches
 
 ## [0.0.9] - 2024-Jun-20
 

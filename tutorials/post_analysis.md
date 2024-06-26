@@ -4,7 +4,7 @@ Below is an example of post-analysis on stereo-seq brain data.
 The command for running on this dataset is:
 
 ```{sh}
-ONTraC -d stereo_seq_dataset.csv --preprocessing-dir stereo_seq_final_preprocessing_dir --GNN-dir stereo_seq_final_GNN --NTScore-dir stereo_seq_final_NTScore --epochs 100 --batch-size 5 -s 42 --patience 100 --min-delta 0.001 --min-epochs 50 --lr 0.03 --hidden-feats 4 -k 6 --modularity-loss-weight 0.3 --regularization-loss-weight 0.1 --purity-loss-weight 300 --beta 0.03 2>&1 | tee stereo_seq_final.log
+ONTraC -d stereo_seq_dataset.csv --preprocessing-dir stereo_seq_final_preprocessing_dir --GNN-dir stereo_seq_final_GNN --NTScore-dir stereo_seq_final_NTScore --epochs 100 --batch-size 5 -s 42 --patience 100 --min-delta 0.001 --min-epochs 50 --lr 0.03 --hidden-feats 4 -k 6 --modularity-loss-weight 1 --purity-loss-weight 30 --regularization-loss-weight 0.1 --beta 0.03 2>&1 | tee stereo_seq_final.log
 ```
 
 The input dataset and output files could be downloaded from [Zenodo](https://zenodo.org/records/11186620).
