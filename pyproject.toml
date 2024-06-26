@@ -13,7 +13,7 @@ authors = [
 description = "A niche-centered, machine learning method for constructing spatially continuous trajectories"
 readme = "README.md"
 requires-python = "==3.11.*"
-keywords = ["deep-learning", "pytorch", "pytorch geometric", "trajectory inference", "spatial omics"]
+keywords = ["graph neural network", "pytorch", "pytorch geometric", "trajectory inference", "spatial omics"]
 license = {text = "MIT"}
 classifiers = [
     "Development Status :: 3 - Alpha",
