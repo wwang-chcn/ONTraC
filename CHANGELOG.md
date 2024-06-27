@@ -2,6 +2,10 @@
 
 ## [2.0.0] - XXXX-XXX-XX
 
+Added:
+
+- Added flexible cell type coding function
+
 Changed:
 
 - Updated default values for train loss weights

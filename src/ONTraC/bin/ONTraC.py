@@ -14,7 +14,7 @@ from ..run.processes import *
 from ..train import GPBatchTrain, SubBatchTrainProtocol
 from ..train.inspect_funcs import loss_record
 from ..utils import write_version_info
-from ..utils.niche_net_constr import construct_niche_network, gen_samples_yaml, load_original_data
+from ..utils.niche_net_constr import construct_niche_network, ct_coding_adjust, gen_samples_yaml, load_original_data
 
 
 # ------------------------------------
@@ -56,6 +56,10 @@ def main() -> None:
     # save samples.yaml
     gen_samples_yaml(options=options, ori_data_df=ori_data_df)
     info('------------ Niche network construct end ------------ ')
+
+    # cell type coding adjust
+    if options.embedding_adjust:
+        ct_coding_adjust(options=options, ori_data_df=ori_data_df)
 
     # ----- Graph Pooling -----
     info('------------------------ GNN ------------------------ ')
