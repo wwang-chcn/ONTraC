@@ -4,7 +4,7 @@
 
 Added:
 
-- Added flexible cell type coding option
+- Added flexible cell type coding function
 
 Changed:
 
