@@ -1,5 +1,3 @@
-import os
-import sys
 from optparse import OptionGroup, OptionParser, Values
 
 from ..log import *
@@ -33,6 +31,19 @@ def add_niche_net_constr_options_group(optparser: OptionParser) -> None:
                            type='int',
                            default=50,
                            help='Number of neighbors used for kNN graph construction. Default is 50.')
+    group_niche.add_option(
+        '--embedding-adjust',
+        dest='embedding_adjust',
+        action='store_true',
+        default=False,
+        help=
+        'Adjust the cell type coding according to embeddings. Default is False. At least two (Embedding_1 and Embedding_2) should be in the original data if embedding_adjust is True.'
+    )
+    group_niche.add_option(
+        '--sigma',
+        dest='sigma',
+        type='float',
+        help='Sigma for the exponential function. Default is the mean of the distances between the cell type pairs.')
     optparser.add_option_group(group_niche)
 
 
@@ -47,6 +58,8 @@ def write_niche_net_constr_memo(options: Values):
     info('      -------- niche net constr options -------      ')
     info(f'n_cpu:   {options.n_cpu}')
     info(f'n_neighbors: {options.n_neighbors}')
+    info(f'embedding_adjust: {options.embedding_adjust}')
+    info(f'sigma: {options.sigma}')
 
 
 def prepare_create_ds_optparser() -> OptionParser:
@@ -54,14 +67,12 @@ def prepare_create_ds_optparser() -> OptionParser:
     Prepare optparser object. New options will be added in thisfunction first.
     """
 
-    usage = f'''USAGE: %prog <-d DATASET> <--preprocessing-dir PREPROCESSING_DIR> [--n-cpu N_CPU] [--n-neighbors N_NEIGHBORS]'''
+    usage = f'''USAGE: %prog <-d DATASET> <--preprocessing-dir PREPROCESSING_DIR>
+    [--n-cpu N_CPU] [--n-neighbors N_NEIGHBORS] [--embedding-adjust] [--sigma SIGMA]'''
     description = 'Create dataset for follwoing analysis.'
 
     # option processor
-    optparser = OptionParser(version=f'%prog {__version__}',
-                             description=description,
-                             usage=usage,
-                             add_help_option=True)
+    optparser = OptionParser(version=f'%prog {__version__}', description=description, usage=usage, add_help_option=True)
 
     # I/O options group
     add_IO_options_group(optparser=optparser, io_options=IO_OPTIONS)
