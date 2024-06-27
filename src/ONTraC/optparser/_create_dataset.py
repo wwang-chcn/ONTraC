@@ -27,7 +27,7 @@ def add_niche_net_constr_options_group(optparser: OptionParser) -> None:
                            dest='n_cpu',
                            type='int',
                            default=4,
-                           help='Number of CPUs used for parallel computing. Default is 4.')
+                           help='Number of CPUs used for parallel computing in dataset preprocessing. Default is 4.')
     group_niche.add_option('--n-neighbors',
                            dest='n_neighbors',
                            type='int',

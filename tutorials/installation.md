@@ -18,6 +18,6 @@ python -m ipykernel install --user --name ONTraC --display-name "Python 3.11 (ON
 
 ```sh
 pip install ONTraC
-# Use this command if you want to visualise the results.
+# Use this command if you want to visualise the results by `ONTraC_analysis`.
 pip install ONTraC[analysis]
 ```

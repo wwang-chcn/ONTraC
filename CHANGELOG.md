@@ -1,5 +1,27 @@
 # Change log
 
+## [2.0.0] - XXXX-XXX-XX
+
+Changed:
+
+- Updated default values for train loss weights
+- Modified purity loss calculation to be independent of cell type number
+
+Fixed:
+
+- Resolved bug in regularization loss calculation for multi-sample batches
+
+## [0.0.9] - 2024-Jun-20
+
+Changed:
+
+- Make the default value of beta consistent with our paper
+- Update tutorials
+
+Fixed:
+
+- Input table handling: support int format for sample
+
 ## [0.0.8] - 2024-Jun-10
 
 Added:
