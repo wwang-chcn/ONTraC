@@ -5,6 +5,7 @@
 Added:
 
 - Added flexible cell type coding function
+- Cell type coding adjust visualization
 
 Changed:
 
