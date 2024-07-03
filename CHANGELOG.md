@@ -1,5 +1,16 @@
 # Change log
 
+## [1.0.0] - XXXX-XXX-XX
+
+Added:
+
+- `N_LOCAL` parameter
+- Parameters validation for `niche_net_constr`
+
+Changed:
+
+- Skip violinplot about cell type density along NT score in case of more than 100 cell types input
+
 ## [0.0.9] - 2024-Jun-20
 
 Changed:

@@ -6,10 +6,10 @@
 
 ```{text}
 Usage: ONTraC <-d DATASET> <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR>
-    [--n-cpu N_CPU] [--n-neighbors N_NEIGHBORS] [--device DEVICE] [--epochs EPOCHS] [--patience PATIENCE] [--min-delta MIN_DELTA] 
-    [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] [-s SEED] [--seed SEED] [--lr LR] [--hidden-feats HIDDEN_FEATS] [-k K_CLUSTERS]
-    [--modularity-loss-weight MODULARITY_LOSS_WEIGHT] [--purity-loss-weight PURITY_LOSS_WEIGHT] 
-    [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA]
+    [--n-cpu N_CPU] [--n-neighbors N_NEIGHBORS] [--n-local N_LOCAL] [--device DEVICE] [--epochs EPOCHS] [--patience PATIENCE]
+    [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] [-s SEED] [--seed SEED] [--lr LR]
+    [--hidden-feats HIDDEN_FEATS] [-k K_CLUSTERS] [--modularity-loss-weight MODULARITY_LOSS_WEIGHT]
+    [--purity-loss-weight PURITY_LOSS_WEIGHT] [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA]
 
 All steps of ONTraC including dataset creation, Graph Pooling, and NT score
 calculation.
@@ -32,7 +32,12 @@ Options:
                         preprocessing. Default is 4.
     --n-neighbors=N_NEIGHBORS
                         Number of neighbors used for kNN graph construction.
+                        It should be less than the number of cells in each sample.
                         Default is 50.
+    --n-local=N_LOCAL
+                        Specifies the nth closest local neighbors used for
+                        gaussian distance normalization. It should be less than
+                        the number of cells in each sample. Default is 20.
 
   Options for training:
     --device=DEVICE     Device for training. We support cpu and cuda now. Auto
@@ -70,7 +75,7 @@ Options:
 ### Full parameters for createDataSet
 
 ```{text}
-Usage: createDataSet <-d DATASET> <--preprocessing-dir PREPROCESSING_DIR> [--n-cpu N_CPU] [--n-neighbors N_NEIGHBORS]
+Usage: createDataSet <-d DATASET> <--preprocessing-dir PREPROCESSING_DIR> [--n-cpu N_CPU] [--n-neighbors N_NEIGHBORS] [--n-local N_LOCAL]
 
 Create dataset for follwoing analysis.
 
@@ -89,7 +94,12 @@ Options:
                         preprocessing. Default is 4.
     --n-neighbors=N_NEIGHBORS
                         Number of neighbors used for kNN graph construction.
+                        It should be less than the number of cells in each sample.
                         Default is 50.
+    --n-local=N_LOCAL
+                        Specifies the nth closest local neighbors used for
+                        gaussian distance normalization. It should be less than
+                        the number of cells in each sample. Default is 20.
 ```
 
 ### Full parameters for GP
