@@ -239,12 +239,11 @@ def ct_coding_adjust(options: Values, ori_data_df: pd.DataFrame):
     # calculate distance between each cell type
     raw_distance = distance.cdist(ct_embedding[embedding_columns].values, ct_embedding[embedding_columns].values,
                                   'euclidean')
-    if options.sigma is None:
-        options.sigma = np.median(raw_distance[np.triu_indices(raw_distance.shape[0], k=1)])
-        info(f'Sigma is not provided. Use the median ({options.sigma}) of the distances between the cell type pairs.')
+    median_distance = np.median(raw_distance[np.triu_indices(raw_distance.shape[0], k=1)])
+    info(f'Median distance between cell types: {median_distance}')
 
     # calculate the M
-    M = np.exp(-raw_distance**2 / options.sigma**2)
+    M = np.exp(-(raw_distance / (options.sigma * median_distance)) **2)
 
     # got the new basis for cell type coding
     eig_val, eig_vec = eigh(M)
