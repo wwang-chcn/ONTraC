@@ -12,6 +12,9 @@ Changed:
 
 - Updated default values for train loss weights
 - Modified purity loss calculation to be independent of cell type number
+- Default value of `MODULARITY_LOSS_WEIGHT` changed to 1
+- Default value of `PURITY_LOSS_WEIGHT` changed to 30
+- Default value of `BETA` changed to 0.3
 
 Fixed:
 
