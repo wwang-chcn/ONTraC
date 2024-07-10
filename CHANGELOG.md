@@ -9,6 +9,7 @@ Added:
 
 Changed:
 
+- Support Python 3.10 and 3.12
 - Refined Package structures
 - Change the name of `NTScore` to `NicheTrajectory`
 - Skip violinplot about cell type density along NT score in case of more than 100 cell types input
