@@ -1,4 +1,5 @@
 import itertools
+import os
 from optparse import Values
 from typing import Dict, List, Tuple
 
@@ -8,7 +9,25 @@ from numpy import ndarray
 from scipy.sparse import load_npz
 
 from ..data import SpatailOmicsDataset
-from ..log import info
+from ..log import error, info
+
+
+def load_consolidate_data(options: Values) -> Tuple[ndarray, ndarray]:
+    """
+    Load consolidate s_array and out_adj_array
+    :param options: Values, options
+    :return: Tuple[ndarray, ndarray], the consolidate s_array and out_adj_array
+    """
+
+    info('Loading consolidate s_array and out_adj_array...')
+
+    if not os.path.exists(f'{options.GNN_dir}/consolidate_s.csv.gz') or not os.path.exists(
+            f'{options.GNN_dir}/consolidate_out_adj.csv.gz'):
+        error(f'consolidate_s.csv.gz or consolidate_out_adj.csv.gz does not exist in {options.GNN_dir} directory.')
+    consolidate_s_array = np.loadtxt(fname=f'{options.GNN_dir}/consolidate_s.csv.gz', delimiter=',')
+    consolidate_out_adj_array = np.loadtxt(fname=f'{options.GNN_dir}/consolidate_out_adj.csv.gz', delimiter=',')
+
+    return consolidate_s_array, consolidate_out_adj_array
 
 
 def get_niche_trajectory_path(niche_adj_matrix: ndarray) -> List[int]:

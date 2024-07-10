@@ -12,16 +12,18 @@ authors = [
           ]
 description = "A niche-centered, machine learning method for constructing spatially continuous trajectories"
 readme = "README.md"
-requires-python = "==3.11.*"
-keywords = ["deep-learning", "pytorch", "pytorch geometric", "trajectory inference", "spatial omics"]
+requires-python = ">=3.10,<3.13"
+keywords = ["graph neural network", "pytorch", "pytorch geometric", "trajectory inference", "spatial omics"]
 license = {text = "MIT"}
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Topic :: Software Development :: Libraries :: Python Modules"
 ]
 dependencies = [
@@ -29,6 +31,7 @@ dependencies = [
     "pandas==2.2.1",
     "torch==2.2.1",
     "torch-geometric==2.5.0",
+    "session-info"
 ]
 dynamic = ["version"]
 
@@ -39,7 +42,7 @@ analysis = ["seaborn"]
 ONTraC = "ONTraC.bin.ONTraC:main"
 createDataSet = "ONTraC.bin.createDataSet:main"
 GP = "ONTraC.bin.GP:main"
-NTScore = "ONTraC.bin.NTScore:main"
+NicheTrajectory = "ONTraC.bin.NicheTrajectory:main"
 ONTraC_analysis = "ONTraC.bin.ONTraC_analysis:main"
 
 [project.urls]

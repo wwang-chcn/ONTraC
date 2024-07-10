@@ -1,10 +1,8 @@
-import os
-import sys
 from optparse import OptionGroup, OptionParser, Values
 
 from ..log import *
 from ..version import __version__
-from ._create_dataset import write_niche_net_constr_memo
+from ._create_dataset import add_niche_net_constr_options_group, validate_niche_net_constr_options, write_niche_net_constr_memo
 from ._IO import *
 from ._train import *
 
@@ -22,10 +20,10 @@ def prepare_ontrac_optparser() -> OptionParser:
     Prepare optparser object. New options will be added in this function first.
     """
     usage = f'''USAGE: %prog <-d DATASET> <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR>
-    [--n-cpu N_CPU] [--n-neighbors N_NEIGHBORS] [--device DEVICE] [--epochs EPOCHS] [--patience PATIENCE] [--min-delta MIN_DELTA] 
-    [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] [-s SEED] [--seed SEED] [--lr LR] [--hidden-feats HIDDEN_FEATS] [-k K_CLUSTERS]
-    [--modularity-loss-weight MODULARITY_LOSS_WEIGHT] [--purity-loss-weight PURITY_LOSS_WEIGHT] 
-    [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA]'''
+    [--n-cpu N_CPU] [--n-neighbors N_NEIGHBORS] [--n-local N_LOCAL] [--device DEVICE] [--epochs EPOCHS] [--patience PATIENCE]
+    [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] [-s SEED] [--seed SEED] [--lr LR]
+    [--hidden-feats HIDDEN_FEATS] [-k K_CLUSTERS] [--modularity-loss-weight MODULARITY_LOSS_WEIGHT]
+    [--purity-loss-weight PURITY_LOSS_WEIGHT] [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA]'''
     description = 'All steps of ONTraC including dataset creation, Graph Pooling, and NT score calculation.'
 
     # option processor
@@ -38,18 +36,7 @@ def prepare_ontrac_optparser() -> OptionParser:
     add_IO_options_group(optparser=optparser, io_options=IO_OPTIONS)
 
     # Niche net construction option group
-    group_niche = OptionGroup(optparser, "Niche Network Construction")
-    group_niche.add_option('--n-cpu',
-                           dest='n_cpu',
-                           type='int',
-                           default=4,
-                           help='Number of CPUs used for parallel computing. Default is 4.')
-    group_niche.add_option('--n-neighbors',
-                           dest='n_neighbors',
-                           type='int',
-                           default=50,
-                           help='Number of neighbors used for kNN graph construction. Default is 50.')
-    optparser.add_option_group(group_niche)
+    add_niche_net_constr_options_group(optparser)
 
     # Graph Pooling
     group_train = add_train_options_group(optparser)
@@ -68,6 +55,8 @@ def opt_ontrac_validate(optparser) -> Values:
 
     # IO
     validate_io_options(optparser=optparser, options=options, io_options=IO_OPTIONS)
+    # niche network construction
+    validate_niche_net_constr_options(optparser, options)
     # training
     validate_train_options(optparser, options)
     validate_NP_options(optparser, options)
