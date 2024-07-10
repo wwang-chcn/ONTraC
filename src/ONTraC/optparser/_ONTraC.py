@@ -2,7 +2,7 @@ from optparse import OptionGroup, OptionParser, Values
 
 from ..log import *
 from ..version import __version__
-from ._create_dataset import validate_niche_net_constr_options, write_niche_net_constr_memo
+from ._create_dataset import add_niche_net_constr_options_group, validate_niche_net_constr_options, write_niche_net_constr_memo
 from ._IO import *
 from ._train import *
 
@@ -36,18 +36,7 @@ def prepare_ontrac_optparser() -> OptionParser:
     add_IO_options_group(optparser=optparser, io_options=IO_OPTIONS)
 
     # Niche net construction option group
-    group_niche = OptionGroup(optparser, "Niche Network Construction")
-    group_niche.add_option('--n-cpu',
-                           dest='n_cpu',
-                           type='int',
-                           default=4,
-                           help='Number of CPUs used for parallel computing. Default is 4.')
-    group_niche.add_option('--n-neighbors',
-                           dest='n_neighbors',
-                           type='int',
-                           default=50,
-                           help='Number of neighbors used for kNN graph construction. Default is 50.')
-    optparser.add_option_group(group_niche)
+    add_niche_net_constr_options_group(optparser)
 
     # Graph Pooling
     group_train = add_train_options_group(optparser)

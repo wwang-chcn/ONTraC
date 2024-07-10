@@ -9,6 +9,8 @@ Added:
 
 Changed:
 
+- Refined Package structures
+- Change the name of `NTScore` to `NicheTrajectory`
 - Skip violinplot about cell type density along NT score in case of more than 100 cell types input
 
 ## [0.0.9] - 2024-Jun-20

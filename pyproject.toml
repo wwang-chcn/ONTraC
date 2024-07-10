@@ -39,7 +39,7 @@ analysis = ["seaborn"]
 ONTraC = "ONTraC.bin.ONTraC:main"
 createDataSet = "ONTraC.bin.createDataSet:main"
 GP = "ONTraC.bin.GP:main"
-NTScore = "ONTraC.bin.NTScore:main"
+NicheTrajectory = "ONTraC.bin.NicheTrajectory:main"
 ONTraC_analysis = "ONTraC.bin.ONTraC_analysis:main"
 
 [project.urls]
