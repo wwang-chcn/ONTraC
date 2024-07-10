@@ -75,7 +75,7 @@ def validate_niche_net_constr_options(optparser: OptionParser, options: Values) 
         optparser.print_help()
         sys.exit(1)
 
-    if options.n_local < 0:
+    if options.n_local < 1:
         error('n_local must be greater than 0.')
         optparser.print_help()
         sys.exit(1)
