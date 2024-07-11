@@ -20,7 +20,7 @@ Fixed:
 
 - Resolved bug in regularization loss calculation for multi-sample batches
 
-## [1.0.0] - XXXX-XXX-XX
+## [1.0.0] - 2024-July-10
 
 Added:
 
@@ -29,6 +29,7 @@ Added:
 
 Changed:
 
+- Support Python 3.10 and 3.12
 - Refined Package structures
 - Change the name of `NTScore` to `NicheTrajectory`
 - Skip violinplot about cell type density along NT score in case of more than 100 cell types input
