@@ -55,7 +55,8 @@ def add_niche_net_constr_options_group(optparser: OptionParser) -> None:
         '--sigma',
         dest='sigma',
         type='float',
-        help='Sigma for the exponential function. Default is the mean of the distances between the cell type pairs.')
+        default=1,
+        help='Sigma for the exponential function to control the similarity between different cell types or clusters. Default is 1.')
     optparser.add_option_group(group_niche)
 
 
