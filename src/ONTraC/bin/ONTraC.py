@@ -5,11 +5,13 @@ from typing import Callable, Optional
 
 from ..log import *
 from ..model import GraphPooling
+from ..niche_net import gen_original_data
 from ..optparser import opt_ontrac_validate, prepare_ontrac_optparser
-from ..run.processes import NTScore, gnn, load_parameters, niche_network_construct
+from ..run.processes import (NTScore, gnn, load_parameters,
+                             niche_network_construct)
 from ..train import GPBatchTrain
 from ..train.inspect_funcs import loss_record
-from ..utils import load_original_data, write_version_info
+from ..utils import write_version_info
 
 
 # ------------------------------------
@@ -41,7 +43,7 @@ def main() -> None:
     options = load_parameters(opt_validate_func=opt_ontrac_validate, prepare_optparser_func=prepare_ontrac_optparser)
 
     # load original data
-    ori_data_df = load_original_data(options=options)
+    ori_data_df = gen_original_data(options=options)
 
     # ----- Niche Network Construct -----
     niche_network_construct(options=options, ori_data_df=ori_data_df)

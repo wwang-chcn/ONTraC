@@ -9,7 +9,7 @@ from ..GNN import (evaluate, load_data, predict, save_graph_pooling_results,
                    set_seed, train)
 from ..log import *
 from ..niche_net import (construct_niche_network, ct_coding_adjust,
-                         gen_samples_yaml)
+                         gen_samples_yaml, gen_original_data)
 from ..niche_trajectory import (NTScore_table, get_niche_NTScore,
                                 load_consolidate_data, niche_to_cell_NTScore)
 from ..train import SubBatchTrainProtocol
@@ -37,6 +37,8 @@ def niche_network_construct(options: Values, ori_data_df: pd.DataFrame) -> None:
     """
 
     info('------------- Niche network construct --------------- ')
+    ori_data_df = gen_original_data(options=options)
+
     # construct niche network
     construct_niche_network(options=options, ori_data_df=ori_data_df)
 

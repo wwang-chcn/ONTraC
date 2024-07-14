@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 from ..log import info, warning
-from ..utils.niche_net_constr import get_embedding_columns, load_original_data
+from ..niche_net import get_embedding_columns
 from .data import AnaData
 
 
@@ -27,7 +27,7 @@ def embedding_adjust_visualization(ana_data: AnaData) -> Optional[Union[Tuple, N
         return None
 
     # load original data
-    ori_data_df = load_original_data(ana_data.options)
+    ori_data_df = pd.read_csv(f'{ana_data.options.preprocessing_dir}/meta_data.csv', index_col=0)
     embedding_columns = get_embedding_columns(ori_data_df)
     if len(embedding_columns) < 2:
         warning('At least two (Embedding_1 and Embedding_2) should be in the original data. Skip the adjustment.')
@@ -39,6 +39,8 @@ def embedding_adjust_visualization(ana_data: AnaData) -> Optional[Union[Tuple, N
     # calculate distance between each cell type
     raw_distance = distance.cdist(ct_embedding[embedding_columns].values, ct_embedding[embedding_columns].values,
                                   'euclidean')
+    median_distance = np.median(raw_distance[np.triu_indices(raw_distance.shape[0], k=1)])
+    info(f'Median distance between cell types: {median_distance}')
     raw_distance_df = pd.DataFrame(raw_distance, index=ct_embedding.index, columns=ct_embedding.index)
 
     if ana_data.options.sigma is None:
@@ -48,7 +50,7 @@ def embedding_adjust_visualization(ana_data: AnaData) -> Optional[Union[Tuple, N
         )
 
     # calculate the M
-    M = np.exp(-raw_distance**2 / ana_data.options.sigma**2)
+    M = np.exp(-(raw_distance / (ana_data.options.sigma * median_distance))**2)
     M_df = pd.DataFrame(M, index=ct_embedding.index, columns=ct_embedding.index)
 
     with sns.axes_style('white', rc={
@@ -64,7 +66,7 @@ def embedding_adjust_visualization(ana_data: AnaData) -> Optional[Union[Tuple, N
                              }):
         dis_cluster_grid = sns.clustermap(raw_distance_df,
                                           figsize=(raw_distance_df.shape[0] / 6, raw_distance_df.shape[0] / 6))
-        M_cluster_grid = sns.clustermap(M_df, figsize=(M_df.shape[0] / 6, M_df.shape[0] / 6))
+        M_cluster_grid = sns.clustermap(M_df, figsize=(M_df.shape[0] / 6, M_df.shape[0] / 6), vmin=0, vmax=1)
         if ana_data.options.output:
             dis_cluster_grid.savefig(f'{ana_data.options.output}/raw_distance.pdf', transparent=True)
             M_cluster_grid.savefig(f'{ana_data.options.output}/M.pdf', transparent=True)

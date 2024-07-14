@@ -2,14 +2,14 @@ from optparse import OptionParser, Values
 
 from ..log import *
 from ..version import __version__
-from ._create_dataset import add_niche_net_constr_options_group, validate_niche_net_constr_options, write_niche_net_constr_memo
+from ._preprocessing import add_niche_net_constr_options_group, validate_niche_net_constr_options, write_niche_net_constr_memo
 from ._IO import *
 from ._train import *
 
 # ------------------------------------
 # Constants
 # ------------------------------------
-IO_OPTIONS = ['dataset', 'preprocessing_dir', 'GNN_dir', 'NTScore_dir']
+IO_OPTIONS = ['input', 'preprocessing_dir', 'GNN_dir', 'NTScore_dir']
 
 
 # ------------------------------------

@@ -8,7 +8,7 @@ from ._IO import *
 # ------------------------------------
 # Constants
 # ------------------------------------
-IO_OPTIONS = ['dataset', 'preprocessing_dir']
+IO_OPTIONS = ['input', 'preprocessing_dir']
 
 
 # ------------------------------------
@@ -81,6 +81,12 @@ def validate_niche_net_constr_options(optparser: OptionParser, options: Values) 
         optparser.print_help()
         sys.exit(1)
 
+    if options.embedding_adjust:
+        if options.embedding_input is None and options.exp_input is None:
+            error('Please provide an embedding file or expression data file in csv format.')
+            optparser.print_help()
+            sys.exit(1)
+
 
 def write_niche_net_constr_memo(options: Values):
     """Write niche network construction memos to stdout.
@@ -98,7 +104,7 @@ def write_niche_net_constr_memo(options: Values):
     info(f'sigma: {options.sigma}')
 
 
-def prepare_create_ds_optparser() -> OptionParser:
+def prepare_preprocessing_optparser() -> OptionParser:
     """
     Prepare optparser object. New options will be added in thisfunction first.
     """
@@ -119,7 +125,7 @@ def prepare_create_ds_optparser() -> OptionParser:
     return optparser
 
 
-def opt_create_ds_validate(optparser) -> Values:
+def opt_preprocessing_validate(optparser) -> Values:
     """Validate options from a OptParser object.
 
     Ret: Validated options object.

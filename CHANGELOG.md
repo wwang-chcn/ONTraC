@@ -7,6 +7,8 @@ Added:
 - Added flexible cell type coding function
 - Cell type coding adjust visualization
 - Adjusted cell type composition visualization
+- Support gene expression input
+- Support embeddings input
 
 Changed:
 
