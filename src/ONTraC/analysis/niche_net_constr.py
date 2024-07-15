@@ -28,20 +28,25 @@ def embedding_adjust_visualization(ana_data: AnaData) -> Optional[Union[Tuple, N
 
     # load original data
     ori_data_df = pd.read_csv(f'{ana_data.options.preprocessing_dir}/meta_data.csv', index_col=0)
-    embedding_columns = get_embedding_columns(ori_data_df)
-    if len(embedding_columns) < 2:
-        warning('At least two (Embedding_1 and Embedding_2) should be in the original data. Skip the adjustment.')
-        return None
+    ct_coding = pd.read_csv(f'{ana_data.options.preprocessing_dir}/cell_type_code.csv', index_col=0)
+    if ana_data.options.decomposition_expression_input:
+        ct_embedding = np.loadtxt(f'{ana_data.options.preprocessing_dir}/PCA_embedding.csv', delimiter=',')
+        raw_distance = distance.cdist(ct_embedding, ct_embedding, 'euclidean')
+    else:
+        embedding_columns = get_embedding_columns(ori_data_df)
+        if len(embedding_columns) < 2:
+            warning('At least two (Embedding_1 and Embedding_2) should be in the original data. Skip the adjustment.')
+            return None
 
-    # calculate embedding postion for each cell type
-    ct_embedding = ori_data_df[embedding_columns + ['Cell_Type']].groupby('Cell_Type').mean()
+        # calculate embedding postion for each cell type
+        ct_embedding = ori_data_df[embedding_columns + ['Cell_Type']].groupby('Cell_Type').mean()
+        raw_distance = distance.cdist(ct_embedding[embedding_columns].values, ct_embedding[embedding_columns].values,
+                                      'euclidean')
 
     # calculate distance between each cell type
-    raw_distance = distance.cdist(ct_embedding[embedding_columns].values, ct_embedding[embedding_columns].values,
-                                  'euclidean')
     median_distance = np.median(raw_distance[np.triu_indices(raw_distance.shape[0], k=1)])
     info(f'Median distance between cell types: {median_distance}')
-    raw_distance_df = pd.DataFrame(raw_distance, index=ct_embedding.index, columns=ct_embedding.index)
+    raw_distance_df = pd.DataFrame(raw_distance, index=ct_coding['Cell_Type'], columns=ct_coding['Cell_Type'])
 
     if ana_data.options.sigma is None:
         ana_data.options.sigma = np.median(raw_distance[np.triu_indices(raw_distance.shape[0], k=1)])
@@ -51,7 +56,7 @@ def embedding_adjust_visualization(ana_data: AnaData) -> Optional[Union[Tuple, N
 
     # calculate the M
     M = np.exp(-(raw_distance / (ana_data.options.sigma * median_distance))**2)
-    M_df = pd.DataFrame(M, index=ct_embedding.index, columns=ct_embedding.index)
+    M_df = pd.DataFrame(M, index=ct_coding['Cell_Type'], columns=ct_coding['Cell_Type'])
 
     with sns.axes_style('white', rc={
             'xtick.bottom': True,

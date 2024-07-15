@@ -213,7 +213,8 @@ class AnaData:
         params = read_yaml_file(f'{options.preprocessing_dir}/samples.yaml')
         self.rel_params = get_rel_params(options, params)
         # save the original Cell ID
-        self.cell_id = pd.read_csv(f'{options.preprocessing_dir}/meta_data.csv', usecols=['Cell_ID', 'Cell_Type']).set_index('Cell_ID')
+        self.cell_id = pd.read_csv(f'{options.preprocessing_dir}/meta_data.csv', usecols=['Cell_ID']).set_index('Cell_ID')
+        self.meta_data = pd.read_csv(f'{options.preprocessing_dir}/meta_data.csv')
 
     @property
     def train_loss(self):

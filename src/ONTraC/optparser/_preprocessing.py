@@ -56,7 +56,9 @@ def add_niche_net_constr_options_group(optparser: OptionParser) -> None:
         dest='sigma',
         type='float',
         default=1,
-        help='Sigma for the exponential function to control the similarity between different cell types or clusters. Default is 1.')
+        help=
+        'Sigma for the exponential function to control the similarity between different cell types or clusters. Default is 1.'
+    )
     optparser.add_option_group(group_niche)
 
 
@@ -82,7 +84,7 @@ def validate_niche_net_constr_options(optparser: OptionParser, options: Values) 
         sys.exit(1)
 
     if options.embedding_adjust:
-        if options.embedding_input is None and options.exp_input is None:
+        if options.embedding_input is None and options.exp_input is None and options.decomposition_expression_input is None:
             error('Please provide an embedding file or expression data file in csv format.')
             optparser.print_help()
             sys.exit(1)

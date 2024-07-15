@@ -29,12 +29,14 @@ def plot_violin_cell_type_along_NT_score(ana_data: AnaData) -> Optional[Tuple[pl
         warning(str(e))
         return None
 
+    if ana_data.cell_type_codes.shape[0] > 100:
+        warning(
+            "There are more than 100 cell types, skip violin plot to avoid long runtime. You could manually plot it according to our tutorial."
+        )
+        return None
+
     data_df = ana_data.cell_id.join(ana_data.NT_score['Cell_NTScore'])
     if ana_data.options.reverse: data_df['Cell_NTScore'] = 1 - data_df['Cell_NTScore']
-
-    if data_df['Cell_Type'].unique().shape[0] > 100:
-        warning("There are more than 100 cell types, skip violin plot to avoid long runtime. You could manually plot it according to our tutorial.")
-        return None
 
     fig, ax = plt.subplots(figsize=(6, ana_data.cell_type_codes.shape[0] / 2))
     sns.violinplot(data=data_df,
@@ -151,7 +153,12 @@ def plot_cell_type_loading_in_niche_clusters(ana_data: AnaData,
         value_vars=cell_type,  # type: ignore
         value_name='Number')
     # g = sns.catplot(cell_type_dis_melt_df, kind="bar", x="Number", y="Cell type", col="cluster", col_order= nc_order, height=4,
-    g = sns.catplot(cell_type_dis_melt_df, kind="bar", x="Number", y="Cell type", col="cluster", height=2 + len(cell_type) / 6,
+    g = sns.catplot(cell_type_dis_melt_df,
+                    kind="bar",
+                    x="Number",
+                    y="Cell type",
+                    col="cluster",
+                    height=2 + len(cell_type) / 6,
                     aspect=.5)  # type: ignore
     g.add_legend()
     g.tight_layout()
@@ -226,15 +233,24 @@ def plot_cell_type_with_niche_cluster(ana_data: AnaData) -> None:
     # calculate cell type distribution in each niche cluster
     data_df = ana_data.cell_id.join(ana_data.cell_level_niche_cluster_assign)
     t = pd.CategoricalDtype(categories=ana_data.cell_type_codes['Cell_Type'], ordered=True)
-    cell_type_one_hot = np.zeros(shape=(data_df.shape[0], ana_data.cell_type_codes.shape[0]))
-    cell_type = data_df['Cell_Type'].astype(t)
-    cell_type_one_hot[np.arange(data_df.shape[0]), cell_type.cat.codes] = 1  # N x n_cell_type
-    cell_type_dis = np.matmul(data_df[ana_data.cell_level_niche_cluster_assign.columns].T,
-                              cell_type_one_hot)  # n_clusters x n_cell_types
+    if ana_data.options.decomposition_cell_type_composition_input is None:
+
+        cell_type_one_hot = np.zeros(shape=(data_df.shape[0], ana_data.cell_type_codes.shape[0]))
+        cell_type_one_hot[np.arange(data_df.shape[0]),
+                          data_df['Cell_Type'].astype(t).cat.codes.values] = 1  # N x n_cell_type
+        cell_type_dis = np.matmul(data_df[ana_data.cell_level_niche_cluster_assign.columns].T,
+                                  cell_type_one_hot)  # n_clusters x n_cell_types
+    else:
+        decomposition_cell_type_composition_df = pd.read_csv(ana_data.options.decomposition_cell_type_composition_input,
+                                                             header=0,
+                                                             index_col=0)  # N (#cell) x #cell_type
+        cell_type_dis = np.matmul(data_df[ana_data.cell_level_niche_cluster_assign.columns].T,
+                                  decomposition_cell_type_composition_df.values)
     cell_type_dis_df = pd.DataFrame(cell_type_dis)
     cell_type_dis_df.columns = ana_data.cell_type_codes['Cell_Type']
     if ana_data.options.output is not None:
         cell_type_dis_df.to_csv(f'{ana_data.options.output}/cell_type_dis_in_niche_clusters.csv', index=False)
+
     # nc_order
     nc_scores = 1 - ana_data.niche_cluster_score if ana_data.options.reverse else ana_data.niche_cluster_score
     nc_order = [f'NicheCluster_{x}' for x in nc_scores.argsort()]
@@ -253,7 +269,8 @@ def cell_type_visualization(ana_data: AnaData) -> None:
     """
 
     # 1. cell type along NT score
-    plot_cell_type_along_NT_score(ana_data=ana_data)
+    if ana_data.options.decomposition_expression_input is None and 'Cell_Type' in ana_data.meta_data.columns:
+        plot_cell_type_along_NT_score(ana_data=ana_data)
 
     # 2. cell type X niche cluster
     plot_cell_type_with_niche_cluster(ana_data=ana_data)

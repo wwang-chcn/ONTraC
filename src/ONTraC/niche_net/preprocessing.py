@@ -1,10 +1,10 @@
-from typing import List
+import sys
 from optparse import Values
+from typing import List
 
 import numpy as np
 import pandas as pd
 from scipy.sparse import csr_matrix
-
 
 from ..log import *
 
@@ -19,7 +19,12 @@ def perform_pca(expression_data: pd.DataFrame, n_components: int = 50) -> np.nda
 
     from sklearn.decomposition import PCA
 
-    model = PCA(n_components=n_components, random_state=0)
+    maximum_components = min(expression_data.shape[0], expression_data.shape[1])
+    if n_components > maximum_components:
+        n_components = maximum_components - 1
+
+    model = PCA(n_components=n_components, svd_solver='arpack', random_state=0)
+    info(f'Performing PCA with {n_components} components...')
 
     return model.fit_transform(X=expression_data.values)
 
@@ -34,6 +39,8 @@ def perform_harmony(embedding, meta_df: pd.DataFrame, batch_key: str) -> np.ndar
     """
 
     from harmonypy import run_harmony
+
+    info(f'Performing Harmony with {batch_key} as batch key...')
 
     return run_harmony(data_mat=embedding, meta_data=meta_df, vars_use=batch_key)
 
@@ -51,6 +58,8 @@ def define_neighbors(embedding: np.ndarray, n_neighbors: int = 20) -> csr_matrix
     import pynndescent
     from scipy.sparse import coo_matrix
     from umap.umap_ import fuzzy_simplicial_set
+
+    info(f'Defining neighbors with {n_neighbors} neighbors...')
 
     index = pynndescent.NNDescent(embedding, n_neighbors=n_neighbors, metric='euclidean', n_jobs=4)
     knn_indices, knn_dists = index.neighbor_graph
@@ -81,6 +90,8 @@ def perform_leiden(connectivities: csr_matrix, resolution: float = 10.0) -> List
     g.add_vertices(connectivities.shape[0])
     g.add_edges(es=list(zip(sources, targets)), attributes={'weight': connectivities[sources, targets].tolist()[0]})
 
+    info(f'Performing Leiden algorithm with resolution {resolution}...')
+
     partition = leidenalg.find_partition(graph=g,
                                          partition_type=leidenalg.RBConfigurationVertexPartition,
                                          resolution_parameter=resolution)
@@ -92,44 +103,101 @@ def gen_original_data(options: Values) -> pd.DataFrame:
     """
     Load original data.
 
-    option 1) there is gene expression data (csv format) and meta data (csv format)
-    option 2) there is embedding data (csv format) and meta data (csv format)
+    option 1) there are gene expression data (csv format) and meta data (csv format)
+    option 2) there are embedding data (csv format) and meta data (csv format)
     option 3) there is meta data (csv format) only
+    option 4) there are decomposition input data (csv format) and meta data (csv format)
     """
 
     meta_data_df = pd.read_csv(options.meta_input, header=0, index_col=False, sep=',')
 
     if options.exp_input is None and options.embedding_input is None:
-        # check if Cell_Type column in the meta data
-        if 'Cell_Type' not in meta_data_df.columns:
-            raise ValueError('There are no expression data or embedding data. Please provide Cell_Type in the meta data.')
+        if options.decomposition_cell_type_composition_input is None and options.decomposition_expression_input is None:  # option 3
+            # check if Cell_Type column in the meta data
+            if 'Cell_Type' not in meta_data_df.columns:
+                raise ValueError(
+                    'There are no expression data or embedding data. Please provide Cell_Type in the meta data.')
+            meta_data_df['Cell_Type'] = meta_data_df['Cell_Type'].astype('category')
+            # there should more than 1 cell type
+            if len(meta_data_df['Cell_Type'].cat.categories) < 2:
+                raise ValueError(
+                    'There are no expression data or embedding data. Please provide at least two cell types in the meta data.'
+                )
+            # save mappings of the categorical data
+            cell_type_code = pd.DataFrame(enumerate(meta_data_df['Cell_Type'].cat.categories),
+                                          columns=['Code', 'Cell_Type'])
+            cell_type_code.to_csv(f'{options.preprocessing_dir}/cell_type_code.csv', index=False)
+            meta_data_df.to_csv(options.preprocessing_dir + '/meta_data.csv', index=False)
+            return meta_data_df
+        else:  # option 4
+            if 'Cell_Type' in meta_data_df.columns:
+                meta_data_df = meta_data_df.drop(columns=['Cell_Type'])
+            decomposition_cell_type_composition_df = pd.read_csv(options.decomposition_cell_type_composition_input,
+                                                                 header=0,
+                                                                 index_col=0)
+            decomposition_expression_df = pd.read_csv(options.decomposition_expression_input, header=0, index_col=0)
+            if decomposition_cell_type_composition_df.shape[1] != decomposition_expression_df.shape[0]:
+                error(
+                    f'The number of cell type in the decomposition input data ({options.decomposition_cell_type_composition_input}) and ({options.decomposition_expression_input}) is not consistent. Please check it again.'
+                )
+                sys.exit(1)
+            if decomposition_cell_type_composition_df.shape[0] != meta_data_df.shape[0]:
+                warning(
+                    f'The number of spots in the decomposition input data ({options.decomposition_cell_type_composition_input}) is not consistent with the meta data. We will use the intersection of them.'
+                )
+                common_spots = set(decomposition_cell_type_composition_df.index).intersection(
+                    set(meta_data_df['Cell_ID']))
+                decomposition_cell_type_composition_df = decomposition_cell_type_composition_df.loc[common_spots]
+                meta_data_df = meta_data_df.loc[meta_data_df['Cell_ID'].isin(common_spots)]
+            pca_embedding = perform_pca(decomposition_expression_df)
+            if meta_data_df['Sample'].nunique() > 1:
+                pca_embedding = perform_harmony(pca_embedding, meta_data_df, 'Sample')
+            np.savetxt(options.preprocessing_dir + '/PCA_embedding.csv', pca_embedding, delimiter=',')
+            for i in range(decomposition_cell_type_composition_df.shape[1]):
+                meta_data_df[f'Cell_Type_{i}'] = decomposition_cell_type_composition_df.iloc[:, i]
+            meta_data_df.to_csv(options.preprocessing_dir + '/meta_data.csv', index=False)
+            cell_type_code = pd.DataFrame({
+                'Code':
+                range(decomposition_cell_type_composition_df.shape[1]),
+                'Cell_Type': [f'Cell_Type_{i}' for i in range(decomposition_cell_type_composition_df.shape[1])]
+            })
+            cell_type_code.to_csv(f'{options.preprocessing_dir}/cell_type_code.csv', index=False)
+            return meta_data_df
+
+    if options.exp_input is None and options.embedding_input is not None:  # option 2
         meta_data_df['Cell_Type'] = meta_data_df['Cell_Type'].astype('category')
         # there should more than 1 cell type
         if len(meta_data_df['Cell_Type'].cat.categories) < 2:
-            raise ValueError('There are no expression data or embedding data. Please provide at least two cell types in the meta data.')
+            raise ValueError(
+                'There are no expression data or embedding data. Please provide at least two cell types in the meta data.'
+            )
         # save mappings of the categorical data
-        cell_type_code = pd.DataFrame(enumerate(meta_data_df['Cell_Type'].cat.categories), columns=['Code', 'Cell_Type'])
-        cell_type_code.to_csv(f'{options.preprocessing_dir}/cell_type_code.csv', index=False)
-        meta_data_df.to_csv(options.preprocessing_dir + '/meta_data.csv', index=False)
-        return meta_data_df
-    
-    if options.exp_input is None and options.embedding_input is not None:
-        meta_data_df['Cell_Type'] = meta_data_df['Cell_Type'].astype('category')
-        # there should more than 1 cell type
-        if len(meta_data_df['Cell_Type'].cat.categories) < 2:
-            raise ValueError('There are no expression data or embedding data. Please provide at least two cell types in the meta data.')
-        # save mappings of the categorical data
-        cell_type_code = pd.DataFrame(enumerate(meta_data_df['Cell_Type'].cat.categories), columns=['Code', 'Cell_Type'])
+        cell_type_code = pd.DataFrame(enumerate(meta_data_df['Cell_Type'].cat.categories),
+                                      columns=['Code', 'Cell_Type'])
         cell_type_code.to_csv(f'{options.preprocessing_dir}/cell_type_code.csv', index=False)
 
         embedding_df = pd.read_csv(options.embedding_input, header=0, index_col=0, sep=',')
+        if embedding_df.shape[0] != meta_data_df.shape[0]:
+            warning(
+                f'The number of cells in the embedding data ({options.embedding_input}) is not consistent with the meta data. We will use the intersection of them.'
+            )
+            common_cells = set(embedding_df.index).intersection(set(meta_data_df['Cell_ID']))
+            embedding_df = embedding_df.loc[common_cells]
+            meta_data_df = meta_data_df.loc[meta_data_df['Cell_ID'].isin(common_spots)]
         for i in range(embedding_df.shape[1]):
             meta_data_df[f'Embedding_{i}'] = embedding_df.iloc[:, i]
         meta_data_df.to_csv(options.preprocessing_dir + '/meta_data.csv', index=False)
         return meta_data_df
-    
-    if options.exp_input is not None:
+
+    if options.exp_input is not None:  # option 1
         expression_data_df = pd.read_csv(options.exp_input, header=0, index_col=0, sep=',')
+        if expression_data_df.shape[0] != meta_data_df.shape[0]:
+            warning(
+                f'The number of cells in the expression data ({options.exp_input}) is not consistent with the meta data. We will use the intersection of them.'
+            )
+            common_cells = set(expression_data_df.index).intersection(set(meta_data_df['Cell_ID']))
+            expression_data_df = expression_data_df.loc[common_cells]
+            meta_data_df = meta_data_df.loc[meta_data_df['Cell_ID'].isin(common_spots)]
         pca_embedding = perform_pca(expression_data_df)
         if meta_data_df['Sample'].nunique() > 1:
             pca_embedding = perform_harmony(pca_embedding, meta_data_df, 'Sample')
@@ -140,10 +208,8 @@ def gen_original_data(options: Values) -> pd.DataFrame:
         for i in range(pca_embedding.shape[1]):
             meta_data_df[f'Embedding_{i}'] = pca_embedding[:, i]
         # save mappings of the categorical data
-        cell_type_code = pd.DataFrame(enumerate(meta_data_df['Cell_Type'].cat.categories), columns=['Code', 'Cell_Type'])
+        cell_type_code = pd.DataFrame(enumerate(meta_data_df['Cell_Type'].cat.categories),
+                                      columns=['Code', 'Cell_Type'])
         cell_type_code.to_csv(f'{options.preprocessing_dir}/cell_type_code.csv', index=False)
         meta_data_df.to_csv(options.preprocessing_dir + '/meta_data.csv', index=False)
         return meta_data_df
-
-
-    

@@ -84,10 +84,15 @@ def construct_niche_network_sample(options: Values, sample_data_df: pd.DataFrame
     cell_to_niche_matrix = niche_weight_matrix_csr / niche_weight_matrix_csr.sum(axis=1)  # N x N, #niche x #cell
 
     # calculate cell type composition
-    sample_data_df.Cell_Type.cat.codes.values
-    one_hot_matrix = np.zeros(shape=(N, sample_data_df['Cell_Type'].cat.categories.shape[0]))  # N x #cell_type
-    one_hot_matrix[np.arange(N), sample_data_df.Cell_Type.cat.codes.values] = 1
-    cell_type_composition = cell_to_niche_matrix @ one_hot_matrix  # N x n_cell_type
+    if options.decomposition_cell_type_composition_input is None:
+        one_hot_matrix = np.zeros(shape=(N, sample_data_df['Cell_Type'].cat.categories.shape[0]))  # N (#cell) x #cell_type
+        one_hot_matrix[np.arange(N), sample_data_df.Cell_Type.cat.codes.values] = 1
+        cell_type_composition = cell_to_niche_matrix @ one_hot_matrix  # N (#niche) x #cell_type
+    else: # use the provided cell type composition, spot-based data
+        decomposition_cell_type_composition_df = pd.read_csv(options.decomposition_cell_type_composition_input,
+                                                                 header=0,
+                                                                 index_col=0)  # N (#cell) x #cell_type
+        cell_type_composition = cell_to_niche_matrix @ decomposition_cell_type_composition_df.values  # N (#niche) x #cell_type
 
     # save cell type composition
     np.savetxt(f'{options.preprocessing_dir}/{sample_name}_CellTypeComposition.csv.gz',
@@ -171,18 +176,23 @@ def ct_coding_adjust(options: Values, ori_data_df: pd.DataFrame):
     :return: None
     """
 
-    # check the embedding info in the original data
-    embedding_columns = get_embedding_columns(ori_data_df)
-    if len(embedding_columns) < 2:
-        warning('At least two (Embedding_1 and Embedding_2) should be in the original data. Skip the adjustment.')
-        return
+    if options.decomposition_cell_type_composition_input is None:
+        # check the embedding info in the original data
+        embedding_columns = get_embedding_columns(ori_data_df)
+        if len(embedding_columns) < 2:
+            warning('At least two (Embedding_1 and Embedding_2) should be in the original data. Skip the adjustment.')
+            return
 
-    # calculate embedding postion for each cell type
-    ct_embedding = ori_data_df[embedding_columns + ['Cell_Type']].groupby('Cell_Type').mean()
-
-    # calculate distance between each cell type
-    raw_distance = distance.cdist(ct_embedding[embedding_columns].values, ct_embedding[embedding_columns].values,
+        # calculate embedding postion for each cell type
+        ct_embedding = ori_data_df[embedding_columns + ['Cell_Type']].groupby('Cell_Type').mean()
+        # calculate distance between each cell type
+        raw_distance = distance.cdist(ct_embedding[embedding_columns].values, ct_embedding[embedding_columns].values,
                                   'euclidean')
+    
+    else:  # spot-based data
+        ct_embedding = np.loadtxt(f'{options.preprocessing_dir}/PCA_embedding.csv', delimiter=',')
+        raw_distance = distance.cdist(ct_embedding, ct_embedding, 'euclidean')
+
     median_distance = np.median(raw_distance[np.triu_indices(raw_distance.shape[0], k=1)])
     info(f'Median distance between cell types: {median_distance}')
 

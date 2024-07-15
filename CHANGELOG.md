@@ -10,6 +10,7 @@ Added:
 - Support gene expression input
 - Support embeddings input
 - Weighted NT score assign for niche clusters
+- Support spots-based data and analysis its results
 
 Changed:
 

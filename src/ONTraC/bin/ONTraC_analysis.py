@@ -39,7 +39,8 @@ def analysis_pipeline(options: Values) -> None:
     niche_cluster_visualization(ana_data=ana_data)
 
     # part 5: cell type based output
-    cell_type_visualization(ana_data=ana_data)
+    if not options.suppress_cell_type:
+        cell_type_visualization(ana_data=ana_data)
 
 
 # TODO: move to optparser
@@ -55,6 +56,11 @@ def add_suppress_group(optparser: OptionParser) -> None:
                      action='store_true',
                      default=False,
                      help='Suppress the niche cluster loadings visualization.')
+    group.add_option('--suppress-cell-type',
+                     dest='suppress_cell_type',
+                     action='store_true',
+                     default=False,
+                     help='Suppress the cell type visualization.')
     optparser.add_option_group(group)
 
 
