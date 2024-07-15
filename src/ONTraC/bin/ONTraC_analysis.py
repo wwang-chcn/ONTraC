@@ -5,7 +5,7 @@ from optparse import OptionGroup, OptionParser, Values
 from ..analysis.cell_type import cell_type_visualization
 from ..analysis.data import AnaData
 from ..analysis.niche_cluster import niche_cluster_visualization
-from ..analysis.niche_net_constr import embedding_adjust_visualization
+from ..analysis.niche_net import embedding_adjust_visualization
 from ..analysis.spatial import spatial_visualization
 from ..analysis.train_loss import train_loss_visualiztion
 from ..log import *

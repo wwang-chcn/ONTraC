@@ -11,6 +11,7 @@ Added:
 - Support embeddings input
 - Weighted NT score assign for niche clusters
 - Support spots-based data and analysis its results
+- Visualization of clustering results
 
 Changed:
 

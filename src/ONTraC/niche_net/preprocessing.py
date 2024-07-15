@@ -74,6 +74,26 @@ def define_neighbors(embedding: np.ndarray, n_neighbors: int = 20) -> csr_matrix
     return connectivities
 
 
+def perform_umap(embedding: np.ndarray,
+                 n_neighbors: int = 20,
+                 min_dist: float = 0.5,
+                 n_components: int = 2) -> np.ndarray:
+    """
+    Perform UMAP on the embedding.
+    :param embedding: Embedding.
+    :param n_neighbors: Number of neighbors.
+    :param min_dist: Minimum distance.
+    :param n_components: Number of components.
+    :return: UMAP result.
+    """
+
+    import umap
+
+    info(f'Performing UMAP with {n_neighbors} neighbors, {min_dist} minimum distance, and {n_components} components...')
+
+    return umap.UMAP(n_neighbors=n_neighbors, min_dist=min_dist, n_components=n_components).fit_transform(embedding)
+
+
 def perform_leiden(connectivities: csr_matrix, resolution: float = 10.0) -> List[int]:
     """
     Perform Leiden algorithm.
@@ -204,6 +224,8 @@ def gen_original_data(options: Values) -> pd.DataFrame:
         np.savetxt(options.preprocessing_dir + '/PCA_embedding.csv', pca_embedding, delimiter=',')
         connectivities = define_neighbors(pca_embedding)
         leiden_result = perform_leiden(connectivities)
+        umap_embedding = perform_umap(pca_embedding)
+        np.savetxt(options.preprocessing_dir + '/UMAP_embedding.csv', umap_embedding, delimiter=',')
         meta_data_df['Cell_Type'] = pd.Categorical(leiden_result)
         for i in range(pca_embedding.shape[1]):
             meta_data_df[f'Embedding_{i}'] = pca_embedding[:, i]

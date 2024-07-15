@@ -2,10 +2,14 @@ from optparse import OptionParser, Values
 
 from ..log import *
 from ..version import __version__
-from ._preprocessing import add_niche_net_constr_options_group, validate_niche_net_constr_options, write_niche_net_constr_memo
 from ._IO import *
-from ._train import *
 from ._NT import add_NT_options_group, write_NT_options_memo
+from ._preprocessing import (add_niche_net_constr_options_group,
+                             add_preprocessing_options_group,
+                             validate_niche_net_constr_options,
+                             write_niche_net_constr_memo,
+                             write_preprocessing_memo)
+from ._train import *
 
 # ------------------------------------
 # Constants
@@ -33,6 +37,9 @@ def prepare_ontrac_optparser() -> OptionParser:
 
     # I/O options group
     add_IO_options_group(optparser=optparser, io_options=IO_OPTIONS)
+
+    # Preprocessing
+    add_preprocessing_options_group(optparser)
 
     # Niche net construction option group
     add_niche_net_constr_options_group(optparser)
@@ -66,6 +73,7 @@ def opt_ontrac_validate(optparser) -> Values:
     # print parameters to stdout
     info('------------------ RUN params memo ------------------ ')
     write_io_options_memo(options, IO_OPTIONS)
+    write_preprocessing_memo(options)
     write_niche_net_constr_memo(options)
     write_train_options_memo(options)
     write_GNN_options_memo(options)

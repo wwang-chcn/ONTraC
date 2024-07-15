@@ -35,7 +35,7 @@ def plot_violin_cell_type_along_NT_score(ana_data: AnaData) -> Optional[Tuple[pl
         )
         return None
 
-    data_df = ana_data.cell_id.join(ana_data.NT_score['Cell_NTScore'])
+    data_df = ana_data.meta_data.join(ana_data.NT_score['Cell_NTScore'])
     if ana_data.options.reverse: data_df['Cell_NTScore'] = 1 - data_df['Cell_NTScore']
 
     fig, ax = plt.subplots(figsize=(6, ana_data.cell_type_codes.shape[0] / 2))
@@ -72,7 +72,7 @@ def plot_kde_cell_type_along_NT_score(ana_data: AnaData) -> Optional[Tuple[plt.F
         warning(str(e))
         return None
 
-    data_df = ana_data.cell_id.join(ana_data.NT_score['Cell_NTScore'])
+    data_df = ana_data.meta_data.join(ana_data.NT_score['Cell_NTScore'])
     if ana_data.options.reverse: data_df['Cell_NTScore'] = 1 - data_df['Cell_NTScore']
 
     fig, ax = plt.subplots(figsize=(8, 4))
@@ -103,7 +103,7 @@ def plot_hist_cell_type_along_NT_score(ana_data: AnaData) -> Optional[Tuple[plt.
         warning(str(e))
         return None
 
-    data_df = ana_data.cell_id.join(ana_data.NT_score['Cell_NTScore'])
+    data_df = ana_data.meta_data.join(ana_data.NT_score['Cell_NTScore'])
     if ana_data.options.reverse: data_df['Cell_NTScore'] = 1 - data_df['Cell_NTScore']
 
     fig, ax = plt.subplots(figsize=(len(data_df['Cell_Type'].unique()), 4))
@@ -142,6 +142,12 @@ def plot_cell_type_loading_in_niche_clusters(ana_data: AnaData,
     :param nc_order: List[str], the order of niche cluster.
     :return: None or Tuple[plt.Figure, plt.Axes]
     """
+
+    if ana_data.cell_type_codes.shape[0] > 50:
+        warning(
+            "There are more than 50 cell types, skip cell type loading in niche clusters plot to avoid weird plot. You could manually plot it according to our tutorial."
+        )
+        return None
 
     data_df = deepcopy(cell_type_dis_df)
     cell_type = data_df.columns

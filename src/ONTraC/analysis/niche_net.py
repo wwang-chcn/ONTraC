@@ -16,6 +16,45 @@ from ..niche_net import get_embedding_columns
 from .data import AnaData
 
 
+def clustering_visualization(ana_data: AnaData) -> Optional[Union[Tuple, None]]:
+    """Visualization of clustering results.
+    
+    Args:
+        ana_data: AnaData object.
+    """
+
+    if not ana_data.options.decomposition_expression_input:
+        return None
+
+    # load meta data
+    meta_data = pd.read_csv(f'{ana_data.options.preprocessing_dir}/meta_data.csv', index_col=0)
+    umap_embedding = np.loadtxt(f'{ana_data.options.preprocessing_dir}/PCA_embedding.csv', delimiter=',')
+    data_df = meta_data['Cell_Type']
+    data_df['Embedding_1'] = umap_embedding[:, 0]
+    data_df['Embedding_2'] = umap_embedding[:, 1]
+    with sns.axes_style('white', rc={
+            'xtick.bottom': True,
+            'ytick.left': True
+    }), sns.plotting_context('paper',
+                             rc={
+                                 'axes.titlesize': 8,
+                                 'axes.labelsize': 8,
+                                 'xtick.labelsize': 6,
+                                 'ytick.labelsize': 6,
+                                 'legend.fontsize': 6
+                             }):
+        fig, ax = plt.subplots(1, 1, figsize=(7, 5))
+        sns.scatterplot(data=data_df, x='Embedding_1', y='Embedding_2', hue='Cell_Type', s=2, ax=ax)
+        ax.set_xlabel('UMAP_1')
+        ax.set_ylabel('UMAP_2')
+        ax.legend(loc='upper left', bbox_to_anchor=(1, 1), ncol=3, markerscale=4)
+        if ana_data.options.output:
+            fig.savefig(f'{ana_data.options.output}/clustering.pdf', transparent=True)
+            return None
+        else:
+            return fig
+
+
 def embedding_adjust_visualization(ana_data: AnaData) -> Optional[Union[Tuple, None]]:
     """Visualization of embedding adjust.
 
