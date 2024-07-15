@@ -9,6 +9,7 @@ Added:
 - Adjusted cell type composition visualization
 - Support gene expression input
 - Support embeddings input
+- Weighted NT score assign for niche clusters
 
 Changed:
 

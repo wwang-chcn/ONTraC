@@ -9,7 +9,7 @@ from ..GNN import (evaluate, load_data, predict, save_graph_pooling_results,
                    set_seed, train)
 from ..log import *
 from ..niche_net import (construct_niche_network, ct_coding_adjust,
-                         gen_samples_yaml, gen_original_data)
+                         gen_original_data, gen_samples_yaml)
 from ..niche_trajectory import (NTScore_table, get_niche_NTScore,
                                 load_consolidate_data, niche_to_cell_NTScore)
 from ..train import SubBatchTrainProtocol
@@ -110,7 +110,8 @@ def NTScore(options: Values) -> None:
     rel_params = get_rel_params(options, params)
     dataset, _ = load_data(options=options)
 
-    niche_cluster_score, niche_level_NTScore = get_niche_NTScore(niche_cluster_loading=consolidate_s_array,
+    niche_cluster_score, niche_level_NTScore = get_niche_NTScore(options=options,
+                                                                 niche_cluster_loading=consolidate_s_array,
                                                                  niche_adj_matrix=consolidate_out_adj_array)
     cell_level_NTScore, all_niche_level_NTScore_dict, all_cell_level_NTScore_dict = niche_to_cell_NTScore(
         dataset=dataset, rel_params=rel_params, niche_level_NTScore=niche_level_NTScore)

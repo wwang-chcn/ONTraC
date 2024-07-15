@@ -5,6 +5,7 @@ from ..version import __version__
 from ._preprocessing import add_niche_net_constr_options_group, validate_niche_net_constr_options, write_niche_net_constr_memo
 from ._IO import *
 from ._train import *
+from ._NT import add_NT_options_group, write_NT_options_memo
 
 # ------------------------------------
 # Constants
@@ -36,10 +37,13 @@ def prepare_ontrac_optparser() -> OptionParser:
     # Niche net construction option group
     add_niche_net_constr_options_group(optparser)
 
-    # Graph Pooling
+    # GNN
     group_train = add_train_options_group(optparser)
     add_GNN_options_group(group_train)
     add_NP_options_group(group_train)
+
+    # Niche trajectory
+    group_NT = add_NT_options_group(optparser)
 
     return optparser
 
@@ -66,6 +70,7 @@ def opt_ontrac_validate(optparser) -> Values:
     write_train_options_memo(options)
     write_GNN_options_memo(options)
     write_NP_options_memo(options)
+    write_NT_options_memo(options)
     info('--------------- RUN params memo end ----------------- ')
 
     return options

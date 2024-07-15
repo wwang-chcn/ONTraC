@@ -24,14 +24,41 @@ def prepare_NT_optparser() -> OptionParser:
     description = 'PseudoTime: Calculate PseudoTime for each node in a graph'
 
     # option processor
-    optparser = OptionParser(version=f'%prog {__version__}',
-                             description=description,
-                             usage=usage,
-                             add_help_option=True)
+    optparser = OptionParser(version=f'%prog {__version__}', description=description, usage=usage, add_help_option=True)
 
     add_IO_options_group(optparser=optparser, io_options=IO_OPTIONS)
 
     return optparser
+
+
+def add_NT_options_group(optparser: OptionParser) -> OptionGroup:
+    """
+    Add niche trajectory options group to optparser.
+    :param optparser: OptionParser object.
+    :return: OptionGroup object.
+    """
+
+    group_NT = OptionGroup(optparser, "Options for niche trajectory")
+    optparser.add_option_group(group_NT)
+    group_NT.add_option(
+        '--equal-space',
+        dest='equal_space',
+        action='store_true',
+        default=False,
+        help=
+        'Whether to assign equally spaced values to for each niche cluster. Default is False, based on total loadings of each niche cluster.'
+    )
+
+
+def write_NT_options_memo(options: Values) -> None:
+    """
+    Write niche trajectory options memo.
+    :param options: Values, options.
+    :return: None.
+    """
+
+    info('---------------- Niche trajectory options ----------------')
+    info(f'Equally spaced niche cluster scores: {options.equal_space}')
 
 
 def opt_NT_validate(optparser: OptionParser) -> Values:

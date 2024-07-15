@@ -6,6 +6,7 @@ from ..log import *
 from ..version import __version__
 from ._IO import *
 from ._train import *
+from ._NT import add_NT_options_group, write_NT_options_memo
 
 # ------------------------------------
 # Constants
@@ -41,6 +42,9 @@ def prepare_GP_optparser() -> OptionParser:
     add_GNN_options_group(group_train)
     add_NP_options_group(group_train)
 
+    # Niche trajectory
+    add_NT_options_group(optparser)
+
     return optparser
 
 
@@ -61,6 +65,7 @@ def opt_GP_validate(optparser: OptionParser) -> Values:
     write_train_options_memo(options)
     write_GNN_options_memo(options)
     write_NP_options_memo(options)
+    write_NT_options_memo(options)
     info('--------------- RUN params memo end ----------------- ')
 
     return options
