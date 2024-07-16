@@ -40,7 +40,7 @@ def perform_harmony(embedding, meta_df: pd.DataFrame, batch_key: str) -> np.ndar
 
     from harmonypy import run_harmony
 
-    info(f'Performing Harmony with {batch_key} as batch key...')
+    info(f'Performing Harmony using "{batch_key}" as batch ...')
 
     return run_harmony(data_mat=embedding, meta_data=meta_df, vars_use=batch_key)
 
@@ -219,7 +219,10 @@ def gen_original_data(options: Values) -> pd.DataFrame:
             expression_data_df = expression_data_df.loc[common_cells]
             meta_data_df = meta_data_df.loc[meta_data_df['Cell_ID'].isin(common_spots)]
         pca_embedding = perform_pca(expression_data_df)
-        if meta_data_df['Sample'].nunique() > 1:
+        if 'Batch' in meta_data_df.columns:
+            if meta_data_df['Batch'].nunique() > 1:
+                pca_embedding = perform_harmony(pca_embedding, meta_data_df, 'Batch')
+        elif meta_data_df['Sample'].nunique() > 1:
             pca_embedding = perform_harmony(pca_embedding, meta_data_df, 'Sample')
         np.savetxt(options.preprocessing_dir + '/PCA_embedding.csv', pca_embedding, delimiter=',')
         connectivities = define_neighbors(pca_embedding)
