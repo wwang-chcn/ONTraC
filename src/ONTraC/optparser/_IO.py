@@ -17,6 +17,13 @@ def add_IO_options_group(optparser: OptionParser, io_options: Optional[List[str]
     # I/O options group
     group_io = OptionGroup(optparser, "IO")
     if 'input' in io_options:
+        group_io.add_option(  # TODO: deprecated warning
+            '-d',
+            '--dataset',
+            dest='dataset',
+            type='string',
+            help='Meta data file in csv format. Each row is a cell and each column is a meta data. The first column should be the cell name. Coordinates (x, y), cell type and sample should be included.'
+        )
         group_io.add_option(
             '--meta-input',
             dest='meta_input',
@@ -79,6 +86,9 @@ def validate_io_options(optparser: OptionParser,
     if io_options is None:
         return
     if 'input' in io_options:
+        # dataset
+        if options.dataset:
+            options.meta_input = options.dataset
         # meta data
         if not options.meta_input:
             error('Please provide a meta data file in csv format.')
