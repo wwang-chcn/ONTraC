@@ -226,7 +226,7 @@ def gen_original_data(options: Values) -> pd.DataFrame:
             pca_embedding = perform_harmony(pca_embedding, meta_data_df, 'Sample')
         np.savetxt(options.preprocessing_dir + '/PCA_embedding.csv', pca_embedding, delimiter=',')
         connectivities = define_neighbors(pca_embedding)
-        leiden_result = perform_leiden(connectivities)
+        leiden_result = perform_leiden(connectivities, resolution=options.resolution)
         umap_embedding = perform_umap(pca_embedding)
         np.savetxt(options.preprocessing_dir + '/UMAP_embedding.csv', umap_embedding, delimiter=',')
         meta_data_df['Cell_Type'] = pd.Categorical(leiden_result)
