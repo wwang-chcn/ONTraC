@@ -87,7 +87,8 @@ def validate_io_options(optparser: OptionParser,
         return
     if 'input' in io_options:
         # dataset
-        if options.dataset:
+        if options.dataset and not options.meta_input:
+            warning(FutureWarning('The -d/--dataset option is deprecated. Please use --meta-input instead.').__str__())
             options.meta_input = options.dataset
         # meta data
         if not options.meta_input:

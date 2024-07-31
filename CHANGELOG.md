@@ -1,6 +1,6 @@
 # Change log
 
-## [2.0.0] - XXXX-XXX-XX
+## [2.0.0] - 2024-July-31
 
 Added:
 
