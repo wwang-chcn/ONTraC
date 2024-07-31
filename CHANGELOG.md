@@ -1,5 +1,11 @@
 # Change log
 
+## [1.0.1] - 2024-July-30
+
+Added:
+
+- `citation` info
+
 ## [1.0.0] - 2024-July-10
 
 Added:
