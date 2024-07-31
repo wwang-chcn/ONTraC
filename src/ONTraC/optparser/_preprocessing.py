@@ -8,12 +8,31 @@ from ._IO import *
 # ------------------------------------
 # Constants
 # ------------------------------------
-IO_OPTIONS = ['dataset', 'preprocessing_dir']
+IO_OPTIONS = ['input', 'preprocessing_dir']
 
 
 # ------------------------------------
 # Functions
 # ------------------------------------
+def add_preprocessing_options_group(optparser: OptionParser) -> None:
+    """
+    Add preprocessing options group to optparser.
+    :param optparser: OptionParser object.
+    :return: OptionGroup object.
+    """
+    # preprocessing options group
+    group_preprocessing = OptionGroup(optparser, "Preprocessing")
+    group_preprocessing.add_option(
+        '--resolution',
+        dest='resolution',
+        type=float,
+        default=10.0,
+        help=
+        'Resolution for leiden clustering. Used for clustering cells into cell types when gene expression data is provided. Default is 10.0.'
+    )
+    optparser.add_option_group(group_preprocessing)
+
+
 def add_niche_net_constr_options_group(optparser: OptionParser) -> None:
     """
     Add niche network construction options group to optparser.
@@ -43,6 +62,22 @@ def add_niche_net_constr_options_group(optparser: OptionParser) -> None:
         help=
         'Specifies the nth closest local neighbors used for gaussian distance normalization. It should be less than the number of cells in each sample. Default is 20.'
     )
+    group_niche.add_option(
+        '--embedding-adjust',
+        dest='embedding_adjust',
+        action='store_true',
+        default=False,
+        help=
+        'Adjust the cell type coding according to embeddings. Default is False. At least two (Embedding_1 and Embedding_2) should be in the original data if embedding_adjust is True.'
+    )
+    group_niche.add_option(
+        '--sigma',
+        dest='sigma',
+        type='float',
+        default=1,
+        help=
+        'Sigma for the exponential function to control the similarity between different cell types or clusters. Default is 1.'
+    )
     optparser.add_option_group(group_niche)
 
 
@@ -67,6 +102,23 @@ def validate_niche_net_constr_options(optparser: OptionParser, options: Values) 
         optparser.print_help()
         sys.exit(1)
 
+    if options.embedding_adjust:
+        if options.embedding_input is None and options.exp_input is None and options.decomposition_expression_input is None:
+            error('Please provide an embedding file or expression data file in csv format.')
+            optparser.print_help()
+            sys.exit(1)
+
+
+def write_preprocessing_memo(options: Values):
+    """Write preprocessing memos to stdout.
+
+    Args:
+        options: Options object.
+    """
+
+    # print parameters to stdout
+    info('      -------- preprocessing options -------      ')
+    info(f'resolution: {options.resolution}')
 
 def write_niche_net_constr_memo(options: Values):
     """Write niche network construction memos to stdout.
@@ -80,14 +132,19 @@ def write_niche_net_constr_memo(options: Values):
     info(f'n_cpu:   {options.n_cpu}')
     info(f'n_neighbors: {options.n_neighbors}')
     info(f'n_local: {options.n_local}')
+    info(f'embedding_adjust: {options.embedding_adjust}')
+    info(f'sigma: {options.sigma}')
 
 
-def prepare_create_ds_optparser() -> OptionParser:
+def prepare_preprocessing_optparser() -> OptionParser:
     """
     Prepare optparser object. New options will be added in thisfunction first.
     """
 
-    usage = f'''USAGE: %prog <-d DATASET> <--preprocessing-dir PREPROCESSING_DIR> [--n-cpu N_CPU] [--n-neighbors N_NEIGHBORS] [--n-local N_LOCAL]'''
+    usage = f'''USAGE: %prog <--meta-input META_INPUT> [--exp-input EXP_INPUT] [--embedding-input EMBEDDING_INPUT]
+    [--decomposition-cell-type-composition-input DECOMPOSITION_CELL_TYPE_COMPOSITION_INPUT]
+    [--decomposition-expression-input DECOMPOSITION_EXPRESSION_INPUT] <--preprocessing-dir PREPROCESSING_DIR> [--n-cpu N_CPU]
+    [--n-neighbors N_NEIGHBORS] [--n-local N_LOCAL] [--embedding-adjust] [--sigma SIGMA]'''
     description = 'Create dataset for follwoing analysis.'
 
     # option processor
@@ -96,13 +153,16 @@ def prepare_create_ds_optparser() -> OptionParser:
     # I/O options group
     add_IO_options_group(optparser=optparser, io_options=IO_OPTIONS)
 
+    # preprocessing options group
+    add_preprocessing_options_group(optparser)
+
     # niche network construction options group
     add_niche_net_constr_options_group(optparser)
 
     return optparser
 
 
-def opt_create_ds_validate(optparser) -> Values:
+def opt_preprocessing_validate(optparser) -> Values:
     """Validate options from a OptParser object.
 
     Ret: Validated options object.
@@ -116,6 +176,7 @@ def opt_create_ds_validate(optparser) -> Values:
     # print parameters to stdout
     info('------------------ RUN params memo ------------------ ')
     write_io_options_memo(options, IO_OPTIONS)
+    write_preprocessing_memo(options)
     write_niche_net_constr_memo(options)
     info('--------------- RUN params memo end ----------------- ')
 

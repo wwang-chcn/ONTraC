@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 from pandas import DataFrame
 
-from ..log import info
+from ..log import info, warning
 from ..utils import get_rel_params, read_yaml_file
 
 
@@ -213,7 +213,11 @@ class AnaData:
         params = read_yaml_file(f'{options.preprocessing_dir}/samples.yaml')
         self.rel_params = get_rel_params(options, params)
         # save the original Cell ID
-        self.cell_id = pd.read_csv(options.dataset, usecols=['Cell_ID', 'Cell_Type']).set_index('Cell_ID')
+        self.cell_id = pd.read_csv(f'{options.preprocessing_dir}/meta_data.csv',
+                                   usecols=['Cell_ID']).set_index('Cell_ID', inplace=False)
+        self.meta_data = pd.read_csv(f'{options.preprocessing_dir}/meta_data.csv').set_index('Cell_ID', inplace=False)
+        if 'Cell_Type' in self.meta_data.columns:
+            self.cell_id['Cell_Type'] = self.meta_data['Cell_Type'] = self.meta_data['Cell_Type'].astype('category')
 
     @property
     def train_loss(self):
@@ -228,12 +232,9 @@ class AnaData:
         return self._cell_type_codes
 
     def _load_cell_type_composition_and_NT_score(self) -> None:
-        data_df = pd.DataFrame()
+        data_df, data_2_df = pd.DataFrame(), pd.DataFrame()
         for sample in self.rel_params['Data']:
-            feature_file = f"{sample['Features'][:-27]}_Raw_CellTypeComposition.csv.gz"
-            if not os.path.isfile(feature_file):
-                info('Raw cell type composition file not found, use the original one.')
-                feature_file = sample['Features']
+            # raw cell type composition
             cell_type_composition_df = pd.read_csv(sample['Features'], header=None)
             cell_type_composition_df.columns = self.cell_type_codes.loc[np.arange(cell_type_composition_df.shape[1]),
                                                                         'Cell_Type'].tolist()  # type: ignore
@@ -242,16 +243,41 @@ class AnaData:
             sample_df.index = NTScore_df.index
             sample_df['sample'] = [sample["Name"]] * sample_df.shape[0]
             data_df = pd.concat([data_df, sample_df])
+            # adjust cell type composition
+            if not self.options.embedding_adjust:
+                continue
+            feature_file = f"{sample['Features'][:-27]}_Raw_CellTypeComposition.csv.gz"
+            if not os.path.isfile(feature_file):
+                continue
+            cell_type_composition_df = pd.read_csv(feature_file, header=None)
+            cell_type_composition_df.columns = self.cell_type_codes.loc[np.arange(cell_type_composition_df.shape[1]),
+                                                                        'Cell_Type'].tolist()  # type: ignore
+            sample_df = pd.concat([NTScore_df.reset_index(drop=True), cell_type_composition_df], axis=1)
+            sample_df.index = NTScore_df.index
+            sample_df['sample'] = [sample["Name"]] * sample_df.shape[0]
+            data_2_df = pd.concat([data_2_df, sample_df])
 
         data_df = self.cell_id.join(data_df)
         self._cell_type_composition = data_df[self.cell_type_codes['Cell_Type'].tolist() + ['sample', 'x', 'y']]
         self._NT_score = data_df[['sample', 'x', 'y', 'Niche_NTScore', 'Cell_NTScore']]
+        if not data_2_df.empty:
+            data_2_df = self.cell_id.join(data_2_df)
+            self._adjust_cell_type_composition = data_2_df[self.cell_type_codes['Cell_Type'].tolist() +
+                                                           ['sample', 'x', 'y']]
 
     @property
     def cell_type_composition(self) -> DataFrame:
         if not hasattr(self, '_cell_type_composition'):
             self._load_cell_type_composition_and_NT_score()
         return self._cell_type_composition
+
+    @property
+    def adjust_cell_type_composition(self) -> DataFrame:
+        if not self.options.embedding_adjust:
+            warning('The embedding adjust is not enabled. Skip the adjust cell type composition loading.')
+        if not hasattr(self, '_adjust_cell_type_composition'):
+            self._load_cell_type_composition_and_NT_score()
+        return self._adjust_cell_type_composition
 
     @property
     def NT_score(self) -> DataFrame:

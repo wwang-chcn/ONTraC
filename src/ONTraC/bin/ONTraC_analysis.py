@@ -5,6 +5,7 @@ from optparse import OptionGroup, OptionParser, Values
 from ..analysis.cell_type import cell_type_visualization
 from ..analysis.data import AnaData
 from ..analysis.niche_cluster import niche_cluster_visualization
+from ..analysis.niche_net import embedding_adjust_visualization
 from ..analysis.spatial import spatial_visualization
 from ..analysis.train_loss import train_loss_visualiztion
 from ..log import *
@@ -15,7 +16,7 @@ from ..version import __version__
 # ------------------------------------
 # Constants
 # ------------------------------------
-IO_OPTIONS = ['dataset', 'preprocessing_dir', 'GNN_dir', 'NTScore_dir']
+IO_OPTIONS = ['input', 'preprocessing_dir', 'GNN_dir', 'NTScore_dir']
 
 
 # ------------------------------------
@@ -25,17 +26,21 @@ def analysis_pipeline(options: Values) -> None:
     # 0. load data class
     ana_data = AnaData(options)
 
-    # part 1: train loss
+    # part 1: niche network construction
+    embedding_adjust_visualization(ana_data=ana_data)
+
+    # part 2: train loss
     train_loss_visualiztion(ana_data=ana_data)
 
-    # part 2: spatial based output
+    # part 3: spatial based output
     spatial_visualization(ana_data=ana_data)
 
-    # part 3: niche cluster
+    # part 4: niche cluster
     niche_cluster_visualization(ana_data=ana_data)
 
-    # part 4: cell type based output
-    cell_type_visualization(ana_data=ana_data)
+    # part 5: cell type based output
+    if not options.suppress_cell_type:
+        cell_type_visualization(ana_data=ana_data)
 
 
 # TODO: move to optparser
@@ -51,6 +56,32 @@ def add_suppress_group(optparser: OptionParser) -> None:
                      action='store_true',
                      default=False,
                      help='Suppress the niche cluster loadings visualization.')
+    group.add_option('--suppress-cell-type',
+                     dest='suppress_cell_type',
+                     action='store_true',
+                     default=False,
+                     help='Suppress the cell type visualization.')
+    optparser.add_option_group(group)
+
+
+def add_embedding_adjust_group(optparser: OptionParser) -> None:
+    group = OptionGroup(optparser, 'Embedding adjust options')
+    group.add_option(
+        '--embedding-adjust',
+        dest='embedding_adjust',
+        action='store_true',
+        default=False,
+        help=
+        'Adjust the cell type coding according to embeddings. Default is False. At least two (Embedding_1 and Embedding_2) should be in the original data if embedding_adjust is True.'
+    )
+    group.add_option(
+        '--sigma',
+        dest='sigma',
+        type='float',
+        default=1,
+        help=
+        'Sigma for the exponential function to control the similarity between different cell types or clusters. Default is 1.'
+    )
     optparser.add_option_group(group)
 
 
@@ -82,6 +113,7 @@ def prepare_optparser() -> OptionParser:
                          help='Plot each sample separately.')
     add_IO_options_group(optparser=optparser, io_options=IO_OPTIONS)
     add_suppress_group(optparser)
+    add_embedding_adjust_group(optparser)
     return optparser
 
 

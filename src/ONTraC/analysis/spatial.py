@@ -49,7 +49,7 @@ def plot_cell_type_composition_dataset(ana_data: AnaData) -> Optional[Tuple[plt.
 
     fig.tight_layout()
     if ana_data.options.output is not None:
-        fig.savefig(f'{ana_data.options.output}/cell_type_compostion.pdf', transparent=True)
+        fig.savefig(f'{ana_data.options.output}/cell_type_composition.pdf', transparent=True)
         return None
     else:
         return fig, axes
@@ -93,7 +93,7 @@ def plot_cell_type_composition_sample(ana_data: AnaData) -> Optional[List[Tuple[
             ax.set_title(f"{sample} {cell_type}")
         fig.tight_layout()
         if ana_data.options.output is not None:
-            fig.savefig(f'{ana_data.options.output}/{sample}_cell_type_compostion.pdf', transparent=True)
+            fig.savefig(f'{ana_data.options.output}/{sample}_cell_type_composition.pdf', transparent=True)
             plt.close(fig)
         else:
             output.append((fig, axes))
@@ -112,6 +112,109 @@ def plot_cell_type_composition(
         return plot_cell_type_composition_sample(ana_data=ana_data)
     else:
         return plot_cell_type_composition_dataset(ana_data=ana_data)
+
+
+def plot_adjust_cell_type_composition_dataset(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.Axes]]:
+    """
+    Plot spatial distribution of adjusted cell type composition.
+    :param ana_data: AnaData, the data for analysis.
+    :return: None or Tuple[plt.Figure, plt.Axes]
+    """
+
+    try:
+        if ana_data.adjust_cell_type_composition is None or ana_data.cell_type_codes is None:
+            warning("No adjusted cell type composition data found.")
+            return None
+    except FileNotFoundError as e:
+        warning(str(e))
+        return None
+
+    samples: List[str] = ana_data.adjust_cell_type_composition['sample'].unique().tolist()
+    cell_types: List[str] = ana_data.cell_type_codes['Cell_Type'].tolist()
+
+    M, N = len(samples), len(cell_types)
+    fig, axes = plt.subplots(M, N, figsize=(3.5 * N, 3 * M))
+    for i, sample in enumerate(samples):
+        sample_df = ana_data.adjust_cell_type_composition.loc[ana_data.adjust_cell_type_composition['sample'] == sample]
+        for j, cell_type in enumerate(cell_types):
+            ax = axes[i, j] if M > 1 else axes[j]
+            scatter = ax.scatter(sample_df['x'],
+                                 sample_df['y'],
+                                 c=sample_df[cell_type],
+                                 cmap='Reds',
+                                 vmin=0,
+                                 vmax=1,
+                                 s=1)
+            ax.set_xticks([])
+            ax.set_yticks([])
+            plt.colorbar(scatter)
+            ax.set_title(f"{sample} {cell_type}")
+
+    fig.tight_layout()
+    if ana_data.options.output is not None:
+        fig.savefig(f'{ana_data.options.output}/adjust_cell_type_composition.pdf', transparent=True)
+        return None
+    else:
+        return fig, axes
+
+
+def plot_adjust_cell_type_composition_sample(ana_data: AnaData) -> Optional[List[Tuple[plt.Figure, plt.Axes]]]:
+    """
+    Plot spatial distribution of adjusted cell type composition.
+    :param ana_data: AnaData, the data for analysis.
+    :return: None or Tuple[plt.Figure, plt.Axes]
+    """
+
+    try:
+        if ana_data.adjust_cell_type_composition is None or ana_data.cell_type_codes is None:
+            warning("No adjusted cell type composition data found.")
+            return None
+    except FileNotFoundError as e:
+        warning(str(e))
+        return None
+
+    samples: List[str] = ana_data.adjust_cell_type_composition['sample'].unique().tolist()
+    cell_types: List[str] = ana_data.cell_type_codes['Cell_Type'].tolist()
+
+    output = []
+    N = len(cell_types)
+    for sample in samples:
+        fig, axes = plt.subplots(1, N, figsize=(3.5 * N, 3))
+        sample_df = ana_data.adjust_cell_type_composition.loc[ana_data.adjust_cell_type_composition['sample'] == sample]
+        for j, cell_type in enumerate(cell_types):
+            ax = axes[j]  # At least two cell types are required, checked at original data loading.
+            scatter = ax.scatter(sample_df['x'],
+                                 sample_df['y'],
+                                 c=sample_df[cell_type],
+                                 cmap='Reds',
+                                 vmin=0,
+                                 vmax=1,
+                                 s=1)
+            ax.set_xticks([])
+            ax.set_yticks([])
+            plt.colorbar(scatter)
+            ax.set_title(f"{sample} {cell_type}")
+        fig.tight_layout()
+        if ana_data.options.output is not None:
+            fig.savefig(f'{ana_data.options.output}/{sample}_adjust_cell_type_composition.pdf', transparent=True)
+            plt.close(fig)
+        else:
+            output.append((fig, axes))
+
+    return output if len(output) > 0 else None
+
+
+def plot_adjust_cell_type_composition(
+        ana_data: AnaData) -> Optional[Union[List[Tuple[plt.Figure, plt.Axes]], Tuple[plt.Figure, plt.Axes]]]:
+    """
+    Plot spatial distribution of adjusted cell type composition.
+    :param ana_data: AnaData, the data for analysis.
+    """
+
+    if hasattr(ana_data.options, 'sample') and ana_data.options.sample:
+        return plot_adjust_cell_type_composition_sample(ana_data=ana_data)
+    else:
+        return plot_adjust_cell_type_composition_dataset(ana_data=ana_data)
 
 
 def plot_niche_NT_score_dataset(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.Axes]]:
@@ -302,6 +405,8 @@ def spatial_visualization(ana_data: AnaData) -> None:
     if not hasattr(ana_data.options,
                    'suppress_cell_type_composition') or not ana_data.options.suppress_cell_type_composition:
         plot_cell_type_composition(ana_data=ana_data)
+        if hasattr(ana_data.options, 'embedding_adjust') and ana_data.options.embedding_adjust:
+            plot_adjust_cell_type_composition(ana_data=ana_data)
 
     # 2. NT score
     plot_niche_NT_score(ana_data=ana_data)

@@ -31,60 +31,48 @@ def write_version_info() -> None:
     sys.stdout.flush()
 
 
-def load_original_data(options: Values) -> pd.DataFrame:
+def load_meta_data(options: Values) -> pd.DataFrame:
     """
-    Load original data
+    Load meta data
     :param options: Values, options
-    :return: pd.DataFrame, original data
+    :return: pd.DataFrame, meta data
 
-    1) read original data file (csv format)
-    2) check if Cell_ID, Sample, Cell_Type, x, and y columns in the original data
+    1) read meta data file (csv format)
+    2) check if Cell_ID, Sample, Cell_Type (optional), x, and y columns in the meta data
     3) make the Cell_Type column categorical
     4) return
-        1. original data with Cell_ID, Sample, Cell_Type, x, and y columns
+        1. meta data with Cell_ID, Sample, Cell_Type (optional), x, and y columns
         2. samples
     """
 
-    # read original data file
-    ori_data_df = pd.read_csv(options.dataset, header=0, index_col=False, sep=',')
+    # read meta data file
+    meta_data_df = pd.read_csv(options.dataset, header=0, index_col=False, sep=',')
 
-    # check if Cell_ID, Sample, Cell_Type, x, and y columns in the original data
-    if 'Cell_ID' not in ori_data_df.columns:
-        raise ValueError('Cell_ID column is missing in the original data.')
-    if 'Sample' not in ori_data_df.columns:
-        raise ValueError('Sample column is missing in the original data.')
-    if 'Cell_Type' not in ori_data_df.columns:
-        raise ValueError('Cell_Type column is missing in the original data.')
-    if 'x' not in ori_data_df.columns:
-        raise ValueError('x column is missing in the original data.')
-    if 'y' not in ori_data_df.columns:
-        raise ValueError('y column is missing in the original data.')
+    # check if Cell_ID, Sample, Cell_Type, x, and y columns in the meta data
+    if 'Cell_ID' not in meta_data_df.columns:
+        raise ValueError('Cell_ID column is missing in the meta data.')
+    if 'Sample' not in meta_data_df.columns:
+        raise ValueError('Sample column is missing in the meta data.')
+    if 'x' not in meta_data_df.columns:
+        raise ValueError('x column is missing in the meta data.')
+    if 'y' not in meta_data_df.columns:
+        raise ValueError('y column is missing in the meta data.')
 
     # check if there any duplicated Cell_ID
-    if ori_data_df['Cell_ID'].duplicated().any():
+    if meta_data_df['Cell_ID'].duplicated().any():
         warning(
-            'There are duplicated Cell_ID in the original data. Sample name will added to Cell_ID to distinguish them.')
-        ori_data_df['Cell_ID'] = ori_data_df['Sample'] + '_' + ori_data_df['Cell_ID']
-    if ori_data_df['Cell_ID'].isnull().any():
+            'There are duplicated Cell_ID in the meta data. Sample name will added to Cell_ID to distinguish them.')
+        meta_data_df['Cell_ID'] = meta_data_df['Sample'] + '_' + meta_data_df['Cell_ID']
+    if meta_data_df['Cell_ID'].isnull().any():
         raise ValueError(
-            f'Duplicated Cell_ID within same sample found! Please check the original data file: {options.data_file}.')
+            f'Duplicated Cell_ID within same sample found! Please check the meta data file: {options.data_file}.')
 
-    ori_data_df = ori_data_df.dropna(subset=['Cell_ID', 'Sample', 'Cell_Type', 'x', 'y'])
-
-    # make the Cell_Type column categorical
-    ori_data_df['Cell_Type'] = ori_data_df['Cell_Type'].astype('category')
-    # check if the cell type category number is less than 2
-    if len(ori_data_df['Cell_Type'].cat.categories) < 2:
-        raise ValueError('At least two cell types are required.')
+    meta_data_df = meta_data_df.dropna()
 
     # make the Sample column string
-    ori_data_df['Sample'] = ori_data_df['Sample'].astype(str)
+    meta_data_df['Sample'] = meta_data_df['Sample'].astype(str)
 
-    # save mappings of the categorical data
-    cell_type_code = pd.DataFrame(enumerate(ori_data_df['Cell_Type'].cat.categories), columns=['Code', 'Cell_Type'])
-    cell_type_code.to_csv(f'{options.preprocessing_dir}/cell_type_code.csv', index=False)
-
-    return ori_data_df
+    return meta_data_df
 
 
 def read_yaml_file(yaml_file: str) -> dict:

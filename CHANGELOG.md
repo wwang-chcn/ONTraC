@@ -1,5 +1,30 @@
 # Change log
 
+## [2.0.0] - 2024-July-31
+
+Added:
+
+- Added flexible cell type coding function
+- Cell type coding adjust visualization
+- Adjusted cell type composition visualization
+- Support gene expression input
+- Support embeddings input
+- Weighted NT score assign for niche clusters
+- Support spots-based data and analysis its results
+- Visualization of clustering results
+
+Changed:
+
+- Updated default values for train loss weights
+- Modified purity loss calculation to be independent of cell type number
+- Default value of `MODULARITY_LOSS_WEIGHT` changed to 1
+- Default value of `PURITY_LOSS_WEIGHT` changed to 30
+- Default value of `BETA` changed to 0.3
+
+Fixed:
+
+- Resolved bug in regularization loss calculation for multi-sample batches
+
 ## [1.0.1] - 2024-July-30
 
 Added:
@@ -32,6 +57,11 @@ Fixed:
 - Input table handling: support int format for sample
 
 ## [0.0.8] - 2024-Jun-10
+
+Added:
+
+- Cell type composition visualization suppression parameter
+- Niche cluster loadings visualization suppression parameter
 
 Added:
 

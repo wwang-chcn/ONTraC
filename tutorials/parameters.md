@@ -63,13 +63,13 @@ Options:
     -k K, --k-clusters=K
                         Number of niche clusters. Default is 6.
     --modularity-loss-weight=MODULARITY_LOSS_WEIGHT
-                        Weight for modularity loss. Default is 0.3.
+                        Weight for modularity loss. Default is 1.
     --purity-loss-weight=PURITY_LOSS_WEIGHT
-                        Weight for purity loss. Default is 300.
+                        Weight for purity loss. Default is 30.
     --regularization-loss-weight=REGULARIZATION_LOSS_WEIGHT
                         Weight for regularization loss. Default is 0.1.
     --beta=BETA         Beta value control niche cluster assignment matrix.
-                        Default is 0.03.
+                        Default is 0.3.
 ```
 
 ### Full parameters for createDataSet
@@ -150,13 +150,13 @@ Options:
     -k K, --k-clusters=K
                         Number of niche clusters. Default is 6.
     --modularity-loss-weight=MODULARITY_LOSS_WEIGHT
-                        Weight for modularity loss. Default is 0.3.
+                        Weight for modularity loss. Default is 1.
     --purity-loss-weight=PURITY_LOSS_WEIGHT
-                        Weight for purity loss. Default is 300.
+                        Weight for purity loss. Default is 30.
     --regularization-loss-weight=REGULARIZATION_LOSS_WEIGHT
                         Weight for regularization loss. Default is 0.1.
     --beta=BETA         Beta value control niche cluster assignment matrix.
-                        Default is 0.03.
+                        Default is 0.3.
 ```
 
 ### Full parameters for NTScore

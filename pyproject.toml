@@ -31,6 +31,9 @@ dependencies = [
     "pandas==2.2.1",
     "torch==2.2.1",
     "torch-geometric==2.5.0",
+    "umap-learn==0.5.6",
+    "harmonypy==0.0.10",
+    "leidenalg==0.10.2",
     "session-info"
 ]
 dynamic = ["version"]
@@ -40,7 +43,7 @@ analysis = ["seaborn"]
 
 [project.scripts]
 ONTraC = "ONTraC.bin.ONTraC:main"
-createDataSet = "ONTraC.bin.createDataSet:main"
+ONTraC_pp = "ONTraC.bin.ONTraC_pp:main"
 GP = "ONTraC.bin.GP:main"
 NicheTrajectory = "ONTraC.bin.NicheTrajectory:main"
 ONTraC_analysis = "ONTraC.bin.ONTraC_analysis:main"

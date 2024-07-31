@@ -86,13 +86,13 @@ def add_NP_options_group(group_train: OptionGroup) -> None:
     group_train.add_option('--modularity-loss-weight',
                            dest='modularity_loss_weight',
                            type='float',
-                           default=0.3,
-                           help='Weight for modularity loss. Default is 0.3.')
+                           default=1,
+                           help='Weight for modularity loss. Default is 1.')
     group_train.add_option('--purity-loss-weight',
                            dest='purity_loss_weight',
                            type='float',
-                           default=300,
-                           help='Weight for purity loss. Default is 300.')
+                           default=30,
+                           help='Weight for purity loss. Default is 30.')
     group_train.add_option('--regularization-loss-weight',
                            dest='regularization_loss_weight',
                            type='float',
@@ -101,8 +101,8 @@ def add_NP_options_group(group_train: OptionGroup) -> None:
     group_train.add_option('--beta',
                            dest='beta',
                            type='float',
-                           default=0.03,
-                           help='Beta value control niche cluster assignment matrix. Default is 0.03.')
+                           default=0.3,
+                           help='Beta value control niche cluster assignment matrix. Default is 0.3.')
 
 
 def validate_train_options(optparser: OptionParser, options: Values) -> Values:

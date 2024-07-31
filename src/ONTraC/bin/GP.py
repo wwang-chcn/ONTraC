@@ -8,7 +8,8 @@ from ..optparser import opt_GP_validate, prepare_GP_optparser
 from ..run.processes import NTScore, gnn, load_parameters
 from ..train import GPBatchTrain
 from ..train.inspect_funcs import loss_record
-from ..utils import load_original_data, write_version_info
+from ..utils import write_version_info
+from ..niche_net import gen_original_data
 
 # ------------------------------------
 # Classes
@@ -44,7 +45,7 @@ def main() -> None:
     options = load_parameters(opt_validate_func=opt_GP_validate, prepare_optparser_func=prepare_GP_optparser)
 
     # load original data
-    ori_data_df = load_original_data(options=options)
+    ori_data_df = gen_original_data(options=options)
 
     # ----- GNN -----
     gnn(options=options,

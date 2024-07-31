@@ -8,7 +8,8 @@ import torch
 from ..GNN import (evaluate, load_data, predict, save_graph_pooling_results,
                    set_seed, train)
 from ..log import *
-from ..niche_net import construct_niche_network, gen_samples_yaml
+from ..niche_net import (construct_niche_network, ct_coding_adjust,
+                         gen_original_data, gen_samples_yaml)
 from ..niche_trajectory import (NTScore_table, get_niche_NTScore,
                                 load_consolidate_data, niche_to_cell_NTScore)
 from ..train import SubBatchTrainProtocol
@@ -36,11 +37,18 @@ def niche_network_construct(options: Values, ori_data_df: pd.DataFrame) -> None:
     """
 
     info('------------- Niche network construct --------------- ')
+    ori_data_df = gen_original_data(options=options)
+
     # construct niche network
     construct_niche_network(options=options, ori_data_df=ori_data_df)
 
     # generate samples.yaml to indicate file paths for each sample
     gen_samples_yaml(options=options, ori_data_df=ori_data_df)
+
+    # cell type coding adjust
+    if options.embedding_adjust:
+        ct_coding_adjust(options=options, ori_data_df=ori_data_df)
+
     info('------------ Niche network construct end ------------ ')
 
 
@@ -102,7 +110,8 @@ def NTScore(options: Values) -> None:
     rel_params = get_rel_params(options, params)
     dataset, _ = load_data(options=options)
 
-    niche_cluster_score, niche_level_NTScore = get_niche_NTScore(niche_cluster_loading=consolidate_s_array,
+    niche_cluster_score, niche_level_NTScore = get_niche_NTScore(options=options,
+                                                                 niche_cluster_loading=consolidate_s_array,
                                                                  niche_adj_matrix=consolidate_out_adj_array)
     cell_level_NTScore, all_niche_level_NTScore_dict, all_cell_level_NTScore_dict = niche_to_cell_NTScore(
         dataset=dataset, rel_params=rel_params, niche_level_NTScore=niche_level_NTScore)

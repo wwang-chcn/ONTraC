@@ -52,7 +52,8 @@ def get_niche_trajectory_path(niche_adj_matrix: ndarray) -> List[int]:
     return niche_trajectory_path
 
 
-def trajectory_path_to_NC_score(niche_trajectory_path: List[int]) -> ndarray:
+def trajectory_path_to_NC_score(options: Values, niche_trajectory_path: List[int],
+                                niche_clustering_sum: ndarray) -> ndarray:
     """
     Convert niche cluster trajectory path to NTScore
     :param niche_trajectory_path: List[int], the niche trajectory path
@@ -62,15 +63,24 @@ def trajectory_path_to_NC_score(niche_trajectory_path: List[int]) -> ndarray:
     info('Calculating NTScore for each niche cluster based on the trajectory path.')
 
     niche_NT_score = np.zeros(len(niche_trajectory_path))
-    values = np.linspace(0, 1, len(niche_trajectory_path))
+    if options.equal_space:
+        values = np.linspace(0, 1, len(niche_trajectory_path))
+        for i, index in enumerate(niche_trajectory_path):
+            # debug(f'i: {i}, index: {index}')
+            niche_NT_score[index] = values[i]
+        return niche_NT_score
+    else:
+        sum = 0
+        for i, index in enumerate(niche_trajectory_path):
+            sum += niche_clustering_sum[index]
+            niche_NT_score[index] = sum
+        niche_NT_score -= niche_NT_score.min()
+        niche_NT_score /= niche_NT_score.max()
+        return niche_NT_score
 
-    for i, index in enumerate(niche_trajectory_path):
-        # debug(f'i: {i}, index: {index}')
-        niche_NT_score[index] = values[i]
-    return niche_NT_score
 
-
-def get_niche_NTScore(niche_cluster_loading: ndarray, niche_adj_matrix: ndarray) -> Tuple[ndarray, ndarray]:
+def get_niche_NTScore(options: Values, niche_cluster_loading: ndarray,
+                      niche_adj_matrix: ndarray) -> Tuple[ndarray, ndarray]:
     """
     Get niche-level niche trajectory and cell-level niche trajectory
     :param niche_cluster_loading: ndarray, the loading of cell x niche clusters
@@ -82,7 +92,10 @@ def get_niche_NTScore(niche_cluster_loading: ndarray, niche_adj_matrix: ndarray)
 
     niche_trajectory_path = get_niche_trajectory_path(niche_adj_matrix=niche_adj_matrix)
 
-    niche_cluster_score = trajectory_path_to_NC_score(niche_trajectory_path)
+    niche_clustering_sum = niche_cluster_loading.sum(axis=0)
+    niche_cluster_score = trajectory_path_to_NC_score(options=options,
+                                                      niche_trajectory_path=niche_trajectory_path,
+                                                      niche_clustering_sum=niche_clustering_sum)
     niche_level_NTScore = niche_cluster_loading @ niche_cluster_score
     return niche_cluster_score, niche_level_NTScore
 
