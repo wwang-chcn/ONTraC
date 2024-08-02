@@ -1,5 +1,3 @@
-import os
-import sys
 from optparse import OptionParser, Values
 
 from ..log import *
@@ -31,7 +29,7 @@ def prepare_NT_optparser() -> OptionParser:
     return optparser
 
 
-def add_NT_options_group(optparser: OptionParser) -> OptionGroup:
+def add_NT_options_group(optparser: OptionParser) -> None:
     """
     Add niche trajectory options group to optparser.
     :param optparser: OptionParser object.
