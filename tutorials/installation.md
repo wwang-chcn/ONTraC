@@ -21,3 +21,9 @@ pip install ONTraC
 # Use this command if you want to visualise the results by `ONTraC_analysis`.
 pip install ONTraC[analysis]
 ```
+
+## Install a developing version (V2)
+
+```sh
+pip install git+https://github.com/gyuanlab/ONTraC.git@V2
+```
