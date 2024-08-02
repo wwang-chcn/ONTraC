@@ -26,9 +26,9 @@ def add_preprocessing_options_group(optparser: OptionParser) -> None:
         '--resolution',
         dest='resolution',
         type=float,
-        default=10.0,
+        default=1.0,
         help=
-        'Resolution for leiden clustering. Used for clustering cells into cell types when gene expression data is provided. Default is 10.0.'
+        'Resolution for leiden clustering. Used for clustering cells into cell types when gene expression data is provided. Default is 1.0.'
     )
     optparser.add_option_group(group_preprocessing)
 

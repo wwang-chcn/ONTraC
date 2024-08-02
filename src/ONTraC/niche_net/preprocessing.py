@@ -94,7 +94,7 @@ def perform_umap(embedding: np.ndarray,
     return umap.UMAP(n_neighbors=n_neighbors, min_dist=min_dist, n_components=n_components).fit_transform(embedding)
 
 
-def perform_leiden(connectivities: csr_matrix, resolution: float = 10.0) -> List[int]:
+def perform_leiden(connectivities: csr_matrix, resolution: float = 1.0) -> List[int]:
     """
     Perform Leiden algorithm.
     :param connectivities: Connectivities.
