@@ -205,7 +205,7 @@ def gen_original_data(options: Values) -> pd.DataFrame:
             embedding_df = embedding_df.loc[common_cells]
             meta_data_df = meta_data_df.loc[meta_data_df['Cell_ID'].isin(common_spots)]
         for i in range(embedding_df.shape[1]):
-            meta_data_df[f'Embedding_{i}'] = embedding_df.iloc[:, i]
+            meta_data_df[f'Embedding_{i}'] = embedding_df.iloc[:, i].values
         meta_data_df.to_csv(options.preprocessing_dir + '/meta_data.csv', index=False)
         return meta_data_df
 
