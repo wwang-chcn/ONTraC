@@ -5,6 +5,7 @@
 Added:
 
 - test module
+- GitHub pytest workflow
 
 ## [1.0.1] - 2024-July-30
 
