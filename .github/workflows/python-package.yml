@@ -34,7 +34,9 @@ jobs:
     - name: Cache Python packages
       uses: actions/cache@v3
       with:
-        path: ~/.cache/pip
+        path: |
+          ~/.cache/pip  # For Unix-like OS
+          ~\AppData\Local\pip\Cache  # For Windows
         key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
         restore-keys: |
           ${{ runner.os }}-pip-
