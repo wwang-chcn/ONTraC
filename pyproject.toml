@@ -37,7 +37,12 @@ dynamic = ["version"]
 
 [project.optional-dependencies]
 analysis = ["seaborn"]
-test = ["pytest"]
+test = ["seaborn",
+    "pytest",
+    "black",
+    "flake8",
+    "isort",
+    "mypy",]
 dev = [
     "seaborn",
     "pytest",
