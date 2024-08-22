@@ -1,5 +1,11 @@
 # Change log
 
+## [1.0.2] - 2024-Aug-21
+
+Added:
+
+- test module
+
 ## [1.0.1] - 2024-July-30
 
 Added:
