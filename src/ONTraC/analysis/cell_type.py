@@ -32,6 +32,10 @@ def plot_violin_cell_type_along_NT_score(ana_data: AnaData) -> Optional[Tuple[pl
     data_df = ana_data.cell_id.join(ana_data.NT_score['Cell_NTScore'])
     if ana_data.options.reverse: data_df['Cell_NTScore'] = 1 - data_df['Cell_NTScore']
 
+    if data_df['Cell_Type'].unique().shape[0] > 100:
+        warning("There are more than 100 cell types, skip violin plot to avoid long runtime. You could manually plot it according to our tutorial.")
+        return None
+
     fig, ax = plt.subplots(figsize=(6, ana_data.cell_type_codes.shape[0] / 2))
     sns.violinplot(data=data_df,
                    x='Cell_NTScore',
