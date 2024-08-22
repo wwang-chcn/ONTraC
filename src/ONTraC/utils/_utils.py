@@ -31,6 +31,19 @@ def write_version_info() -> None:
     sys.stdout.flush()
 
 
+def save_cell_type_code(options: Values, ori_data_df: pd.DataFrame) -> None:
+    """
+    Save mappings of the categorical data
+    :param options: Values, options
+    :param ori_data_df: pd.DataFrame, original data
+    :return: None
+    """
+
+    # save mappings of the categorical data
+    cell_type_code = pd.DataFrame(enumerate(ori_data_df['Cell_Type'].cat.categories), columns=['Code', 'Cell_Type'])
+    cell_type_code.to_csv(f'{options.preprocessing_dir}/cell_type_code.csv', index=False)
+
+
 def load_original_data(options: Values) -> pd.DataFrame:
     """
     Load original data
@@ -40,9 +53,7 @@ def load_original_data(options: Values) -> pd.DataFrame:
     1) read original data file (csv format)
     2) check if Cell_ID, Sample, Cell_Type, x, and y columns in the original data
     3) make the Cell_Type column categorical
-    4) return
-        1. original data with Cell_ID, Sample, Cell_Type, x, and y columns
-        2. samples
+    4) return original data with Cell_ID, Sample, Cell_Type, x, and y columns
     """
 
     # read original data file
@@ -80,9 +91,7 @@ def load_original_data(options: Values) -> pd.DataFrame:
     # make the Sample column string
     ori_data_df['Sample'] = ori_data_df['Sample'].astype(str)
 
-    # save mappings of the categorical data
-    cell_type_code = pd.DataFrame(enumerate(ori_data_df['Cell_Type'].cat.categories), columns=['Code', 'Cell_Type'])
-    cell_type_code.to_csv(f'{options.preprocessing_dir}/cell_type_code.csv', index=False)
+    save_cell_type_code(options=options, ori_data_df=ori_data_df)
 
     return ori_data_df
 
