@@ -1,9 +1,9 @@
 # Installation
 
-## Create and enter conda env (recommend)
+## Step 1 Create and enter conda env (recommend)
 
 ```sh
-conda create -y -n ONTraC python=3.11
+conda create -y -n ONTraC python=3.11  # ONTraC supports Python 3.10, 3.11, and 3.12 for now
 conda activate ONTraC
 ```
 
@@ -14,10 +14,20 @@ pip install ipykernel
 python -m ipykernel install --user --name ONTraC --display-name "Python 3.11 (ONTraC)"
 ```
 
-## Install ONTraC
+## Step2 Install ONTraC
+
+### using pip
 
 ```sh
 pip install ONTraC
 # Use this command if you want to visualise the results by `ONTraC_analysis`.
 pip install ONTraC[analysis]
+```
+
+### using conda
+
+Installation using conda could be very slow.
+
+```sh
+conda install -c chrww -c pytorch -c pyg -c default -c nvidia -c conda-forge ontrac
 ```
