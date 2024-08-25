@@ -19,6 +19,8 @@ jobs:
             cuda-version: 'cu118'
           - os: macos-13
             cuda-version: 'cu121'
+          - os: macos-13
+            python-version: '3.12'
 
     steps:
       - name: Checkout repository
