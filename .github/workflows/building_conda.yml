@@ -1,0 +1,55 @@
+name: Building Conda
+
+on: [workflow_dispatch]
+
+jobs:
+
+  conda-build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ['3.10', '3.11', '3.12']
+        torch-version: [2.2.0]
+        cuda-version: ['cpu', 'cu118', 'cu121']
+        exclude:
+          - os: macos-latest
+            cuda-version: 'cu118'
+          - os: macos-latest
+            cuda-version: 'cu121'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Conda for Python ${{ matrix.python-version }}
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Free Disk Space (Ubuntu)
+        if: ${{ runner.os == 'Linux' }}
+        uses: jlumbroso/free-disk-space@main
+
+      - name: Install Conda packages
+        run: |
+          conda install conda-build conda-verify --yes
+        shell:
+          bash -l {0}
+
+      - name: Build Conda package
+        run: |
+          ./conda-recipe/build_conda.sh ${{ matrix.python-version }} ${{ matrix.torch-version }} ${{ matrix.cuda-version }}
+        shell:
+          bash -l {0}
+
+      - name: Publish Conda package
+        run: |
+          conda install anaconda-client --yes
+          anaconda upload --force --label main $HOME/conda-bld/*/*.tar.bz2
+        env:
+          ANACONDA_API_TOKEN: ${{ secrets.PYG_ANACONDA_TOKEN }}
+        shell:
+          bash -l {0}

@@ -1,5 +1,11 @@
 # Change log
 
+## [1.0.3] - 2024-Aug-25
+
+Added:
+
+- GitHub conda building workflow
+
 ## [1.0.2] - 2024-Aug-21
 
 Added:
