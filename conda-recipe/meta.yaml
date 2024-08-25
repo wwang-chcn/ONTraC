@@ -1,6 +1,6 @@
 package:
   name: ontrac
-  version: {{ GIT_DESCRIBE_TAG }}
+  version: {{ environ.get('TAG_VERSION') }}
 
 source:
   path: ../

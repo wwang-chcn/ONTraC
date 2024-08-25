@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export TAG_VERSION=$(git describe --tags --abbrev=0)
+
 export PYTHON_VERSION=$1
 export TORCH_VERSION=$2
 export CUDA_VERSION=$3
