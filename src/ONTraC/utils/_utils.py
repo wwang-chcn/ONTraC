@@ -86,8 +86,6 @@ def load_meta_data(options: Values) -> pd.DataFrame:
     if 'Cell_Type' in meta_data_df.columns:
         meta_data_df['Cell_Type'] = meta_data_df['Cell_Type'].astype('category')
 
-    save_cell_type_code(options=options, meta_data_df=meta_data_df)
-
     return meta_data_df
 
 

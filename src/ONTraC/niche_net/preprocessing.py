@@ -7,6 +7,7 @@ import pandas as pd
 from scipy.sparse import csr_matrix
 
 from ..log import *
+from ..utils import load_meta_data, save_cell_type_code
 
 
 def perform_pca(expression_data: pd.DataFrame, n_components: int = 50) -> np.ndarray:
@@ -129,7 +130,7 @@ def gen_original_data(options: Values) -> pd.DataFrame:
     option 4) there are decomposition input data (csv format) and meta data (csv format)
     """
 
-    meta_data_df = pd.read_csv(options.meta_input, header=0, index_col=False, sep=',')
+    meta_data_df = load_meta_data(options=options)
 
     if options.exp_input is None and options.embedding_input is None:
         if options.decomposition_cell_type_composition_input is None and options.decomposition_expression_input is None:  # option 3
@@ -144,9 +145,8 @@ def gen_original_data(options: Values) -> pd.DataFrame:
                     'There are no expression data or embedding data. Please provide at least two cell types in the meta data.'
                 )
             # save mappings of the categorical data
-            cell_type_code = pd.DataFrame(enumerate(meta_data_df['Cell_Type'].cat.categories),
-                                          columns=['Code', 'Cell_Type'])
-            cell_type_code.to_csv(f'{options.preprocessing_dir}/cell_type_code.csv', index=False)
+            save_cell_type_code(options=options, meta_data_df=meta_data_df)
+
             meta_data_df.to_csv(options.preprocessing_dir + '/meta_data.csv', index=False)
             return meta_data_df
         else:  # option 4
@@ -185,16 +185,13 @@ def gen_original_data(options: Values) -> pd.DataFrame:
             return meta_data_df
 
     if options.exp_input is None and options.embedding_input is not None:  # option 2
-        meta_data_df['Cell_Type'] = meta_data_df['Cell_Type'].astype('category')
         # there should more than 1 cell type
         if len(meta_data_df['Cell_Type'].cat.categories) < 2:
             raise ValueError(
                 'There are no expression data or embedding data. Please provide at least two cell types in the meta data.'
             )
         # save mappings of the categorical data
-        cell_type_code = pd.DataFrame(enumerate(meta_data_df['Cell_Type'].cat.categories),
-                                      columns=['Code', 'Cell_Type'])
-        cell_type_code.to_csv(f'{options.preprocessing_dir}/cell_type_code.csv', index=False)
+        save_cell_type_code(options=options, meta_data_df=meta_data_df)
 
         embedding_df = pd.read_csv(options.embedding_input, header=0, index_col=0, sep=',')
         if embedding_df.shape[0] != meta_data_df.shape[0]:
@@ -233,8 +230,6 @@ def gen_original_data(options: Values) -> pd.DataFrame:
         for i in range(pca_embedding.shape[1]):
             meta_data_df[f'Embedding_{i}'] = pca_embedding[:, i]
         # save mappings of the categorical data
-        cell_type_code = pd.DataFrame(enumerate(meta_data_df['Cell_Type'].cat.categories),
-                                      columns=['Code', 'Cell_Type'])
-        cell_type_code.to_csv(f'{options.preprocessing_dir}/cell_type_code.csv', index=False)
+        save_cell_type_code(options=options, meta_data_df=meta_data_df)
         meta_data_df.to_csv(options.preprocessing_dir + '/meta_data.csv', index=False)
         return meta_data_df
