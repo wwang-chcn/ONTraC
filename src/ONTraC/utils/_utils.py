@@ -57,7 +57,7 @@ def load_meta_data(options: Values) -> pd.DataFrame:
     """
 
     # read meta data file
-    meta_data_df = pd.read_csv(options.dataset, header=0, index_col=False, sep=',')
+    meta_data_df = pd.read_csv(options.meta_input, header=0, index_col=False, sep=',')
 
     # check if Cell_ID, Sample, Cell_Type, x, and y columns in the meta data
     if 'Cell_ID' not in meta_data_df.columns:
