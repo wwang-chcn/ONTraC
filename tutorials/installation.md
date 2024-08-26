@@ -26,7 +26,9 @@ pip install ONTraC[analysis]
 
 ### using conda
 
-Installation using conda could be very slow.
+NOTE: For ARM-based macOS, we recommend installing via pip for now, as the dependency package, pytorh-geometric, does not have a conda build for it.
+NOTE: For x86-based macOS, conda install only support Python 3.10 and 3.11 for now.
+WARNING: Installing with conda can be very slow.
 
 ```sh
 conda install -c chrww -c pytorch -c pyg -c default -c nvidia -c conda-forge ontrac

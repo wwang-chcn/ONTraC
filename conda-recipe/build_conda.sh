@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export TAG_VERSION=$(git describe --tags --abbrev=0)
+
 export PYTHON_VERSION=$1
 export TORCH_VERSION=$2
 export CUDA_VERSION=$3
@@ -52,8 +54,4 @@ echo "PyTorch $TORCH_VERSION+$CUDA_VERSION"
 echo "- $CONDA_PYTORCH_CONSTRAINT"
 echo "- $CONDA_CUDATOOLKIT_CONSTRAINT"
 
-if [ "${TORCH_VERSION}" = "1.12.0" ] && [ "${CUDA_VERSION}" = "cu116" ]; then
-  conda build . -c pytorch -c pyg -c default -c nvidia -c conda-forge --output-folder "$HOME/conda-bld"
-else
-  conda build . -c pytorch -c pyg -c default -c nvidia --output-folder "$HOME/conda-bld"
-fi
+conda build . -c pytorch -c pyg -c default -c nvidia -c conda-forge --output-folder "$HOME/conda-bld"
