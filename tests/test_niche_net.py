@@ -10,7 +10,7 @@ from ONTraC.niche_net._niche_net import (build_knn_network,
                                          calc_cell_type_composition,
                                          calc_edge_index,
                                          calc_niche_weight_matrix)
-from ONTraC.utils import load_original_data
+from ONTraC.utils import load_meta_data
 
 from .utils import temp_dirs
 
@@ -19,7 +19,7 @@ from .utils import temp_dirs
 def options() -> Values:
     # Create an options object for testing
     _options = Values()
-    _options.dataset = 'tests/_data/test_data.csv'
+    _options.meta_input = 'tests/_data/test_metadata.csv'
     _options.preprocessing_dir = 'tests/temp/preprocessing'
     _options.n_local = 2
     _options.n_neighbors = 5
@@ -109,7 +109,7 @@ def cell_type_composition() -> np.ndarray:
                      [0.58050216, 0.41949784], [0.38996633, 0.61003367]])
 
 
-def test_load_original_data(options: Values) -> None:
+def test_load_meta_data(options: Values) -> None:
     """
     Test the load_original_data module
     :param options: Values, options
@@ -123,24 +123,24 @@ def test_load_original_data(options: Values) -> None:
         # 3) Cell_ID should be unique
         # 4) Cell_Type should be categorical
         # 5) save `cell_type_code.csv` file in the preprocessing directory
-        ori_data_df = load_original_data(options=options)
+        meta_data_df = load_meta_data(options=options)
 
         # Check the expected output data shape
-        assert ori_data_df.shape[0] == 16  # Check if the DataFrame shape is unchanged
+        assert meta_data_df.shape[0] == 16  # Check if the DataFrame shape is unchanged
 
         # Check if the expected columns are present
-        assert 'Cell_ID' in ori_data_df.columns
-        assert 'Sample' in ori_data_df.columns
-        assert 'Cell_Type' in ori_data_df.columns
-        assert 'x' in ori_data_df.columns
-        assert 'y' in ori_data_df.columns
+        assert 'Cell_ID' in meta_data_df.columns
+        assert 'Sample' in meta_data_df.columns
+        assert 'Cell_Type' in meta_data_df.columns
+        assert 'x' in meta_data_df.columns
+        assert 'y' in meta_data_df.columns
 
         # Check if Cell_ID is unique
         # TODO: need an duplicate Cell_ID in different samples case here
         # assert not ori_data_df['Cell_ID'].duplicated().any()
 
         # Check if Cell_Type is categorical
-        assert ori_data_df['Cell_Type'].dtype.name == 'category'
+        assert meta_data_df['Cell_Type'].dtype.name == 'category'
 
         # Check if the `cell_type_code.csv` file is saved
         assert Path(f'{options.preprocessing_dir}/cell_type_code.csv').exists()
@@ -244,7 +244,7 @@ def test_calc_niche_weight_matrix(options: Values, sample_data_df: pd.DataFrame,
     assert np.allclose(a=gen_niche_weight_matrix.toarray(), b=niche_weight_matrix.toarray(), atol=1e-7)
 
 
-def test_calc_cell_type_composition(sample_data_df: pd.DataFrame, niche_weight_matrix: csr_matrix,
+def test_calc_cell_type_composition(options: Values, sample_data_df: pd.DataFrame, niche_weight_matrix: csr_matrix,
                                     cell_type_composition: np.ndarray) -> None:
     """
     Test the calc_cell_type_composition function
@@ -256,7 +256,7 @@ def test_calc_cell_type_composition(sample_data_df: pd.DataFrame, niche_weight_m
     """
 
     # Call the function
-    gen_cell_type_composition = calc_cell_type_composition(sample_data_df=sample_data_df,
+    gen_cell_type_composition = calc_cell_type_composition(options=options, sample_data_df=sample_data_df,
                                                            niche_weight_matrix=niche_weight_matrix,
                                                            sample_name='sample')
 
