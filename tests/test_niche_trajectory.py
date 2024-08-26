@@ -25,21 +25,24 @@ def test_get_niche_trajectory_path():
 def test_trajectory_path_to_NC_score(options: Values):
     # Test case: Niche trajectory path with 6 clusters
     niche_trajectory_path = [1, 2, 3, 4, 5, 0]
-    expected_NT_score = np.array([1., 0., 0.2, 0.4, 0.6, 0.8])
+    expected_NT_score = np.array([1., 0., 0.31279297, 0.33733298, 0.87347146, 0.90976732])
     gen_NT_score = trajectory_path_to_NC_score(options=options,
                                                niche_trajectory_path=niche_trajectory_path,
-                                               niche_clustering_sum=np.array([1.1, 0.8, 1.1]))
+                                               niche_clustering_sum=np.array(
+                                                   [132.15, 481.15, 458.1, 35.94, 785.2, 53.157]))
     assert np.allclose(gen_NT_score, expected_NT_score)
 
 
-def test_get_niche_NTScore():
+def test_get_niche_NTScore(options: Values):
     # Test case: Niche cluster loading with 3 clusters and adjacency matrix with 3 nodes
     niche_cluster_loading = np.array([[0.1, 0.2, 0.7], [0.4, 0.5, 0.1], [0.6, 0.1, 0.3]])  # #niche x #niche_cluster
     niche_adj_matrix = np.array([[0, 1, 0], [1, 0, 1], [0, 1, 0]])
-    expected_niche_cluster_score = np.array([0, 0.5, 1])
-    expected_niche_level_NTScore = np.array([0.8, 0.35, 0.35])
+    expected_niche_cluster_score = np.array([0, 0.42105263, 1])
+    expected_niche_level_NTScore = np.array([0.78421053, 0.31052632, 0.34210526])
 
-    niche_cluster_score, niche_level_NTScore = get_niche_NTScore(niche_cluster_loading, niche_adj_matrix)
+    niche_cluster_score, niche_level_NTScore = get_niche_NTScore(options=options,
+                                                                 niche_cluster_loading=niche_cluster_loading,
+                                                                 niche_adj_matrix=niche_adj_matrix)
 
     assert np.allclose(niche_cluster_score, expected_niche_cluster_score)
     assert np.allclose(niche_level_NTScore, expected_niche_level_NTScore)

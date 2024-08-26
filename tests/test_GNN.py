@@ -20,10 +20,10 @@ def options() -> Values:
     _options.lr = 0.03
     _options.hidden_feats = 4
     _options.k = 6
-    _options.modularity_loss_weight = 0.3
-    _options.purity_loss_weight = 300
+    _options.modularity_loss_weight = 1
+    _options.purity_loss_weight = 30
     _options.regularization_loss_weight = 0.1
-    _options.beta = 0.03
+    _options.beta = 0.3
     return _options
 
 

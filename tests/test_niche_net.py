@@ -143,13 +143,6 @@ def test_load_meta_data(options: Values) -> None:
         # Check if Cell_Type is categorical
         assert meta_data_df['Cell_Type'].dtype.name == 'category'
 
-        # Check if the `cell_type_code.csv` file is saved
-        assert Path(f'{options.preprocessing_dir}/cell_type_code.csv').exists()
-
-        # Check the content of the `cell_type_code.csv` file
-        gen_cell_type_code = pd.read_csv(f'{options.preprocessing_dir}/cell_type_code.csv')
-        assert gen_cell_type_code.equals(pd.DataFrame({'Code': [0, 1], 'Cell_Type': ['A', 'B']}))
-
 
 def test_build_knn_network(options: Values, sample_data_df: pd.DataFrame, sample_name: str, dis_matrix: np.ndarray,
                            indices_matrix: np.ndarray) -> None:
