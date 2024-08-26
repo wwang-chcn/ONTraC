@@ -82,6 +82,10 @@ def load_meta_data(options: Values) -> pd.DataFrame:
     # make the Sample column string
     meta_data_df['Sample'] = meta_data_df['Sample'].astype(str)
 
+    # make Cell_Type column categorical
+    if 'Cell_Type' in meta_data_df.columns:
+        meta_data_df['Cell_Type'] = meta_data_df['Cell_Type'].astype('category')
+
     save_cell_type_code(options=options, meta_data_df=meta_data_df)
 
     return meta_data_df
