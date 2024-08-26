@@ -20,6 +20,7 @@ def options() -> Values:
     # Create an options object for testing
     _options = Values()
     _options.meta_input = 'tests/_data/test_metadata.csv'
+    _options.decomposition_cell_type_composition_input = None
     _options.preprocessing_dir = 'tests/temp/preprocessing'
     _options.n_local = 2
     _options.n_neighbors = 5
