@@ -29,7 +29,7 @@ def options() -> Values:
 @pytest.fixture()
 def sample_data_df(options: Values) -> pd.DataFrame:
     # Create sample data
-    sample_data_df = pd.read_csv(options.dataset)
+    sample_data_df = pd.read_csv(options.meta_input)
     sample_data_df = sample_data_df[sample_data_df['Sample'] == 'S1']
     sample_data_df['Cell_Type'] = sample_data_df['Cell_Type'].astype('category')
     return sample_data_df
