@@ -1,0 +1,48 @@
+package:
+  name: ontrac
+  version: {{ environ.get('TAG_VERSION') }}
+
+source:
+  path: ../
+
+requirements:
+  host:
+    - pip
+    - python {{ environ.get('PYTHON_VERSION') }}
+
+  run:
+    - python {{ environ.get('PYTHON_VERSION') }}
+    - {{ environ.get('CONDA_PYTORCH_CONSTRAINT') }}
+    - {{ environ.get('CONDA_CUDATOOLKIT_CONSTRAINT') }}
+    - pyg
+    - pyyaml
+    - pandas
+    - seaborn
+    - session-info
+    - jinja2
+
+build:
+  string: py{{ environ.get('PYTHON_VERSION').replace('.', '') }}_torch_{{ environ['TORCH_VERSION'] }}_{{ environ['CUDA_VERSION'] }}
+  script: pip install .
+
+test:
+  imports:
+    - ONTraC
+    - ONTraC.analysis
+    - ONTraC.bin
+    - ONTraC.data
+    - ONTraC.GNN
+    - ONTraC.log
+    - ONTraC.model
+    - ONTraC.niche_net
+    - ONTraC.niche_trajectory
+    - ONTraC.optparser
+    - ONTraC.run
+    - ONTraC.train
+    - ONTraC.utils
+    - ONTraC.version
+
+about:
+  home: https://pypi.org/project/ONTraC
+  license: MIT
+  summary: Ordered Niche Trajectory Construction

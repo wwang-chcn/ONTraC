@@ -40,6 +40,23 @@ dynamic = ["version"]
 
 [project.optional-dependencies]
 analysis = ["seaborn"]
+test = ["seaborn",
+    "pytest",
+    "black",
+    "flake8",
+    "isort",
+    "mypy",]
+dev = [
+    "seaborn",
+    "pytest",
+    "black",
+    "flake8",
+    "isort",
+    "mypy",
+    "pre-commit",
+    "setuptools",
+    "twine",
+    "build"]
 
 [project.scripts]
 ONTraC = "ONTraC.bin.ONTraC:main"

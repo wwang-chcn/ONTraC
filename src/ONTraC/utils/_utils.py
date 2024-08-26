@@ -31,6 +31,19 @@ def write_version_info() -> None:
     sys.stdout.flush()
 
 
+def save_cell_type_code(options: Values, meta_data_df: pd.DataFrame) -> None:
+    """
+    Save mappings of the categorical data
+    :param options: Values, options
+    :param meta_data_df: pd.DataFrame, original data
+    :return: None
+    """
+
+    # save mappings of the categorical data
+    cell_type_code = pd.DataFrame(enumerate(meta_data_df['Cell_Type'].cat.categories), columns=['Code', 'Cell_Type'])
+    cell_type_code.to_csv(f'{options.preprocessing_dir}/cell_type_code.csv', index=False)
+
+
 def load_meta_data(options: Values) -> pd.DataFrame:
     """
     Load meta data
@@ -40,9 +53,7 @@ def load_meta_data(options: Values) -> pd.DataFrame:
     1) read meta data file (csv format)
     2) check if Cell_ID, Sample, Cell_Type (optional), x, and y columns in the meta data
     3) make the Cell_Type column categorical
-    4) return
-        1. meta data with Cell_ID, Sample, Cell_Type (optional), x, and y columns
-        2. samples
+    4) return original data with Cell_ID, Sample, Cell_Type, x, and y columns
     """
 
     # read meta data file
@@ -60,8 +71,7 @@ def load_meta_data(options: Values) -> pd.DataFrame:
 
     # check if there any duplicated Cell_ID
     if meta_data_df['Cell_ID'].duplicated().any():
-        warning(
-            'There are duplicated Cell_ID in the meta data. Sample name will added to Cell_ID to distinguish them.')
+        warning('There are duplicated Cell_ID in the meta data. Sample name will added to Cell_ID to distinguish them.')
         meta_data_df['Cell_ID'] = meta_data_df['Sample'] + '_' + meta_data_df['Cell_ID']
     if meta_data_df['Cell_ID'].isnull().any():
         raise ValueError(
@@ -71,6 +81,8 @@ def load_meta_data(options: Values) -> pd.DataFrame:
 
     # make the Sample column string
     meta_data_df['Sample'] = meta_data_df['Sample'].astype(str)
+
+    save_cell_type_code(options=options, meta_data_df=meta_data_df)
 
     return meta_data_df
 

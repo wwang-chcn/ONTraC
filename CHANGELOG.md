@@ -25,6 +25,19 @@ Fixed:
 
 - Resolved bug in regularization loss calculation for multi-sample batches
 
+## [1.0.3] - 2024-Aug-25
+
+Added:
+
+- GitHub conda building workflow
+
+## [1.0.2] - 2024-Aug-21
+
+Added:
+
+- test module
+- GitHub pytest workflow
+
 ## [1.0.1] - 2024-July-30
 
 Added:
