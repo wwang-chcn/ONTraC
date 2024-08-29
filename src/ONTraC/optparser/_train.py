@@ -14,7 +14,7 @@ def add_train_options_group(optparser: OptionParser) -> OptionGroup:
     :return: OptionGroup object.
     """
     # overall train options group
-    group_train = OptionGroup(optparser, "Options for training")
+    group_train = OptionGroup(optparser, "Options for GNN training")
     optparser.add_option_group(group_train)
     group_train.add_option('--device',
                            dest='device',
