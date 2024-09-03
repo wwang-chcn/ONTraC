@@ -31,5 +31,5 @@ NOTE: For x86-based macOS, conda install only support Python 3.10 and 3.11 for n
 WARNING: Installing with conda can be very slow.
 
 ```sh
-conda install -c chrww -c pytorch -c pyg -c default -c nvidia -c conda-forge ontrac
+conda install -c gyuanlab -c pytorch -c pyg -c default -c nvidia -c conda-forge ontrac
 ```
