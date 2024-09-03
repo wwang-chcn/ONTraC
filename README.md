@@ -22,7 +22,11 @@ responses from all the cells in association with continuous tissue microenvironm
 
 ## Installation
 
-Please see the [installation tutorial](tutorials/installation.md)
+```sh
+pip install ONTraC
+```
+
+For details and alternative approches, please see the [installation tutorial](tutorials/installation.md)
 
 ## Tutorial
 
