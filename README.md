@@ -4,6 +4,8 @@
 [![Python versions](https://img.shields.io/pypi/pyversions/ONTraC.svg)](https://pypi.org/project/ONTraC/)
 [![Downloads](https://static.pepy.tech/badge/ONTraC)](https://pepy.tech/project/ONTraC)
 [![PyPI Downloads](https://img.shields.io/pypi/dm/ONTraC.svg?label=PyPI%20downloads)](https://pypistats.org/packages/ontrac)
+[![Anaconda-Server Badge](https://anaconda.org/gyuanlab/ontrac/badges/version.svg)](https://anaconda.org/gyuanlab/ontrac)
+[![Anaconda-Server Badge](https://anaconda.org/gyuanlab/ontrac/badges/platforms.svg)](https://anaconda.org/gyuanlab/ontrac)
 [![GitHub stars](https://badgen.net/github/stars/gyuanlab/ONTraC)](https://github.com/gyuanlab/ONTraC)
 [![GitHub license](https://img.shields.io/github/license/gyuanlab/ONTraC.svg)](https://github.com/gyuanlab/ONTraC/blob/master/LICENSE)
 
@@ -22,7 +24,11 @@ responses from all the cells in association with continuous tissue microenvironm
 
 ## Installation
 
-Please see the [installation tutorial](tutorials/installation.md)
+```sh
+pip install ONTraC
+```
+
+For details and alternative approches, please see the [installation tutorial](tutorials/installation.md)
 
 ## Tutorial
 

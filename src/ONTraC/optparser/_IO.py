@@ -10,6 +10,7 @@ def add_IO_options_group(optparser: OptionParser, io_options: Optional[List[str]
     """
     Add I/O options group to optparser.
     :param optparser: OptionParser object.
+    :param io_options: List of I/O options.
     :return: OptionGroup object.
     """
     if io_options is None:
@@ -36,8 +37,11 @@ def validate_io_options(optparser: OptionParser,
                         io_options: Optional[List[str]],
                         overwrite_validation: bool = True) -> None:
     """Validate IO options from a OptParser object.
-
-    Ret: None
+    :param optparser: OptionParser object.
+    :param options: Options object.
+    :param io_options: List of I/O options.
+    :param overwrite_validation: Overwrite validation flag.
+    :return: None
     """
     if io_options is None:
         return
@@ -101,8 +105,9 @@ def validate_io_options(optparser: OptionParser,
 
 def write_io_options_memo(options: Values, io_options: Optional[List[str]]) -> None:
     """Write IO options to stdout.
-
-    Ret: None
+    :param options: Options object.
+    :param io_options: List of I/O options.
+    :return: None
     """
     if io_options is None:
         return

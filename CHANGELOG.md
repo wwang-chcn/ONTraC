@@ -1,5 +1,11 @@
 # Change log
 
+## [1.0.4] - 2024-Sep-3
+
+Added:
+
+- Integrate mudole with other workflow
+
 ## [1.0.3] - 2024-Aug-25
 
 Added:
