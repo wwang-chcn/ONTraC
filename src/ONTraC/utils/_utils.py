@@ -62,8 +62,6 @@ def valid_meta_data(options: Values, meta_data_df: pd.DataFrame) -> pd.DataFrame
         raise ValueError('Cell_ID column is missing in the original data.')
     if 'Sample' not in meta_data_df.columns:
         raise ValueError('Sample column is missing in the original data.')
-    if 'Cell_Type' not in meta_data_df.columns:
-        raise ValueError('Cell_Type column is missing in the original data.')
     if 'x' not in meta_data_df.columns:
         raise ValueError('x column is missing in the original data.')
     if 'y' not in meta_data_df.columns:
@@ -100,7 +98,8 @@ def load_meta_data(options: Values) -> pd.DataFrame:
 
     meta_data_df = valid_meta_data(options=options, meta_data_df=meta_data_df)
 
-    save_cell_type_code(options=options, meta_data_df=meta_data_df)
+    if 'Cell_Type' in meta_data_df.columns:
+        save_cell_type_code(options=options, meta_data_df=meta_data_df)
 
     return meta_data_df
 

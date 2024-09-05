@@ -2,15 +2,17 @@
 
 ## Input files
 
-A example input file is provided in `examples/stereo_seq_brain/original_data.csv`.
-The input file looks like the following:
+### Meta input
 
-| Cell_ID         | Sample   | Cell_Type | x       | y     |
-| --------------- | -------- | --------- | ------- | ----- |
-| E12_E1S3_100034 | E12_E1S3 | Fibro     | 15940   | 18584 |
-| E12_E1S3_100035 | E12_E1S3 | Fibro     | 15942   | 18623 |
-| ...             | ...      | ...       | ...     | ...   |
-| E16_E2S7_326412 | E16_E2S7 | Fibro     | 32990.5 | 14475 |
+An example meta file is provided [here](../examples/V2/data/merfish_meta.csv).
+The meta file looks like the following:
+
+| Cell_ID                                 | Sample          | Cell_Type | x                  | y                   |
+| --------------------------------------- | --------------- | --------- | ------------------ | ------------------- |
+| 100029194729477472162047791686277547250 | mouse1_slice221 | L2/3 IT   | 140.9419965147972  | -2678.142903059721  |
+| 100141638384685944504186567613653468492 | mouse1_slice221 | L4/5 IT   | 490.1479862928391  | -3128.267906665802  |
+| ...                                     | ...             | ...       | ...                | ...                 |
+| 99747739584919120436167521663441290055  | mouse1_slice221 | L2/3 IT   | -787.2270166575909 | -2622.3839544013144 |
 
 - Cell_ID
 
@@ -32,6 +34,62 @@ The input file looks like the following:
 - y
   
   Y coordinate for each cell.
+
+### Expression input
+
+An example expression input file is provided [here](../examples/V2/data/merfish_counts.csv).
+The expression file looks like the following:
+
+| index                                   | 1700022I11Rik | 1810046K07Rik | ... | Gad1        |
+| --------------------------------------- | ------------- | ------------- | --- | ----------- |
+| 100029194729477472162047791686277547250 | 0.0           | 0.639048      | ... | 0.0         |
+| 100141638384685944504186567613653468492 | 0.0           | 1.2571113     | ... | 0.062081426 |
+| ...                                     | ...           | ...           | ... | ...         |
+| 99747739584919120436167521663441290055  | 0.0           | 0.7242012     | ... | 0.0         |
+
+it should be a #cell × #gene data frame in csv format.
+
+### Embedding input
+
+An example embedding input file is provided [here](../examples/V2/data/merfish_embedding.csv).
+The embedding file looks like the following:
+
+| Cell_ID                                 | Embedding_1 | Embedding_2 | ... | Embedding_50 |
+| --------------------------------------- | ----------- | ----------- | --- | ------------ |
+| 100029194729477472162047791686277547250 | -4.0079494  | -2.1514485  | ... | 0.09962122   |
+| 100141638384685944504186567613653468492 | -3.8402984  | -3.7229002  | ... | 0.06987266   |
+| ...                                     | ...         | ...         | ... | ...          |
+| 99747739584919120436167521663441290055  | -4.353267   | -1.8221375  | ... | -0.4509134   |
+
+it should be a #cell × #embedding data frame in csv format.
+
+### Decomposition/cell type composition input
+
+An example embedding input file is provided [here](../examples/V2/data/spotxcelltype.csv).
+The embedding file looks like the following:
+
+| Spots_ID           | 1                  | 2                 | ... | 20               |
+| ------------------ | ------------------ | ----------------- | --- | ---------------- |
+| AAACAGAGCGACTCCT-1 | 0.258785509461385  | 0.128061904630428 | ... | 0                |
+| AAACATTTCCCGGATT-1 | 0                  | 0                 | ... | 0.13509547810484 |
+| ...                | ...                | ...               | ... | ...              |
+| TTGTTTGTGTAAATTC-1 | 0.0564298718323994 | 0.145703310261767 | ... | 0                |
+
+it should be a #spot × #cell_type data frame in csv format.
+
+### Decomposition/expression input
+
+An example embedding input file is provided [here](../examples/V2/data/celltypexgexp.csv).
+The embedding file looks like the following:
+
+| Cell_Type | ENSMUSG00000069919 | ENSMUSG00000069917 | ... | ENSMUSG00000029544 |
+| --------- | ------------------ | ------------------ | --- | ------------------ |
+| 1         | 3.03347455818819   | 2.66456082298445   | ... | 0.0120471063344827 |
+| 2         | 0.258534629689311  | 0.213294430667974  | ... | 0.467826140134687  |
+| ...       | ...                | ...                | ... | ...                |
+| 20        | 0.759318242637518  | 1.32400919670418   | ... | 0.210041696774869  |
+
+it should be a #cell_type × #gene data frame in csv format.
 
 ## Output files
 
