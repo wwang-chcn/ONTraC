@@ -44,10 +44,11 @@ def save_cell_type_code(options: Values, ori_data_df: pd.DataFrame) -> None:
     cell_type_code.to_csv(f'{options.preprocessing_dir}/cell_type_code.csv', index=False)
 
 
-def load_original_data(options: Values) -> pd.DataFrame:
+def valid_original_data(options: Values, ori_data_df: pd.DataFrame) -> pd.DataFrame:
     """
-    Load original data
+    Validate original data
     :param options: Values, options
+    :param ori_data_df: pd.DataFrame, original data
     :return: pd.DataFrame, original data
 
     1) read original data file (csv format)
@@ -55,9 +56,6 @@ def load_original_data(options: Values) -> pd.DataFrame:
     3) make the Cell_Type column categorical
     4) return original data with Cell_ID, Sample, Cell_Type, x, and y columns
     """
-
-    # read original data file
-    ori_data_df = pd.read_csv(options.dataset, header=0, index_col=False, sep=',')
 
     # check if Cell_ID, Sample, Cell_Type, x, and y columns in the original data
     if 'Cell_ID' not in ori_data_df.columns:
@@ -90,6 +88,21 @@ def load_original_data(options: Values) -> pd.DataFrame:
 
     # make the Sample column string
     ori_data_df['Sample'] = ori_data_df['Sample'].astype(str)
+
+    return ori_data_df
+
+
+def load_original_data(options: Values) -> pd.DataFrame:
+    """
+    Load original data
+    :param options: Values, options
+    :return: pd.DataFrame, original data
+    """
+
+    # read original data file
+    ori_data_df = pd.read_csv(options.dataset, header=0, index_col=False, sep=',')
+
+    ori_data_df = valid_original_data(options=options, ori_data_df=ori_data_df)
 
     save_cell_type_code(options=options, ori_data_df=ori_data_df)
 
