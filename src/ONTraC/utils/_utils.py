@@ -44,11 +44,12 @@ def save_cell_type_code(options: Values, meta_data_df: pd.DataFrame) -> None:
     cell_type_code.to_csv(f'{options.preprocessing_dir}/cell_type_code.csv', index=False)
 
 
-def load_meta_data(options: Values) -> pd.DataFrame:
+def valid_meta_data(options: Values, meta_data_df: pd.DataFrame) -> pd.DataFrame:
     """
-    Load meta data
+    Validate meta data
     :param options: Values, options
-    :return: pd.DataFrame, meta data
+    :param ori_data_df: pd.DataFrame, original data
+    :return: pd.DataFrame, original data
 
     1) read meta data file (csv format)
     2) check if Cell_ID, Sample, Cell_Type (optional), x, and y columns in the meta data
@@ -56,18 +57,17 @@ def load_meta_data(options: Values) -> pd.DataFrame:
     4) return original data with Cell_ID, Sample, Cell_Type, x, and y columns
     """
 
-    # read meta data file
-    meta_data_df = pd.read_csv(options.meta_input, header=0, index_col=False, sep=',')
-
-    # check if Cell_ID, Sample, Cell_Type, x, and y columns in the meta data
+    # check if Cell_ID, Sample, Cell_Type, x, and y columns in the original data
     if 'Cell_ID' not in meta_data_df.columns:
-        raise ValueError('Cell_ID column is missing in the meta data.')
+        raise ValueError('Cell_ID column is missing in the original data.')
     if 'Sample' not in meta_data_df.columns:
-        raise ValueError('Sample column is missing in the meta data.')
+        raise ValueError('Sample column is missing in the original data.')
+    if 'Cell_Type' not in meta_data_df.columns:
+        raise ValueError('Cell_Type column is missing in the original data.')
     if 'x' not in meta_data_df.columns:
-        raise ValueError('x column is missing in the meta data.')
+        raise ValueError('x column is missing in the original data.')
     if 'y' not in meta_data_df.columns:
-        raise ValueError('y column is missing in the meta data.')
+        raise ValueError('y column is missing in the original data.')
 
     # check if there any duplicated Cell_ID
     if meta_data_df['Cell_ID'].duplicated().any():
@@ -85,6 +85,22 @@ def load_meta_data(options: Values) -> pd.DataFrame:
     # make Cell_Type column categorical
     if 'Cell_Type' in meta_data_df.columns:
         meta_data_df['Cell_Type'] = meta_data_df['Cell_Type'].astype('category')
+    return meta_data_df
+
+
+def load_meta_data(options: Values) -> pd.DataFrame:
+    """
+    Load meta data
+    :param options: Values, options
+    :return: pd.DataFrame, original data
+    """
+
+    # read original data file
+    meta_data_df = pd.read_csv(options.meta_input, header=0, index_col=False, sep=',')
+
+    meta_data_df = valid_meta_data(options=options, meta_data_df=meta_data_df)
+
+    save_cell_type_code(options=options, meta_data_df=meta_data_df)
 
     return meta_data_df
 

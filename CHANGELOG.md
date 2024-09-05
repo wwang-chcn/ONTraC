@@ -25,6 +25,12 @@ Fixed:
 
 - Resolved bug in regularization loss calculation for multi-sample batches
 
+## [1.0.4] - 2024-Sep-3
+
+Added:
+
+- Integrate mudole with other workflow
+
 ## [1.0.3] - 2024-Aug-25
 
 Added:
