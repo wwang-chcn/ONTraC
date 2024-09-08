@@ -43,7 +43,7 @@ def perform_harmony(embedding, meta_df: pd.DataFrame, batch_key: str) -> np.ndar
 
     info(f'Performing Harmony using "{batch_key}" as batch ...')
 
-    return run_harmony(data_mat=embedding, meta_data=meta_df, vars_use=batch_key)
+    return run_harmony(data_mat=embedding, meta_data=meta_df, vars_use=batch_key).Z_corr.T
 
 
 def define_neighbors(embedding: np.ndarray, n_neighbors: int = 20) -> csr_matrix:
