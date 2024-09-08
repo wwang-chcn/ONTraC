@@ -33,7 +33,9 @@ def plot_violin_cell_type_along_NT_score(ana_data: AnaData) -> Optional[Tuple[pl
     if ana_data.options.reverse: data_df['Cell_NTScore'] = 1 - data_df['Cell_NTScore']
 
     if data_df['Cell_Type'].unique().shape[0] > 100:
-        warning("There are more than 100 cell types, skip violin plot to avoid long runtime. You could manually plot it according to our tutorial.")
+        warning(
+            "There are more than 100 cell types, skip violin plot to avoid long runtime. You could manually plot it according to our tutorial."
+        )
         return None
 
     fig, ax = plt.subplots(figsize=(6, ana_data.cell_type_codes.shape[0] / 2))
@@ -151,7 +153,12 @@ def plot_cell_type_loading_in_niche_clusters(ana_data: AnaData,
         value_vars=cell_type,  # type: ignore
         value_name='Number')
     # g = sns.catplot(cell_type_dis_melt_df, kind="bar", x="Number", y="Cell type", col="cluster", col_order= nc_order, height=4,
-    g = sns.catplot(cell_type_dis_melt_df, kind="bar", x="Number", y="Cell type", col="cluster", height=2 + len(cell_type) / 6,
+    g = sns.catplot(cell_type_dis_melt_df,
+                    kind="bar",
+                    x="Number",
+                    y="Cell type",
+                    col="cluster",
+                    height=2 + len(cell_type) / 6,
                     aspect=.5)  # type: ignore
     g.add_legend()
     g.tight_layout()
@@ -253,7 +260,8 @@ def cell_type_visualization(ana_data: AnaData) -> None:
     """
 
     # 1. cell type along NT score
-    plot_cell_type_along_NT_score(ana_data=ana_data)
+    if not hasattr(ana_data.options, 'suppress_niche_trajectory') or not ana_data.options.suppress_niche_trajectory:
+        plot_cell_type_along_NT_score(ana_data=ana_data)
 
     # 2. cell type X niche cluster
     plot_cell_type_with_niche_cluster(ana_data=ana_data)

@@ -1,5 +1,11 @@
 # Change log
 
+## [1.0.5] - 2024-XXX-XX
+
+Added:
+
+- Niche trajectory visualization suppression parameter
+
 ## [1.0.4] - 2024-Sep-3
 
 Added:
