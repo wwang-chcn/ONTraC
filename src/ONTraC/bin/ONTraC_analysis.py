@@ -8,7 +8,7 @@ from ..analysis.niche_cluster import niche_cluster_visualization
 from ..analysis.spatial import spatial_visualization
 from ..analysis.train_loss import train_loss_visualiztion
 from ..log import *
-from ..optparser._IO import add_IO_options_group, validate_io_options
+from ..optparser._IO import add_IO_options_group, validate_io_options, write_io_options_memo
 from ..utils import *
 from ..version import __version__
 
@@ -51,6 +51,11 @@ def add_suppress_group(optparser: OptionParser) -> None:
                      action='store_true',
                      default=False,
                      help='Suppress the niche cluster loadings visualization.')
+    group.add_option('--suppress-niche-trajectory',
+                        dest='suppress_niche_trajectory',
+                        action='store_true',
+                        default=False,
+                        help='Suppress the niche trajectory related visualization.')
     optparser.add_option_group(group)
 
 
@@ -113,6 +118,20 @@ def opt_validate(optparser: OptionParser) -> Values:
         error(f'File not found: {options.yaml}')
         sys.exit(1)
     options.device = 'cpu'
+
+    info('------------------ RUN params memo ------------------ ')
+    # print parameters to stdout
+    write_io_options_memo(options, IO_OPTIONS)
+    info(f'Output directory: {options.output}')
+    info(f'Log file: {options.log}')
+    info(f'Reverse: {options.reverse}')
+    info(f'Sample: {options.sample}')
+    if hasattr(options, 'suppress_cell_type_composition'):
+        info(f'Suppress cell type composition: {options.suppress_cell_type_composition}')
+    if hasattr(options, 'suppress_niche_cluster_loadings'):
+        info(f'Suppress niche cluster loadings: {options.suppress_niche_cluster_loadings}')
+    if hasattr(options, 'suppress_niche_trajectory'):
+        info(f'Suppress niche trajectory: {options.suppress_niche_trajectory}')
 
     return options
 
