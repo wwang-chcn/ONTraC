@@ -25,6 +25,12 @@ Fixed:
 
 - Resolved bug in regularization loss calculation for multi-sample batches
 
+## [1.0.5] - 2024-Sep-8
+
+Added:
+
+- Niche trajectory visualization suppression parameter
+
 ## [1.0.4] - 2024-Sep-3
 
 Added:

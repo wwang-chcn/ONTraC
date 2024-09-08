@@ -274,8 +274,12 @@ def cell_type_visualization(ana_data: AnaData) -> None:
     :param ana_data: AnaData, the data for analysis.
     """
 
+    if ana_data.options.decomposition_expression_input is not None:
+        return None
+        # TODO: add cell type visualization based on low-res data
+
     # 1. cell type along NT score
-    if ana_data.options.decomposition_expression_input is None and 'Cell_Type' in ana_data.meta_data.columns:
+    if not hasattr(ana_data.options, 'suppress_niche_trajectory') or not ana_data.options.suppress_niche_trajectory:
         plot_cell_type_along_NT_score(ana_data=ana_data)
 
     # 2. cell type X niche cluster

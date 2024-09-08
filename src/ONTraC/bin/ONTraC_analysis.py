@@ -9,7 +9,7 @@ from ..analysis.niche_net import embedding_adjust_visualization
 from ..analysis.spatial import spatial_visualization
 from ..analysis.train_loss import train_loss_visualiztion
 from ..log import *
-from ..optparser._IO import add_IO_options_group, validate_io_options
+from ..optparser._IO import add_IO_options_group, validate_io_options, write_io_options_memo
 from ..utils import *
 from ..version import __version__
 
@@ -61,6 +61,11 @@ def add_suppress_group(optparser: OptionParser) -> None:
                      action='store_true',
                      default=False,
                      help='Suppress the cell type visualization.')
+    group.add_option('--suppress-niche-trajectory',
+                        dest='suppress_niche_trajectory',
+                        action='store_true',
+                        default=False,
+                        help='Suppress the niche trajectory related visualization.')
     optparser.add_option_group(group)
 
 
@@ -97,8 +102,9 @@ def prepare_optparser() -> OptionParser:
                              description=description,
                              add_help_option=False)
     optparser.add_option('-h', '--help', action='help', help='Show this help message and exit.')
-    optparser.add_option('-o', '--output', dest='output', type='string', help='Output directory.')
+    add_IO_options_group(optparser=optparser, io_options=IO_OPTIONS)
     optparser.add_option('-l', '--log', dest='log', type='string', help='Log file.')
+    optparser.add_option('-o', '--output', dest='output', type='string', help='Output directory.')
     optparser.add_option('-r',
                          '--reverse',
                          dest='reverse',
@@ -111,9 +117,8 @@ def prepare_optparser() -> OptionParser:
                          action='store_true',
                          default=False,
                          help='Plot each sample separately.')
-    add_IO_options_group(optparser=optparser, io_options=IO_OPTIONS)
-    add_suppress_group(optparser)
     add_embedding_adjust_group(optparser)
+    add_suppress_group(optparser)
     return optparser
 
 
@@ -145,6 +150,23 @@ def opt_validate(optparser: OptionParser) -> Values:
         error(f'File not found: {options.yaml}')
         sys.exit(1)
     options.device = 'cpu'
+
+    info('------------------ RUN params memo ------------------ ')
+    # print parameters to stdout
+    write_io_options_memo(options, IO_OPTIONS)
+    info(f'Output directory: {options.output}')
+    info(f'Log file: {options.log}')
+    info(f'Reverse: {options.reverse}')
+    info(f'Sample: {options.sample}')
+    info(f'Embedding adjust: {options.embedding_adjust}')
+    if options.embedding_adjust:
+        info(f'Sigma: {options.sigma}')
+    if hasattr(options, 'suppress_cell_type_composition'):
+        info(f'Suppress cell type composition: {options.suppress_cell_type_composition}')
+    if hasattr(options, 'suppress_niche_cluster_loadings'):
+        info(f'Suppress niche cluster loadings: {options.suppress_niche_cluster_loadings}')
+    if hasattr(options, 'suppress_niche_trajectory'):
+        info(f'Suppress niche trajectory: {options.suppress_niche_trajectory}')
 
     return options
 
