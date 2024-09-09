@@ -25,8 +25,8 @@ def plot_niche_cluster_connectivity(ana_data: AnaData) -> Optional[Tuple[plt.Fig
     :return: None or Tuple[plt.Figure, plt.Axes].
     """
     try:
-        if ana_data.niche_cluster_score is None or ana_data.niche_cluster_connectivity is None:
-            warning("No niche cluster score or connectivity data found.")
+        if ana_data.niche_cluster_connectivity is None:
+            warning("No connectivity data found.")
             return None
     except FileNotFoundError as e:
         warning(str(e))
@@ -42,9 +42,12 @@ def plot_niche_cluster_connectivity(ana_data: AnaData) -> Optional[Tuple[plt.Fig
     # node color
     norm = Normalize(vmin=0, vmax=1)
     sm = ScalarMappable(cmap=plt.cm.rainbow, norm=norm)  # type: ignore
-    nc_scores = 1 - ana_data.niche_cluster_score if ana_data.options.reverse else ana_data.niche_cluster_score
-    niche_cluster_colors = [sm.to_rgba(nc_scores[n]) for n in G.nodes]
-
+    if ana_data.niche_cluster_score is not None:
+        nc_scores = 1 - ana_data.niche_cluster_score if ana_data.options.reverse else ana_data.niche_cluster_score
+        niche_cluster_colors = [sm.to_rgba(nc_scores[n]) for n in G.nodes]
+    else:
+        niche_cluster_colors = [sm.to_rgba(i) for i in np.linspace(0, 1, len(G.nodes))]
+    
     fig, ax = plt.subplots(figsize=(6, 6))
     nx.draw(
         G,
@@ -73,8 +76,8 @@ def plot_cluster_proportion(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt
     :return: None or Tuple[plt.Figure, plt.Axes].
     """
     try:
-        if ana_data.niche_cluster_score is None or ana_data.niche_level_niche_cluster_assign is None:
-            warning("No niche cluster score or connectivity data found.")
+        if ana_data.niche_level_niche_cluster_assign is None:
+            warning("No niche cluster assignment infomation.")
             return None
     except FileNotFoundError as e:
         warning(str(e))
@@ -83,8 +86,11 @@ def plot_cluster_proportion(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt
     # colors
     norm = Normalize(vmin=0, vmax=1)
     sm = ScalarMappable(cmap=plt.cm.rainbow, norm=norm)  # type: ignore
-    nc_scores = 1 - ana_data.niche_cluster_score if ana_data.options.reverse else ana_data.niche_cluster_score
-    niche_cluster_colors = [sm.to_rgba(nc_scores[n]) for n in np.arange(ana_data.niche_cluster_score.shape[0])]
+    if ana_data.niche_cluster_score is not None:
+        nc_scores = 1 - ana_data.niche_cluster_score if ana_data.options.reverse else ana_data.niche_cluster_score
+        niche_cluster_colors = [sm.to_rgba(nc_scores[n]) for n in np.arange(ana_data.niche_cluster_score.shape[0])]
+    else:
+        niche_cluster_colors = [sm.to_rgba(i) for i in np.linspace(0, 1, ana_data.niche_level_niche_cluster_assign.shape[1])]
 
     # loadings
     niche_cluster_loading = ana_data.niche_level_niche_cluster_assign.sum(axis=0)
@@ -113,14 +119,17 @@ def plot_niche_cluster_loadings_dataset(ana_data: AnaData) -> Optional[Tuple[plt
     """
 
     try:
-        if ana_data.niche_cluster_score is None or ana_data.cell_type_composition is None or ana_data.cell_level_niche_cluster_assign is None:
-            warning("No niche cluster score, cell type composition or cluster assign data found.")
+        if ana_data.cell_type_composition is None or ana_data.cell_level_niche_cluster_assign is None:
+            warning("No cell type composition or cluster assign information found.")
             return None
     except FileNotFoundError as e:
         warning(str(e))
         return None
 
-    nc_scores = 1 - ana_data.niche_cluster_score if ana_data.options.reverse else ana_data.niche_cluster_score
+    if ana_data.niche_cluster_score is not None:
+        nc_scores = 1 - ana_data.niche_cluster_score if ana_data.options.reverse else ana_data.niche_cluster_score
+    else:
+        nc_scores = np.linspace(0, 1, ana_data.cell_level_niche_cluster_assign.shape[1])
     samples: List[str] = ana_data.cell_type_composition['sample'].unique().tolist()
     M, N = len(samples), ana_data.cell_level_niche_cluster_assign.shape[1]
 
@@ -156,14 +165,17 @@ def plot_niche_cluster_loadings_sample(ana_data: AnaData) -> Optional[List[Tuple
     """
 
     try:
-        if ana_data.niche_cluster_score is None or ana_data.cell_type_composition is None or ana_data.cell_level_niche_cluster_assign is None:
-            warning("No niche cluster score, cell type composition or cluster assign data found.")
+        if ana_data.cell_type_composition is None or ana_data.cell_level_niche_cluster_assign is None:
+            warning("No cell type composition or cluster assign information found.")
             return None
     except FileNotFoundError as e:
         warning(str(e))
         return None
 
-    nc_scores = 1 - ana_data.niche_cluster_score if ana_data.options.reverse else ana_data.niche_cluster_score
+    if ana_data.niche_cluster_score is not None:
+        nc_scores = 1 - ana_data.niche_cluster_score if ana_data.options.reverse else ana_data.niche_cluster_score
+    else:
+        nc_scores = np.linspace(0, 1, ana_data.cell_level_niche_cluster_assign.shape[1])
     samples: List[str] = ana_data.cell_type_composition['sample'].unique().tolist()
 
     output = []
@@ -211,8 +223,8 @@ def plot_max_niche_cluster_dataset(ana_data: AnaData) -> Optional[Tuple[plt.Figu
     """
 
     try:
-        if ana_data.niche_cluster_score is None or ana_data.cell_type_composition is None or ana_data.cell_level_max_niche_cluster is None:
-            warning("No niche cluster score, cell type composition or max niche cluster data found.")
+        if ana_data.cell_type_composition is None or ana_data.cell_level_max_niche_cluster is None:
+            warning("No cell type composition or max niche cluster data found.")
             return None
     except FileNotFoundError as e:
         warning(str(e))
@@ -221,7 +233,10 @@ def plot_max_niche_cluster_dataset(ana_data: AnaData) -> Optional[Tuple[plt.Figu
     # colors
     norm = Normalize(vmin=0, vmax=1)
     sm = ScalarMappable(cmap=plt.cm.rainbow, norm=norm)  # type: ignore
-    nc_scores = 1 - ana_data.niche_cluster_score if ana_data.options.reverse else ana_data.niche_cluster_score
+    if ana_data.niche_cluster_score is not None:
+        nc_scores = 1 - ana_data.niche_cluster_score if ana_data.options.reverse else ana_data.niche_cluster_score
+    else:
+        nc_scores = np.linspace(0, 1, ana_data.cell_level_max_niche_cluster.shape[1])
     niche_cluster_colors = [sm.to_rgba(nc_scores[n]) for n in np.arange(ana_data.niche_cluster_score.shape[0])]
     palette = {f'niche cluster {i}': niche_cluster_colors[i] for i in range(ana_data.niche_cluster_score.shape[0])}
     samples: List[str] = ana_data.cell_type_composition['sample'].unique().tolist()
@@ -260,8 +275,8 @@ def plot_max_niche_cluster_sample(ana_data: AnaData) -> Optional[List[Tuple[plt.
     """
 
     try:
-        if ana_data.niche_cluster_score is None or ana_data.cell_type_composition is None or ana_data.cell_level_max_niche_cluster is None:
-            warning("No niche cluster score, cell type composition or max niche cluster data found.")
+        if ana_data.cell_type_composition is None or ana_data.cell_level_max_niche_cluster is None:
+            warning("No cell type composition or max niche cluster data found.")
             return None
     except FileNotFoundError as e:
         warning(str(e))
@@ -270,7 +285,10 @@ def plot_max_niche_cluster_sample(ana_data: AnaData) -> Optional[List[Tuple[plt.
     # colors
     norm = Normalize(vmin=0, vmax=1)
     sm = ScalarMappable(cmap=plt.cm.rainbow, norm=norm)  # type: ignore
-    nc_scores = 1 - ana_data.niche_cluster_score if ana_data.options.reverse else ana_data.niche_cluster_score
+    if ana_data.niche_cluster_score is not None:
+        nc_scores = 1 - ana_data.niche_cluster_score if ana_data.options.reverse else ana_data.niche_cluster_score
+    else:
+        nc_scores = np.linspace(0, 1, ana_data.cell_level_max_niche_cluster.shape[1])
     niche_cluster_colors = [sm.to_rgba(nc_scores[n]) for n in np.arange(ana_data.niche_cluster_score.shape[0])]
     palette = {f'niche cluster {i}': niche_cluster_colors[i] for i in range(ana_data.niche_cluster_score.shape[0])}
     samples: List[str] = ana_data.cell_type_composition['sample'].unique().tolist()

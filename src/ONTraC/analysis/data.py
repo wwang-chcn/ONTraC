@@ -1,6 +1,6 @@
 import os
 from optparse import Values
-from typing import Dict, Union
+from typing import Dict, Optional, Union
 
 import numpy as np
 import pandas as pd
@@ -87,7 +87,7 @@ def load_niche_cluster_connectivity(options: Values) -> np.ndarray:
     return np.loadtxt(f'{niche_cluster_conn_file}', delimiter=',')
 
 
-def load_niche_cluster_score(options: Values) -> np.ndarray:
+def load_niche_cluster_score(options: Values) -> Optional[np.ndarray]:
     """
     Load the niche cluster score from the output of NT score.
     Args:
@@ -99,7 +99,8 @@ def load_niche_cluster_score(options: Values) -> np.ndarray:
     if not os.path.isfile(niche_cluster_score_file):
         niche_cluster_score_file = f'{options.NTScore_dir}/niche_cluster_score.csv'
     if not os.path.isfile(niche_cluster_score_file):  # skip if file not exist
-        raise FileNotFoundError(f"Cannot find niche cluster score file: {niche_cluster_score_file}.")
+        warning(f"Cannot find niche cluster score file: {niche_cluster_score_file}.")
+        return None
 
     return np.loadtxt(f'{niche_cluster_score_file}', delimiter=',')
 
@@ -293,7 +294,7 @@ class AnaData:
         return self._niche_cluster_connectivity
 
     @property
-    def niche_cluster_score(self) -> np.ndarray:
+    def niche_cluster_score(self) -> Optional[np.ndarray]:
         if not hasattr(self, '_niche_cluster_score'):
             # FileNotFoundError will be raised if the file does not exist
             self._niche_cluster_score = load_niche_cluster_score(self.options)
