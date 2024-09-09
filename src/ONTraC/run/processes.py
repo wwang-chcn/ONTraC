@@ -28,26 +28,25 @@ def load_parameters(opt_validate_func: Callable, prepare_optparser_func: Callabl
     return options
 
 
-def niche_network_construct(options: Values, ori_data_df: pd.DataFrame) -> None:
+def niche_network_construct(options: Values, meta_data_df: pd.DataFrame) -> None:
     """
     Niche network construct process.
     :param options: options.
-    :param ori_data_df: pd.DataFrame, original data.
+    :param meta_data_df: pd.DataFrame, meta data.
     :return: None.
     """
 
     info('------------- Niche network construct --------------- ')
-    ori_data_df = gen_original_data(options=options)
 
     # construct niche network
-    construct_niche_network(options=options, ori_data_df=ori_data_df)
+    construct_niche_network(options=options, meta_data_df=meta_data_df)
 
     # generate samples.yaml to indicate file paths for each sample
-    gen_samples_yaml(options=options, ori_data_df=ori_data_df)
+    gen_samples_yaml(options=options, meta_data_df=meta_data_df)
 
     # cell type coding adjust
     if options.embedding_adjust:
-        ct_coding_adjust(options=options, ori_data_df=ori_data_df)
+        ct_coding_adjust(options=options, meta_data_df=meta_data_df)
 
     info('------------ Niche network construct end ------------ ')
 

@@ -43,14 +43,14 @@ def main() -> None:
     options = load_parameters(opt_validate_func=opt_ontrac_validate, prepare_optparser_func=prepare_ontrac_optparser)
 
     # load original data
-    ori_data_df = gen_original_data(options=options)
+    meta_data_df = gen_original_data(options=options)
 
     # ----- Niche Network Construct -----
-    niche_network_construct(options=options, ori_data_df=ori_data_df)
+    niche_network_construct(options=options, meta_data_df=meta_data_df)
 
     # ----- GNN -----
     gnn(options=options,
-        ori_data_df=ori_data_df,
+        meta_data_df=meta_data_df,
         nn_model=GraphPooling,
         BatchTrain=GPBatchTrain,
         inspect_funcs=get_inspect_funcs())

@@ -27,10 +27,10 @@ def main() -> None:
                               prepare_optparser_func=prepare_preprocessing_optparser)
 
     # load original data
-    ori_data_df = gen_original_data(options=options)
+    meta_data_df = gen_original_data(options=options)
 
     # ----- Niche Network Construct -----
-    niche_network_construct(options=options, ori_data_df=ori_data_df)
+    niche_network_construct(options=options, meta_data_df=meta_data_df)
 
 
 # ------------------------------------

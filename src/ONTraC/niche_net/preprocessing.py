@@ -123,6 +123,8 @@ def perform_leiden(connectivities: csr_matrix, resolution: float = 1.0) -> List[
 def gen_original_data(options: Values) -> pd.DataFrame:
     """
     Load original data.
+    :param options: Options.
+    :return: meta data.
 
     option 1) there are gene expression data (csv format) and meta data (csv format)
     option 2) there are embedding data (csv format) and meta data (csv format)

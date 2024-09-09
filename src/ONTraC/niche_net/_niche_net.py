@@ -215,35 +215,35 @@ def construct_niche_network_sample(options: Values, sample_data_df: pd.DataFrame
                        cell_type_composition=cell_type_composition)
 
 
-def construct_niche_network(options: Values, ori_data_df: pd.DataFrame) -> None:
+def construct_niche_network(options: Values, meta_data_df: pd.DataFrame) -> None:
     """
     Construct niche network.
     :param options: Values, options.
-    :param ori_data_df: pd.DataFrame, original data.
+    :param meta_data_df: pd.DataFrame, meta data.
     :return: None.
     """
 
     # get samples
-    samples = ori_data_df['Sample'].unique()
+    samples = meta_data_df['Sample'].unique()
 
     # construct niche network for each sample
     for sample in samples:
-        sample_data_df = ori_data_df[ori_data_df['Sample'] == sample]
+        sample_data_df = meta_data_df[meta_data_df['Sample'] == sample]
         construct_niche_network_sample(options=options, sample_data_df=sample_data_df, sample_name=sample)
 
 
-def gen_samples_yaml(options: Values, ori_data_df: pd.DataFrame) -> None:
+def gen_samples_yaml(options: Values, meta_data_df: pd.DataFrame) -> None:
     """
     Generate samples.yaml.
     :param options: Values, options.
-    :param ori_data_df: pd.DataFrame, original data.
+    :param meta_data_df: pd.DataFrame, meta data.
     :return: None.
     """
 
     info('Generating samples.yaml file.')
 
     data: Dict[str, List[Any]] = {'Data': []}
-    for sample in ori_data_df['Sample'].unique():
+    for sample in meta_data_df['Sample'].unique():
         data['Data'].append({
             'Name': f'{sample}',
             'Coordinates': f'{sample}_Coordinates.csv',
@@ -258,13 +258,13 @@ def gen_samples_yaml(options: Values, ori_data_df: pd.DataFrame) -> None:
         yaml.dump(data, fhd)
 
 
-def get_embedding_columns(ori_data_df: pd.DataFrame) -> List[str]:
+def get_embedding_columns(meta_data_df: pd.DataFrame) -> List[str]:
     """
-    Get embedding columns from the original data
-    :param ori_data_df: pd.DataFrame, original data
+    Get embedding columns from the meta data
+    :param meta_data_df: pd.DataFrame, meta data
     :return: List[str], embedding columns
     """
-    embedding_start_column = [x for x in ori_data_df.columns if x.startswith('Embedding_')]
+    embedding_start_column = [x for x in meta_data_df.columns if x.startswith('Embedding_')]
     embedding_columns = []
     i = 0
     while True:
@@ -277,7 +277,7 @@ def get_embedding_columns(ori_data_df: pd.DataFrame) -> List[str]:
     return embedding_columns
 
 
-def ct_coding_adjust(options: Values, ori_data_df: pd.DataFrame):
+def ct_coding_adjust(options: Values, meta_data_df: pd.DataFrame):
     """
     Adjust the cell type coding according to embeddings
 
@@ -289,19 +289,19 @@ def ct_coding_adjust(options: Values, ori_data_df: pd.DataFrame):
     6) adjust the cell type coding
 
     :param options: Values, options
-    :param ori_data_df: pd.DataFrame, original data
+    :param meta_data_df: pd.DataFrame, meta data
     :return: None
     """
 
     if options.decomposition_cell_type_composition_input is None:
         # check the embedding info in the original data
-        embedding_columns = get_embedding_columns(ori_data_df)
+        embedding_columns = get_embedding_columns(meta_data_df)
         if len(embedding_columns) < 2:
             warning('At least two (Embedding_1 and Embedding_2) should be in the original data. Skip the adjustment.')
             return
 
         # calculate embedding postion for each cell type
-        ct_embedding = ori_data_df[embedding_columns + ['Cell_Type']].groupby('Cell_Type').mean()
+        ct_embedding = meta_data_df[embedding_columns + ['Cell_Type']].groupby('Cell_Type').mean()
         # calculate distance between each cell type
         raw_distance = distance.cdist(ct_embedding[embedding_columns].values, ct_embedding[embedding_columns].values,
                                       'euclidean')
@@ -324,7 +324,7 @@ def ct_coding_adjust(options: Values, ori_data_df: pd.DataFrame):
     L = cholesky(M)
 
     # adjust the cell type coding
-    for sample in ori_data_df['Sample'].unique():
+    for sample in meta_data_df['Sample'].unique():
         feat_file = f'{options.preprocessing_dir}/{sample}_CellTypeComposition.csv.gz'
         ctc_raw = np.loadtxt(feat_file, delimiter=',')
         ctc_new = ctc_raw @ L.T
