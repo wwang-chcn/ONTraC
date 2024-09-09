@@ -1,3 +1,4 @@
+import os
 from typing import Optional, Tuple, Union
 
 import matplotlib as mpl
@@ -26,7 +27,13 @@ def clustering_visualization(ana_data: AnaData) -> Optional[Union[Tuple, None]]:
     if not ana_data.options.decomposition_expression_input:
         return None
 
-    # load meta data
+    # load data
+    meta_data_file = f'{ana_data.options.preprocessing_dir}/meta_data.csv'
+    umap_embedding_file = f'{ana_data.options.preprocessing_dir}/PCA_embedding.csv'
+    if not os.path.exists(meta_data_file) or not os.path.exists(umap_embedding_file):
+        warning(
+            'meta_data.csv and PCA_embedding.csv are required for clustering visualization. Skip the visualization.')
+        return None
     meta_data = pd.read_csv(f'{ana_data.options.preprocessing_dir}/meta_data.csv', index_col=0)
     umap_embedding = np.loadtxt(f'{ana_data.options.preprocessing_dir}/PCA_embedding.csv', delimiter=',')
     data_df = meta_data['Cell_Type']

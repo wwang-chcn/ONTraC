@@ -5,7 +5,7 @@ from optparse import OptionGroup, OptionParser, Values
 from ..analysis.cell_type import cell_type_visualization
 from ..analysis.data import AnaData
 from ..analysis.niche_cluster import niche_cluster_visualization
-from ..analysis.niche_net import embedding_adjust_visualization
+from ..analysis.niche_net import clustering_visualization, embedding_adjust_visualization
 from ..analysis.spatial import spatial_visualization
 from ..analysis.train_loss import train_loss_visualiztion
 from ..log import *
@@ -26,19 +26,22 @@ def analysis_pipeline(options: Values) -> None:
     # 0. load data class
     ana_data = AnaData(options)
 
-    # part 1: niche network construction
+    # part 1: clustering
+    clustering_visualization(ana_data=ana_data)
+
+    # part 2: niche network construction
     embedding_adjust_visualization(ana_data=ana_data)
 
-    # part 2: train loss
+    # part 3: train loss
     train_loss_visualiztion(ana_data=ana_data)
 
-    # part 3: spatial based output
+    # part 4: spatial based output
     spatial_visualization(ana_data=ana_data)
 
-    # part 4: niche cluster
+    # part 5: niche cluster
     niche_cluster_visualization(ana_data=ana_data)
 
-    # part 5: cell type based output
+    # part 6: cell type based output
     if not options.suppress_cell_type:
         cell_type_visualization(ana_data=ana_data)
 
