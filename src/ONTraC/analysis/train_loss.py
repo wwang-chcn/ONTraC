@@ -12,6 +12,12 @@ from .data import AnaData
 
 
 def train_loss_visualiztion(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.Axes]]:
+    """
+    Train loss visualization.
+    :param ana_data: AnaData.
+    :return: None or (fig, axes).
+    """
+
     if ana_data.train_loss is None:
         return None
     train_loss_data = ana_data.train_loss

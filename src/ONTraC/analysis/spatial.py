@@ -15,7 +15,7 @@ def plot_cell_type_composition_dataset(ana_data: AnaData) -> Optional[Tuple[plt.
     """
     Plot spatial distribution of cell type composition.
     :param ana_data: AnaData, the data for analysis.
-    :return: None or Tuple[plt.Figure, plt.Axes]
+    :return: None or Tuple[plt.Figure, plt.Axes].
     """
 
     try:
@@ -59,7 +59,7 @@ def plot_cell_type_composition_sample(ana_data: AnaData) -> Optional[List[Tuple[
     """
     Plot spatial distribution of cell type composition.
     :param ana_data: AnaData, the data for analysis.
-    :return: None or Tuple[plt.Figure, plt.Axes]
+    :return: None or Tuple[plt.Figure, plt.Axes].
     """
 
     try:
@@ -106,6 +106,7 @@ def plot_cell_type_composition(
     """
     Plot spatial distribution of cell type composition.
     :param ana_data: AnaData, the data for analysis.
+    :return: None or Tuple[plt.Figure, plt.Axes].
     """
 
     if hasattr(ana_data.options, 'sample') and ana_data.options.sample:
@@ -118,8 +119,7 @@ def plot_niche_NT_score_dataset(ana_data: AnaData) -> Optional[Tuple[plt.Figure,
     """
     Plot spatial distribution of niche NT score.
     :param ana_data: AnaData, the data for analysis.
-    :param NT_score_reverse: bool, whether to reverse the NT score.
-    :return: None or Tuple[plt.Figure, plt.Axes]
+    :return: None or Tuple[plt.Figure, plt.Axes].
     """
 
     samples: List[str] = ana_data.NT_score['sample'].unique().tolist()
@@ -156,8 +156,7 @@ def plot_niche_NT_score_sample(ana_data: AnaData) -> Optional[List[Tuple[plt.Fig
     """
     Plot spatial distribution of niche NT score.
     :param ana_data: AnaData, the data for analysis.
-    :param NT_score_reverse: bool, whether to reverse the NT score.
-    :return: None or Tuple[plt.Figure, plt.Axes]
+    :return: None or Tuple[plt.Figure, plt.Axes].
     """
 
     samples: List[str] = ana_data.NT_score['sample'].unique().tolist()
@@ -195,6 +194,7 @@ def plot_niche_NT_score(
     """
     Plot spatial distribution of niche NT score.
     :param ana_data: AnaData, the data for analysis.
+    :return: None or Tuple[plt.Figure, plt.Axes].
     """
 
     if hasattr(ana_data.options, 'sample') and ana_data.options.sample:
@@ -207,8 +207,7 @@ def plot_cell_NT_score_dataset(ana_data: AnaData) -> Optional[Tuple[plt.Figure, 
     """
     Plot spatial distribution of cell NT score.
     :param ana_data: AnaData, the data for analysis.
-    :param NT_score_reverse: bool, whether to reverse the NT score.
-    :return: None or Tuple[plt.Figure, plt.Axes]
+    :return: None or Tuple[plt.Figure, plt.Axes].
     """
 
     samples: List[str] = ana_data.NT_score['sample'].unique().tolist()
@@ -245,8 +244,7 @@ def plot_cell_NT_score_sample(ana_data: AnaData) -> Optional[List[Tuple[plt.Figu
     """
     Plot spatial distribution of cell NT score.
     :param ana_data: AnaData, the data for analysis.
-    :param NT_score_reverse: bool, whether to reverse the NT score.
-    :return: None or Tuple[plt.Figure, plt.Axes]
+    :return: None or Tuple[plt.Figure, plt.Axes].
     """
 
     samples: List[str] = ana_data.NT_score['sample'].unique().tolist()
@@ -284,6 +282,7 @@ def plot_cell_NT_score(
     """
     Plot spatial distribution of cell NT score.
     :param ana_data: AnaData, the data for analysis.
+    :return: None or Tuple[plt.Figure, plt.Axes].
     """
 
     if hasattr(ana_data.options, 'sample') and ana_data.options.sample:
@@ -296,6 +295,7 @@ def spatial_visualization(ana_data: AnaData) -> None:
     """
     All spatial visualization will include here.
     :param ana_data: AnaData, the data for analysis.
+    :return: None.
     """
 
     # 1. cell type compostion

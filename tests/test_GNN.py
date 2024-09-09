@@ -50,6 +50,13 @@ def nn_model(options: Values, dataset: SpatailOmicsDataset) -> torch.nn.Module:
 
 
 def test_train(options: Values, sample_loader: DenseDataLoader, nn_model: torch.nn.Module) -> None:
+    """
+    Test the training process of GNN.
+    :param options: options.
+    :param sample_loader: DenseDataLoader, sample loader.
+    :param nn_model: torch.nn.Module, GNN model.
+    :return: None.
+    """
     batch_train = GPBatchTrain(model=nn_model, device=torch.device('cpu'), data_loader=sample_loader)
     optimizer = torch.optim.Adam(nn_model.parameters(), lr=options.lr)
     batch_train.set_train_args(optimizer=optimizer,

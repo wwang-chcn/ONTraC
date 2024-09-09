@@ -17,6 +17,7 @@ IO_OPTIONS = ['dataset', 'preprocessing_dir', 'GNN_dir', 'NTScore_dir']
 def prepare_GP_optparser() -> OptionParser:
     """
     Prepare optparser object. New options will be added in thisfunction first.
+    :return: OptionParser object.
     """
     usage = f'''USAGE: %prog <-d DATASET> <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR> 
     [--device DEVICE] [--epochs EPOCHS] [--patience PATIENCE] [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] 
@@ -45,7 +46,8 @@ def prepare_GP_optparser() -> OptionParser:
 def opt_GP_validate(optparser: OptionParser) -> Values:
     """Validate options from a OptParser object.
 
-    Ret: Validated options object.
+    :param optparser: OptionParser object.
+    :return: Values object.
     """
 
     (options, args) = optparser.parse_args()

@@ -7,9 +7,9 @@ from optparse import Values
 @contextmanager
 def temp_dirs(options: Values):
     """
-    Create temporary directories for testing
-    :param options: Values, options
-    :return: None
+    Create temporary directories for testing.
+    :param options: Values, options.
+    :return: None.
     """
     try:
         # Create temporary directories

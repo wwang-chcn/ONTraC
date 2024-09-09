@@ -23,6 +23,12 @@ def get_default_args(func) -> dict:
 
 def selective_args_decorator(func) -> Callable:
     """Decorator that allows a function to accept only a subset of its arguments.
+
+    Args:
+        func (function): A function.
+    
+    Returns:
+        function: A wrapper function that accepts only a subset of arguments.
     """
 
     @wraps(func)
@@ -53,9 +59,9 @@ def selective_args_decorator(func) -> Callable:
 
 def epoch_filter_decorator(func: Callable) -> Callable:
     """
-    Epoch filter decorator
-    :param func: function
-    :return: function
+    Epoch filter decorator.
+    :param func: function.
+    :return: function.
     """
 
     @wraps(func)

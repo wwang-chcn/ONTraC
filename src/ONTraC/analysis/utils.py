@@ -3,7 +3,10 @@ import pandas as pd
 
 
 def gini(array: np.ndarray | pd.Series) -> float:
-    """Calculate the Gini coefficient of a numpy array."""
+    """Calculate the Gini coefficient of a numpy array.
+    :param array: array containing numbers.
+    :return: Gini coefficient.
+    """
     #
     # from:
     # http://www.statsdirect.com/help/default.htm#nonparametric_methods/gini.htm

@@ -51,6 +51,7 @@ def validate_niche_net_constr_options(optparser: OptionParser, options: Values) 
     Validate niche network construction options.
     :param optparser: OptionParser object.
     :param options: Options object.
+    :return: None.
     """
     if options.n_cpu < 1:
         error('n_cpu must be greater than 0.')
@@ -68,11 +69,11 @@ def validate_niche_net_constr_options(optparser: OptionParser, options: Values) 
         sys.exit(1)
 
 
-def write_niche_net_constr_memo(options: Values):
+def write_niche_net_constr_memo(options: Values) -> None:
     """Write niche network construction memos to stdout.
 
-    Args:
-        options: Options object.
+    :param options: Options object.
+    :return: None.
     """
 
     # print parameters to stdout
@@ -85,6 +86,7 @@ def write_niche_net_constr_memo(options: Values):
 def prepare_create_ds_optparser() -> OptionParser:
     """
     Prepare optparser object. New options will be added in thisfunction first.
+    :return: OptionParser object.
     """
 
     usage = f'''USAGE: %prog <-d DATASET> <--preprocessing-dir PREPROCESSING_DIR> [--n-cpu N_CPU] [--n-neighbors N_NEIGHBORS] [--n-local N_LOCAL]'''
@@ -105,7 +107,8 @@ def prepare_create_ds_optparser() -> OptionParser:
 def opt_create_ds_validate(optparser) -> Values:
     """Validate options from a OptParser object.
 
-    Ret: Validated options object.
+    :param optparser: OptionParser object.
+    :return: Values object.
     """
 
     (options, args) = optparser.parse_args()
