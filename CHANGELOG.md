@@ -1,5 +1,11 @@
 # Change log
 
+## [1.0.6] - 2024-XXX-XX
+
+Changed:
+
+- rename `GP` to `ONTraC_GP`
+
 ## [1.0.5] - 2024-Sep-8
 
 Added:

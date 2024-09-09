@@ -58,7 +58,7 @@ dev = [
 [project.scripts]
 ONTraC = "ONTraC.bin.ONTraC:main"
 createDataSet = "ONTraC.bin.createDataSet:main"
-GP = "ONTraC.bin.GP:main"
+ONTraC_GP = "ONTraC.bin.ONTraC_GP:main"
 NicheTrajectory = "ONTraC.bin.NicheTrajectory:main"
 ONTraC_analysis = "ONTraC.bin.ONTraC_analysis:main"
 
