@@ -52,12 +52,12 @@ def niche_network_construct(options: Values, ori_data_df: pd.DataFrame) -> None:
     info('------------ Niche network construct end ------------ ')
 
 
-def gnn(options: Values, ori_data_df: pd.DataFrame, nn_model: Type[torch.nn.Module],
+def gnn(options: Values, meta_data_df: pd.DataFrame, nn_model: Type[torch.nn.Module],
         BatchTrain: Type[SubBatchTrainProtocol], inspect_funcs: Optional[List[Callable]]) -> None:
     """
     GNN training and prediction process
     :param options: options
-    :param ori_data_df: pd.DataFrame, original data
+    :param meta_data_df: pd.DataFrame, meta data
     :return: None
     """
 
@@ -84,7 +84,7 @@ def gnn(options: Values, ori_data_df: pd.DataFrame, nn_model: Type[torch.nn.Modu
                                      model_name='GraphPooling')
     # save results
     if consolidate_s_array is not None:
-        save_graph_pooling_results(ori_data_df=ori_data_df,
+        save_graph_pooling_results(meta_data_df=meta_data_df,
                                    dataset=dataset,
                                    rel_params=get_rel_params(
                                        options=options,
