@@ -19,7 +19,7 @@ def plot_violin_cell_type_along_NT_score(ana_data: AnaData) -> Optional[Tuple[pl
     """
     Plot violinplot cell type composition along NT score.
     :param ana_data: AnaData, the data for analysis.
-    :return: None or Tuple[plt.Figure, plt.Axes]
+    :return: None or Tuple[plt.Figure, plt.Axes].
     """
     try:
         if 'Cell_NTScore' not in ana_data.NT_score.columns:
@@ -62,7 +62,7 @@ def plot_kde_cell_type_along_NT_score(ana_data: AnaData) -> Optional[Tuple[plt.F
     """
     Plot kdeplot cell type composition along NT score.
     :param ana_data: AnaData, the data for analysis.
-    :return: None or Tuple[plt.Figure, plt.Axes]
+    :return: None or Tuple[plt.Figure, plt.Axes].
     """
     try:
         if 'Cell_NTScore' not in ana_data.NT_score.columns:
@@ -90,7 +90,7 @@ def plot_hist_cell_type_along_NT_score(ana_data: AnaData) -> Optional[Tuple[plt.
     """
     Plot histogram of cell type composition along NT score.
     :param ana_data: AnaData, the data for analysis.
-    :return: None or Tuple[plt.Figure, plt.Axes]
+    :return: None or Tuple[plt.Figure, plt.Axes].
     """
     try:
         if 'Cell_NTScore' not in ana_data.NT_score.columns:
@@ -126,6 +126,7 @@ def plot_cell_type_along_NT_score(ana_data: AnaData) -> None:
     """
     Plot all visualization of cell type along NT score.
     :param ana_data: AnaData, the data for analysis.
+    :return: None.
     """
     plot_violin_cell_type_along_NT_score(ana_data=ana_data)
     plot_kde_cell_type_along_NT_score(ana_data=ana_data)
@@ -133,14 +134,12 @@ def plot_cell_type_along_NT_score(ana_data: AnaData) -> None:
 
 
 def plot_cell_type_loading_in_niche_clusters(ana_data: AnaData,
-                                             cell_type_dis_df: pd.DataFrame) -> Optional[sns.FacetGrid]:  #,
-    #  nc_order: List[str]) -> Optional[sns.FacetGrid]:
+                                             cell_type_dis_df: pd.DataFrame) -> Optional[sns.FacetGrid]:
     """
     Plot cell type loading in each niche cluster.
     :param ana_data: AnaData, the data for analysis.
     :param cell_type_dis_df: pd.DataFrame, the cell type distribution in each niche cluster.
-    :param nc_order: List[str], the order of niche cluster.
-    :return: None or Tuple[plt.Figure, plt.Axes]
+    :return: None or Tuple[plt.Figure, plt.Axes].
     """
 
     if ana_data.cell_type_codes.shape[0] > 50:
@@ -220,6 +219,7 @@ def plot_cell_type_with_niche_cluster(ana_data: AnaData) -> None:
     """
     Plot all visualization of cell type in each niche cluster.
     :param ana_data: AnaData, the data for analysis.
+    :return: None.
     """
 
     try:
@@ -272,6 +272,7 @@ def cell_type_visualization(ana_data: AnaData) -> None:
     """
     Visualize cell type based output.
     :param ana_data: AnaData, the data for analysis.
+    :return: None.
     """
 
     if ana_data.options.decomposition_expression_input is not None:

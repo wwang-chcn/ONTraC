@@ -9,12 +9,12 @@ from ..utils.decorators import epoch_filter_decorator, selective_args_decorator
 
 def loss_record(epoch: int, batch: int, loss: Tensor, **kwargs):
     """
-    Loss record function
-    :param epoch: epoch number
-    :param loss: loss tensor
-    :param r_loss: reconstruction loss tensor
-    :param g_loss: graph smooth loss tensor
-    :return: None
+    Loss record function.
+    :param epoch: epoch number.
+    :param loss: loss tensor.
+    :param r_loss: reconstruction loss tensor.
+    :param g_loss: graph smooth loss tensor.
+    :return: None.
     """
     other_loss_text = ''
     for key, value in kwargs.items():
@@ -27,10 +27,10 @@ def _moran_I_factor_tensor(X: Tensor, W: Tensor, mask: Tensor) -> Tensor:
     r"""
     Calculate Moran's I.
     :math:`I = \frac{n}{\sum_{i=1}^n\sum_{j=1}^n w_{ij}}\frac{(X-\bar{X})^T W (X-\bar{X})}{\sum_{i=1}^n (X_i-\bar{X})^2}`
-    :param X: np.ndarray, shape: (N, F)
-    :param W: np.ndarray, shape: (N, N)
-    :param mask: np.ndarray, shape: (N, )
-    :return: moran_I
+    :param X: np.ndarray, shape: (N, F).
+    :param W: np.ndarray, shape: (N, N).
+    :param mask: np.ndarray, shape: (N, ).
+    :return: moran_I.
     """
     # --- input shape check ---
     X = X.unsqueeze(1) if X.dim() == 1 else X
@@ -63,11 +63,11 @@ def _moran_I_factor_tensor(X: Tensor, W: Tensor, mask: Tensor) -> Tensor:
 @selective_args_decorator
 def moran_I(output_dir: str, step: int, epoch: int, data: Data, z: Tensor) -> None:
     """
-    Moran's I record function
-    :param epoch: epoch number
-    :param data: torch_geometric.data.Data
-    :param z: hidden embedding tensor
-    :return: None
+    Moran's I record function.
+    :param epoch: epoch number.
+    :param data: torch_geometric.data.Data.
+    :param z: hidden embedding tensor.
+    :return: None.
     """
 
     # --- check if epoch is multiple of step ---
@@ -92,11 +92,11 @@ def moran_I(output_dir: str, step: int, epoch: int, data: Data, z: Tensor) -> No
 @epoch_filter_decorator
 def z_record(output_dir: str, epoch: int, z: Tensor, data: Batch) -> None:
     """
-    Hidden embedding record function
-    :param epoch: epoch number
-    :param batch: batch number
-    :param z: hidden embedding tensor
-    :return: None
+    Hidden embedding record function.
+    :param epoch: epoch number.
+    :param batch: batch number.
+    :param z: hidden embedding tensor.
+    :return: None.
     """
     # --- check whether record ---
 
@@ -115,11 +115,11 @@ def z_record(output_dir: str, epoch: int, z: Tensor, data: Batch) -> None:
 @epoch_filter_decorator
 def s_record(output_dir: str, epoch: int, s: Tensor, data: Batch) -> None:
     """
-    Assignment record function
-    :param epoch: epoch number
-    :param batch: batch number
-    :param s: assignment tensor
-    :return: None
+    Assignment record function.
+    :param epoch: epoch number.
+    :param batch: batch number.
+    :param s: assignment tensor.
+    :return: None.
     """
     # --- check whether record ---
 
@@ -138,11 +138,11 @@ def s_record(output_dir: str, epoch: int, s: Tensor, data: Batch) -> None:
 @epoch_filter_decorator
 def out_record(output_dir: str, epoch: int, out: Tensor, data: Batch) -> None:
     """
-    Output record function
-    :param epoch: epoch number
-    :param batch: batch number
-    :param out: output tensor
-    :return: None
+    Output record function.
+    :param epoch: epoch number.
+    :param batch: batch number.
+    :param out: output tensor.
+    :return: None.
     """
     # --- check whether record ---
 
@@ -161,11 +161,11 @@ def out_record(output_dir: str, epoch: int, out: Tensor, data: Batch) -> None:
 @epoch_filter_decorator
 def out_adj_record(output_dir: str, epoch: int, out_adj: Tensor, data: Batch) -> None:
     """
-    Output adj record function
-    :param epoch: epoch number
-    :param batch: batch number
-    :param out_adj: output adj tensor
-    :return: None
+    Output adj record function.
+    :param epoch: epoch number.
+    :param batch: batch number.
+    :param out_adj: output adj tensor.
+    :return: None.
     """
     # --- check whether record ---
 

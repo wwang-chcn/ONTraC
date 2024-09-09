@@ -23,6 +23,7 @@ IO_OPTIONS = ['input', 'preprocessing_dir', 'GNN_dir', 'NTScore_dir']
 def prepare_ontrac_optparser() -> OptionParser:
     """
     Prepare optparser object. New options will be added in this function first.
+    :return: OptionParser object.
     """
     usage = f'''USAGE: %prog <--meta-input META_INPUT> [--exp-input EXP_INPUT] [--embedding-input EMBEDDING_INPUT]
     [--decomposition-cell-type-composition-input DECOMPOSITION_CELL_TYPE_COMPOSITION_INPUT]
@@ -60,7 +61,8 @@ def prepare_ontrac_optparser() -> OptionParser:
 def opt_ontrac_validate(optparser) -> Values:
     """Validate options from a OptParser object.
 
-    Ret: Validated options object.
+    :param optparser: OptionParser object.
+    :return: Values object.
     """
     (options, args) = optparser.parse_args()
 

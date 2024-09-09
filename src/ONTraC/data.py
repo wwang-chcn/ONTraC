@@ -53,9 +53,9 @@ class SpatailOmicsDataset(InMemoryDataset):
 # ------------------------------------
 def max_nodes(samples: List[Dict[str, str]]) -> int:
     """
-    Get the maximum number of nodes in a dataset
-    :param params: List[Dict[str, str], list of samples
-    :return: int, maximum number of nodes
+    Get the maximum number of nodes in a dataset.
+    :param params: List[Dict[str, str], list of samples.
+    :return: int, maximum number of nodes.
     """
     max_nodes = 0
     for sample in samples:
@@ -65,9 +65,9 @@ def max_nodes(samples: List[Dict[str, str]]) -> int:
 
 def load_dataset(options: Values) -> SpatailOmicsDataset:
     """
-    Load dataset
-    :param options: Values, input options
-    :return: SpatailOmicsDataset, torch dataset
+    Load dataset.
+    :param options: Values, input options.
+    :return: SpatailOmicsDataset, torch dataset.
     """
     params = read_yaml_file(f'{options.preprocessing_dir}/samples.yaml')
     rel_params = get_rel_params(options, params)
@@ -80,9 +80,9 @@ def load_dataset(options: Values) -> SpatailOmicsDataset:
 # ------------------------------------
 def create_torch_dataset(options: Values, params: Dict) -> SpatailOmicsDataset:
     """
-    Create torch dataset
-    :param params: Dict, input samples
-    :return: None
+    Create torch dataset.
+    :param params: Dict, input samples.
+    :return: None.
     """
 
     # Step 1: Get the maximum number of nodes

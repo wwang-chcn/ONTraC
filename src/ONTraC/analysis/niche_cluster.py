@@ -22,7 +22,7 @@ def plot_niche_cluster_connectivity(ana_data: AnaData) -> Optional[Tuple[plt.Fig
     """
     Plot niche cluster connectivity.
     :param ana_data: AnaData, the data for analysis.
-    :return: None or Tuple[plt.Figure, plt.Axes]
+    :return: None or Tuple[plt.Figure, plt.Axes].
     """
     try:
         if ana_data.niche_cluster_score is None or ana_data.niche_cluster_connectivity is None:
@@ -70,7 +70,7 @@ def plot_cluster_proportion(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt
     """
     Plot the proportion of each cluster.
     :param ana_data: AnaData, the data for analysis.
-    :return: None or Tuple[plt.Figure, plt.Axes]
+    :return: None or Tuple[plt.Figure, plt.Axes].
     """
     try:
         if ana_data.niche_cluster_score is None or ana_data.niche_level_niche_cluster_assign is None:
@@ -109,7 +109,7 @@ def plot_niche_cluster_loadings_dataset(ana_data: AnaData) -> Optional[Tuple[plt
     """
     Plot niche cluster loadings for each cell.
     :param ana_data: AnaData, the data for analysis.
-    :return: None or Tuple[plt.Figure, plt.Axes]
+    :return: None or Tuple[plt.Figure, plt.Axes].
     """
 
     try:
@@ -152,7 +152,7 @@ def plot_niche_cluster_loadings_sample(ana_data: AnaData) -> Optional[List[Tuple
     """
     Plot niche cluster loadings for each cell.
     :param ana_data: AnaData, the data for analysis.
-    :return: None or List[Tuple[plt.Figure, plt.Axes]]
+    :return: None or List[Tuple[plt.Figure, plt.Axes]].
     """
 
     try:
@@ -195,7 +195,7 @@ def plot_niche_cluster_loadings(
     """
     Plot niche cluster loadings for each cell.
     :param ana_data: AnaData, the data for analysis.
-    :return: None or Tuple[plt.Figure, plt.Axes]
+    :return: None or Tuple[plt.Figure, plt.Axes].
     """
     if hasattr(ana_data.options, 'sample') and ana_data.options.sample:
         return plot_niche_cluster_loadings_sample(ana_data=ana_data)
@@ -207,7 +207,7 @@ def plot_max_niche_cluster_dataset(ana_data: AnaData) -> Optional[Tuple[plt.Figu
     """
     Plot the maximum niche cluster for each cell.
     :param ana_data: AnaData, the data for analysis.
-    :return: None or Tuple[plt.Figure, plt.Axes]
+    :return: None or Tuple[plt.Figure, plt.Axes].
     """
 
     try:
@@ -256,7 +256,7 @@ def plot_max_niche_cluster_sample(ana_data: AnaData) -> Optional[List[Tuple[plt.
     """
     Plot the maximum niche cluster for each cell.
     :param ana_data: AnaData, the data for analysis.
-    :return: None or List[Tuple[plt.Figure, plt.Axes]]
+    :return: None or List[Tuple[plt.Figure, plt.Axes]].
     """
 
     try:
@@ -304,7 +304,7 @@ def plot_max_niche_cluster(
     """
     Plot the maximum niche cluster for each cell.
     :param ana_data: AnaData, the data for analysis.
-    :return: None or Tuple[plt.Figure, plt.Axes]
+    :return: None or Tuple[plt.Figure, plt.Axes].
     """
     if hasattr(ana_data.options, 'sample') and ana_data.options.sample:
         return plot_max_niche_cluster_sample(ana_data=ana_data)
@@ -316,7 +316,7 @@ def plot_niche_cluster_gini(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt
     """
     Plot the Gini coefficient of each niche cluster.
     :param ana_data: AnaData, the data for analysis.
-    :return: None or Tuple[plt.Figure, plt.Axes]
+    :return: None or Tuple[plt.Figure, plt.Axes].
     """
     try:
         if ana_data.cell_level_niche_cluster_assign is None:
@@ -347,6 +347,7 @@ def niche_cluster_visualization(ana_data: AnaData) -> None:
     """
     All spatial visualization will include here.
     :param ana_data: AnaData, the data for analysis.
+    :return: None.
     """
 
     # 1. plot niche cluster connectivity

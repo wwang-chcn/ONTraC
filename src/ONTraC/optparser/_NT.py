@@ -17,6 +17,7 @@ IO_OPTIONS = ['preprocessing_dir', 'GNN_dir', 'NTScore_dir']
 def prepare_NT_optparser() -> OptionParser:
     """
     Prepare optparser object. New options will be added in thisfunction first.
+    :return: OptionParser object.
     """
     usage = f'''USAGE: %prog <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR>'''
     description = 'PseudoTime: Calculate PseudoTime for each node in a graph'
@@ -62,7 +63,8 @@ def write_NT_options_memo(options: Values) -> None:
 def opt_NT_validate(optparser: OptionParser) -> Values:
     """Validate options from a OptParser object.
 
-    Ret: Validated options object.
+    :param optparser: OptionParser object.
+    :return: Values object.
     """
 
     (options, args) = optparser.parse_args()

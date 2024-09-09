@@ -16,9 +16,9 @@ from ..train import SubBatchTrainProtocol
 
 def load_data(options: Values) -> Tuple[SpatailOmicsDataset, DenseDataLoader]:
     """
-    Load data and create sample loader
-    :param options: options
-    :return: dataset, sample_loader
+    Load data and create sample loader.
+    :param options: options.
+    :return: dataset, sample_loader.
     """
 
     info('Loading dataset.')
@@ -32,8 +32,9 @@ def load_data(options: Values) -> Tuple[SpatailOmicsDataset, DenseDataLoader]:
 
 def set_seed(seed: int) -> None:
     """
-    Set seed
-    :param seed: seed
+    Set seed.
+    :param seed: seed.
+    :return: None.
     """
 
     random.seed(seed)
@@ -48,14 +49,14 @@ def train(options: Values,
           inspect_funcs: Optional[List[Callable]] = None,
           model_name: str = 'GNN') -> SubBatchTrainProtocol:
     """
-    GNN training process
-    :param options: options
-    :param nn_model: torch.nn.Module, GNN model
-    :param BatchTrain: Type[SubBatchTrainProtocol], batch train class
-    :param sample_loader: DenseDataLoader, sample loader
-    :param inspect_funcs: list of inspect functions
-    :param model_name: str, model name
-    :return: batch_train
+    GNN training process.
+    :param options: options.
+    :param nn_model: torch.nn.Module, GNN model.
+    :param BatchTrain: Type[SubBatchTrainProtocol], batch train class.
+    :param sample_loader: DenseDataLoader, sample loader.
+    :param inspect_funcs: list of inspect functions.
+    :param model_name: str, model name.
+    :return: batch_train.
     """
     optimizer = torch.optim.Adam(nn_model.parameters(), lr=options.lr)
     batch_train = BatchTrain(model=nn_model, device=torch.device(options.device),
@@ -83,9 +84,9 @@ def train(options: Values,
 def evaluate(batch_train: SubBatchTrainProtocol, model_name: str) -> None:
     """
     Evaluate the performance of ONTraC model on data.
-    :param batch_train: SubBatchTrainProtocol, batch train
-    :param model_name: str, model name
-    :return: None
+    :param batch_train: SubBatchTrainProtocol, batch train.
+    :param model_name: str, model name.
+    :return: None.
     """
     info(message=f'Evaluating process start.')
     loss_dict: Dict[str, np.floating] = batch_train.evaluate()  # type: ignore
@@ -97,11 +98,11 @@ def predict(output_dir: str, batch_train: SubBatchTrainProtocol, dataset: Spatai
             model_name: str) -> Tuple[Optional[np.ndarray], Optional[np.ndarray]]:
     """
     Predict the results of ONTraC model on data.
-    :param output_dir: str, output directory
-    :param batch_train: SubBatchTrainProtocol, batch train
-    :param dataset: SpatailOmicsDataset, dataset
-    :param model_name: str, model name
-    :return: consolidate_s_array, consolidate_out_adj_array
+    :param output_dir: str, output directory.
+    :param batch_train: SubBatchTrainProtocol, batch train.
+    :param dataset: SpatailOmicsDataset, dataset.
+    :param model_name: str, model name.
+    :return: consolidate_s_array, consolidate_out_adj_array.
     """
     info(f'Predicting process start.')
     each_sample_loader = DenseDataLoader(dataset, batch_size=1)
@@ -161,12 +162,12 @@ def save_graph_pooling_results(meta_data_df: pd.DataFrame, dataset: SpatailOmics
                                consolidate_s_array: np.ndarray, output_dir: str) -> None:
     """
     Save graph pooling results as the Niche cluster (max probability for each niche & cell).
-    :param meta_data_df: pd.DataFrame, original data. Sample and Cell_ID columns are used.
-    :param dataset: SpatailOmicsDataset, dataset
-    :param rel_params: dict, relative parameters
-    :param consolidate_s_array: np.ndarray, consolidate s array
-    :param output_dir: str, output directory
-    :return: None
+    :param meta_data_df: pd.DataFrame, meta data. Sample and Cell_ID columns are used.
+    :param dataset: SpatailOmicsDataset, dataset.
+    :param rel_params: dict, relative parameters.
+    :param consolidate_s_array: np.ndarray, consolidate s array.
+    :param output_dir: str, output directory.
+    :return: None.
     """
 
     consolidate_s_niche_df = pd.DataFrame()

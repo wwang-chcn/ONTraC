@@ -18,10 +18,10 @@ from ..utils import get_rel_params, read_yaml_file
 
 def load_parameters(opt_validate_func: Callable, prepare_optparser_func: Callable) -> Values:
     """
-    Load parameters
-    :param opt_validate_func: validate function
-    :param prepare_optparser_func: prepare optparser function
-    :return: options
+    Load parameters.
+    :param opt_validate_func: validate function.
+    :param prepare_optparser_func: prepare optparser function.
+    :return: options.
     """
     options = opt_validate_func(prepare_optparser_func())
 
@@ -30,10 +30,10 @@ def load_parameters(opt_validate_func: Callable, prepare_optparser_func: Callabl
 
 def niche_network_construct(options: Values, ori_data_df: pd.DataFrame) -> None:
     """
-    Niche network construct process
-    :param options: options
-    :param ori_data_df: pd.DataFrame, original data
-    :return: None
+    Niche network construct process.
+    :param options: options.
+    :param ori_data_df: pd.DataFrame, original data.
+    :return: None.
     """
 
     info('------------- Niche network construct --------------- ')
@@ -55,10 +55,13 @@ def niche_network_construct(options: Values, ori_data_df: pd.DataFrame) -> None:
 def gnn(options: Values, meta_data_df: pd.DataFrame, nn_model: Type[torch.nn.Module],
         BatchTrain: Type[SubBatchTrainProtocol], inspect_funcs: Optional[List[Callable]]) -> None:
     """
-    GNN training and prediction process
-    :param options: options
-    :param meta_data_df: pd.DataFrame, meta data
-    :return: None
+    GNN training and prediction process.
+    :param options: options.
+    :param meta_data_df: pd.DataFrame, meta data.
+    :param nn_model: nn model.
+    :param BatchTrain: batch train.
+    :param inspect_funcs: inspect functions.
+    :return: None.
     """
 
     info('------------------------ GNN ------------------------ ')
@@ -96,11 +99,9 @@ def gnn(options: Values, meta_data_df: pd.DataFrame, nn_model: Type[torch.nn.Mod
 
 def NTScore(options: Values) -> None:
     """
-    Pseudotime calculateion process
-    :param options: options
-    :param consolidate_s_array: consolidate s array
-    :param consolidate_out_adj_array: consolidate out adj array
-    :return: None
+    Pseudotime calculateion process.
+    :param options: options.
+    :return: None.
     """
 
     info('----------------- Niche trajectory ------------------ ')

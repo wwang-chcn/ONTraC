@@ -86,6 +86,7 @@ def validate_niche_net_constr_options(optparser: OptionParser, options: Values) 
     Validate niche network construction options.
     :param optparser: OptionParser object.
     :param options: Options object.
+    :return: None.
     """
     if options.n_cpu < 1:
         error('n_cpu must be greater than 0.')
@@ -120,11 +121,11 @@ def write_preprocessing_memo(options: Values):
     info('      -------- preprocessing options -------      ')
     info(f'resolution: {options.resolution}')
 
-def write_niche_net_constr_memo(options: Values):
+def write_niche_net_constr_memo(options: Values) -> None:
     """Write niche network construction memos to stdout.
 
-    Args:
-        options: Options object.
+    :param options: Options object.
+    :return: None.
     """
 
     # print parameters to stdout
@@ -139,6 +140,7 @@ def write_niche_net_constr_memo(options: Values):
 def prepare_preprocessing_optparser() -> OptionParser:
     """
     Prepare optparser object. New options will be added in thisfunction first.
+    :return: OptionParser object.
     """
 
     usage = f'''USAGE: %prog <--meta-input META_INPUT> [--exp-input EXP_INPUT] [--embedding-input EMBEDDING_INPUT]
@@ -165,7 +167,8 @@ def prepare_preprocessing_optparser() -> OptionParser:
 def opt_preprocessing_validate(optparser) -> Values:
     """Validate options from a OptParser object.
 
-    Ret: Validated options object.
+    :param optparser: OptionParser object.
+    :return: Values object.
     """
 
     (options, args) = optparser.parse_args()
