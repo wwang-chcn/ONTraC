@@ -153,6 +153,7 @@ def validate_GNN_options(optparser: OptionParser, options: Values) -> Values:
 
     return options
 
+
 def validate_NP_options(optparser: OptionParser, options: Values) -> Values:
     """
     Validate Node Pooling options.

@@ -4,7 +4,9 @@
 
 Added:
 
+- `ONTraC_GNN` for running GNN only
 - GNN parameters group validation
+- More functions descriptions under GNN part
 
 Changed:
 
@@ -179,8 +181,8 @@ Added
 
 - Added package description
 - Added `.gitignore` to remove unnecessary files
-- Added `ONTraC` for run all steps together
-- Added `NTScore` for generate NTScore from GNN output
+- Added `ONTraC` for running all steps together
+- Added `NTScore` for generating NTScore from GNN output
 - Added pip installation support
 
 Changed:
