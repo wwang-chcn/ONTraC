@@ -2,6 +2,10 @@
 
 ## [1.0.6] - 2024-XXX-XX
 
+Added:
+
+- GNN parameters group validation
+
 Changed:
 
 - rename `GP` to `ONTraC_GP`

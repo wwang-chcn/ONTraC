@@ -1,5 +1,3 @@
-import os
-import sys
 from optparse import OptionParser, Values
 
 from ..log import *
@@ -54,6 +52,8 @@ def opt_GP_validate(optparser: OptionParser) -> Values:
 
     validate_io_options(optparser, options, IO_OPTIONS)
     validate_train_options(optparser, options)
+    validate_GNN_options(optparser, options)
+    validate_NP_options(optparser, options)
 
     info('------------------ RUN params memo ------------------ ')
     # print parameters to stdout
