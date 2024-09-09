@@ -99,9 +99,6 @@ def load_meta_data(options: Values) -> pd.DataFrame:
 
     meta_data_df = valid_meta_data(options=options, meta_data_df=meta_data_df)
 
-    if 'Cell_Type' in meta_data_df.columns:
-        save_cell_type_code(options=options, meta_data_df=meta_data_df)
-
     return meta_data_df
 
 
