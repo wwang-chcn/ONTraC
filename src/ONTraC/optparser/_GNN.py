@@ -1,32 +1,30 @@
 from optparse import OptionParser, Values
+from tkinter import W
 
 from ..log import *
 from ..version import __version__
 from ._IO import *
 from ._train import *
-from ._NT import add_NT_options_group, write_NT_options_memo
 
 # ------------------------------------
 # Constants
 # ------------------------------------
-IO_OPTIONS = ['input', 'preprocessing_dir', 'GNN_dir', 'NTScore_dir']
+IO_OPTIONS = ['dataset', 'preprocessing_dir', 'GNN_dir']
 
 
 # ------------------------------------
 # Functions
 # ------------------------------------
-def prepare_GP_optparser() -> OptionParser:
+def prepare_GNN_optparser() -> OptionParser:
     """
     Prepare optparser object. New options will be added in thisfunction first.
     """
-    usage = f'''USAGE: %prog <--meta-input META_INPUT> [--exp-input EXP_INPUT] [--embedding-input EMBEDDING_INPUT]
-    [--decomposition-cell-type-composition-input DECOMPOSITION_CELL_TYPE_COMPOSITION_INPUT]
-    [--decomposition-expression-input DECOMPOSITION_EXPRESSION_INPUT] <--preprocessing-dir PREPROCESSING_DIR>
-    <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR>  [--device DEVICE] [--epochs EPOCHS] [--patience PATIENCE]
-    [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] [-s SEED] [--seed SEED] [--lr LR]
-    [--hidden-feats HIDDEN_FEATS] [-k K_CLUSTERS] [--modularity-loss-weight MODULARITY_LOSS_WEIGHT]
-    [--purity-loss-weight PURITY_LOSS_WEIGHT] [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA]'''
-    description = 'GP (Graph Pooling): GNN & Node Pooling'
+    usage = f'''USAGE: %prog <-d DATASET> <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> 
+    [--device DEVICE] [--epochs EPOCHS] [--patience PATIENCE] [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] 
+    [-s SEED] [--seed SEED] [--lr LR] [--hidden-feats HIDDEN_FEATS] [-k K_CLUSTERS]
+    [--modularity-loss-weight MODULARITY_LOSS_WEIGHT] [--purity-loss-weight PURITY_LOSS_WEIGHT] 
+    [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA]'''
+    description = 'Graph Neural Network (GNN)'
 
     # option processor
     optparser = OptionParser(version=f'%prog {__version__}',
@@ -42,13 +40,10 @@ def prepare_GP_optparser() -> OptionParser:
     add_GNN_options_group(group_train)
     add_NP_options_group(group_train)
 
-    # Niche trajectory
-    add_NT_options_group(optparser)
-
     return optparser
 
 
-def opt_GP_validate(optparser: OptionParser) -> Values:
+def opt_GNN_validate(optparser: OptionParser) -> Values:
     """Validate options from a OptParser object.
 
     Ret: Validated options object.
@@ -67,7 +62,6 @@ def opt_GP_validate(optparser: OptionParser) -> Values:
     write_train_options_memo(options)
     write_GNN_options_memo(options)
     write_NP_options_memo(options)
-    write_NT_options_memo(options)
     info('--------------- RUN params memo end ----------------- ')
 
     return options

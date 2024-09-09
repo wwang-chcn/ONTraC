@@ -102,16 +102,16 @@ Options:
                         the number of cells in each sample. Default is 20.
 ```
 
-### Full parameters for GP
+### Full parameters for ONTraC_GNN
 
 ```{text}
-Usage: GP <-d DATASET> <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR> 
-    [--device DEVICE] [--epochs EPOCHS] [--patience PATIENCE] [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] 
+Usage: ONTraC_GNN <-d DATASET> <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> [--device DEVICE]
+    [--epochs EPOCHS] [--patience PATIENCE] [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] 
     [-s SEED] [--seed SEED] [--lr LR] [--hidden-feats HIDDEN_FEATS] [-k K_CLUSTERS]
     [--modularity-loss-weight MODULARITY_LOSS_WEIGHT] [--purity-loss-weight PURITY_LOSS_WEIGHT] 
     [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA]
 
-GP (Graph Pooling): GNN & Node Pooling
+ONTraC_GP (Graph Pooling): GNN & Node Pooling
 
 Options:
   --version             show program's version number and exit
@@ -202,6 +202,63 @@ Options:
     --GNN-dir=GNN_DIR   Directory for the GNN output.
     --NTScore-dir=NTSCORE_DIR
                         Directory for the NTScore output.
+```
+
+### Full parameters for ONTraC_GP
+
+```{text}
+Usage: ONTraC_GP <-d DATASET> <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR> 
+    [--device DEVICE] [--epochs EPOCHS] [--patience PATIENCE] [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] 
+    [-s SEED] [--seed SEED] [--lr LR] [--hidden-feats HIDDEN_FEATS] [-k K_CLUSTERS]
+    [--modularity-loss-weight MODULARITY_LOSS_WEIGHT] [--purity-loss-weight PURITY_LOSS_WEIGHT] 
+    [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA]
+
+ONTraC_GP (Graph Pooling): GNN & Node Pooling
+
+Options:
+  --version             show program's version number and exit
+  -h, --help            show this help message and exit
+
+  IO:
+    -d DATASET, --dataset=DATASET
+                        Original input dataset.
+    --preprocessing-dir=PREPROCESSING_DIR
+                        Directory for preprocessing outputs.
+    --GNN-dir=GNN_DIR   Directory for the GNN output.
+    --NTScore-dir=NTSCORE_DIR
+                        Directory for the NTScore output.
+
+  Options for training:
+    --device=DEVICE     Device for training. We support cpu and cuda now. Auto
+                        select if not specified.
+    --epochs=EPOCHS     Number of maximum epochs for training. Default is
+                        1000.
+    --patience=PATIENCE
+                        Number of epochs wait for better result. Default is
+                        100.
+    --min-delta=MIN_DELTA
+                        Minimum delta for better result. Default is 0.001
+    --min-epochs=MIN_EPOCHS
+                        Minimum number of epochs for training. Default is 50.
+                        Set to 0 to disable.
+    --batch-size=BATCH_SIZE
+                        Batch size for training. Default is 0 for whole
+                        dataset.
+    -s SEED, --seed=SEED
+                        Random seed for training. Default is random.
+    --lr=LR             Learning rate for training. Default is 0.03.
+    --hidden-feats=HIDDEN_FEATS
+                        Number of hidden features. Default is 4.
+    -k K, --k-clusters=K
+                        Number of niche clusters. Default is 6.
+    --modularity-loss-weight=MODULARITY_LOSS_WEIGHT
+                        Weight for modularity loss. Default is 0.3.
+    --purity-loss-weight=PURITY_LOSS_WEIGHT
+                        Weight for purity loss. Default is 300.
+    --regularization-loss-weight=REGULARIZATION_LOSS_WEIGHT
+                        Weight for regularization loss. Default is 0.1.
+    --beta=BETA         Beta value control niche cluster assignment matrix.
+                        Default is 0.03.
 ```
 
 ## Detailed explanation

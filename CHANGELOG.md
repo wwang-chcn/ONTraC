@@ -25,6 +25,18 @@ Fixed:
 
 - Resolved bug in regularization loss calculation for multi-sample batches
 
+## [1.0.6] - 2024-XXX-XX
+
+Added:
+
+- `ONTraC_GNN` for running GNN only
+- GNN parameters group validation
+- More functions descriptions under GNN part
+
+Changed:
+
+- rename `GP` to `ONTraC_GP`
+
 ## [1.0.5] - 2024-Sep-8
 
 Added:
@@ -199,8 +211,8 @@ Added
 
 - Added package description
 - Added `.gitignore` to remove unnecessary files
-- Added `ONTraC` for run all steps together
-- Added `NTScore` for generate NTScore from GNN output
+- Added `ONTraC` for running all steps together
+- Added `NTScore` for generating NTScore from GNN output
 - Added pip installation support
 
 Changed:
