@@ -2,7 +2,7 @@ from optparse import Values
 
 import pytest
 import torch
-from torch_geometric.loader import DenseDataLoader
+from torch_geometric.loader import DataLoader
 
 from ONTraC.data import load_dataset
 from ONTraC.GNN._GNN import SpatailOmicsDataset
@@ -33,9 +33,9 @@ def dataset(options: Values) -> SpatailOmicsDataset:
 
 
 @pytest.fixture()
-def sample_loader(options: Values, dataset: SpatailOmicsDataset) -> DenseDataLoader:
+def sample_loader(options: Values, dataset: SpatailOmicsDataset) -> DataLoader:
     batch_size = options.batch_size if options.batch_size > 0 else len(dataset)
-    sample_loader = DenseDataLoader(dataset, batch_size=batch_size)
+    sample_loader = DataLoader(dataset, batch_size=batch_size)
     return sample_loader
 
 
@@ -49,11 +49,11 @@ def nn_model(options: Values, dataset: SpatailOmicsDataset) -> torch.nn.Module:
     return model
 
 
-def test_train(options: Values, sample_loader: DenseDataLoader, nn_model: torch.nn.Module) -> None:
+def test_train(options: Values, sample_loader: DataLoader, nn_model: torch.nn.Module) -> None:
     """
     Test the training process of GNN.
     :param options: options.
-    :param sample_loader: DenseDataLoader, sample loader.
+    :param sample_loader: DataLoader, sample loader.
     :param nn_model: torch.nn.Module, GNN model.
     :return: None.
     """
@@ -67,4 +67,5 @@ def test_train(options: Values, sample_loader: DenseDataLoader, nn_model: torch.
     batch_train.train_epoch(epoch=1)
     trained_params = torch.load(f'{options.GNN_dir}/epoch_1.pt', map_location=torch.device('cpu'))
     for k, v in nn_model.named_parameters():
-        assert torch.allclose(v, trained_params[k], rtol=0.05)  # there are some difference between linux and macOS (may be caused by chip?)
+        assert torch.allclose(v, trained_params[k],
+                              rtol=0.05)  # there are some difference between linux and macOS (may be caused by chip?)

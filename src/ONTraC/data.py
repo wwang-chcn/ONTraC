@@ -4,7 +4,6 @@ from typing import Dict, List
 import numpy as np
 import pandas as pd
 import torch
-import torch_geometric.transforms as T
 from torch_geometric.data import Data, InMemoryDataset
 
 from .log import *
@@ -39,8 +38,11 @@ class SpatailOmicsDataset(InMemoryDataset):
             info(f'Processing sample {index + 1} of {len(self.params["Data"])}: {sample["Name"]}')
             data = Data(
                 x=torch.from_numpy(np.loadtxt(sample['Features'], dtype=np.float32, delimiter=',')),
-                edge_index=torch.from_numpy(np.loadtxt(sample['EdgeIndex'], dtype=np.int64,
-                                                       delimiter=',')).t().contiguous(),
+                edge_index=torch.from_numpy(
+                    np.loadtxt(
+                        sample['EdgeIndex'],
+                        dtype=np.int64,  # int32 should be enought
+                        delimiter=',')).t().contiguous(),
                 # TODO: support 3D coordinates
                 pos=torch.from_numpy(pd.read_csv(sample['Coordinates'])[['x', 'y']].values),
                 name=sample['Name'])
@@ -85,14 +87,6 @@ def create_torch_dataset(options: Values, params: Dict) -> SpatailOmicsDataset:
     :return: None.
     """
 
-    # Step 1: Get the maximum number of nodes
-    m_nodes = max_nodes(params['Data'])
-    # upcelling m_nodes to the nearest 100
-    m_nodes = int(np.ceil(m_nodes / 100.0)) * 100
-    info(f'Maximum number of cell in one sample is: {m_nodes}.')
-
-    # Step 2: Create torch dataset
-    dataset = SpatailOmicsDataset(root=options.preprocessing_dir, params=params,
-                                  transform=T.ToDense(m_nodes))  # transform edge_index to adj matrix
+    dataset = SpatailOmicsDataset(root=options.preprocessing_dir, params=params)  # transform edge_index to adj matrix
     dataset.process()
     return dataset

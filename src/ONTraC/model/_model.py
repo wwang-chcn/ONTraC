@@ -1,11 +1,12 @@
-from typing import Optional, Tuple
+from typing import Tuple
 
 import torch
 from torch import Tensor
+from torch_geometric.typing import OptTensor
 
 from ..log import *
-from .dmon_exp_pool import DMoNPooling
-from .norm_dense_gcn_conv import NormDenseGCNConv
+from .dmon_exp_pool import SparseDMoNPooling
+from .norm_gcn_conv import NormGCNConv
 
 
 class NodePooling(torch.nn.Module):
@@ -17,7 +18,7 @@ class NodePooling(torch.nn.Module):
         super().__init__(*args, **kwargs)
         self.dropout = dropout
         self.exponent = exponent
-        self.pool = DMoNPooling(channels=input_feats, k=k, dropout=0, exponent=self.exponent)
+        self.pool = SparseDMoNPooling(channels=input_feats, k=k, dropout=0, exponent=self.exponent)
         self.k = k
 
         self.reset_parameters()
@@ -25,10 +26,14 @@ class NodePooling(torch.nn.Module):
     def reset_parameters(self) -> None:
         self.pool.reset_parameters()
 
-    def forward(self,
-                x: Tensor,
-                adj: Tensor,
-                mask: Optional[Tensor] = None) -> Tuple[Tensor, Tensor, Tensor, Tensor, Tensor, Tensor]:
+    def forward(
+        self,
+        x: Tensor,
+        edge_index: Tensor,
+        edge_weight: OptTensor = None,
+        batch: OptTensor = None,
+        ptr: OptTensor = None,
+    ) -> Tuple[Tensor, Tensor, Tensor, Tensor, Tensor, Tensor]:
         r"""
         forward function
         Args:
@@ -36,19 +41,35 @@ class NodePooling(torch.nn.Module):
                 :math:`\mathbf{X} \in \mathbb{R}^{B \times N \times F}`, with
                 batch-size :math:`B`, (maximum) number of nodes :math:`N` for
                 each graph, and feature dimension :math:`F`.
-            adj (torch.Tensor): Adjacency tensor
-                :math:`\mathbf{A} \in \mathbb{R}^{B \times N \times N}`.
-            mask (torch.Tensor, optional): Mask matrix
-                :math:`\mathbf{M} \in {\{ 0, 1 \}}^{B \times N}` indicating
-                the valid nodes for each graph. (default: :obj:`None`)
+            edge_index (torch.Tensor): Edge index tensor
+                :math:`\mathbf{E} \in \mathbb{R}^{2 \times E}`.
+            edge_weight (torch.Tensor, optional): Edge weight tensor
+                :math:`\mathbf{E} \in \mathbb{R}^{E}`.
+            batch (torch.Tensor, optional): Batch vector with shape :obj:`[N]` and type
+                :obj:`torch.long`.
+            ptr (torch.Tensor, optional): Pointer vector holding the start
+                and end (exclusive) index of node of each graph in a
+                mini-batch. Its shape must be of shape :obj:`[V + 1]` with
+                :obj:`V` referring to the number of graphs in the mini-batch.
         Returns:
             Tensor: output feature matrix
         """
-        s, out, out_adj, spectral_loss, ortho_loss, cluster_loss = self.pool(x=x, adj=adj, mask=mask)
+        s, out, out_adj, spectral_loss, ortho_loss, cluster_loss = self.pool(x=x,
+                                                                             edge_index=edge_index,
+                                                                             edge_weight=edge_weight,
+                                                                             batch=batch,
+                                                                             ptr=ptr)
         return s, out, out_adj, spectral_loss, ortho_loss, cluster_loss
 
-    def predict(self, x: Tensor, adj: Tensor, mask: Optional[Tensor] = None) -> Tuple[Tensor, Tensor, Tensor]:
-        s, out, out_adj, *_ = self.pool(x=x, adj=adj, mask=mask)
+    def predict(
+        self,
+        x: Tensor,
+        edge_index: Tensor,
+        edge_weight: OptTensor = None,
+        batch: OptTensor = None,
+        ptr: OptTensor = None,
+    ) -> Tuple[Tensor, Tensor, Tensor]:
+        s, out, out_adj, *_ = self.pool(x=x, edge_index=edge_index, edge_weight=edge_weight, batch=batch, ptr=ptr)
         return s, out, out_adj
 
 
@@ -66,9 +87,9 @@ class GraphPooling(torch.nn.Module):
                  *args,
                  **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self.gcn1 = NormDenseGCNConv(input_feats, hidden_feats)
+        self.gcn1 = NormGCNConv(input_feats, hidden_feats)
         self.activation1 = torch.nn.SELU()
-        self.gcn2 = NormDenseGCNConv(hidden_feats, hidden_feats)
+        self.gcn2 = NormGCNConv(hidden_feats, hidden_feats)
         self.activation2 = torch.nn.SELU()
         self.pool = NodePooling(input_feats=hidden_feats, k=k, dropout=dropout, exponent=exponent)
         self.k = k
@@ -80,10 +101,14 @@ class GraphPooling(torch.nn.Module):
         self.gcn2.reset_parameters()
         self.pool.reset_parameters()
 
-    def forward(self,
-                x: Tensor,
-                adj: Tensor,
-                mask: Optional[Tensor] = None) -> Tuple[Tensor, Tensor, Tensor, Tensor, Tensor, Tensor]:
+    def forward(
+        self,
+        x: Tensor,
+        edge_index: Tensor,
+        edge_weight: OptTensor = None,
+        batch: OptTensor = None,
+        ptr: OptTensor = None,
+    ) -> Tuple[Tensor, Tensor, Tensor, Tensor, Tensor, Tensor]:
         r"""
         forward function
         X' = \mathbf{\hat{L}}X\mathbf{\Theta}
@@ -95,29 +120,53 @@ class GraphPooling(torch.nn.Module):
                 :math:`\mathbf{X} \in \mathbb{R}^{B \times N \times F}`, with
                 batch-size :math:`B`, (maximum) number of nodes :math:`N` for
                 each graph, and feature dimension :math:`F`.
-            adj (torch.Tensor): Adjacency tensor
-                :math:`\mathbf{A} \in \mathbb{R}^{B \times N \times N}`.
-            mask (torch.Tensor, optional): Mask matrix
-                :math:`\mathbf{M} \in {\{ 0, 1 \}}^{B \times N}` indicating
-                the valid nodes for each graph. (default: :obj:`None`)
+            edge_index (torch.Tensor): Edge index tensor
+                :math:`\mathbf{E} \in \mathbb{R}^{2 \times E}`.
+            edge_weight (torch.Tensor, optional): Edge weight tensor
+                :math:`\mathbf{E} \in \mathbb{R}^{E}`.
+            batch (torch.Tensor): Batch vector with shape :obj:`[N]` and type
+                :obj:`torch.long`.
+            ptr (torch.Tensor): Pointer vector holding the start
+                and end (exclusive) index of node of each graph in a
+                mini-batch. Its shape must be of shape :obj:`[V + 1]` with
+                :obj:`V` referring to the number of graphs in the mini-batch.
         Returns:
             Tensor: output feature matrix
         """
-        x = self.activation1(self.gcn1(x=x, adj=adj, mask=mask))
-        x = self.activation2(self.gcn2(x=x, adj=adj, mask=mask))
-        s, out, out_adj, spectral_loss, ortho_loss, cluster_loss = self.pool(x=x, adj=adj, mask=mask)
+        x = self.activation1(self.gcn1(x=x, edge_index=edge_index, edge_weight=edge_weight))
+        x = self.activation2(self.gcn2(x=x, edge_index=edge_index, edge_weight=edge_weight))
+        s, out, out_adj, spectral_loss, ortho_loss, cluster_loss = self.pool(x=x,
+                                                                             edge_index=edge_index,
+                                                                             edge_weight=edge_weight,
+                                                                             batch=batch,
+                                                                             ptr=ptr)
         return s, out, out_adj, spectral_loss, ortho_loss, cluster_loss
 
-    def evaluate(self,
-                 x: Tensor,
-                 adj: Tensor,
-                 mask: Optional[Tensor] = None) -> Tuple[Tensor, Tensor, Tensor, Tensor, Tensor, Tensor]:
-        x = self.activation1(self.gcn1(x=x, adj=adj, mask=mask))
-        x = self.activation2(self.gcn2(x=x, adj=adj, mask=mask))
-        s, out, out_adj, spectral_loss, ortho_loss, cluster_loss = self.pool(x=x, adj=adj, mask=mask)
+    def evaluate(
+        self,
+        x: Tensor,
+        edge_index: Tensor,
+        edge_weight: OptTensor = None,
+        batch: OptTensor = None,
+        ptr: OptTensor = None,
+    ) -> Tuple[Tensor, Tensor, Tensor, Tensor, Tensor, Tensor]:
+        x = self.activation1(self.gcn1(x=x, edge_index=edge_index, edge_weight=edge_weight))
+        x = self.activation2(self.gcn2(x=x, edge_index=edge_index, edge_weight=edge_weight))
+        s, out, out_adj, spectral_loss, ortho_loss, cluster_loss = self.pool(x=x,
+                                                                             edge_index=edge_index,
+                                                                             edge_weight=edge_weight,
+                                                                             batch=batch,
+                                                                             ptr=ptr)
         return s, out, out_adj, spectral_loss, ortho_loss, cluster_loss
 
-    def predict(self, x: Tensor, adj: Tensor, mask: Optional[Tensor] = None) -> Tuple[Tensor, Tensor, Tensor]:
+    def predict(
+        self,
+        x: Tensor,
+        edge_index: Tensor,
+        edge_weight: OptTensor = None,
+        batch: OptTensor = None,
+        ptr: OptTensor = None,
+    ) -> Tuple[Tensor, Tensor, Tensor]:
         r"""
         predict function
         Args:
@@ -125,11 +174,16 @@ class GraphPooling(torch.nn.Module):
                 :math:`\mathbf{X} \in \mathbb{R}^{B \times N \times F}`, with
                 batch-size :math:`B`, (maximum) number of nodes :math:`N` for
                 each graph, and feature dimension :math:`F`.
-            adj (torch.Tensor): Adjacency tensor
-                :math:`\mathbf{A} \in \mathbb{R}^{B \times N \times N}`.
-            mask (torch.Tensor, optional): Mask matrix\
-                :math:`\mathbf{M} \in {\{ 0, 1 \}}^{B \times N}` indicating\
-                the valid nodes for each graph. (default: :obj:`None`)
+            edge_index (torch.Tensor): Edge index tensor
+                :math:`\mathbf{E} \in \mathbb{R}^{2 \times E}`.
+            edge_weight (torch.Tensor, optional): Edge weight tensor
+                :math:`\mathbf{E} \in \mathbb{R}^{E}`.
+            batch (torch.Tensor): Batch vector with shape :obj:`[N]` and type
+                :obj:`torch.long`.
+            ptr (torch.Tensor, optional): Pointer vector holding the start
+                and end (exclusive) index of node of each graph in a
+                mini-batch. Its shape must be of shape :obj:`[V + 1]` with
+                :obj:`V` referring to the number of graphs in the mini-batch.
         Returns:
             s (torch.Tensor): Node assignment matrix
                 :math:`\mathbf{S} \in \mathbb{R}^{B \times N \times K}`
@@ -138,14 +192,14 @@ class GraphPooling(torch.nn.Module):
             out_adj (torch.Tensor): Output adjacency matrix
                 :math:`\mathbf{A} \in \mathbb{R}^{B \times K \times K}`
             """
-        x = self.activation1(self.gcn1(x=x, adj=adj, mask=mask))
-        x = self.activation2(self.gcn2(x=x, adj=adj, mask=mask))
-        s, out, out_adj, *_ = self.pool(x=x, adj=adj, mask=mask)
+        x = self.activation1(self.gcn1(x=x, edge_index=edge_index, edge_weight=edge_weight))
+        x = self.activation2(self.gcn2(x=x, edge_index=edge_index, edge_weight=edge_weight))
+        s, out, out_adj, *_ = self.pool(x=x, edge_index=edge_index, edge_weight=edge_weight, batch=batch, ptr=ptr)
         return s, out, out_adj
 
-    def predict_embed(self, x: Tensor, adj: Tensor, mask: Optional[Tensor] = None) -> Tensor:
-        x = self.activation1(self.gcn1(x=x, adj=adj, mask=mask))
-        x = self.activation2(self.gcn2(x=x, adj=adj, mask=mask))
+    def predict_embed(self, x: Tensor, edge_index: Tensor, edge_weight: OptTensor = None) -> Tensor:
+        x = self.activation1(self.gcn1(x=x, edge_index=edge_index, edge_weight=edge_weight))
+        x = self.activation2(self.gcn2(x=x, edge_index=edge_index, edge_weight=edge_weight))
         return x
 
 

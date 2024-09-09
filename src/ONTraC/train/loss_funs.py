@@ -128,3 +128,47 @@ def masked_variance(x, mask):
     var_x = torch.sum(diff * diff * mask.unsqueeze(-1)) / sum_mask
 
     return var_x
+
+
+def sparse_within_cluster_variance_loss(x: Tensor, s: Tensor) -> Tensor:
+    """
+    Calculate within cluster variance loss
+    Args:
+        x: input tensor, shape: (N, F)
+        s: soft cluster assignment matrix, shape: (N, C)
+    Returns:
+        loss: within cluster variance loss
+    """
+
+    # --- Compute the cluster centroids ---
+    sum_x = torch.einsum('nf,nc->cf', x, s)  # C x F, sum of each cluster
+    num_points = torch.sum(s, dim=0) + 1e-10  # avoid divide by zero
+    centroids = sum_x / num_points.unsqueeze(-1)  # C x F, mean of each cluster
+
+    # --- Compute the squared distance from the centroids ---
+    expanded_centroids = torch.einsum('cf,nc->nf', centroids, s)  # N x F
+    squared_distance = (x - expanded_centroids)**2  # N x F
+
+    # --- Compute the loss ---
+    loss = torch.sum(squared_distance) / x.shape[0]  # average over all nodes
+
+    return loss
+
+
+def varience(x: Tensor) -> Tensor:
+    """
+    Calculate variance of x
+    Args:
+        x: input tensor, shape: (N, F)
+    Returns:
+        variance
+    """
+
+    # Calculate the mean
+    mean_x = torch.mean(x, dim=0)
+
+    # Calculate the variance
+    diff = x - mean_x
+    var_x = torch.mean(diff * diff)
+
+    return var_x

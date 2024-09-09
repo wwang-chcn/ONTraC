@@ -9,10 +9,10 @@ from torch_geometric.loader import DataLoader
 
 from ONTraC.utils.decorators import selective_args_decorator
 
-from ..log import debug
+from ..log import debug, error
 from ..utils import round_epoch_filter
 from ..utils.decorators import selective_args_decorator
-from .loss_funs import masked_variance, within_cluster_variance_loss
+from .loss_funs import sparse_within_cluster_variance_loss, varience
 
 
 class BatchTrain(ABC):
@@ -49,6 +49,7 @@ class BatchTrain(ABC):
         for epoch in range(max_epochs):
             train_loss = self.train_epoch(epoch=epoch)
             if np.isnan(train_loss):  # unexpected situation
+                error('NaN loss detected. Stopping training.')
                 best_params = self.model.state_dict()
                 break
             elif max_patience == 0:  # no early stopping
@@ -85,7 +86,11 @@ class BatchTrain(ABC):
     def predict(self, data: Data) -> Tuple[Tensor, ...] | Tensor:
         self.model.eval()
         with torch.no_grad():
-            res = self.model.predict(data.x, data.adj, data.mask)  # type: ignore
+            res = self.model.predict(x=data.x,
+                                     edge_index=data.edge_index,
+                                     edge_weight=data.edge_weight,
+                                     batch=data.batch,
+                                     ptr=data.ptr)
         return res
 
     @abstractmethod
@@ -145,8 +150,8 @@ class GPBatchTrain(BatchTrain):
         spectral_loss = self.spectral_loss_weight * spectral_loss
         ortho_loss = self.ortho_loss_weight * ortho_loss * np.sqrt(2)
         cluster_loss = self.cluster_loss_weight * cluster_loss / (np.sqrt(self.model.k) - 1)
-        feat_similarity_loss = within_cluster_variance_loss(x=data.x, s=s, mask=data.mask)
-        total_var = masked_variance(x=data.x, mask=data.mask)
+        feat_similarity_loss = sparse_within_cluster_variance_loss(x=data.x, s=s)
+        total_var = varience(x=data.x)
         feat_similarity_loss = self.feat_similarity_loss_weight * feat_similarity_loss
         loss = spectral_loss + ortho_loss + cluster_loss + feat_similarity_loss
 
@@ -158,7 +163,11 @@ class GPBatchTrain(BatchTrain):
         for batch, data in enumerate(self.data_loader):
             # debug(f'epoch {epoch+1}, batch {batch+1} start.')
             data = data.to(self.device)
-            s, out, out_adj, spectral_loss, ortho_loss, cluster_loss = self.model(data.x, data.adj, data.mask)
+            s, out, out_adj, spectral_loss, ortho_loss, cluster_loss = self.model(x=data.x,
+                                                                                  edge_index=data.edge_index,
+                                                                                  edge_weight=data.edge_weight,
+                                                                                  batch=data.batch,
+                                                                                  ptr=data.ptr)
             loss, spectral_loss, ortho_loss, cluster_loss, feat_similarity_loss = self.cal_loss(
                 spectral_loss, ortho_loss, cluster_loss, data, s)
             loss.backward()
@@ -188,7 +197,6 @@ class GPBatchTrain(BatchTrain):
         :return: results_dict
         """
         spectral_loss_list, ortho_loss_list, cluster_loss_list = [], [], []
-        # bin_spectral_loss_list, bin_ortho_loss_list, bin_cluster_loss_list = [], [], []
         feat_similarity_loss_list = []
         loss_list = []
         self.model.eval()
@@ -196,7 +204,7 @@ class GPBatchTrain(BatchTrain):
             for data in self.data_loader:
                 data = data.to(self.device)
                 s, out, out_adj, spectral_loss, ortho_loss, cluster_loss = self.model.evaluate(
-                    data.x, data.adj, data.mask)
+                    x=data.x, edge_index=data.edge_index, edge_weight=data.edge_weight, batch=data.batch, ptr=data.ptr)
                 loss, spectral_loss, ortho_loss, cluster_loss, feat_similarity_loss = self.cal_loss(
                     spectral_loss, ortho_loss, cluster_loss, data, s)
 
@@ -222,14 +230,19 @@ class GPBatchTrain(BatchTrain):
     def predict_dict(self, data: Data) -> Dict[str, Tensor]:
         self.model.eval()
         with torch.no_grad():
-            s, out, out_adj = self.model.predict(data.x, data.adj, data.mask)
-            z = self.model.predict_embed(data.x, data.adj, data.mask)
+            s, out, out_adj = self.model.predict(x=data.x,
+                                                 edge_index=data.edge_index,
+                                                 edge_weight=data.edge_weight,
+                                                 batch=data.batch,
+                                                 ptr=data.ptr)  # type: ignore
+            z = self.model.predict_embed(x=data.x, edge_index=data.edge_index, edge_weight=data.edge_weight)
         return {'z': z, 's': s, 'out': out, 'out_adj': out_adj}
 
     def predict_embed(self, data: Data) -> Tensor:
         self.model.eval()
         with torch.no_grad():
-            z = self.model.predict_embed(data.x, data.adj, data.mask)  # type: ignore
+            z = self.model.predict_embed(x=data.x, edge_index=data.edge_index,
+                                         edge_weight=data.edge_weight)  # type: ignore
         return z
 
 

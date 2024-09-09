@@ -6,15 +6,14 @@ import numpy as np
 import pandas as pd
 import torch
 from scipy.sparse import load_npz
-from torch import Tensor
-from torch_geometric.loader import DenseDataLoader
+from torch_geometric.loader import DataLoader
 
 from ..data import SpatailOmicsDataset, load_dataset
 from ..log import info
 from ..train import SubBatchTrainProtocol
 
 
-def load_data(options: Values) -> Tuple[SpatailOmicsDataset, DenseDataLoader]:
+def load_data(options: Values) -> Tuple[SpatailOmicsDataset, DataLoader]:
     """
     Load data and create sample loader.
     :param options: options.
@@ -25,7 +24,7 @@ def load_data(options: Values) -> Tuple[SpatailOmicsDataset, DenseDataLoader]:
 
     dataset = load_dataset(options=options)
     batch_size = options.batch_size if options.batch_size > 0 else len(dataset)
-    sample_loader = DenseDataLoader(dataset, batch_size=batch_size)
+    sample_loader = DataLoader(dataset, batch_size=batch_size)
 
     return dataset, sample_loader
 
@@ -45,7 +44,7 @@ def set_seed(seed: int) -> None:
 def train(options: Values,
           nn_model: torch.nn.Module,
           BatchTrain: Type[SubBatchTrainProtocol],
-          sample_loader: DenseDataLoader,
+          sample_loader: DataLoader,
           inspect_funcs: Optional[List[Callable]] = None,
           model_name: str = 'GNN') -> SubBatchTrainProtocol:
     """
@@ -105,19 +104,24 @@ def predict(output_dir: str, batch_train: SubBatchTrainProtocol, dataset: Spatai
     :return: consolidate_s_array, consolidate_out_adj_array.
     """
     info(f'Predicting process start.')
-    each_sample_loader = DenseDataLoader(dataset, batch_size=1)
+    each_sample_loader = DataLoader(dataset, batch_size=1)
     consolidate_flag = False
-    consolidate_s_list = []
-    consolidate_out = None
-    consolidate_out_adj = None
+    consolidate_s_list = []  # N x C
+    consolidate_out_list = []  # C x F
+    consolidate_out_adj = None  # C x C
     for data in each_sample_loader:  # type: ignore
         info(f'Generating prediction results for {data.name[0]}.')
         data = data.to(batch_train.device)  # type: ignore
         predict_result = batch_train.predict_dict(data=data)  # type: ignore
         for key, value in predict_result.items():
-            np.savetxt(fname=f'{output_dir}/{data.name[0]}_{key}.csv.gz',
-                       X=value.squeeze(0).detach().cpu().numpy(),
-                       delimiter=',')
+            if value.dim() == 2:
+                np.savetxt(fname=f'{output_dir}/{data.name[0]}_{key}.csv.gz',
+                           X=value.to_dense().detach().cpu().numpy(),
+                           delimiter=',')
+            elif value.dim() == 3:
+                np.savetxt(fname=f'{output_dir}/{data.name[0]}_{key}.csv.gz',
+                           X=value.squeeze(0).detach().cpu().numpy(),
+                           delimiter=',')
 
         # consolidate results
         if not consolidate_flag and ('s' in predict_result and 'out' in predict_result and 'out_adj' in predict_result):
@@ -125,33 +129,33 @@ def predict(output_dir: str, batch_train: SubBatchTrainProtocol, dataset: Spatai
         if consolidate_flag:
             s = predict_result['s']
             out = predict_result['out']
-            s = s.squeeze(0)
+            if out.dim() == 3:
+                out = out.squeeze(0)
             consolidate_s_list.append(s)
-            out_adj_ = torch.matmul(torch.matmul(s.T, data.adj.squeeze(0)), s)
-            consolidate_out_adj: Tensor = out_adj_ if consolidate_out_adj is None else consolidate_out_adj + out_adj_
-            consolidate_out: Tensor = out.squeeze(
-                0) * data.mask.sum() if consolidate_out is None else consolidate_out + out.squeeze(0) * data.mask.sum()
+            consolidate_out_list.append(out)
+            edge_weight = torch.ones(data.edge_index.shape[1],
+                                     device=s.device) if data.edge_weight is None else data.edge_weight
+            adj_ = torch.sparse_coo_tensor(indices=data.edge_index, values=edge_weight)
+            out_adj_ = torch.sparse.mm(s.t(), adj_).mm(s)
+            consolidate_out_adj = out_adj_ if consolidate_out_adj is None else consolidate_out_adj + out_adj_
 
     consolidate_s_array, consolidate_out_adj_array = None, None
     if consolidate_flag:
-        # consolidate out
-        nodes_num = 0
-        for data in each_sample_loader:  # type: ignore
-            nodes_num += data.mask.sum()
-        consolidate_out = consolidate_out / nodes_num  # type: ignore
-        consolidate_out_array = consolidate_out.detach().cpu().numpy()  # type: ignore
-        np.savetxt(fname=f'{output_dir}/consolidate_out.csv.gz', X=consolidate_out_array, delimiter=',')
         # consolidate s
         consolidate_s = torch.cat(consolidate_s_list, dim=0)
+        consolidate_s_array = consolidate_s.detach().cpu().numpy()
+        np.savetxt(fname=f'{output_dir}/consolidate_s.csv.gz', X=consolidate_s_array, delimiter=',')
+        # consolidate out
+        consolidate_out = torch.cat(consolidate_out_list, dim=0)
+        consolidate_out_array = consolidate_out.detach().cpu().numpy()
+        np.savetxt(fname=f'{output_dir}/consolidate_out.csv.gz', X=consolidate_out_array, delimiter=',')
         # consolidate out_adj
         ind = torch.arange(consolidate_s.shape[-1], device=consolidate_out_adj.device)  # type: ignore
         consolidate_out_adj[ind, ind] = 0  # type: ignore
         d = torch.einsum('ij->i', consolidate_out_adj)
         d = torch.sqrt(d)[:, None] + 1e-15
         consolidate_out_adj = (consolidate_out_adj / d) / d.transpose(0, 1)
-        consolidate_s_array = consolidate_s.detach().cpu().numpy()
-        consolidate_out_adj_array = consolidate_out_adj.detach().cpu().numpy()
-        np.savetxt(fname=f'{output_dir}/consolidate_s.csv.gz', X=consolidate_s_array, delimiter=',')
+        consolidate_out_adj_array = consolidate_out_adj.to_dense().detach().cpu().numpy()
         np.savetxt(fname=f'{output_dir}/consolidate_out_adj.csv.gz', X=consolidate_out_adj_array, delimiter=',')
 
     info(f'Predicting process end.')
@@ -172,9 +176,11 @@ def save_graph_pooling_results(meta_data_df: pd.DataFrame, dataset: SpatailOmics
 
     consolidate_s_niche_df = pd.DataFrame()
     consolidate_s_cell_df = pd.DataFrame()
+    s = 0
     for i, data in enumerate(dataset):
         # the slice of data in each sample
-        slice_ = slice(i * data.x.shape[0], i * data.x.shape[0] + data.mask.sum())
+        slice_ = slice(s, s + data.x.shape[0])
+        s += data.x.shape[0]
         consolidate_s = consolidate_s_array[slice_]  # N x C
         consolidate_s_df_ = pd.DataFrame(consolidate_s,
                                          columns=[f'NicheCluster_{i}' for i in range(consolidate_s.shape[1])])

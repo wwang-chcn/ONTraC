@@ -118,10 +118,11 @@ def niche_to_cell_NTScore(dataset: SpatailOmicsDataset, rel_params: Dict,
     all_niche_level_NTScore_dict: Dict[str, ndarray] = {}
     all_cell_level_NTScore_dict: Dict[str, ndarray] = {}
 
+    s = 0
     for i, data in enumerate(dataset):
         # the slice of data in each sample
-        mask = data.mask
-        slice_ = slice(i * data.x.shape[0], i * data.x.shape[0] + mask.sum())
+        slice_ = slice(s, s + data.x.shape[0])
+        s += data.x.shape[0]
 
         # niche to cell matrix
         niche_weight_matrix = load_npz(rel_params['Data'][i]['NicheWeightMatrix'])
