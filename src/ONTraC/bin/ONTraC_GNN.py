@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import sys
+from os import path
 from typing import Callable, Optional
 
 from ..model import GraphPooling
@@ -44,6 +45,7 @@ def main() -> None:
     options = load_parameters(opt_validate_func=opt_GNN_validate, prepare_optparser_func=prepare_GNN_optparser)
 
     # load meta data
+    options.meta_input = path.join(options.preprocessing_dir, 'meta_data.csv')
     meta_data_df = load_meta_data(options=options)
 
     # ----- GNN -----
