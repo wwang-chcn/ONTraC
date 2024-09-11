@@ -202,7 +202,7 @@ def write_io_options_memo(options: Values, io_options: Optional[List[str]]) -> N
     """
     if io_options is None:
         return
-    info('            -------- I/O options -------             ')
+    info('            -------- I/O options --------             ')
     if 'input' in io_options:
         info(f'meta data file:  {options.meta_input}')
         if options.exp_input:

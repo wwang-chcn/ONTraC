@@ -7,7 +7,7 @@ import pandas as pd
 from pandas import DataFrame
 
 from ..log import info, warning
-from ..utils import get_rel_params, read_yaml_file
+from ..utils import get_rel_params, load_meta_data, read_yaml_file
 
 
 # ----------------------------
@@ -191,17 +191,17 @@ class AnaData:
     This class have the following attributes:
     - options: Values, the options from optparse
     - rel_params: Dict, the relative paths for params
-    - cell_id: pd.DataFrame, the original Cell ID and Cell Type
-    - train_loss: Dict, the training loss
-    - cell_type_codes: pd.DataFrame, the cell type codes
-    - cell_type_composition: pd.DataFrame, the cell type composition
-    - NT_score: pd.DataFrame, the NT score
+    - meta_data: pd.DataFrame, Cell_ID as index and Sample, Cell_Type (if exists), x, y as columns
     - niche_cluster_connectivity: np.ndarray, the niche cluster connectivity
-    - niche_cluster_score: np.ndarray, the niche cluster score
     - niche_level_niche_cluster_assign: pd.DataFrame, the niche cluster assignment for each niche level
     - cell_level_niche_cluster_assign: pd.DataFrame, the niche cluster assignment for each cell level
     - niche_level_max_niche_cluster: pd.DataFrame, the max niche cluster assignment for each niche level
     - cell_level_max_niche_cluster: pd.DataFrame, the max niche cluster assignment for each cell level
+    - train_loss: Dict, the training loss
+    - cell_type_codes: pd.DataFrame, the cell type codes
+    - cell_type_composition: pd.DataFrame, the cell type composition
+    - NT_score: pd.DataFrame, the NT score
+    - niche_cluster_score: np.ndarray, the niche cluster score
     """
 
     def __init__(self, options: Values) -> None:
@@ -213,12 +213,11 @@ class AnaData:
         # get real path
         params = read_yaml_file(f'{options.preprocessing_dir}/samples.yaml')
         self.rel_params = get_rel_params(options, params)
-        # save the original Cell ID
-        self.cell_id = pd.read_csv(f'{options.preprocessing_dir}/meta_data.csv',
-                                   usecols=['Cell_ID']).set_index('Cell_ID', inplace=False)
-        self.meta_data = pd.read_csv(f'{options.preprocessing_dir}/meta_data.csv').set_index('Cell_ID', inplace=False)
-        if 'Cell_Type' in self.meta_data.columns:
-            self.cell_id['Cell_Type'] = self.meta_data['Cell_Type'] = self.meta_data['Cell_Type'].astype('category')
+        # get meta data
+        # Sample, Cell_Type (if exists), x, y should be in the meta data
+        self.options.meta_input = f'{options.preprocessing_dir}/meta_data.csv'
+        self.meta_data = load_meta_data(self.options)
+        self.meta_data.set_index('Cell_ID', inplace=True)
 
     @property
     def train_loss(self):
@@ -232,18 +231,20 @@ class AnaData:
             self._cell_type_codes = pd.read_csv(f'{self.options.preprocessing_dir}/cell_type_code.csv', index_col=0)
         return self._cell_type_codes
 
-    def _load_cell_type_composition_and_NT_score(self) -> None:
-        data_df, data_2_df = pd.DataFrame(), pd.DataFrame()
+    def _load_cell_type_composition(self) -> None:
+        data_df, data_2_df = pd.DataFrame(), pd.DataFrame()  # cell type composition, raw cell type composition
         for sample in self.rel_params['Data']:
             # raw cell type composition
             cell_type_composition_df = pd.read_csv(sample['Features'], header=None)
             cell_type_composition_df.columns = self.cell_type_codes.loc[np.arange(cell_type_composition_df.shape[1]),
-                                                                        'Cell_Type'].tolist()  # type: ignore
-            NTScore_df = pd.read_csv(f'{self.options.NTScore_dir}/{sample["Name"]}_NTScore.csv.gz', index_col=0)
-            sample_df = pd.concat([NTScore_df.reset_index(drop=True), cell_type_composition_df], axis=1)
-            sample_df.index = NTScore_df.index
-            sample_df['sample'] = [sample["Name"]] * sample_df.shape[0]
+                                                                        'Cell_Type'].tolist()
+            sample_df = cell_type_composition_df
+            # add index (cell ID)
+            coordinates_df = pd.read_csv(sample['Coordinates'], index_col=0)
+            sample_df.index = coordinates_df.index
+            sample_df['Sample'] = [sample["Name"]] * sample_df.shape[0]
             data_df = pd.concat([data_df, sample_df])
+
             # adjust cell type composition
             if not self.options.embedding_adjust:
                 continue
@@ -252,24 +253,38 @@ class AnaData:
                 continue
             cell_type_composition_df = pd.read_csv(feature_file, header=None)
             cell_type_composition_df.columns = self.cell_type_codes.loc[np.arange(cell_type_composition_df.shape[1]),
-                                                                        'Cell_Type'].tolist()  # type: ignore
-            sample_df = pd.concat([NTScore_df.reset_index(drop=True), cell_type_composition_df], axis=1)
-            sample_df.index = NTScore_df.index
-            sample_df['sample'] = [sample["Name"]] * sample_df.shape[0]
+                                                                        'Cell_Type'].tolist()
+            sample_df = cell_type_composition_df
+            sample_df.index = coordinates_df.index
+            sample_df['Sample'] = [sample["Name"]] * sample_df.shape[0]
             data_2_df = pd.concat([data_2_df, sample_df])
 
-        data_df = self.cell_id.join(data_df)
-        self._cell_type_composition = data_df[self.cell_type_codes['Cell_Type'].tolist() + ['sample', 'x', 'y']]
-        self._NT_score = data_df[['sample', 'x', 'y', 'Niche_NTScore', 'Cell_NTScore']]
-        if not data_2_df.empty:
-            data_2_df = self.cell_id.join(data_2_df)
-            self._adjust_cell_type_composition = data_2_df[self.cell_type_codes['Cell_Type'].tolist() +
-                                                           ['sample', 'x', 'y']]
+        if data_df.shape[0] == self.meta_data.shape[0]:  # number of niche consistency check
+            self._cell_type_composition = data_df[self.cell_type_codes['Cell_Type'].tolist() +
+                                                  ['Sample']].loc[self.meta_data.index]
+        else:
+            raise ValueError(
+                f"Number of niches in the cell type composition file ({data_df.shape[0]}) does not match the number of cells in the meta data ({self.meta_data.shape[0]})."
+            )
+        if self.options.embedding_adjust:
+            if data_2_df.shape[0] == self.meta_data.shape[0]:  # number of niche consistency check
+                self._adjust_cell_type_composition = data_2_df[self.cell_type_codes['Cell_Type'].tolist() +
+                                                               ['Sample']].loc[self.meta_data.index]
+            else:
+                raise ValueError(
+                    f"Number of niches in the adjust cell type composition file ({data_2_df.shape[0]}) does not match the number of cells in the meta data ({self.meta_data.shape[0]})."
+                )
+
+    def _load_NT_score(self) -> None:
+        NTScore_df = pd.read_csv(f'{self.options.NTScore_dir}/NTScore.csv.gz', index_col=0)
+        NTScore_df = NTScore_df.loc[self.meta_data.index]
+        NTScore_df['Sample'] = self.meta_data['Sample']
+        self._NT_score = NTScore_df[['Sample', 'x', 'y', 'Niche_NTScore', 'Cell_NTScore']]
 
     @property
     def cell_type_composition(self) -> DataFrame:
         if not hasattr(self, '_cell_type_composition'):
-            self._load_cell_type_composition_and_NT_score()
+            self._load_cell_type_composition()
         return self._cell_type_composition
 
     @property
@@ -277,13 +292,13 @@ class AnaData:
         if not self.options.embedding_adjust:
             warning('The embedding adjust is not enabled. Skip the adjust cell type composition loading.')
         if not hasattr(self, '_adjust_cell_type_composition'):
-            self._load_cell_type_composition_and_NT_score()
+            self._load_cell_type_composition()
         return self._adjust_cell_type_composition
 
     @property
     def NT_score(self) -> DataFrame:
         if not hasattr(self, '_NT_score'):
-            self._load_cell_type_composition_and_NT_score()
+            self._load_NT_score()
         return self._NT_score
 
     @property
@@ -305,7 +320,8 @@ class AnaData:
         if not hasattr(self, '_niche_level_niche_cluster_assign'):
             self._niche_level_niche_cluster_assign = load_niche_level_niche_cluster_assign(self.options)
             try:
-                self._niche_level_niche_cluster_assign = self._niche_level_niche_cluster_assign[self.cell_id.index]
+                self._niche_level_niche_cluster_assign = self._niche_level_niche_cluster_assign.loc[
+                    self.meta_data.index]
             except:
                 pass
         return self._niche_level_niche_cluster_assign
@@ -315,7 +331,7 @@ class AnaData:
         if not hasattr(self, '_cell_level_niche_cluster_assign'):
             self._cell_level_niche_cluster_assign = load_cell_level_niche_cluster_assign(self.options)
             try:
-                self._cell_level_niche_cluster_assign = self._cell_level_niche_cluster_assign[self.cell_id.index]
+                self._cell_level_niche_cluster_assign = self._cell_level_niche_cluster_assign.loc[self.meta_data.index]
             except:
                 pass
         return self._cell_level_niche_cluster_assign
@@ -325,7 +341,7 @@ class AnaData:
         if not hasattr(self, '_niche_level_max_niche_cluster'):
             self._niche_level_max_niche_cluster = load_niche_level_max_niche_cluster(self.options)
             try:
-                self._niche_level_max_niche_cluster = self._niche_level_max_niche_cluster[self.cell_id.index]
+                self._niche_level_max_niche_cluster = self._niche_level_max_niche_cluster.loc[self.meta_data.index]
             except:
                 pass
         return self._niche_level_max_niche_cluster
@@ -335,7 +351,7 @@ class AnaData:
         if not hasattr(self, '_cell_level_max_niche_cluster'):
             self._cell_level_max_niche_cluster = load_cell_level_max_niche_cluster(self.options)
             try:
-                self._cell_level_max_niche_cluster = self._cell_level_max_niche_cluster[self.cell_id.index]
+                self._cell_level_max_niche_cluster = self._cell_level_max_niche_cluster.loc[self.meta_data.index]
             except:
                 pass
         return self._cell_level_max_niche_cluster

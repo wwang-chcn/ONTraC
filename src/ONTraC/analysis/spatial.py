@@ -7,7 +7,7 @@ mpl.rcParams['ps.fonttype'] = 42
 mpl.rcParams['font.family'] = 'Arial'
 import matplotlib.pyplot as plt
 
-from ..log import warning
+from ..log import info, warning
 from .data import AnaData
 
 
@@ -26,13 +26,14 @@ def plot_cell_type_composition_dataset(ana_data: AnaData) -> Optional[Tuple[plt.
         warning(str(e))
         return None
 
-    samples: List[str] = ana_data.cell_type_composition['sample'].unique().tolist()
+    samples: List[str] = ana_data.cell_type_composition['Sample'].unique().tolist()
     cell_types: List[str] = ana_data.cell_type_codes['Cell_Type'].tolist()
 
     M, N = len(samples), len(cell_types)
     fig, axes = plt.subplots(M, N, figsize=(3.5 * N, 3 * M))
     for i, sample in enumerate(samples):
-        sample_df = ana_data.cell_type_composition.loc[ana_data.cell_type_composition['sample'] == sample]
+        sample_df = ana_data.cell_type_composition.loc[ana_data.cell_type_composition['Sample'] == sample]
+        sample_df = sample_df.join(ana_data.meta_data[['x', 'y']])
         for j, cell_type in enumerate(cell_types):
             ax = axes[i, j] if M > 1 else axes[j]
             scatter = ax.scatter(sample_df['x'],
@@ -70,14 +71,15 @@ def plot_cell_type_composition_sample(ana_data: AnaData) -> Optional[List[Tuple[
         warning(str(e))
         return None
 
-    samples: List[str] = ana_data.cell_type_composition['sample'].unique().tolist()
+    samples: List[str] = ana_data.cell_type_composition['Sample'].unique().tolist()
     cell_types: List[str] = ana_data.cell_type_codes['Cell_Type'].tolist()
 
     output = []
     N = len(cell_types)
     for sample in samples:
         fig, axes = plt.subplots(1, N, figsize=(3.5 * N, 3))
-        sample_df = ana_data.cell_type_composition.loc[ana_data.cell_type_composition['sample'] == sample]
+        sample_df = ana_data.cell_type_composition.loc[ana_data.cell_type_composition['Sample'] == sample]
+        sample_df = sample_df.join(ana_data.meta_data[['x', 'y']])
         for j, cell_type in enumerate(cell_types):
             ax = axes[j]  # At least two cell types are required, checked at original data loading.
             scatter = ax.scatter(sample_df['x'],
@@ -130,13 +132,14 @@ def plot_adjust_cell_type_composition_dataset(ana_data: AnaData) -> Optional[Tup
         warning(str(e))
         return None
 
-    samples: List[str] = ana_data.adjust_cell_type_composition['sample'].unique().tolist()
+    samples: List[str] = ana_data.adjust_cell_type_composition['Sample'].unique().tolist()
     cell_types: List[str] = ana_data.cell_type_codes['Cell_Type'].tolist()
 
     M, N = len(samples), len(cell_types)
     fig, axes = plt.subplots(M, N, figsize=(3.5 * N, 3 * M))
     for i, sample in enumerate(samples):
-        sample_df = ana_data.adjust_cell_type_composition.loc[ana_data.adjust_cell_type_composition['sample'] == sample]
+        sample_df = ana_data.adjust_cell_type_composition.loc[ana_data.adjust_cell_type_composition['Sample'] == sample]
+        sample_df = sample_df.join(ana_data.meta_data[['x', 'y']])
         for j, cell_type in enumerate(cell_types):
             ax = axes[i, j] if M > 1 else axes[j]
             scatter = ax.scatter(sample_df['x'],
@@ -174,14 +177,15 @@ def plot_adjust_cell_type_composition_sample(ana_data: AnaData) -> Optional[List
         warning(str(e))
         return None
 
-    samples: List[str] = ana_data.adjust_cell_type_composition['sample'].unique().tolist()
+    samples: List[str] = ana_data.adjust_cell_type_composition['Sample'].unique().tolist()
     cell_types: List[str] = ana_data.cell_type_codes['Cell_Type'].tolist()
 
     output = []
     N = len(cell_types)
     for sample in samples:
         fig, axes = plt.subplots(1, N, figsize=(3.5 * N, 3))
-        sample_df = ana_data.adjust_cell_type_composition.loc[ana_data.adjust_cell_type_composition['sample'] == sample]
+        sample_df = ana_data.adjust_cell_type_composition.loc[ana_data.adjust_cell_type_composition['Sample'] == sample]
+        sample_df = sample_df.join(ana_data.meta_data[['x', 'y']])
         for j, cell_type in enumerate(cell_types):
             ax = axes[j]  # At least two cell types are required, checked at original data loading.
             scatter = ax.scatter(sample_df['x'],
@@ -225,7 +229,7 @@ def plot_niche_NT_score_dataset(ana_data: AnaData) -> Optional[Tuple[plt.Figure,
     :return: None or Tuple[plt.Figure, plt.Axes].
     """
 
-    samples: List[str] = ana_data.NT_score['sample'].unique().tolist()
+    samples: List[str] = ana_data.NT_score['Sample'].unique().tolist()
 
     try:
         if 'Niche_NTScore' not in ana_data.NT_score.columns:
@@ -238,7 +242,7 @@ def plot_niche_NT_score_dataset(ana_data: AnaData) -> Optional[Tuple[plt.Figure,
     N = len(samples)
     fig, axes = plt.subplots(1, N, figsize=(3.5 * N, 3))
     for i, sample in enumerate(samples):
-        sample_df = ana_data.NT_score.loc[ana_data.NT_score['sample'] == sample]
+        sample_df = ana_data.NT_score.loc[ana_data.NT_score['Sample'] == sample]
         ax = axes[i] if N > 1 else axes
         NT_score = sample_df['Niche_NTScore'] if not ana_data.options.reverse else 1 - sample_df['Niche_NTScore']
         scatter = ax.scatter(sample_df['x'], sample_df['y'], c=NT_score, cmap='rainbow', vmin=0, vmax=1, s=1)
@@ -262,7 +266,7 @@ def plot_niche_NT_score_sample(ana_data: AnaData) -> Optional[List[Tuple[plt.Fig
     :return: None or Tuple[plt.Figure, plt.Axes].
     """
 
-    samples: List[str] = ana_data.NT_score['sample'].unique().tolist()
+    samples: List[str] = ana_data.NT_score['Sample'].unique().tolist()
 
     try:
         if 'Niche_NTScore' not in ana_data.NT_score.columns:
@@ -275,7 +279,7 @@ def plot_niche_NT_score_sample(ana_data: AnaData) -> Optional[List[Tuple[plt.Fig
     output = []
     for sample in samples:
         fig, ax = plt.subplots(1, 1, figsize=(3.5, 3))
-        sample_df = ana_data.NT_score.loc[ana_data.NT_score['sample'] == sample]
+        sample_df = ana_data.NT_score.loc[ana_data.NT_score['Sample'] == sample]
         NT_score = sample_df['Niche_NTScore'] if not ana_data.options.reverse else 1 - sample_df['Niche_NTScore']
         scatter = ax.scatter(sample_df['x'], sample_df['y'], c=NT_score, cmap='rainbow', vmin=0, vmax=1, s=1)
         ax.set_xticks([])
@@ -313,7 +317,7 @@ def plot_cell_NT_score_dataset(ana_data: AnaData) -> Optional[Tuple[plt.Figure, 
     :return: None or Tuple[plt.Figure, plt.Axes].
     """
 
-    samples: List[str] = ana_data.NT_score['sample'].unique().tolist()
+    samples: List[str] = ana_data.NT_score['Sample'].unique().tolist()
 
     try:
         if 'Cell_NTScore' not in ana_data.NT_score.columns:
@@ -326,7 +330,7 @@ def plot_cell_NT_score_dataset(ana_data: AnaData) -> Optional[Tuple[plt.Figure, 
     N = len(samples)
     fig, axes = plt.subplots(1, N, figsize=(3.5 * N, 3))
     for i, sample in enumerate(samples):
-        sample_df = ana_data.NT_score.loc[ana_data.NT_score['sample'] == sample]
+        sample_df = ana_data.NT_score.loc[ana_data.NT_score['Sample'] == sample]
         ax = axes[i] if N > 1 else axes
         NT_score = sample_df['Cell_NTScore'] if not ana_data.options.reverse else 1 - sample_df['Cell_NTScore']
         scatter = ax.scatter(sample_df['x'], sample_df['y'], c=NT_score, cmap='rainbow', vmin=0, vmax=1, s=1)
@@ -350,7 +354,7 @@ def plot_cell_NT_score_sample(ana_data: AnaData) -> Optional[List[Tuple[plt.Figu
     :return: None or Tuple[plt.Figure, plt.Axes].
     """
 
-    samples: List[str] = ana_data.NT_score['sample'].unique().tolist()
+    samples: List[str] = ana_data.NT_score['Sample'].unique().tolist()
 
     try:
         if 'Cell_NTScore' not in ana_data.NT_score.columns:
@@ -363,7 +367,7 @@ def plot_cell_NT_score_sample(ana_data: AnaData) -> Optional[List[Tuple[plt.Figu
     output = []
     for sample in samples:
         fig, ax = plt.subplots(1, 1, figsize=(3.5, 3))
-        sample_df = ana_data.NT_score.loc[ana_data.NT_score['sample'] == sample]
+        sample_df = ana_data.NT_score.loc[ana_data.NT_score['Sample'] == sample]
         NT_score = sample_df['Cell_NTScore'] if not ana_data.options.reverse else 1 - sample_df['Cell_NTScore']
         scatter = ax.scatter(sample_df['x'], sample_df['y'], c=NT_score, cmap='rainbow', vmin=0, vmax=1, s=1)
         ax.set_xticks([])
@@ -402,13 +406,18 @@ def spatial_visualization(ana_data: AnaData) -> None:
     """
 
     # 1. cell type compostion
-    if not hasattr(ana_data.options,
-                   'suppress_cell_type_composition') or not ana_data.options.suppress_cell_type_composition:
+    if hasattr(ana_data.options, 'suppress_cell_type_composition') and ana_data.options.suppress_cell_type_composition:
+        info('Skip the cell type composition visualization due to suppression setting.')
+    else:
         plot_cell_type_composition(ana_data=ana_data)
         if hasattr(ana_data.options, 'embedding_adjust') and ana_data.options.embedding_adjust:
             plot_adjust_cell_type_composition(ana_data=ana_data)
+        else:
+            info('Skip the adjusted cell type composition visualization due to no embedding adjust setting.')
 
     # 2. NT score
-    if not hasattr(ana_data.options, 'suppress_niche_trajectory') or not ana_data.options.suppress_niche_trajectory:
+    if hasattr(ana_data.options, 'suppress_niche_trajectory') and ana_data.options.suppress_niche_trajectory:
+        info('Skip the spatial niche trajectory related visualization due to suppression setting.')
+    else:
         plot_niche_NT_score(ana_data=ana_data)
         plot_cell_NT_score(ana_data=ana_data)

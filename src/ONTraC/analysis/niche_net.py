@@ -24,21 +24,16 @@ def clustering_visualization(ana_data: AnaData) -> Optional[Union[Tuple, None]]:
         ana_data: AnaData object.
     """
 
-    if not ana_data.options.decomposition_expression_input:
-        return None
-
     # load data
-    meta_data_file = f'{ana_data.options.preprocessing_dir}/meta_data.csv'
-    umap_embedding_file = f'{ana_data.options.preprocessing_dir}/PCA_embedding.csv'
-    if not os.path.exists(meta_data_file) or not os.path.exists(umap_embedding_file):
-        warning(
-            'meta_data.csv and PCA_embedding.csv are required for clustering visualization. Skip the visualization.')
+    umap_embedding_file = f'{ana_data.options.preprocessing_dir}/UMAP_embedding.csv'
+    if not os.path.exists(umap_embedding_file):
+        info('PCA_embedding.csv are required for clustering visualization. Skip the clustering visualization.')
         return None
-    meta_data = pd.read_csv(f'{ana_data.options.preprocessing_dir}/meta_data.csv', index_col=0)
-    umap_embedding = np.loadtxt(f'{ana_data.options.preprocessing_dir}/PCA_embedding.csv', delimiter=',')
-    data_df = meta_data['Cell_Type']
-    data_df['Embedding_1'] = umap_embedding[:, 0]
-    data_df['Embedding_2'] = umap_embedding[:, 1]
+    umap_embedding = np.loadtxt(f'{ana_data.options.preprocessing_dir}/UMAP_embedding.csv', delimiter=',')
+    data_df = pd.DataFrame(umap_embedding, columns=['Embedding_1', 'Embedding_2'])
+    data_df.index = ana_data.meta_data.index
+    data_df['Cell_Type'] = ana_data.meta_data['Cell_Type']
+    data_df['Cell_Type'] = data_df['Cell_Type'].astype('category')
     with sns.axes_style('white', rc={
             'xtick.bottom': True,
             'ytick.left': True
@@ -50,11 +45,12 @@ def clustering_visualization(ana_data: AnaData) -> Optional[Union[Tuple, None]]:
                                  'ytick.labelsize': 6,
                                  'legend.fontsize': 6
                              }):
-        fig, ax = plt.subplots(1, 1, figsize=(7, 5))
+        fig, ax = plt.subplots(1, 1, figsize=(8, 5))
         sns.scatterplot(data=data_df, x='Embedding_1', y='Embedding_2', hue='Cell_Type', s=2, ax=ax)
         ax.set_xlabel('UMAP_1')
         ax.set_ylabel('UMAP_2')
         ax.legend(loc='upper left', bbox_to_anchor=(1, 1), ncol=3, markerscale=4)
+        fig.tight_layout()
         if ana_data.options.output:
             fig.savefig(f'{ana_data.options.output}/clustering.pdf', transparent=True)
             return None
@@ -69,30 +65,27 @@ def embedding_adjust_visualization(ana_data: AnaData) -> Optional[Union[Tuple, N
         ana_data: AnaData object.
     """
 
+    cell_types = ana_data.cell_type_codes['Cell_Type']
+
     if not ana_data.options.embedding_adjust:
         return None
 
-    # load original data
-    ori_data_df = pd.read_csv(f'{ana_data.options.preprocessing_dir}/meta_data.csv', index_col=0)
-    ct_coding = pd.read_csv(f'{ana_data.options.preprocessing_dir}/cell_type_code.csv', index_col=0)
-    if ana_data.options.decomposition_expression_input:
-        ct_embedding = np.loadtxt(f'{ana_data.options.preprocessing_dir}/PCA_embedding.csv', delimiter=',')
-        raw_distance = distance.cdist(ct_embedding, ct_embedding, 'euclidean')
-    else:
-        embedding_columns = get_embedding_columns(ori_data_df)
-        if len(embedding_columns) < 2:
-            warning('At least two (Embedding_1 and Embedding_2) should be in the original data. Skip the adjustment.')
-            return None
+    embedding_columns = get_embedding_columns(ana_data.meta_data)
+    if len(embedding_columns) < 2:
+        warning(
+            'At least two (Embedding_1 and Embedding_2) should be in the original data. Skip the embedding adjustment visualization.'
+        )
+        return None
 
-        # calculate embedding postion for each cell type
-        ct_embedding = ori_data_df[embedding_columns + ['Cell_Type']].groupby('Cell_Type').mean()
-        raw_distance = distance.cdist(ct_embedding[embedding_columns].values, ct_embedding[embedding_columns].values,
-                                      'euclidean')
+    # calculate embedding postion for each cell type
+    ct_embedding = ana_data.meta_data[embedding_columns + ['Cell_Type']].groupby('Cell_Type').mean()
+    raw_distance = distance.cdist(ct_embedding[embedding_columns].values, ct_embedding[embedding_columns].values,
+                                  'euclidean')
 
     # calculate distance between each cell type
     median_distance = np.median(raw_distance[np.triu_indices(raw_distance.shape[0], k=1)])
     info(f'Median distance between cell types: {median_distance}')
-    raw_distance_df = pd.DataFrame(raw_distance, index=ct_coding['Cell_Type'], columns=ct_coding['Cell_Type'])
+    raw_distance_df = pd.DataFrame(raw_distance, index=cell_types, columns=cell_types)
 
     if ana_data.options.sigma is None:
         ana_data.options.sigma = np.median(raw_distance[np.triu_indices(raw_distance.shape[0], k=1)])
@@ -102,7 +95,7 @@ def embedding_adjust_visualization(ana_data: AnaData) -> Optional[Union[Tuple, N
 
     # calculate the M
     M = np.exp(-(raw_distance / (ana_data.options.sigma * median_distance))**2)
-    M_df = pd.DataFrame(M, index=ct_coding['Cell_Type'], columns=ct_coding['Cell_Type'])
+    M_df = pd.DataFrame(M, index=cell_types, columns=cell_types)
 
     with sns.axes_style('white', rc={
             'xtick.bottom': True,
