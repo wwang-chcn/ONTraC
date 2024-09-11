@@ -105,8 +105,8 @@ Options:
 ### Full parameters for ONTraC_GNN
 
 ```{text}
-Usage: ONTraC_GNN <-d DATASET> <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> [--device DEVICE]
-    [--epochs EPOCHS] [--patience PATIENCE] [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] 
+Usage: ONTraC_GNN <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> [--device DEVICE] [--epochs EPOCHS
+    [--patience PATIENCE] [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] 
     [-s SEED] [--seed SEED] [--lr LR] [--hidden-feats HIDDEN_FEATS] [-k K_CLUSTERS]
     [--modularity-loss-weight MODULARITY_LOSS_WEIGHT] [--purity-loss-weight PURITY_LOSS_WEIGHT] 
     [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA]
