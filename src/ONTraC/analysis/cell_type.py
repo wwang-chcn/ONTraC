@@ -237,7 +237,7 @@ def plot_cell_type_with_niche_cluster(ana_data: AnaData) -> None:
         return None
 
     # calculate cell type distribution in each niche cluster
-    data_df = ana_data.cell_id.join(ana_data.cell_level_niche_cluster_assign)
+    data_df = pd.DataFrame(ana_data.meta_data.index).join(ana_data.cell_level_niche_cluster_assign)
     t = pd.CategoricalDtype(categories=ana_data.cell_type_codes['Cell_Type'], ordered=True)
     if ana_data.options.decomposition_cell_type_composition_input is None:
 
@@ -274,10 +274,6 @@ def cell_type_visualization(ana_data: AnaData) -> None:
     :param ana_data: AnaData, the data for analysis.
     :return: None.
     """
-
-    if ana_data.options.decomposition_expression_input is not None:
-        return None
-        # TODO: add cell type visualization based on low-res data
 
     # 1. cell type along NT score
     if not hasattr(ana_data.options, 'suppress_niche_trajectory') or not ana_data.options.suppress_niche_trajectory:
