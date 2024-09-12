@@ -32,6 +32,7 @@ Added:
 - `ONTraC_GNN` for running GNN only
 - GNN parameters group validation
 - More functions descriptions under GNN part
+- Transparent edges and colorbar for niche cluster connectivities visualization
 
 Changed:
 
