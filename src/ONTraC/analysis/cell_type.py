@@ -237,7 +237,7 @@ def plot_cell_type_with_niche_cluster(ana_data: AnaData) -> None:
         return None
 
     # calculate cell type distribution in each niche cluster
-    data_df = pd.DataFrame(ana_data.meta_data.index).join(ana_data.cell_level_niche_cluster_assign)
+    data_df = ana_data.meta_data.join(ana_data.cell_level_niche_cluster_assign)
     t = pd.CategoricalDtype(categories=ana_data.cell_type_codes['Cell_Type'], ordered=True)
     cell_type_one_hot = np.zeros(shape=(data_df.shape[0], ana_data.cell_type_codes.shape[0]))
     cell_type_one_hot[np.arange(data_df.shape[0]),
