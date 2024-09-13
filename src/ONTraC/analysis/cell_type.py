@@ -239,19 +239,12 @@ def plot_cell_type_with_niche_cluster(ana_data: AnaData) -> None:
     # calculate cell type distribution in each niche cluster
     data_df = pd.DataFrame(ana_data.meta_data.index).join(ana_data.cell_level_niche_cluster_assign)
     t = pd.CategoricalDtype(categories=ana_data.cell_type_codes['Cell_Type'], ordered=True)
-    if ana_data.options.decomposition_cell_type_composition_input is None:
-
-        cell_type_one_hot = np.zeros(shape=(data_df.shape[0], ana_data.cell_type_codes.shape[0]))
-        cell_type_one_hot[np.arange(data_df.shape[0]),
-                          data_df['Cell_Type'].astype(t).cat.codes.values] = 1  # N x n_cell_type
-        cell_type_dis = np.matmul(data_df[ana_data.cell_level_niche_cluster_assign.columns].T,
-                                  cell_type_one_hot)  # n_clusters x n_cell_types
-    else:
-        decomposition_cell_type_composition_df = pd.read_csv(ana_data.options.decomposition_cell_type_composition_input,
-                                                             header=0,
-                                                             index_col=0)  # N (#cell) x #cell_type
-        cell_type_dis = np.matmul(data_df[ana_data.cell_level_niche_cluster_assign.columns].T,
-                                  decomposition_cell_type_composition_df.values)
+    cell_type_one_hot = np.zeros(shape=(data_df.shape[0], ana_data.cell_type_codes.shape[0]))
+    cell_type_one_hot[np.arange(data_df.shape[0]),
+                        data_df['Cell_Type'].astype(t).cat.codes.values] = 1  # N x n_cell_type
+    cell_type_dis = np.matmul(data_df[ana_data.cell_level_niche_cluster_assign.columns].T,
+                                cell_type_one_hot)  # n_clusters x n_cell_types
+    # TODO cell type analysis for low res data
     cell_type_dis_df = pd.DataFrame(cell_type_dis)
     cell_type_dis_df.columns = ana_data.cell_type_codes['Cell_Type']
     if ana_data.options.output is not None:
