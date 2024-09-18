@@ -5,6 +5,7 @@ from ..version import __version__
 from ._create_dataset import add_niche_net_constr_options_group, validate_niche_net_constr_options, write_niche_net_constr_memo
 from ._IO import *
 from ._train import *
+from ._NT import *
 
 # ------------------------------------
 # Constants
@@ -18,12 +19,14 @@ IO_OPTIONS = ['dataset', 'preprocessing_dir', 'GNN_dir', 'NTScore_dir']
 def prepare_ontrac_optparser() -> OptionParser:
     """
     Prepare optparser object. New options will be added in this function first.
+    :return: OptionParser object.
     """
     usage = f'''USAGE: %prog <-d DATASET> <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR>
     [--n-cpu N_CPU] [--n-neighbors N_NEIGHBORS] [--n-local N_LOCAL] [--device DEVICE] [--epochs EPOCHS] [--patience PATIENCE]
     [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] [-s SEED] [--seed SEED] [--lr LR]
     [--hidden-feats HIDDEN_FEATS] [-k K_CLUSTERS] [--modularity-loss-weight MODULARITY_LOSS_WEIGHT]
-    [--purity-loss-weight PURITY_LOSS_WEIGHT] [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA]'''
+    [--purity-loss-weight PURITY_LOSS_WEIGHT] [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA]
+    [--trajectory-construct TRAJECTORY_CONSTRUCT]'''
     description = 'All steps of ONTraC including dataset creation, Graph Pooling, and NT score calculation.'
 
     # option processor
@@ -43,13 +46,17 @@ def prepare_ontrac_optparser() -> OptionParser:
     add_GNN_options_group(group_train)
     add_NP_options_group(group_train)
 
+    # Niche trajectory
+    group_NT = add_NT_options_group(optparser)
+
     return optparser
 
 
 def opt_ontrac_validate(optparser) -> Values:
     """Validate options from a OptParser object.
 
-    Ret: Validated options object.
+    :param optparser: OptionParser object.
+    :return: Values object.
     """
     (options, args) = optparser.parse_args()
 
@@ -68,6 +75,7 @@ def opt_ontrac_validate(optparser) -> Values:
     write_train_options_memo(options)
     write_GNN_options_memo(options)
     write_NP_options_memo(options)
+    write_NT_options_memo(options)
     info('--------------- RUN params memo end ----------------- ')
 
     return options

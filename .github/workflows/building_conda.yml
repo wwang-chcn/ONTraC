@@ -1,4 +1,4 @@
-name: Building Conda
+name: Building Conda Packages
 
 on: [workflow_dispatch]
 

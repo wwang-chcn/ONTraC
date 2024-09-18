@@ -1,5 +1,22 @@
 # Change log
 
+## [1.0.6] - 2024-XXX-XX
+
+Added:
+
+- `ONTraC_GNN` for running GNN only
+- GNN parameters group validation
+- More functions descriptions under GNN part
+- Transparent edges and colorbar for niche cluster connectivities visualization
+
+Changed:
+
+- rename `GP` to `ONTraC_GP`
+
+Fixed:
+
+- Loading dataset error in `NicheTrajectory`
+
 ## [1.0.5] - 2024-Sep-8
 
 Added:
@@ -169,8 +186,8 @@ Added
 
 - Added package description
 - Added `.gitignore` to remove unnecessary files
-- Added `ONTraC` for run all steps together
-- Added `NTScore` for generate NTScore from GNN output
+- Added `ONTraC` for running all steps together
+- Added `NTScore` for generating NTScore from GNN output
 - Added pip installation support
 
 Changed:

@@ -11,7 +11,8 @@ from ..log import warning
 
 def write_version_info() -> None:
     """
-    Write version information to stdout
+    Write version information to stdout.
+    :return: None.
     """
     from .. import __version__
     template = f'''##################################################################################
@@ -33,10 +34,10 @@ def write_version_info() -> None:
 
 def save_cell_type_code(options: Values, ori_data_df: pd.DataFrame) -> None:
     """
-    Save mappings of the categorical data
-    :param options: Values, options
-    :param ori_data_df: pd.DataFrame, original data
-    :return: None
+    Save mappings of the categorical data.
+    :param options: Values, options.
+    :param ori_data_df: pd.DataFrame, original data.
+    :return: None.
     """
 
     # save mappings of the categorical data
@@ -46,10 +47,10 @@ def save_cell_type_code(options: Values, ori_data_df: pd.DataFrame) -> None:
 
 def valid_original_data(options: Values, ori_data_df: pd.DataFrame) -> pd.DataFrame:
     """
-    Validate original data
-    :param options: Values, options
-    :param ori_data_df: pd.DataFrame, original data
-    :return: pd.DataFrame, original data
+    Validate original data.
+    :param options: Values, options.
+    :param ori_data_df: pd.DataFrame, original data.
+    :return: pd.DataFrame, original data.
 
     1) read original data file (csv format)
     2) check if Cell_ID, Sample, Cell_Type, x, and y columns in the original data
@@ -94,9 +95,9 @@ def valid_original_data(options: Values, ori_data_df: pd.DataFrame) -> pd.DataFr
 
 def load_original_data(options: Values) -> pd.DataFrame:
     """
-    Load original data
-    :param options: Values, options
-    :return: pd.DataFrame, original data
+    Load original data.
+    :param options: Values, options.
+    :return: pd.DataFrame, original data.
     """
 
     # read original data file
@@ -110,6 +111,11 @@ def load_original_data(options: Values) -> pd.DataFrame:
 
 
 def read_yaml_file(yaml_file: str) -> dict:
+    """
+    Read yaml file.
+    :param yaml_file: str, yaml file.
+    :return: dict, parameters.
+    """
     with open(yaml_file, 'r') as fhd:
         params = yaml.load(fhd, Loader=yaml.FullLoader)
     return params
@@ -117,9 +123,9 @@ def read_yaml_file(yaml_file: str) -> dict:
 
 def count_lines(filename: str) -> int:
     """
-    Count lines of a file
-    :param filename: file name
-    :return: number of lines
+    Count lines of a file.
+    :param filename: file name.
+    :return: number of lines.
     """
     i = 0
     if filename.endswith('.gz'):
@@ -135,10 +141,10 @@ def count_lines(filename: str) -> int:
 
 def get_rel_params(options: Values, params: Dict) -> Dict:
     """
-    Get relative paths for params
-    :param options: Values, options
-    :param params: Dict, input samples
-    :return: Dict, relative paths
+    Get relative paths for params.
+    :param options: Values, options.
+    :param params: Dict, input samples.
+    :return: Dict, relative paths.
     """
     rel_params = deepcopy(params)
     for data in rel_params['Data']:
@@ -151,17 +157,17 @@ def get_rel_params(options: Values, params: Dict) -> Dict:
 
 def round_epoch_filter(epoch: int) -> bool:
     """
-    Round epoch filter
-    Only round epoch (1, 2, ..., 9, 10, 20, ..., 90, 100, ...) will be saved
-    :param epoch: int
-    :return: bool
+    Round epoch filter.
+    Only round epoch (1, 2, ..., 9, 10, 20, ..., 90, 100, ...) will be saved.
+    :param epoch: int.
+    :return: bool.
     """
 
     def _is_power_of_10(n: int) -> bool:
         """
-        Check if n is power of 10
-        :param n: int
-        :return: bool
+        Check if n is power of 10.
+        :param n: int.
+        :return: bool.
         """
         num = len(str(n))
         return n % (10**(num - 1)) == 0

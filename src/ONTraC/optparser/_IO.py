@@ -41,7 +41,7 @@ def validate_io_options(optparser: OptionParser,
     :param options: Options object.
     :param io_options: List of I/O options.
     :param overwrite_validation: Overwrite validation flag.
-    :return: None
+    :return: None.
     """
     if io_options is None:
         return
@@ -107,7 +107,7 @@ def write_io_options_memo(options: Values, io_options: Optional[List[str]]) -> N
     """Write IO options to stdout.
     :param options: Options object.
     :param io_options: List of I/O options.
-    :return: None
+    :return: None.
     """
     if io_options is None:
         return

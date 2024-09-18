@@ -8,10 +8,10 @@ def moran_I_features(X: Tensor, W: Tensor, mask: Tensor) -> Tensor:
     r"""
     Calculate Moran's I.
     :math:`I = \frac{n}{\sum_{i=1}^n\sum_{j=1}^n w_{ij}}\frac{(X-\bar{X})^T W (X-\bar{X})}{\sum_{i=1}^n (X_i-\bar{X})^2}`
-    :param X: Tensor, shape: (N, F)
-    :param W: Tensor, shape: (N, N)
-    :param mask: Tensor, shape: (N, )
-    :return: moran_I: Tensor, shape: (F, )
+    :param X: Tensor, shape: (N, F).
+    :param W: Tensor, shape: (N, N).
+    :param mask: Tensor, shape: (N, ).
+    :return: moran_I: Tensor, shape: (F, ).
     """
     # --- input shape check ---
     X = X.unsqueeze(1) if X.dim() == 1 else X
@@ -42,7 +42,7 @@ def moran_I_features(X: Tensor, W: Tensor, mask: Tensor) -> Tensor:
 
 def graph_smooth_loss(z: Tensor, adj: Tensor, mask: Tensor) -> Tensor:
     r"""
-    Graph smooth loss using -1 * moran's I
+    Graph smooth loss using -1 * moran's I.
     :math: `L_{smooth} = \frac{1}{2}\sum_{i=1}^{N}\sum_{j=1}^{N}w_{ij}(z_i - z_j)^2`
     
     :param z: hidden embedding tensor
@@ -52,8 +52,8 @@ def graph_smooth_loss(z: Tensor, adj: Tensor, mask: Tensor) -> Tensor:
     :param adj: adjacency tensor
         :math:`\mathbf{A} \in \mathbb{R}^{B \times N \times N}`.
     :param mask: mask tensor
-        :math:`\mathbf{M} \in {\{ 0, 1 \}}^{B \times N}`
-    :return: loss tensor
+        :math:`\mathbf{M} \in {\{ 0, 1 \}}^{B \times N}`.
+    :return: loss tensor.
     """
     # --- inputs shape check ---
     z = z.unsqueeze(0) if z.dim() == 2 else z  # B x N x F
@@ -74,13 +74,13 @@ def graph_smooth_loss(z: Tensor, adj: Tensor, mask: Tensor) -> Tensor:
 
 def within_cluster_variance_loss(x: Tensor, s: Tensor, mask: Tensor) -> Tensor:
     """
-    Calculate within cluster variance loss
+    Calculate within cluster variance loss.
     Args:
-        x: input tensor, shape: (B, N, F)
-        s: soft cluster assignment matrix, shape: (B, N, C)
-        mask: mask tensor, shape: (B, N)
+        x: input tensor, shape: (B, N, F).
+        s: soft cluster assignment matrix, shape: (B, N, C).
+        mask: mask tensor, shape: (B, N).
     Returns:
-        loss: within cluster variance loss
+        loss: within cluster variance loss.
     """
 
     # --- Extend mask to match the dimensions of x and s ---
@@ -109,10 +109,10 @@ def within_cluster_variance_loss(x: Tensor, s: Tensor, mask: Tensor) -> Tensor:
 def masked_variance(x, mask):
     """
     Args:
-        x: input tensor, shape: (B, N, F)
-        mask: mask tensor, shape: (B, N)
+        x: input tensor, shape: (B, N, F).
+        mask: mask tensor, shape: (B, N).
     Returns:
-        variance
+        variance.
     """
 
     # Apply the mask

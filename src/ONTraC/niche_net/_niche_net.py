@@ -13,12 +13,11 @@ from ..log import *
 def build_knn_network(options: Values, sample_data_df: pd.DataFrame,
                       sample_name: str) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
-    Build KNN network for a sample
-    :param options: Values, options
-    :param sample_data_df: pd.DataFrame, sample data
-    :param sample_name: str, sample name
-    :param save: bool, save indices matrix or not
-    :return: Tuple[np.ndarray, np.ndarray, np.ndarray] (coordinates, dis_matrix, indices_matrix)
+    Build KNN network for a sample.
+    :param options: Values, options.
+    :param sample_data_df: pd.DataFrame, sample data.
+    :param sample_name: str, sample name.
+    :return: Tuple[np.ndarray, np.ndarray, np.ndarray] (coordinates, dis_matrix, indices_matrix).
     """
 
     info(f'Building KNN network for sample: {sample_name}...')
@@ -35,13 +34,12 @@ def build_knn_network(options: Values, sample_data_df: pd.DataFrame,
 def calc_edge_index(options: Values, sample_data_df: pd.DataFrame, indices_matrix: np.ndarray,
                     sample_name: str) -> np.ndarray:
     """
-    Calculate edge index
-    :param options: Values, options
-    :param sample_data_df: pd.DataFrame, sample data
-    :param coordinates: np.ndarray, coordinates
-    :param indices_matrix: np.ndarray, indices matrix
-    :param sample_name: str, sample name
-    :return: np.ndarray, edge index
+    Calculate edge index.
+    :param options: Values, options.
+    :param sample_data_df: pd.DataFrame, sample data.
+    :param indices_matrix: np.ndarray, indices matrix.
+    :param sample_name: str, sample name.
+    :return: np.ndarray, edge index.
     """
 
     info(f'Calculating edge index for sample: {sample_name}...')
@@ -65,10 +63,10 @@ def calc_edge_index(options: Values, sample_data_df: pd.DataFrame, indices_matri
 
 def gauss_dist_1d(dist: np.ndarray, n_local: int) -> float:
     """
-    Compute gaussian affinity between two cells (a cell and its KNN)
-    :param dist_use: knn spatial distance to be used
-    :param n_local: index of distance used for normalization
-    :return: gaussian distance
+    Compute gaussian affinity between two cells (a cell and its KNN).
+    :param dist_use: knn spatial distance to be used.
+    :param n_local: index of distance used for normalization.
+    :return: gaussian distance.
     """
     return np.exp(-(dist / dist[n_local])**2)
 
@@ -76,16 +74,13 @@ def gauss_dist_1d(dist: np.ndarray, n_local: int) -> float:
 def calc_niche_weight_matrix(options: Values, sample_data_df: pd.DataFrame, dis_matrix: np.ndarray,
                              indices_matrix: np.ndarray, sample_name: str) -> csr_matrix:
     """
-    Calculate niche_weight_matrix and normalize it using self node and n_local-th neighbor using a gaussian kernel
-    :param options: Values, options
-    :param sample_data_df: pd.DataFrame, sample data
-    :param coordinates: np.ndarray, coordinates
-    :param dis_matrix: np.ndarray, distance matrix
-    :param indices_matrix: np.ndarray, indices matrix
-    :param sample_name: str, sample name
-    :param save: bool, save weight matrix or not
-    :param output: bool, return weight matrix or not
-    :return: csr_matrix, niche weight matrix
+    Calculate niche_weight_matrix and normalize it using self node and n_local-th neighbor using a gaussian kernel.
+    :param options: Values, options.
+    :param sample_data_df: pd.DataFrame, sample data.
+    :param dis_matrix: np.ndarray, distance matrix.
+    :param indices_matrix: np.ndarray, indices matrix.
+    :param sample_name: str, sample name.
+    :return: csr_matrix, niche weight matrix.
     """
 
     info(f'Calculating niche weight matrix for sample: {sample_name}...')
@@ -105,11 +100,11 @@ def calc_niche_weight_matrix(options: Values, sample_data_df: pd.DataFrame, dis_
 def calc_cell_type_composition(sample_data_df: pd.DataFrame, niche_weight_matrix: csr_matrix,
                                sample_name: str) -> np.ndarray:
     """
-    Calculate cell type composition
-    :param sample_data_df: pd.DataFrame, sample data
-    :param niche_weight_matrix_csr: csr_matrix, niche weight matrix
-    :param save: bool, save cell type composition or not
-    :return: np.ndarray, cell type composition
+    Calculate cell type composition.
+    :param sample_data_df: pd.DataFrame, sample data.
+    :param niche_weight_matrix_csr: csr_matrix, niche weight matrix.
+    :param sample_name: str, sample name.
+    :return: np.ndarray, cell type composition.
     """
 
     info(f'Calculating cell type composition for sample: {sample_name}...')
@@ -130,9 +125,14 @@ def save_niche_network(options: Values, sample_data_df: pd.DataFrame, sample_nam
                        cell_type_composition: np.ndarray) -> None:
     """
     Save the results to disk.
-    :param options: Values, options
-    :param ori_data_df: pd.DataFrame, original data
-    :param sample_name: str, sample name
+    :param options: Values, options.
+    :param sample_data_df: pd.DataFrame, sample data.
+    :param sample_name: str, sample name.
+    :param indices_matrix: np.ndarray, indices matrix.
+    :param edge_index: np.ndarray, edge index.
+    :param niche_weight_matrix: csr_matrix, niche weight matrix.
+    :param cell_type_composition: np.ndarray, cell type composition.
+    :return: None.
     """
 
     # save coordinates
@@ -157,18 +157,18 @@ def save_niche_network(options: Values, sample_data_df: pd.DataFrame, sample_nam
 
 def construct_niche_network_sample(options: Values, sample_data_df: pd.DataFrame, sample_name: str) -> None:
     """
-    Construct niche network for a sample
-    :param options: Values, options
-    :param sample_data_df: pd.DataFrame, sample data
-    :param sample_name: str, sample name
-    :return: None
+    Construct niche network for a sample.
+    :param options: Values, options.
+    :param sample_data_df: pd.DataFrame, sample data.
+    :param sample_name: str, sample name.
+    :return: None.
 
     1) get coordinates and save it.
-    2) save the celltype information
-    3) build KDTree
-        1. save edge index file
-        2. calculate weight matrix
-        3. calculate cell type composition and save it
+    2) save the celltype information.
+    3) build KDTree.
+        1. save edge index file.
+        2. calculate weight matrix.
+        3. calculate cell type composition and save it.
     """
 
     info(f'Constructing niche network for sample: {sample_name}.')
@@ -207,9 +207,10 @@ def construct_niche_network_sample(options: Values, sample_data_df: pd.DataFrame
 
 def construct_niche_network(options: Values, ori_data_df: pd.DataFrame) -> None:
     """
-    Construct niche network
-    :param ori_data_df: pd.DataFrame, original data
-    :return: None
+    Construct niche network.
+    :param options: Values, options.
+    :param ori_data_df: pd.DataFrame, original data.
+    :return: None.
     """
 
     # get samples
@@ -223,9 +224,10 @@ def construct_niche_network(options: Values, ori_data_df: pd.DataFrame) -> None:
 
 def gen_samples_yaml(options: Values, ori_data_df: pd.DataFrame) -> None:
     """
-    Generate samples.yaml
-    :param ori_data_df: pd.DataFrame, original data
-    :return: None
+    Generate samples.yaml.
+    :param options: Values, options.
+    :param ori_data_df: pd.DataFrame, original data.
+    :return: None.
     """
 
     info('Generating samples.yaml file.')

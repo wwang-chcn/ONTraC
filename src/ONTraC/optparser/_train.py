@@ -138,6 +138,22 @@ def validate_train_options(optparser: OptionParser, options: Values) -> Values:
     return options
 
 
+def validate_GNN_options(optparser: OptionParser, options: Values) -> Values:
+    """
+    Validate GNN options.
+    :param optparser: OptionParser object.
+    :param options: Options object.
+    :return: Validated options object.
+    """
+
+    # check hidden_feats
+    if getattr(options, 'hidden_feats') < 2:
+        error(f'hidden_feats must be greater than 1, exit!')
+        sys.exit(1)
+
+    return options
+
+
 def validate_NP_options(optparser: OptionParser, options: Values) -> Values:
     """
     Validate Node Pooling options.
@@ -201,6 +217,7 @@ __all__ = [
     'add_GNN_options_group',
     'add_NP_options_group',
     'validate_train_options',
+    'validate_GNN_options',
     'validate_NP_options',
     'write_train_options_memo',
     'write_GNN_options_memo',

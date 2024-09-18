@@ -4,25 +4,27 @@ import matplotlib as mpl
 import networkx as nx
 import numpy as np
 import pandas as pd
-from matplotlib.cm import ScalarMappable
-from matplotlib.colors import Normalize
 
 mpl.rcParams['pdf.fonttype'] = 42
 mpl.rcParams['ps.fonttype'] = 42
 mpl.rcParams['font.family'] = 'Arial'
+
+import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
 import seaborn as sns
+from matplotlib.cm import ScalarMappable
+from matplotlib.colors import LinearSegmentedColormap, Normalize
 
 from ..log import warning
 from .data import AnaData
 from .utils import gini
 
 
-def plot_niche_cluster_connectivity(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.Axes]]:
+def plot_niche_cluster_connectivity(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.Axes | List[plt.Axes]]]:
     """
     Plot niche cluster connectivity.
     :param ana_data: AnaData, the data for analysis.
-    :return: None or Tuple[plt.Figure, plt.Axes]
+    :return: None or Tuple[plt.Figure, plt.Axes].
     """
     try:
         if ana_data.niche_cluster_score is None or ana_data.niche_cluster_connectivity is None:
@@ -32,7 +34,7 @@ def plot_niche_cluster_connectivity(ana_data: AnaData) -> Optional[Tuple[plt.Fig
         warning(str(e))
         return None
 
-    G = nx.Graph(ana_data.niche_cluster_connectivity)
+    G = nx.Graph(ana_data.niche_cluster_connectivity / ana_data.niche_cluster_connectivity.max())
 
     # position
     pos = nx.spring_layout(G, seed=42)
@@ -45,32 +47,50 @@ def plot_niche_cluster_connectivity(ana_data: AnaData) -> Optional[Tuple[plt.Fig
     nc_scores = 1 - ana_data.niche_cluster_score if ana_data.options.reverse else ana_data.niche_cluster_score
     niche_cluster_colors = [sm.to_rgba(nc_scores[n]) for n in G.nodes]
 
-    fig, ax = plt.subplots(figsize=(6, 6))
-    nx.draw(
+    # Create a figure
+    fig = plt.figure(figsize=(7, 6))
+
+    # Create a gridspec with 1 row and 2 columns, with widths of A and B
+    gs = gridspec.GridSpec(1, 2, width_ratios=[6, 1])  # 6:1 ratio
+    ax1 = fig.add_subplot(gs[0])
+    ax2 = fig.add_subplot(gs[1])
+
+    # Draw the graph
+    nx.draw_networkx_nodes(G, pos, node_color=niche_cluster_colors, node_size=500, ax=ax1)
+    nx.draw_networkx_edges(
         G,
         pos,
-        with_labels=True,
-        node_color=niche_cluster_colors,
-        node_size=1500,
         edge_color=weights,
+        alpha=weights,
         width=3.0,
         edge_cmap=plt.cm.Reds,  # type: ignore
-        connectionstyle='arc3,rad=0.1',
-        ax=ax)
-    ax.set_title('Niche cluster connectivity')
+        ax=ax1)
+    nx.draw_networkx_labels(G, pos, ax=ax1)
+    ax1.set_title('Niche cluster connectivity')
+
+    # Draw the colorbar
+    colors = [(1, 1, 1, 0), (1, 0, 0, 1)]
+    custom_cmap = LinearSegmentedColormap.from_list('custom_cmap', colors)
+    gradient = np.linspace(1, 0, 1000).reshape(-1, 1)
+    ax2.imshow(gradient, aspect='auto', cmap=custom_cmap)
+    ax2.set_xticks([])
+    ax2.set_yticks(np.linspace(1000, 0, 5))
+    ax2.set_yticklabels(f'{x:.2f}' for x in np.linspace(0, ana_data.niche_cluster_connectivity.max(), 5))
+    ax2.set_ylabel('Connectivity')
+
     fig.tight_layout()
     if ana_data.options.output is not None:
         fig.savefig(f'{ana_data.options.output}/cluster_connectivity.pdf')
         return None
     else:
-        return fig, ax
+        return fig, [ax1, ax2]
 
 
 def plot_cluster_proportion(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.Axes]]:
     """
     Plot the proportion of each cluster.
     :param ana_data: AnaData, the data for analysis.
-    :return: None or Tuple[plt.Figure, plt.Axes]
+    :return: None or Tuple[plt.Figure, plt.Axes].
     """
     try:
         if ana_data.niche_cluster_score is None or ana_data.niche_level_niche_cluster_assign is None:
@@ -109,7 +129,7 @@ def plot_niche_cluster_loadings_dataset(ana_data: AnaData) -> Optional[Tuple[plt
     """
     Plot niche cluster loadings for each cell.
     :param ana_data: AnaData, the data for analysis.
-    :return: None or Tuple[plt.Figure, plt.Axes]
+    :return: None or Tuple[plt.Figure, plt.Axes].
     """
 
     try:
@@ -152,7 +172,7 @@ def plot_niche_cluster_loadings_sample(ana_data: AnaData) -> Optional[List[Tuple
     """
     Plot niche cluster loadings for each cell.
     :param ana_data: AnaData, the data for analysis.
-    :return: None or List[Tuple[plt.Figure, plt.Axes]]
+    :return: None or List[Tuple[plt.Figure, plt.Axes]].
     """
 
     try:
@@ -195,7 +215,7 @@ def plot_niche_cluster_loadings(
     """
     Plot niche cluster loadings for each cell.
     :param ana_data: AnaData, the data for analysis.
-    :return: None or Tuple[plt.Figure, plt.Axes]
+    :return: None or Tuple[plt.Figure, plt.Axes].
     """
     if hasattr(ana_data.options, 'sample') and ana_data.options.sample:
         return plot_niche_cluster_loadings_sample(ana_data=ana_data)
@@ -207,7 +227,7 @@ def plot_max_niche_cluster_dataset(ana_data: AnaData) -> Optional[Tuple[plt.Figu
     """
     Plot the maximum niche cluster for each cell.
     :param ana_data: AnaData, the data for analysis.
-    :return: None or Tuple[plt.Figure, plt.Axes]
+    :return: None or Tuple[plt.Figure, plt.Axes].
     """
 
     try:
@@ -256,7 +276,7 @@ def plot_max_niche_cluster_sample(ana_data: AnaData) -> Optional[List[Tuple[plt.
     """
     Plot the maximum niche cluster for each cell.
     :param ana_data: AnaData, the data for analysis.
-    :return: None or List[Tuple[plt.Figure, plt.Axes]]
+    :return: None or List[Tuple[plt.Figure, plt.Axes]].
     """
 
     try:
@@ -304,7 +324,7 @@ def plot_max_niche_cluster(
     """
     Plot the maximum niche cluster for each cell.
     :param ana_data: AnaData, the data for analysis.
-    :return: None or Tuple[plt.Figure, plt.Axes]
+    :return: None or Tuple[plt.Figure, plt.Axes].
     """
     if hasattr(ana_data.options, 'sample') and ana_data.options.sample:
         return plot_max_niche_cluster_sample(ana_data=ana_data)
@@ -316,7 +336,7 @@ def plot_niche_cluster_gini(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt
     """
     Plot the Gini coefficient of each niche cluster.
     :param ana_data: AnaData, the data for analysis.
-    :return: None or Tuple[plt.Figure, plt.Axes]
+    :return: None or Tuple[plt.Figure, plt.Axes].
     """
     try:
         if ana_data.cell_level_niche_cluster_assign is None:
@@ -347,6 +367,7 @@ def niche_cluster_visualization(ana_data: AnaData) -> None:
     """
     All spatial visualization will include here.
     :param ana_data: AnaData, the data for analysis.
+    :return: None.
     """
 
     # 1. plot niche cluster connectivity
