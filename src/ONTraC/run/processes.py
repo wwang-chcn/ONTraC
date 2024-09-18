@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 import torch
 
+from ..data import load_dataset
 from ..GNN import (evaluate, load_data, predict, save_graph_pooling_results,
                    set_seed, train)
 from ..log import *
@@ -101,7 +102,7 @@ def NTScore(options: Values) -> None:
 
     params = read_yaml_file(f'{options.preprocessing_dir}/samples.yaml')
     rel_params = get_rel_params(options, params)
-    dataset, _ = load_data(options=options)
+    dataset = load_dataset(options=options)
 
     niche_cluster_score, niche_level_NTScore = get_niche_NTScore(niche_cluster_loading=consolidate_s_array,
                                                                  niche_adj_matrix=consolidate_out_adj_array)

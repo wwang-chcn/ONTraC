@@ -13,6 +13,10 @@ Changed:
 
 - rename `GP` to `ONTraC_GP`
 
+Fixed:
+
+- Loading dataset error in `NicheTrajectory`
+
 ## [1.0.5] - 2024-Sep-8
 
 Added:
