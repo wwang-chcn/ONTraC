@@ -24,9 +24,10 @@ def held_karp(conn_matrix: np.ndarray) -> List[int]:
     """
     Held-Karp algorithm to find the optimal path with the highest connectivity.
     """
-    n = len(conn_matrix)
+    n = conn_matrix.shape[0]
     C = {}
 
+    # --- Held-Karp algorithm ---
     # Initial state
     for k in range(1, n):
         C[(1 << k, k)] = (conn_matrix[0][k], [0, k])
@@ -54,9 +55,10 @@ def held_karp(conn_matrix: np.ndarray) -> List[int]:
     for k in range(1, n):
         res.append((C[(bits, k)][0] + conn_matrix[k][0], C[(bits, k)][1]))
 
-    max_cost, optimal_path = max(res)
+    _, optimal_path = max(res)
     optimal_path.append(0)  # complete the cycle
 
+    # --- make the circle become a path ---
     # Cut the shortest edge out from the cycle
     dists = []
     for i in range(len(optimal_path) - 1):
