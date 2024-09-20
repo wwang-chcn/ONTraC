@@ -8,6 +8,7 @@ Added:
 - GNN parameters group validation
 - More functions descriptions under GNN part
 - Transparent edges and colorbar for niche cluster connectivities visualization
+- `TSP` method for Niche Trajectory construction
 
 Changed:
 
