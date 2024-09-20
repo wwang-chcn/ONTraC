@@ -1,4 +1,5 @@
 import numpy as np
+from unittest.mock import Mock
 
 from ONTraC.niche_trajectory._niche_trajectory import (
     get_niche_trajectory_path, trajectory_path_to_NC_score, get_niche_NTScore)
@@ -14,7 +15,14 @@ def test_get_niche_trajectory_path() -> None:
     # Test case: Adjacency matrix with 5 nodes
     adj_matrix = np.array([[0, 1, 0, 1, 0], [1, 0, 1, 0, 1], [0, 1, 0, 1, 0], [1, 0, 1, 0, 1], [0, 1, 0, 1, 0]])
     expected_path = [0, 1, 2, 3, 4]
-    assert get_niche_trajectory_path(adj_matrix) == expected_path
+
+    options = Mock()
+
+    options.trajectory_construct = "BF"
+    assert get_niche_trajectory_path(adj_matrix, options) == expected_path
+
+    options.trajectory_construct = "TSP"
+    assert get_niche_trajectory_path(adj_matrix, options) == expected_path
 
 
 def test_trajectory_path_to_NC_score() -> None:

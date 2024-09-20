@@ -21,7 +21,8 @@ def prepare_NT_optparser() -> OptionParser:
     Prepare optparser object. New options will be added in thisfunction first.
     :return: OptionParser object.
     """
-    usage = f'''USAGE: %prog <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR>'''
+    usage = f'''USAGE: %prog <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR> 
+            <--trajectory-construct TRAJECTORY_CONSTRUCT>'''
     description = 'PseudoTime: Calculate PseudoTime for each node in a graph'
 
     # option processor
@@ -31,9 +32,37 @@ def prepare_NT_optparser() -> OptionParser:
                              add_help_option=True)
 
     add_IO_options_group(optparser=optparser, io_options=IO_OPTIONS)
+    add_NT_options_group(optparser=optparser)
 
     return optparser
 
+def add_NT_options_group(optparser: OptionParser) -> None:
+    """
+    Add niche trajectory options group to optparser.
+    :param optparser: OptionParser object.
+    :return: OptionGroup object.
+    """
+
+    group_NT = OptionGroup(optparser, "Options for niche trajectory")
+    optparser.add_option_group(group_NT)
+    group_NT.add_option(
+        '--trajectory-construct',
+        dest='trajectory_construct',
+        default='BF',
+        choices=['BF', 'TSP'],
+        help=
+        "Method to construct the niche trajectory. Default is 'BF' (brute-force). A faster alternative is 'TSP'."
+    )
+
+def write_NT_options_memo(options: Values) -> None:
+    """
+    Write niche trajectory options memo.
+    :param options: Values, options.
+    :return: None.
+    """
+
+    info('---------------- Niche trajectory options ----------------')
+    info(f'Niche trajectory construction method: {options.trajectory_construct}')
 
 def opt_NT_validate(optparser: OptionParser) -> Values:
     """Validate options from a OptParser object.
@@ -49,6 +78,7 @@ def opt_NT_validate(optparser: OptionParser) -> Values:
     # print parameters to stdout
     info('------------------ RUN params memo ------------------ ')
     write_io_options_memo(options, IO_OPTIONS)
+    write_NT_options_memo(options)
     info('--------------- RUN params memo end ----------------- ')
 
     return options
