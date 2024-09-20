@@ -1,5 +1,3 @@
-import os
-import sys
 from optparse import OptionParser, Values
 
 from ..log import *
@@ -26,15 +24,13 @@ def prepare_NT_optparser() -> OptionParser:
     description = 'PseudoTime: Calculate PseudoTime for each node in a graph'
 
     # option processor
-    optparser = OptionParser(version=f'%prog {__version__}',
-                             description=description,
-                             usage=usage,
-                             add_help_option=True)
+    optparser = OptionParser(version=f'%prog {__version__}', description=description, usage=usage, add_help_option=True)
 
     add_IO_options_group(optparser=optparser, io_options=IO_OPTIONS)
     add_NT_options_group(optparser=optparser)
 
     return optparser
+
 
 def add_NT_options_group(optparser: OptionParser) -> None:
     """
@@ -50,9 +46,8 @@ def add_NT_options_group(optparser: OptionParser) -> None:
         dest='trajectory_construct',
         default='BF',
         choices=['BF', 'TSP'],
-        help=
-        "Method to construct the niche trajectory. Default is 'BF' (brute-force). A faster alternative is 'TSP'."
-    )
+        help="Method to construct the niche trajectory. Default is 'BF' (brute-force). A faster alternative is 'TSP'.")
+
 
 def write_NT_options_memo(options: Values) -> None:
     """
@@ -63,6 +58,7 @@ def write_NT_options_memo(options: Values) -> None:
 
     info('---------------- Niche trajectory options ----------------')
     info(f'Niche trajectory construction method: {options.trajectory_construct}')
+
 
 def opt_NT_validate(optparser: OptionParser) -> Values:
     """Validate options from a OptParser object.

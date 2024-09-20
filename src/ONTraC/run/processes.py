@@ -104,9 +104,9 @@ def NTScore(options: Values) -> None:
     rel_params = get_rel_params(options, params)
     dataset = load_dataset(options=options)
 
-    niche_cluster_score, niche_level_NTScore = get_niche_NTScore(niche_cluster_loading=consolidate_s_array,
-                                                                 niche_adj_matrix=consolidate_out_adj_array,
-                                                                 options=options)
+    niche_cluster_score, niche_level_NTScore = get_niche_NTScore(options=options,
+                                                                 niche_cluster_loading=consolidate_s_array,
+                                                                 niche_adj_matrix=consolidate_out_adj_array)
     cell_level_NTScore, all_niche_level_NTScore_dict, all_cell_level_NTScore_dict = niche_to_cell_NTScore(
         dataset=dataset, rel_params=rel_params, niche_level_NTScore=niche_level_NTScore)
 
