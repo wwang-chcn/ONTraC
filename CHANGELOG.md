@@ -16,6 +16,7 @@ Changed:
 Fixed:
 
 - Loading dataset error in `NicheTrajectory`
+- Log printing error on Windows
 
 ## [1.0.5] - 2024-Sep-8
 
