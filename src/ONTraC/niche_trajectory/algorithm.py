@@ -60,11 +60,14 @@ def held_karp(conn_matrix: np.ndarray) -> List[int]:
 
     # --- make the circle become a path ---
     # Cut the shortest edge out from the cycle
-    dists = []
-    for i in range(len(optimal_path) - 1):
-        dists.append(conn_matrix[optimal_path[i]][optimal_path[i + 1]])
+    min_edge_index = None
+    min_edge_conn = float('inf')
+    for (i, start_node), end_node in zip(enumerate(optimal_path[:-1]), optimal_path[1:]):
+        if conn := conn_matrix[start_node][end_node] < min_edge_conn:
+            min_edge_conn = conn
+            min_edge_index = i
 
-    cut_index = dists.index(min(dists))
+    cut_index: int = min_edge_index  # type: ignore
     if optimal_path[cut_index] < optimal_path[cut_index + 1]:
         start_index = cut_index
         end_index = cut_index + 1
