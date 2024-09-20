@@ -10,6 +10,7 @@ from scipy.sparse import load_npz
 
 from ..data import SpatailOmicsDataset
 from ..log import error, info
+from .algorithm import brute_force, held_karp
 
 
 def load_consolidate_data(options: Values) -> Tuple[ndarray, ndarray]:
@@ -40,82 +41,12 @@ def get_niche_trajectory_path(options: Values, niche_adj_matrix: ndarray) -> Lis
     if options.trajectory_construct == 'BF':
         info('Finding niche trajectory with maximum connectivity using Brute Force.')
 
-        max_connectivity = float('-inf')
-        niche_trajectory_path = []
-        for path in itertools.permutations(range(len(niche_adj_matrix))):
-            connectivity = 0
-            for i in range(len(path) - 1):
-                connectivity += niche_adj_matrix[path[i], path[i + 1]]
-            if connectivity > max_connectivity:
-                max_connectivity = connectivity
-                niche_trajectory_path = list(path)
+        niche_trajectory_path = brute_force(niche_adj_matrix)
 
     elif options.trajectory_construct == 'TSP':
         info('Finding niche trajectory with maximum connectivity using TSP.')
 
-        n = len(niche_adj_matrix)
-        C = {}
-
-        # Initial state
-        for k in range(1, n):
-            C[(1 << k, k)] = (niche_adj_matrix[0][k], [0, k])
-
-        # Iterate subsets of increasing length and store the maximum path
-        for subset_size in range(2, n):
-            for subset in itertools.combinations(range(1, n), subset_size):
-                bits = 0
-                for bit in subset:
-                    bits |= 1 << bit
-
-                for k in subset:
-                    prev_bits = bits & ~(1 << k)
-                    res = []
-                    for m in subset:
-                        if m == k:
-                            continue
-                        res.append((C[(prev_bits, m)][0] + niche_adj_matrix[m][k], C[(prev_bits, m)][1] + [k]))
-                    C[(bits, k)] = max(res)
-
-        # We're interested in all bits but the least significant (the start city)
-        bits = (2**n - 1) - 1
-
-        res = []
-        for k in range(1, n):
-            res.append((C[(bits, k)][0] + niche_adj_matrix[k][0], C[(bits, k)][1]))
-
-        max_cost, niche_trajectory_path = max(res)
-        niche_trajectory_path.append(0)  # complete the cycle
-
-        # Cut the shortest edge out from the cycle
-        dists = []
-        for i in range(len(niche_trajectory_path) - 1):
-            dists.append(niche_adj_matrix[niche_trajectory_path[i]][niche_trajectory_path[i + 1]])
-
-        cut_index = dists.index(min(dists))
-        if niche_trajectory_path[cut_index] < niche_trajectory_path[cut_index + 1]:
-            start_index = cut_index
-            end_index = cut_index + 1
-        else:
-            start_index = cut_index + 1
-            end_index = cut_index
-
-        if start_index == len(niche_trajectory_path) - 1:
-            niche_trajectory_path.pop(start_index)
-        elif start_index == 0:
-            niche_trajectory_path.pop(start_index)
-            niche_trajectory_path.reverse()
-        elif start_index < end_index:
-            niche_trajectory_path.pop(len(path) - 1)
-            seg1 = niche_trajectory_path[:start_index + 1]
-            seg1.reverse()
-            seg2 = niche_trajectory_path[end_index:]
-            seg2.reverse()
-            niche_trajectory_path = seg1 + seg2
-        else:
-            niche_trajectory_path.pop(len(niche_trajectory_path) - 1)
-            seg1 = niche_trajectory_path[start_index:]
-            seg2 = niche_trajectory_path[:end_index + 1]
-            niche_trajectory_path = seg1 + seg2
+        niche_trajectory_path = held_karp(niche_adj_matrix)
 
     return niche_trajectory_path
 
