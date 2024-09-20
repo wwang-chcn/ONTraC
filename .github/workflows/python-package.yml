@@ -8,10 +8,8 @@ on:
     branches:
       - main
       - V1
+      - v1.0
   pull_request:
-    branches:
-      - main
-      - V1
   workflow_dispatch:
 
 jobs:
