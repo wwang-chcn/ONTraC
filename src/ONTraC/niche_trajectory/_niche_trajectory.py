@@ -106,9 +106,11 @@ def get_niche_NTScore(options: Values, niche_cluster_loading: ndarray,
 
     info('Calculating NTScore for each niche.')
 
-    niche_trajectory_path = get_niche_trajectory_path(options=options, niche_adj_matrix=niche_adj_matrix)
-
-    niche_cluster_score = trajectory_path_to_NC_score(niche_trajectory_path)
+    if options.trajectory_construct == 'DM':
+        niche_cluster_score = apply_diffusion_map(niche_adj_matrix)
+    else:
+        niche_trajectory_path = get_niche_trajectory_path(options=options, niche_adj_matrix=niche_adj_matrix)
+        niche_cluster_score = trajectory_path_to_NC_score(niche_trajectory_path)
     niche_level_NTScore = niche_cluster_loading @ niche_cluster_score
     return niche_cluster_score, niche_level_NTScore
 
