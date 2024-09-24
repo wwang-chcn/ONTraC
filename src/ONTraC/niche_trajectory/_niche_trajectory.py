@@ -1,4 +1,3 @@
-import itertools
 import os
 from optparse import Values
 from typing import Dict, List, Tuple
@@ -35,6 +34,7 @@ def get_niche_trajectory_path(options: Values, niche_adj_matrix: ndarray) -> Lis
     """
     Find niche level trajectory with maximum connectivity using Brute Force
     :param adj_matrix: non-negative ndarray, adjacency matrix of the graph
+    :param methods: str, the method to find the niche trajectory path. Default is 'BF' (Brute Force).
     :return: List[int], the niche trajectory
     """
 
@@ -67,6 +67,32 @@ def trajectory_path_to_NC_score(niche_trajectory_path: List[int]) -> ndarray:
         # debug(f'i: {i}, index: {index}')
         niche_NT_score[index] = values[i]
     return niche_NT_score
+
+
+def apply_diffusion_map(niche_adj_matrix: ndarray) -> ndarray:
+    """
+    Apply diffusion map to the niche adjacency matrix
+    :param niche_adj_matrix: ndarray, the adjacency matrix of the graph
+    :return: ndarray, the NTScore
+    """
+
+    info('Applying diffusion map to the niche adjacency matrix.')
+
+    # niche_adj_matrix = niche_adj_matrix + niche_adj_matrix.T
+    D = np.diag(np.power(niche_adj_matrix.sum(axis=1), -0.5))
+    L = D @ niche_adj_matrix @ D
+    eigvals, eigvecs = np.linalg.eig(L)
+    idx = eigvals.argsort()[::-1]
+    eigvals = eigvals[idx]
+    eigvecs = eigvecs[:, idx]
+    niche_cluster_score = eigvecs[:, 1]
+    # normalize to [0, 1]
+    # niche_cluster_score -= niche_cluster_score.min()
+    # niche_cluster_score /= niche_cluster_score.max()
+    # normalize to [-1, 1] by rank
+    niche_cluster_score = niche_cluster_score.argsort().argsort()
+    niche_cluster_score = niche_cluster_score / (niche_cluster_score.size - 1)
+    return niche_cluster_score
 
 
 def get_niche_NTScore(options: Values, niche_cluster_loading: ndarray,
