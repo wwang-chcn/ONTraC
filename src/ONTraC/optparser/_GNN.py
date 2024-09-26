@@ -9,7 +9,7 @@ from ._train import *
 # ------------------------------------
 # Constants
 # ------------------------------------
-IO_OPTIONS = ['dataset', 'preprocessing_dir', 'GNN_dir']
+IO_OPTIONS = ['preprocessing_dir', 'GNN_dir']
 
 
 # ------------------------------------
