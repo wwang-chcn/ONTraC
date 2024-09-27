@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import os
 import sys
 from typing import Callable, Optional
 
@@ -43,6 +44,8 @@ def main() -> None:
     # load parameters
     options = load_parameters(opt_validate_func=opt_GNN_validate, prepare_optparser_func=prepare_GNN_optparser)
     options.dataset = f'{options.preprocessing_dir}/original_data.csv'
+    if not os.path.exists(options.dataset):
+        raise FileNotFoundError(f"Dataset file not found: {options.dataset}. You may need to run createDataSet first or copy original dataset file into {options.preprocessing_dir} directory.")
 
     # load original data
     ori_data_df = read_original_data(options=options)
