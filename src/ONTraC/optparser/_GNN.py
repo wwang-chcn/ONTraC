@@ -1,5 +1,4 @@
 from optparse import OptionParser, Values
-from tkinter import W
 
 from ..log import *
 from ..version import __version__
@@ -28,10 +27,7 @@ def prepare_GNN_optparser() -> OptionParser:
     description = 'Graph Neural Network (GNN)'
 
     # option processor
-    optparser = OptionParser(version=f'%prog {__version__}',
-                             description=description,
-                             usage=usage,
-                             add_help_option=True)
+    optparser = OptionParser(version=f'%prog {__version__}', description=description, usage=usage, add_help_option=True)
 
     # I/O options group
     add_IO_options_group(optparser=optparser, io_options=IO_OPTIONS)
