@@ -111,7 +111,7 @@ Options:
 ### Full parameters for ONTraC_GNN
 
 ```{text}
-Usage: ONTraC_GNN <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> [--device DEVICE] [--epochs EPOCHS
+Usage: ONTraC_GNN <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> [--device DEVICE] [--epochs EPOCHS]
     [--patience PATIENCE] [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] 
     [-s SEED] [--seed SEED] [--lr LR] [--hidden-feats HIDDEN_FEATS] [-k K_CLUSTERS]
     [--modularity-loss-weight MODULARITY_LOSS_WEIGHT] [--purity-loss-weight PURITY_LOSS_WEIGHT] 
@@ -124,8 +124,6 @@ Options:
   -h, --help            show this help message and exit
 
   IO:
-    -d DATASET, --dataset=DATASET
-                        Original input dataset.
     --preprocessing-dir=PREPROCESSING_DIR
                         Directory for preprocessing outputs.
     --GNN-dir=GNN_DIR   Directory for the GNN output.

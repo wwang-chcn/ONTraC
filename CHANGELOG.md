@@ -8,7 +8,7 @@ Changed:
 
 Fixed:
 
-- Typo caused `ONTraC_GNN` still need dataset input
+- Issues caused `ONTraC_GNN` still need dataset input
 
 ## [1.0.6] - 2024-Sep-20
 

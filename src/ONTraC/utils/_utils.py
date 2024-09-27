@@ -32,30 +32,45 @@ def write_version_info() -> None:
     sys.stdout.flush()
 
 
-def save_cell_type_code(options: Values, ori_data_df: pd.DataFrame) -> None:
+# ------------------------------------
+# original data functions logic
+# functions:
+#  - read_original_data
+#  - valid_original_data
+#  - save_cell_type_code
+#  - save_original_data
+# pipeline:
+#  - ONTraC
+#    - load_original_data
+#      - read_original_data
+#      - valid_original_data
+#      - save_cell_type_code
+#      - save_original_data
+#  - ONTraC_GNN
+#    - read_original_data
+#    - valid_original_data
+# ------------------------------------
+
+
+def read_original_data(options: Values) -> pd.DataFrame:
     """
-    Save mappings of the categorical data.
+    Read original data file.
     :param options: Values, options.
-    :param ori_data_df: pd.DataFrame, original data.
-    :return: None.
+    :return: pd.DataFrame, original data.
     """
 
-    # save mappings of the categorical data
-    cell_type_code = pd.DataFrame(enumerate(ori_data_df['Cell_Type'].cat.categories), columns=['Code', 'Cell_Type'])
-    cell_type_code.to_csv(f'{options.preprocessing_dir}/cell_type_code.csv', index=False)
+    return pd.read_csv(options.dataset, header=0, index_col=False, sep=',')
 
 
-def valid_original_data(options: Values, ori_data_df: pd.DataFrame) -> pd.DataFrame:
+def valid_original_data(ori_data_df: pd.DataFrame) -> pd.DataFrame:
     """
     Validate original data.
-    :param options: Values, options.
     :param ori_data_df: pd.DataFrame, original data.
     :return: pd.DataFrame, original data.
 
-    1) read original data file (csv format)
-    2) check if Cell_ID, Sample, Cell_Type, x, and y columns in the original data
-    3) make the Cell_Type column categorical
-    4) return original data with Cell_ID, Sample, Cell_Type, x, and y columns
+    1) check if Cell_ID, Sample, Cell_Type, x, and y columns in the original data
+    2) make the Cell_Type column categorical
+    3) return original data with Cell_ID, Sample, Cell_Type, x, and y columns
     """
 
     # check if Cell_ID, Sample, Cell_Type, x, and y columns in the original data
@@ -76,8 +91,7 @@ def valid_original_data(options: Values, ori_data_df: pd.DataFrame) -> pd.DataFr
             'There are duplicated Cell_ID in the original data. Sample name will added to Cell_ID to distinguish them.')
         ori_data_df['Cell_ID'] = ori_data_df['Sample'] + '_' + ori_data_df['Cell_ID']
     if ori_data_df['Cell_ID'].isnull().any():
-        raise ValueError(
-            f'Duplicated Cell_ID within same sample found! Please check the original data file: {options.data_file}.')
+        raise ValueError(f'Duplicated Cell_ID within same sample found!')
 
     ori_data_df = ori_data_df.dropna(subset=['Cell_ID', 'Sample', 'Cell_Type', 'x', 'y'])
 
@@ -93,6 +107,30 @@ def valid_original_data(options: Values, ori_data_df: pd.DataFrame) -> pd.DataFr
     return ori_data_df
 
 
+def save_cell_type_code(options: Values, ori_data_df: pd.DataFrame) -> None:
+    """
+    Save mappings of the categorical data.
+    :param options: Values, options.
+    :param ori_data_df: pd.DataFrame, original data.
+    :return: None.
+    """
+
+    # save mappings of the categorical data
+    cell_type_code = pd.DataFrame(enumerate(ori_data_df['Cell_Type'].cat.categories), columns=['Code', 'Cell_Type'])
+    cell_type_code.to_csv(f'{options.preprocessing_dir}/cell_type_code.csv', index=False)
+
+
+def save_original_data(options: Values, ori_data_df: pd.DataFrame) -> None:
+    """
+    Save original data.
+    :param options: Values, options.
+    :param ori_data_df: pd.DataFrame, original data.
+    :return: None.
+    """
+
+    ori_data_df.to_csv(f'{options.preprocessing_dir}/original_data.csv', index=False)
+
+
 def load_original_data(options: Values) -> pd.DataFrame:
     """
     Load original data.
@@ -101,11 +139,13 @@ def load_original_data(options: Values) -> pd.DataFrame:
     """
 
     # read original data file
-    ori_data_df = pd.read_csv(options.dataset, header=0, index_col=False, sep=',')
+    ori_data_df = read_original_data(options=options)
 
-    ori_data_df = valid_original_data(options=options, ori_data_df=ori_data_df)
+    ori_data_df = valid_original_data(ori_data_df=ori_data_df)
 
     save_cell_type_code(options=options, ori_data_df=ori_data_df)
+
+    save_original_data(options=options, ori_data_df=ori_data_df)
 
     return ori_data_df
 

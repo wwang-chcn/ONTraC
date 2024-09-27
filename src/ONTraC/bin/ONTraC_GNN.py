@@ -8,7 +8,7 @@ from ..optparser import opt_GNN_validate, prepare_GNN_optparser
 from ..run.processes import gnn, load_parameters
 from ..train import GPBatchTrain
 from ..train.inspect_funcs import loss_record
-from ..utils import load_original_data, write_version_info
+from ..utils import read_original_data, valid_original_data, write_version_info
 
 # ------------------------------------
 # Classes
@@ -42,9 +42,11 @@ def main() -> None:
 
     # load parameters
     options = load_parameters(opt_validate_func=opt_GNN_validate, prepare_optparser_func=prepare_GNN_optparser)
+    options.dataset = f'{options.preprocessing_dir}/original_data.csv'
 
     # load original data
-    ori_data_df = load_original_data(options=options)
+    ori_data_df = read_original_data(options=options)
+    ori_data_df = valid_original_data(ori_data_df=ori_data_df)
 
     # ----- GNN -----
     gnn(options=options,
