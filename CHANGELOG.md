@@ -1,5 +1,15 @@
 # Change log
 
+## [XXXXX] - 2024-XXX-XX
+
+Changed:
+
+- `log` file is optional for `ONTraC_analysis`
+
+Fixed:
+
+- Typo caused `ONTraC_GNN` still need dataset input
+
 ## [1.0.6] - 2024-Sep-20
 
 Added:

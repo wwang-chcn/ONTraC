@@ -109,7 +109,7 @@ def opt_validate(optparser: OptionParser) -> Values:
     else:
         warning(f'Output directory already exists: {options.output}, will overwrite it.')
 
-    if not os.path.exists(options.log):
+    if options.log is not None and not os.path.exists(options.log):
         error(f'Log file not found: {options.log}')
         sys.exit(1)
 
@@ -123,7 +123,8 @@ def opt_validate(optparser: OptionParser) -> Values:
     # print parameters to stdout
     write_io_options_memo(options, IO_OPTIONS)
     info(f'Output directory: {options.output}')
-    info(f'Log file: {options.log}')
+    if options.log is not None:
+        info(f'Log file: {options.log}')
     info(f'Reverse: {options.reverse}')
     info(f'Sample: {options.sample}')
     if hasattr(options, 'suppress_cell_type_composition'):
