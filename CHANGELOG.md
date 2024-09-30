@@ -1,6 +1,6 @@
 # Change log
 
-## [XXXXX] - 2024-XXX-XX
+## [1.0.6.post1] - 2024-Sep-29
 
 Changed:
 
