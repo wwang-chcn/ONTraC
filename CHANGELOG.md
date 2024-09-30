@@ -1,6 +1,10 @@
 # Change log
 
-## [1.0.6.post1] - 2024-Sep-29
+## [1.0.7] - 2024-XXX-XX
+
+Added:
+
+- Niche cluster connectivity visualization for each sample
 
 Changed:
 
