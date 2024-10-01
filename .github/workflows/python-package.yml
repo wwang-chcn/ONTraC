@@ -9,11 +9,9 @@ on:
       - main
       - V1
       - V2
+      - v1.0
+      - v2.0
   pull_request:
-    branches:
-      - main
-      - V1
-      - V2
   workflow_dispatch:
 
 jobs:

@@ -19,13 +19,15 @@ def prepare_NT_optparser() -> OptionParser:
     Prepare optparser object. New options will be added in thisfunction first.
     :return: OptionParser object.
     """
-    usage = f'''USAGE: %prog <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR>'''
+    usage = f'''USAGE: %prog <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR> 
+            <--trajectory-construct TRAJECTORY_CONSTRUCT>'''
     description = 'PseudoTime: Calculate PseudoTime for each node in a graph'
 
     # option processor
     optparser = OptionParser(version=f'%prog {__version__}', description=description, usage=usage, add_help_option=True)
 
     add_IO_options_group(optparser=optparser, io_options=IO_OPTIONS)
+    add_NT_options_group(optparser=optparser)
 
     return optparser
 
@@ -47,6 +49,12 @@ def add_NT_options_group(optparser: OptionParser) -> None:
         help=
         'Whether to assign equally spaced values to for each niche cluster. Default is False, based on total loadings of each niche cluster.'
     )
+    group_NT.add_option(
+        '--trajectory-construct',
+        dest='trajectory_construct',
+        default='BF',
+        choices=['BF', 'TSP'],
+        help="Method to construct the niche trajectory. Default is 'BF' (brute-force). A faster alternative is 'TSP'.")
 
 
 def write_NT_options_memo(options: Values) -> None:
@@ -58,6 +66,7 @@ def write_NT_options_memo(options: Values) -> None:
 
     info('---------------- Niche trajectory options ----------------')
     info(f'Equally spaced niche cluster scores: {options.equal_space}')
+    info(f'Niche trajectory construction method: {options.trajectory_construct}')
 
 
 def opt_NT_validate(optparser: OptionParser) -> Values:
@@ -74,6 +83,7 @@ def opt_NT_validate(optparser: OptionParser) -> Values:
     # print parameters to stdout
     info('------------------ RUN params memo ------------------ ')
     write_io_options_memo(options, IO_OPTIONS)
+    write_NT_options_memo(options)
     info('--------------- RUN params memo end ----------------- ')
 
     return options

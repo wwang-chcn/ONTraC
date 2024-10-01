@@ -102,7 +102,7 @@ def plot_niche_cluster_connectivity(ana_data: AnaData) -> Optional[Tuple[plt.Fig
         warning(str(e))
         return None
 
-    output_file_path = f'{ana_data.options.output}/cluster_connectivity.pdf' if ana_data.options.output is not None else None
+    output_file_path = f'{ana_data.options.output}/niche_cluster_connectivity.pdf' if ana_data.options.output is not None else None
     return _plot_niche_cluster_connectivity(niche_cluster_connectivity=ana_data.niche_cluster_connectivity,
                                             niche_cluster_score=ana_data.niche_cluster_score,
                                             reverse=ana_data.options.reverse,
@@ -120,9 +120,9 @@ def plot_niche_cluster_connectivity_bysample(ana_data: AnaData) -> None:
         niche_cluster_connectivity = np.loadtxt(f'{ana_data.options.GNN_dir}/{sample}_out_adj.csv.gz', delimiter=',')
         output_file_path = f'{ana_data.options.output}/{sample}_cluster_connectivity.pdf'
         _plot_niche_cluster_connectivity(niche_cluster_connectivity=niche_cluster_connectivity,
-                                            niche_cluster_score=ana_data.niche_cluster_score,
-                                            reverse=ana_data.options.reverse,
-                                            output_file_path=output_file_path)
+                                         niche_cluster_score=ana_data.niche_cluster_score,
+                                         reverse=ana_data.options.reverse,
+                                         output_file_path=output_file_path)
 
 
 def plot_cluster_proportion(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.Axes]]:
@@ -431,7 +431,7 @@ def niche_cluster_visualization(ana_data: AnaData) -> None:
     # 1. plot niche cluster connectivity
     plot_niche_cluster_connectivity(ana_data=ana_data)
 
-    if ana_data.options.sample:
+    if hasattr(ana_data.options, 'sample') and ana_data.options.sample:
         plot_niche_cluster_connectivity_bysample(ana_data=ana_data)
 
     # 2. share of each cluster

@@ -146,11 +146,15 @@ def gen_original_data(options: Values) -> pd.DataFrame:
                 raise ValueError(
                     'There are no expression data or embedding data. Please provide at least two cell types in the meta data.'
                 )
+            
             # save mappings of the categorical data
             save_cell_type_code(options=options, meta_data_df=meta_data_df)
 
+            # save meta data
             meta_data_df.to_csv(options.preprocessing_dir + '/meta_data.csv', index=False)
+
             return meta_data_df
+        
         else:  # option 4
             if 'Cell_Type' in meta_data_df.columns:
                 meta_data_df = meta_data_df.drop(columns=['Cell_Type'])
@@ -177,13 +181,18 @@ def gen_original_data(options: Values) -> pd.DataFrame:
             np.savetxt(options.preprocessing_dir + '/PCA_embedding.csv', pca_embedding, delimiter=',')
             for i in range(decomposition_cell_type_composition_df.shape[1]):
                 meta_data_df[f'Cell_Type_{i}'] = decomposition_cell_type_composition_df.iloc[:, i]
-            meta_data_df.to_csv(options.preprocessing_dir + '/meta_data.csv', index=False)
+            
+            # save mappings of the categorical data
             cell_type_code = pd.DataFrame({
                 'Code':
                 range(decomposition_cell_type_composition_df.shape[1]),
                 'Cell_Type': [f'Cell_Type_{i}' for i in range(decomposition_cell_type_composition_df.shape[1])]
             })
             cell_type_code.to_csv(f'{options.preprocessing_dir}/cell_type_code.csv', index=False)
+
+            # save meta data
+            meta_data_df.to_csv(options.preprocessing_dir + '/meta_data.csv', index=False)
+
             return meta_data_df
 
     if options.exp_input is None and options.embedding_input is not None:  # option 2
@@ -205,7 +214,10 @@ def gen_original_data(options: Values) -> pd.DataFrame:
             meta_data_df = meta_data_df.loc[meta_data_df['Cell_ID'].isin(common_spots)]
         for i in range(embedding_df.shape[1]):
             meta_data_df[f'Embedding_{i}'] = embedding_df.iloc[:, i].values
+
+        # save meta data
         meta_data_df.to_csv(options.preprocessing_dir + '/meta_data.csv', index=False)
+        
         return meta_data_df
 
     if options.exp_input is not None:  # option 1
@@ -233,5 +245,8 @@ def gen_original_data(options: Values) -> pd.DataFrame:
             meta_data_df[f'Embedding_{i}'] = pca_embedding[:, i]
         # save mappings of the categorical data
         save_cell_type_code(options=options, meta_data_df=meta_data_df)
+
+        # save meta data
         meta_data_df.to_csv(options.preprocessing_dir + '/meta_data.csv', index=False)
+
         return meta_data_df

@@ -10,6 +10,7 @@ Usage: ONTraC <-d DATASET> <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GN
     [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] [-s SEED] [--seed SEED] [--lr LR]
     [--hidden-feats HIDDEN_FEATS] [-k K_CLUSTERS] [--modularity-loss-weight MODULARITY_LOSS_WEIGHT]
     [--purity-loss-weight PURITY_LOSS_WEIGHT] [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA]
+    [--trajectory-construct TRAJECTORY_CONSTRUCT]
 
 All steps of ONTraC including dataset creation, Graph Pooling, and NT score
 calculation.
@@ -32,14 +33,14 @@ Options:
                         preprocessing. Default is 4.
     --n-neighbors=N_NEIGHBORS
                         Number of neighbors used for kNN graph construction.
-                        It should be less than the number of cells in each sample.
-                        Default is 50.
-    --n-local=N_LOCAL
-                        Specifies the nth closest local neighbors used for
-                        gaussian distance normalization. It should be less than
-                        the number of cells in each sample. Default is 20.
+                        It should be less than the number of cells in each
+                        sample. Default is 50.
+    --n-local=N_LOCAL   Specifies the nth closest local neighbors used for
+                        gaussian distance normalization. It should be less
+                        than the number of cells in each sample. Default is
+                        20.
 
-  Options for training:
+  Options for GNN training:
     --device=DEVICE     Device for training. We support cpu and cuda now. Auto
                         select if not specified.
     --epochs=EPOCHS     Number of maximum epochs for training. Default is
@@ -105,7 +106,7 @@ Options:
 ### Full parameters for ONTraC_GNN
 
 ```{text}
-Usage: ONTraC_GNN <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> [--device DEVICE] [--epochs EPOCHS
+Usage: ONTraC_GNN <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> [--device DEVICE] [--epochs EPOCHS]
     [--patience PATIENCE] [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] 
     [-s SEED] [--seed SEED] [--lr LR] [--hidden-feats HIDDEN_FEATS] [-k K_CLUSTERS]
     [--modularity-loss-weight MODULARITY_LOSS_WEIGHT] [--purity-loss-weight PURITY_LOSS_WEIGHT] 
@@ -118,8 +119,6 @@ Options:
   -h, --help            show this help message and exit
 
   IO:
-    -d DATASET, --dataset=DATASET
-                        Original input dataset.
     --preprocessing-dir=PREPROCESSING_DIR
                         Directory for preprocessing outputs.
     --GNN-dir=GNN_DIR   Directory for the GNN output.
@@ -162,7 +161,8 @@ Options:
 ### Full parameters for NTScore
 
 ```{text}
-Usage: NTScore <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR>
+Usage: NicheTrajectory <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR> 
+            <--trajectory-construct TRAJECTORY_CONSTRUCT>
 
 PseudoTime: Calculate PseudoTime for each node in a graph
 
@@ -176,6 +176,11 @@ Options:
     --GNN-dir=GNN_DIR   Directory for the GNN output.
     --NTScore-dir=NTSCORE_DIR
                         Directory for the NTScore output.
+
+  Options for niche trajectory:
+    --trajectory-construct=TRAJECTORY_CONSTRUCT
+                        Method to construct the niche trajectory. Default is
+                        'BF' (brute-force). A faster alternative is 'TSP'.
 ```
 
 ### Full parameters for ONTraC_analysis

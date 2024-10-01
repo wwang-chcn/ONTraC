@@ -1,6 +1,8 @@
 import sys
 import time
 
+sys.stdout.reconfigure(encoding='utf-8') # type: ignore
+
 
 def get_current_time() -> str:
     """
