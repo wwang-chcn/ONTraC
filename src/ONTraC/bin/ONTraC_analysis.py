@@ -2,6 +2,8 @@ import os
 import sys
 from optparse import OptionGroup, OptionParser, Values
 
+from numpy import add
+
 from ..analysis.cell_type import cell_type_visualization
 from ..analysis.data import AnaData
 from ..analysis.niche_cluster import niche_cluster_visualization
@@ -59,6 +61,21 @@ def add_suppress_group(optparser: OptionParser) -> None:
     optparser.add_option_group(group)
 
 
+def add_visualization_group(optparser: OptionParser) -> None:
+    group = OptionGroup(optparser, 'Visualization options')
+    group.add_option('--sample',
+                     dest='sample',
+                     action='store_true',
+                     default=False,
+                     help='Plot each sample separately.')
+    group.add_option('--scale-factor',
+                        dest='scale_factor',
+                        type='float',
+                        default=1.0,
+                        help='Scale factor control the size of spatial-based plots.')
+    optparser.add_option_group(group)
+
+
 def prepare_optparser() -> OptionParser:
     """Prepare optparser object. New options will be added in this function first.
 
@@ -79,14 +96,9 @@ def prepare_optparser() -> OptionParser:
                          action='store_true',
                          default=False,
                          help='Reverse the NT score.')
-    optparser.add_option('-s',
-                         '--sample',
-                         dest='sample',
-                         action='store_true',
-                         default=False,
-                         help='Plot each sample separately.')
     add_IO_options_group(optparser=optparser, io_options=IO_OPTIONS)
     add_suppress_group(optparser)
+    add_visualization_group(optparser)
     return optparser
 
 
@@ -126,13 +138,14 @@ def opt_validate(optparser: OptionParser) -> Values:
     if options.log is not None:
         info(f'Log file: {options.log}')
     info(f'Reverse: {options.reverse}')
-    info(f'Sample: {options.sample}')
     if hasattr(options, 'suppress_cell_type_composition'):
         info(f'Suppress cell type composition: {options.suppress_cell_type_composition}')
     if hasattr(options, 'suppress_niche_cluster_loadings'):
         info(f'Suppress niche cluster loadings: {options.suppress_niche_cluster_loadings}')
     if hasattr(options, 'suppress_niche_trajectory'):
         info(f'Suppress niche trajectory: {options.suppress_niche_trajectory}')
+    info(f'Sample: {options.sample}')
+    info(f'Scale factor: {options.scale_factor}')
 
     return options
 

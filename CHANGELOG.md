@@ -5,6 +5,7 @@
 Added:
 
 - Niche cluster connectivity visualization for each sample
+- `scale factor` controlling the size of spatial-based plots
 
 Changed:
 
