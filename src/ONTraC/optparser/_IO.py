@@ -18,13 +18,11 @@ def add_IO_options_group(optparser: OptionParser, io_options: Optional[List[str]
     # I/O options group
     group_io = OptionGroup(optparser, "IO")
     if 'input' in io_options:
-        group_io.add_option(  # TODO: deprecated warning
-            '-d',
-            '--dataset',
-            dest='dataset',
-            type='string',
-            help='Meta data file in csv format. Each row is a cell and each column is a meta data. The first column should be the cell name. Coordinates (x, y), cell type and sample should be included.'
-        )
+        group_io.add_option('-d',
+                            '--dataset',
+                            dest='dataset',
+                            type='string',
+                            help='This options will be deprecated in V3. Please use --meta-input instead.')
         group_io.add_option(
             '--meta-input',
             dest='meta_input',
@@ -89,7 +87,9 @@ def validate_io_options(optparser: OptionParser,
     if 'input' in io_options:
         # dataset
         if options.dataset and not options.meta_input:
-            warning(FutureWarning('The -d/--dataset option is deprecated. Please use --meta-input instead.').__str__())
+            warning(
+                FutureWarning(
+                    'The -d/--dataset option will be deprecated in V3. Please use --meta-input instead.').__str__())
             options.meta_input = options.dataset
         # meta data
         if not options.meta_input:

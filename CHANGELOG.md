@@ -12,6 +12,7 @@ Added:
 - Weighted NT score assign for niche clusters
 - Support spots-based data and analysis its results
 - Visualization of cell clustering results
+- Warning for deprecated options
 
 Changed:
 

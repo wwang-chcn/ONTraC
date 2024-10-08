@@ -121,6 +121,35 @@ def add_visualization_group(optparser: OptionParser) -> None:
     optparser.add_option_group(group)
 
 
+def add_deprecated_group(optparser: OptionParser) -> None:
+    group = OptionGroup(optparser, 'Deprecated options')
+    group.add_option('-d', '--dataset', dest='dataset', type='string', help='This options is deprecated.')
+    group.add_option('--meta-input', dest='meta_input', type='string', help='This options is deprecated.')
+    group.add_option('--exp-input', dest='exp_input', type='string', help='This options is deprecated.')
+    group.add_option('--decomposition-cell-type-composition-input',
+                     dest='decomposition_cell_type_composition_input',
+                     type='string',
+                     help='This options is deprecated.')
+    group.add_option('--decomposition-expression-input',
+                     dest='decomposition_expression_input',
+                     type='string',
+                     help='This options is deprecated.')
+    optparser.add_option_group(group)
+
+
+def validate_deprecated_options(options: Values) -> None:
+    if options.dataset is not None:
+        warning('Option --dataset is deprecated.')
+    if options.meta_input is not None:
+        warning('Option --meta-input is deprecated.')
+    if options.exp_input is not None:
+        warning('Option --exp-input is deprecated.')
+    if options.decomposition_cell_type_composition_input is not None:
+        warning('Option --decomposition-cell-type-composition-input is deprecated.')
+    if options.decomposition_expression_input is not None:
+        warning('Option --decomposition-expression-input is deprecated.')
+
+
 def prepare_optparser() -> OptionParser:
     """Prepare optparser object. New options will be added in this function first.
 
@@ -147,6 +176,7 @@ def prepare_optparser() -> OptionParser:
     add_embedding_adjust_group(optparser)
     add_suppress_group(optparser)
     add_visualization_group(optparser)
+    add_deprecated_group(optparser)
     return optparser
 
 
@@ -158,6 +188,7 @@ def opt_validate(optparser: OptionParser) -> Values:
     """
     (options, args) = optparser.parse_args()
 
+    validate_deprecated_options(options)
     validate_io_options(optparser, options, IO_OPTIONS, overwrite_validation=False)
 
     if not options.output:
