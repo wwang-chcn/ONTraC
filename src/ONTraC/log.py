@@ -1,7 +1,16 @@
+import platform
 import sys
 import time
 
-sys.stdout.reconfigure(encoding='utf-8') # type: ignore
+
+if platform.system() == 'Windows':
+    if hasattr(sys.stdout, 'reconfigure'):
+        sys.stdout.reconfigure(encoding='utf-8') # type: ignore
+    else:
+        sys.stdout.encoding = 'utf-8' # type: ignore
+    if sys.stdout.encoding != 'utf-8':
+        import io
+        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 
 def get_current_time() -> str:

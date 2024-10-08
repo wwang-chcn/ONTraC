@@ -17,7 +17,7 @@ from matplotlib.colors import LinearSegmentedColormap, Normalize
 
 from ..log import info, warning
 from .data import AnaData
-from .utils import gini
+from .utils import gini, saptial_figsize
 
 
 def _plot_niche_cluster_connectivity(
@@ -241,7 +241,8 @@ def plot_niche_cluster_loadings_sample(ana_data: AnaData) -> Optional[List[Tuple
         sample_df = ana_data.cell_level_niche_cluster_assign.loc[ana_data.cell_type_composition[
             ana_data.cell_type_composition['Sample'] == sample].index]
         sample_df = sample_df.join(ana_data.meta_data[['x', 'y']])
-        fig, axes = plt.subplots(1, nc_scores.shape[0], figsize=(3.3 * nc_scores.shape[0], 3))
+        fig_width, fig_height = saptial_figsize(sample_df, scale_factor=ana_data.options.scale_factor)
+        fig, axes = plt.subplots(1, nc_scores.shape[0], figsize=(fig_width * nc_scores.shape[0], fig_height))
         for j, c_index in enumerate(nc_scores.argsort()):
             ax = axes[j]  #  there should more than one niche cluster
             scatter = ax.scatter(sample_df['x'],
@@ -359,7 +360,8 @@ def plot_max_niche_cluster_sample(ana_data: AnaData) -> Optional[List[Tuple[plt.
             ana_data.cell_type_composition['Sample'] == sample].index]
         sample_df = sample_df.join(ana_data.meta_data[['x', 'y']])
         sample_df['Niche_Cluster'] = 'niche cluster ' + sample_df['Niche_Cluster'].astype(str)
-        fig, ax = plt.subplots(1, 1, figsize=(5, 3))
+        fig_width, fig_height = saptial_figsize(sample_df, scale_factor=ana_data.options.scale_factor)
+        fig, ax = plt.subplots(1, 1, figsize=(fig_width, fig_height))
         sns.scatterplot(data=sample_df,
                         x='x',
                         y='y',
