@@ -10,30 +10,7 @@ import matplotlib.pyplot as plt
 
 from ..log import debug, warning
 from .data import AnaData
-
-
-def figsize(sample_df, scale_factor=1):
-
-    n_points = sample_df[['x', 'y']].dropna().shape[0]
-    # debug(f'n_points: {n_points}')
-
-    x_span = sample_df['x'].dropna().max() - sample_df['x'].dropna().min()
-    y_span = sample_df['y'].dropna().max() - sample_df['y'].dropna().min()
-    # debug(f'x_span: {x_span}')
-    # debug(f'y_span: {y_span}')
-
-    points_density = n_points / x_span / y_span * 10_000
-
-    # debug(f'points density: {points_density}')
-
-    fig_width = x_span / 2_000 * scale_factor * np.sqrt(points_density) + .5  # Adding 2 for colorbar space
-    fig_height = y_span / 2_000 * scale_factor * np.sqrt(points_density) + .2  # Adding 1.5 for title space
-
-    # debug(f'scale_factor: {scale_factor}')
-    # debug(f'fig_width: {fig_width}')
-    # debug(f'fig_height: {fig_height}')
-
-    return fig_width, fig_height
+from .utils import saptial_figsize
 
 
 def plot_cell_type_composition_dataset(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.Axes]]:
@@ -102,7 +79,7 @@ def plot_cell_type_composition_sample(ana_data: AnaData) -> Optional[List[Tuple[
     N = len(cell_types)
     for sample in samples:
         sample_df = ana_data.cell_type_composition.loc[ana_data.cell_type_composition['sample'] == sample]
-        fig_width, fig_height = figsize(sample_df, scale_factor=ana_data.options.scale_factor)
+        fig_width, fig_height = saptial_figsize(sample_df, scale_factor=ana_data.options.scale_factor)
         fig, axes = plt.subplots(1, N, figsize=(fig_width * N, fig_height))
         for j, cell_type in enumerate(cell_types):
             ax = axes[j]  # At least two cell types are required, checked at original data loading.
@@ -198,7 +175,7 @@ def plot_niche_NT_score_sample(ana_data: AnaData) -> Optional[List[Tuple[plt.Fig
     output = []
     for sample in samples:
         sample_df = ana_data.NT_score.loc[ana_data.NT_score['sample'] == sample]
-        fig_width, fig_height = figsize(sample_df, scale_factor=ana_data.options.scale_factor)
+        fig_width, fig_height = saptial_figsize(sample_df, scale_factor=ana_data.options.scale_factor)
         fig, ax = plt.subplots(1, 1, figsize=(fig_width, fig_height))
         NT_score = sample_df['Niche_NTScore'] if not ana_data.options.reverse else 1 - sample_df['Niche_NTScore']
         scatter = ax.scatter(sample_df['x'], sample_df['y'], c=NT_score, cmap='rainbow', vmin=0, vmax=1, s=1)
@@ -287,7 +264,7 @@ def plot_cell_NT_score_sample(ana_data: AnaData) -> Optional[List[Tuple[plt.Figu
     output = []
     for sample in samples:
         sample_df = ana_data.NT_score.loc[ana_data.NT_score['sample'] == sample]
-        fig_width, fig_height = figsize(sample_df, scale_factor=ana_data.options.scale_factor)
+        fig_width, fig_height = saptial_figsize(sample_df, scale_factor=ana_data.options.scale_factor)
         fig, ax = plt.subplots(1, 1, figsize=(fig_width, fig_height))
         NT_score = sample_df['Cell_NTScore'] if not ana_data.options.reverse else 1 - sample_df['Cell_NTScore']
         scatter = ax.scatter(sample_df['x'], sample_df['y'], c=NT_score, cmap='rainbow', vmin=0, vmax=1, s=1)
