@@ -145,7 +145,6 @@ def prepare_optparser() -> OptionParser:
                          default=False,
                          help='Reverse the NT score.')
     add_embedding_adjust_group(optparser)
-    add_IO_options_group(optparser=optparser, io_options=IO_OPTIONS)
     add_suppress_group(optparser)
     add_visualization_group(optparser)
     return optparser
