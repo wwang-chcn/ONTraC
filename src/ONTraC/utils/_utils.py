@@ -32,30 +32,52 @@ def write_version_info() -> None:
     sys.stdout.flush()
 
 
-def save_cell_type_code(options: Values, meta_data_df: pd.DataFrame) -> None:
+# ------------------------------------
+# original data functions logic
+# functions:
+#  - read_meta_data
+#  - valid_meta_data
+#  - save_cell_type_code
+# pipeline:
+#  - ONTraC
+#    - load_original_data
+#      - read_meta_data
+#      - valid_meta_data
+#      - save_cell_type_code
+#  - ONTraC_GNN
+#    - read_meta_data
+#    - valid_meta_data
+#
+# note:
+#  - meta data save function moves to preprocessing part
+# ------------------------------------
+
+
+def read_meta_data(options: Values) -> pd.DataFrame:
     """
-    Save mappings of the categorical data.
+    Read original data.
     :param options: Values, options.
-    :param meta_data_df: pd.DataFrame, meta data.
-    :return: None.
+    :return: pd.DataFrame, meta data.
     """
 
-    # save mappings of the categorical data
-    cell_type_code = pd.DataFrame(enumerate(meta_data_df['Cell_Type'].cat.categories), columns=['Code', 'Cell_Type'])
-    cell_type_code.to_csv(f'{options.preprocessing_dir}/cell_type_code.csv', index=False)
+    # read original data file
+    meta_data_df = pd.read_csv(options.meta_input, header=0, index_col=False, sep=',')
+
+    meta_data_df = valid_meta_data(meta_data_df=meta_data_df)
+
+    return meta_data_df
 
 
-def valid_meta_data(options: Values, meta_data_df: pd.DataFrame) -> pd.DataFrame:
+def valid_meta_data(meta_data_df: pd.DataFrame) -> pd.DataFrame:
     """
     Validate original data.
-    :param options: Values, options.
     :param meta_data_df: pd.DataFrame, meta data.
     :return: pd.DataFrame, original data.
 
-    1) read meta data file (csv format)
-    2) check if Cell_ID, Sample, Cell_Type (optional), x, and y columns in the meta data
-    3) make the Cell_Type column categorical
-    4) return original data with Cell_ID, Sample, Cell_Type, x, and y columns
+    1) check if Cell_ID, Sample, Cell_Type (optional), x, and y columns in the meta data
+    2) make the Cell_Type column categorical (if exist)
+    3) return original data with Cell_ID, Sample, Cell_Type, x, and y columns
+    :return: pd.DataFrame, original data.
     """
 
     # check if Cell_ID, Sample, Cell_Type, x, and y columns in the original data
@@ -73,8 +95,7 @@ def valid_meta_data(options: Values, meta_data_df: pd.DataFrame) -> pd.DataFrame
         warning('There are duplicated Cell_ID in the meta data. Sample name will added to Cell_ID to distinguish them.')
         meta_data_df['Cell_ID'] = meta_data_df['Sample'] + '_' + meta_data_df['Cell_ID']
     if meta_data_df['Cell_ID'].isnull().any():
-        raise ValueError(
-            f'Duplicated Cell_ID within same sample found! Please check the meta data file: {options.data_file}.')
+        raise ValueError(f'Duplicated Cell_ID within same sample found! Please check the meta data file.')
 
     meta_data_df = meta_data_df.dropna()
 
@@ -87,6 +108,19 @@ def valid_meta_data(options: Values, meta_data_df: pd.DataFrame) -> pd.DataFrame
     return meta_data_df
 
 
+def save_cell_type_code(options: Values, meta_data_df: pd.DataFrame) -> None:
+    """
+    Read original data file.
+    :param options: Values, options.
+    :param meta_data_df: pd.DataFrame, meta data.
+    :return: None.
+    """
+
+    # save mappings of the categorical data
+    cell_type_code = pd.DataFrame(enumerate(meta_data_df['Cell_Type'].cat.categories), columns=['Code', 'Cell_Type'])
+    cell_type_code.to_csv(f'{options.preprocessing_dir}/cell_type_code.csv', index=False)
+
+
 def load_meta_data(options: Values) -> pd.DataFrame:
     """
     Load original data.
@@ -97,7 +131,7 @@ def load_meta_data(options: Values) -> pd.DataFrame:
     # read original data file
     meta_data_df = pd.read_csv(options.meta_input, header=0, index_col=False, sep=',')
 
-    meta_data_df = valid_meta_data(options=options, meta_data_df=meta_data_df)
+    meta_data_df = valid_meta_data(meta_data_df=meta_data_df)
 
     return meta_data_df
 

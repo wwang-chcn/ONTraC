@@ -10,6 +10,7 @@ from scipy.sparse import load_npz
 
 from ..data import SpatailOmicsDataset
 from ..log import error, info
+from .algorithm import brute_force, held_karp
 
 
 def load_consolidate_data(options: Values) -> Tuple[ndarray, ndarray]:
@@ -30,24 +31,22 @@ def load_consolidate_data(options: Values) -> Tuple[ndarray, ndarray]:
     return consolidate_s_array, consolidate_out_adj_array
 
 
-def get_niche_trajectory_path(niche_adj_matrix: ndarray) -> List[int]:
+def get_niche_trajectory_path(options: Values, niche_adj_matrix: ndarray) -> List[int]:
     """
     Find niche level trajectory with maximum connectivity using Brute Force
     :param adj_matrix: non-negative ndarray, adjacency matrix of the graph
     :return: List[int], the niche trajectory
     """
 
-    info('Finding niche trajectory with maximum connectivity using Brute Force.')
+    if options.trajectory_construct == 'BF':
+        info('Finding niche trajectory with maximum connectivity using Brute Force.')
 
-    max_connectivity = float('-inf')
-    niche_trajectory_path = []
-    for path in itertools.permutations(range(len(niche_adj_matrix))):
-        connectivity = 0
-        for i in range(len(path) - 1):
-            connectivity += niche_adj_matrix[path[i], path[i + 1]]
-        if connectivity > max_connectivity:
-            max_connectivity = connectivity
-            niche_trajectory_path = list(path)
+        niche_trajectory_path = brute_force(niche_adj_matrix)
+
+    elif options.trajectory_construct == 'TSP':
+        info('Finding niche trajectory with maximum connectivity using TSP.')
+
+        niche_trajectory_path = held_karp(niche_adj_matrix)
 
     return niche_trajectory_path
 
@@ -90,7 +89,7 @@ def get_niche_NTScore(options: Values, niche_cluster_loading: ndarray,
 
     info('Calculating NTScore for each niche.')
 
-    niche_trajectory_path = get_niche_trajectory_path(niche_adj_matrix=niche_adj_matrix)
+    niche_trajectory_path = get_niche_trajectory_path(options=options, niche_adj_matrix=niche_adj_matrix)
 
     niche_clustering_sum = niche_cluster_loading.sum(axis=0)
     niche_cluster_score = trajectory_path_to_NC_score(options=options,

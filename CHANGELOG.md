@@ -11,7 +11,8 @@ Added:
 - Support embeddings input
 - Weighted NT score assign for niche clusters
 - Support spots-based data and analysis its results
-- Visualization of clustering results
+- Visualization of cell clustering results
+- Warning for deprecated options
 
 Changed:
 
@@ -25,7 +26,22 @@ Fixed:
 
 - Resolved bug in regularization loss calculation for multi-sample batches
 
-## [1.0.6] - 2024-XXX-XX
+## [1.0.7] - 2024-XXX-XX
+
+Added:
+
+- Niche cluster connectivity visualization for each sample
+- `scale factor` controlling the size of spatial-based plots
+
+Changed:
+
+- `log` file is optional for `ONTraC_analysis`
+
+Fixed:
+
+- Issues caused `ONTraC_GNN` still need dataset input
+
+## [1.0.6] - 2024-Sep-20
 
 Added:
 
@@ -33,10 +49,16 @@ Added:
 - GNN parameters group validation
 - More functions descriptions under GNN part
 - Transparent edges and colorbar for niche cluster connectivities visualization
+- `TSP` method for Niche Trajectory construction
 
 Changed:
 
 - rename `GP` to `ONTraC_GP`
+
+Fixed:
+
+- Loading dataset error in `NicheTrajectory`
+- Log printing error on Windows
 
 ## [1.0.5] - 2024-Sep-8
 
