@@ -72,6 +72,10 @@ The intermediate and final results are located in `preprocessing-dir`, `GNN-dir`
 
 Please see [post analysis tutorial](tutorials/post_analysis.md).
 
+### Interoperability
+
+ONTraC has been incorporated with [Giotto Suite](https://drieslab.github.io/Giotto_website/articles/ontrac.html).
+
 ## Citation
 
-**Wang, W.\*, Zheng, S.\*, Shin, C. S. & Yuan, G. C.$**. [Characterizing Spatially Continuous Variations in Tissue Microenvironment through Niche Trajectory Analysis](https://www.biorxiv.org/content/10.1101/2024.04.23.590827v1). *bioRxiv*, 2024.
+**Wang, W.\*, Zheng, S.\*, Shin, C. S. & [Yuan, G. C.](https://labs.icahn.mssm.edu/yuanlab/)$**. [Characterizing Spatially Continuous Variations in Tissue Microenvironment through Niche Trajectory Analysis](https://www.biorxiv.org/content/10.1101/2024.04.23.590827v1). *bioRxiv*, 2024.

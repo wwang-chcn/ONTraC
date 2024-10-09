@@ -33,3 +33,13 @@ WARNING: Installing with conda can be very slow.
 ```sh
 conda install -c gyuanlab -c pytorch -c pyg -c default -c nvidia -c conda-forge ontrac
 ```
+
+### install developmental version from GitHub
+
+```sh
+git clone git@github.com:gyuanlab/ONTraC.git .
+cd ONTraC
+pip install .
+# Use this command if you want to visualise the results by `ONTraC_analysis`.
+pip install ".[analysis]"
+```

@@ -2,6 +2,30 @@ import numpy as np
 import pandas as pd
 
 
+def saptial_figsize(sample_df, scale_factor=1):
+
+    n_points = sample_df[['x', 'y']].dropna().shape[0]
+    # debug(f'n_points: {n_points}')
+
+    x_span = sample_df['x'].dropna().max() - sample_df['x'].dropna().min()
+    y_span = sample_df['y'].dropna().max() - sample_df['y'].dropna().min()
+    # debug(f'x_span: {x_span}')
+    # debug(f'y_span: {y_span}')
+
+    points_density = n_points / x_span / y_span * 10_000
+
+    # debug(f'points density: {points_density}')
+
+    fig_width = x_span / 2_000 * scale_factor * np.sqrt(points_density) + .5  # Adding 2 for colorbar space
+    fig_height = y_span / 2_000 * scale_factor * np.sqrt(points_density) + .2  # Adding 1.5 for title space
+
+    # debug(f'scale_factor: {scale_factor}')
+    # debug(f'fig_width: {fig_width}')
+    # debug(f'fig_height: {fig_height}')
+
+    return fig_width, fig_height
+
+
 def gini(array: np.ndarray | pd.Series) -> float:
     """Calculate the Gini coefficient of a numpy array.
     :param array: array containing numbers.

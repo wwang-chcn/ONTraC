@@ -1,14 +1,16 @@
 from typing import List, Optional, Tuple, Union
 
 import matplotlib as mpl
+import numpy as np
 
 mpl.rcParams['pdf.fonttype'] = 42
 mpl.rcParams['ps.fonttype'] = 42
 mpl.rcParams['font.family'] = 'Arial'
 import matplotlib.pyplot as plt
 
-from ..log import warning
+from ..log import debug, warning
 from .data import AnaData
+from .utils import saptial_figsize
 
 
 def plot_cell_type_composition_dataset(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.Axes]]:
@@ -49,7 +51,8 @@ def plot_cell_type_composition_dataset(ana_data: AnaData) -> Optional[Tuple[plt.
 
     fig.tight_layout()
     if ana_data.options.output is not None:
-        fig.savefig(f'{ana_data.options.output}/cell_type_compostion.pdf', transparent=True)
+        fig.savefig(f'{ana_data.options.output}/cell_type_composition.pdf', transparent=True)
+        plt.close(fig)
         return None
     else:
         return fig, axes
@@ -76,8 +79,9 @@ def plot_cell_type_composition_sample(ana_data: AnaData) -> Optional[List[Tuple[
     output = []
     N = len(cell_types)
     for sample in samples:
-        fig, axes = plt.subplots(1, N, figsize=(3.5 * N, 3))
         sample_df = ana_data.cell_type_composition.loc[ana_data.cell_type_composition['sample'] == sample]
+        fig_width, fig_height = saptial_figsize(sample_df, scale_factor=ana_data.options.scale_factor)
+        fig, axes = plt.subplots(1, N, figsize=(fig_width * N, fig_height))
         for j, cell_type in enumerate(cell_types):
             ax = axes[j]  # At least two cell types are required, checked at original data loading.
             scatter = ax.scatter(sample_df['x'],
@@ -93,7 +97,7 @@ def plot_cell_type_composition_sample(ana_data: AnaData) -> Optional[List[Tuple[
             ax.set_title(f"{sample} {cell_type}")
         fig.tight_layout()
         if ana_data.options.output is not None:
-            fig.savefig(f'{ana_data.options.output}/{sample}_cell_type_compostion.pdf', transparent=True)
+            fig.savefig(f'{ana_data.options.output}/{sample}_cell_type_composition.pdf', transparent=True)
             plt.close(fig)
         else:
             output.append((fig, axes))
@@ -147,6 +151,7 @@ def plot_niche_NT_score_dataset(ana_data: AnaData) -> Optional[Tuple[plt.Figure,
     fig.tight_layout()
     if ana_data.options.output is not None:
         fig.savefig(f'{ana_data.options.output}/niche_NT_score.pdf', transparent=True)
+        plt.close(fig)
         return None
     else:
         return fig, axes
@@ -171,8 +176,9 @@ def plot_niche_NT_score_sample(ana_data: AnaData) -> Optional[List[Tuple[plt.Fig
 
     output = []
     for sample in samples:
-        fig, ax = plt.subplots(1, 1, figsize=(3.5, 3))
         sample_df = ana_data.NT_score.loc[ana_data.NT_score['sample'] == sample]
+        fig_width, fig_height = saptial_figsize(sample_df, scale_factor=ana_data.options.scale_factor)
+        fig, ax = plt.subplots(1, 1, figsize=(fig_width, fig_height))
         NT_score = sample_df['Niche_NTScore'] if not ana_data.options.reverse else 1 - sample_df['Niche_NTScore']
         scatter = ax.scatter(sample_df['x'], sample_df['y'], c=NT_score, cmap='rainbow', vmin=0, vmax=1, s=1)
         ax.set_xticks([])
@@ -235,6 +241,7 @@ def plot_cell_NT_score_dataset(ana_data: AnaData) -> Optional[Tuple[plt.Figure, 
     fig.tight_layout()
     if ana_data.options.output is not None:
         fig.savefig(f'{ana_data.options.output}/cell_NT_score.pdf', transparent=True)
+        plt.close(fig)
         return None
     else:
         return fig, axes
@@ -259,8 +266,9 @@ def plot_cell_NT_score_sample(ana_data: AnaData) -> Optional[List[Tuple[plt.Figu
 
     output = []
     for sample in samples:
-        fig, ax = plt.subplots(1, 1, figsize=(3.5, 3))
         sample_df = ana_data.NT_score.loc[ana_data.NT_score['sample'] == sample]
+        fig_width, fig_height = saptial_figsize(sample_df, scale_factor=ana_data.options.scale_factor)
+        fig, ax = plt.subplots(1, 1, figsize=(fig_width, fig_height))
         NT_score = sample_df['Cell_NTScore'] if not ana_data.options.reverse else 1 - sample_df['Cell_NTScore']
         scatter = ax.scatter(sample_df['x'], sample_df['y'], c=NT_score, cmap='rainbow', vmin=0, vmax=1, s=1)
         ax.set_xticks([])
@@ -298,7 +306,7 @@ def spatial_visualization(ana_data: AnaData) -> None:
     :return: None.
     """
 
-    # 1. cell type compostion
+    # 1. cell type composition
     if not hasattr(ana_data.options,
                    'suppress_cell_type_composition') or not ana_data.options.suppress_cell_type_composition:
         plot_cell_type_composition(ana_data=ana_data)

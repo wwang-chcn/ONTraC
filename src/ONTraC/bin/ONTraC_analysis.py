@@ -8,7 +8,8 @@ from ..analysis.niche_cluster import niche_cluster_visualization
 from ..analysis.spatial import spatial_visualization
 from ..analysis.train_loss import train_loss_visualiztion
 from ..log import *
-from ..optparser._IO import add_IO_options_group, validate_io_options, write_io_options_memo
+from ..optparser._IO import (add_IO_options_group, validate_io_options,
+                             write_io_options_memo)
 from ..utils import *
 from ..version import __version__
 
@@ -52,10 +53,26 @@ def add_suppress_group(optparser: OptionParser) -> None:
                      default=False,
                      help='Suppress the niche cluster loadings visualization.')
     group.add_option('--suppress-niche-trajectory',
-                        dest='suppress_niche_trajectory',
-                        action='store_true',
-                        default=False,
-                        help='Suppress the niche trajectory related visualization.')
+                     dest='suppress_niche_trajectory',
+                     action='store_true',
+                     default=False,
+                     help='Suppress the niche trajectory related visualization.')
+    optparser.add_option_group(group)
+
+
+def add_visualization_group(optparser: OptionParser) -> None:
+    group = OptionGroup(optparser, 'Visualization options')
+    group.add_option('-s',
+                     '--sample',
+                     dest='sample',
+                     action='store_true',
+                     default=False,
+                     help='Plot each sample separately.')
+    group.add_option('--scale-factor',
+                     dest='scale_factor',
+                     type='float',
+                     default=1.0,
+                     help='Scale factor control the size of spatial-based plots.')
     optparser.add_option_group(group)
 
 
@@ -64,7 +81,9 @@ def prepare_optparser() -> OptionParser:
 
     Ret: OptParser object.
     """
-    usage = "USAGE: %prog <-d DATASET> <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR> <-o OUTPUT_DIR> [-l LOG_FILE] [-r REVERSE]"
+    usage = """USAGE: %prog <-d DATASET> <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR>
+    <--NTScore-dir NTSCORE_DIR> <-o OUTPUT_DIR> [-l LOG_FILE] [-r REVERSE] [-s SAMPLE] [--scale-factor SCALE_FACTOR]
+    [--suppress-cell-type-composition] [--suppress-niche-cluster-loadings] [--suppress-niche-trajectory]"""
     description = "Analysis the results of ONTraC."
     optparser = OptionParser(version=f'%prog {__version__}',
                              usage=usage,
@@ -79,14 +98,9 @@ def prepare_optparser() -> OptionParser:
                          action='store_true',
                          default=False,
                          help='Reverse the NT score.')
-    optparser.add_option('-s',
-                         '--sample',
-                         dest='sample',
-                         action='store_true',
-                         default=False,
-                         help='Plot each sample separately.')
     add_IO_options_group(optparser=optparser, io_options=IO_OPTIONS)
     add_suppress_group(optparser)
+    add_visualization_group(optparser)
     return optparser
 
 
@@ -126,13 +140,14 @@ def opt_validate(optparser: OptionParser) -> Values:
     if options.log is not None:
         info(f'Log file: {options.log}')
     info(f'Reverse: {options.reverse}')
-    info(f'Sample: {options.sample}')
     if hasattr(options, 'suppress_cell_type_composition'):
         info(f'Suppress cell type composition: {options.suppress_cell_type_composition}')
     if hasattr(options, 'suppress_niche_cluster_loadings'):
         info(f'Suppress niche cluster loadings: {options.suppress_niche_cluster_loadings}')
     if hasattr(options, 'suppress_niche_trajectory'):
         info(f'Suppress niche trajectory: {options.suppress_niche_trajectory}')
+    info(f'Sample: {options.sample}')
+    info(f'Scale factor: {options.scale_factor}')
 
     return options
 
