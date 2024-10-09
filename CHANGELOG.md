@@ -35,7 +35,7 @@ Added:
 
 Changed:
 
-- `log` file is optional for `ONTraC_analysis`
+- Make `log` file optional for `ONTraC_analysis`
 
 Fixed:
 
