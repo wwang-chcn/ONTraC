@@ -151,7 +151,7 @@ def predict(output_dir: str, batch_train: SubBatchTrainProtocol, dataset: Spatai
         np.savetxt(fname=f'{output_dir}/consolidate_out.csv.gz', X=consolidate_out_array, delimiter=',')
         # consolidate out_adj
         ind = torch.arange(consolidate_s.shape[-1], device=consolidate_out_adj.device)  # type: ignore
-        consolidate_out_adj[ind, ind] = 0  # type: ignore
+        consolidate_out_adj[ind, ind] = 0  # type: ignore # remove intra-niche cluster edges
         d = torch.einsum('ij->i', consolidate_out_adj)
         d = torch.sqrt(d)[:, None] + 1e-15
         consolidate_out_adj = (consolidate_out_adj / d) / d.transpose(0, 1)

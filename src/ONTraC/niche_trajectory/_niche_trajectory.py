@@ -1,4 +1,3 @@
-import itertools
 import os
 from optparse import Values
 from typing import Dict, List, Tuple
@@ -10,7 +9,7 @@ from scipy.sparse import load_npz
 
 from ..data import SpatailOmicsDataset
 from ..log import error, info
-from .algorithm import brute_force, held_karp
+from .algorithm import brute_force, diffusion_map, held_karp
 
 
 def load_consolidate_data(options: Values) -> Tuple[ndarray, ndarray]:
@@ -31,10 +30,30 @@ def load_consolidate_data(options: Values) -> Tuple[ndarray, ndarray]:
     return consolidate_s_array, consolidate_out_adj_array
 
 
+def apply_diffusion_map(niche_adj_matrix: ndarray) -> List[int]:
+    """
+    Apply diffusion map to the niche adjacency matrix
+    :param niche_adj_matrix: ndarray, the adjacency matrix of the graph
+    :return: ndarray, the NTScore
+    """
+
+    info('Applying diffusion map to the niche adjacency matrix.')
+
+    _, eigvecs = diffusion_map(niche_adj_matrix)
+
+    # get the first eigenvector as the niche cluster score by default
+    niche_cluster_score = eigvecs[:, 0]
+
+    niche_cluster_path = niche_cluster_score.argsort().tolist()
+
+    return niche_cluster_path
+
+
 def get_niche_trajectory_path(options: Values, niche_adj_matrix: ndarray) -> List[int]:
     """
     Find niche level trajectory with maximum connectivity using Brute Force
     :param adj_matrix: non-negative ndarray, adjacency matrix of the graph
+    :param methods: str, the method to find the niche trajectory path. Default is 'BF' (Brute Force).
     :return: List[int], the niche trajectory
     """
 
@@ -47,6 +66,9 @@ def get_niche_trajectory_path(options: Values, niche_adj_matrix: ndarray) -> Lis
         info('Finding niche trajectory with maximum connectivity using TSP.')
 
         niche_trajectory_path = held_karp(niche_adj_matrix)
+
+    elif options.trajectory_construct == 'DM':
+        niche_trajectory_path = apply_diffusion_map(niche_adj_matrix=niche_adj_matrix)
 
     return niche_trajectory_path
 
@@ -96,6 +118,7 @@ def get_niche_NTScore(options: Values, niche_cluster_loading: ndarray,
                                                       niche_trajectory_path=niche_trajectory_path,
                                                       niche_clustering_sum=niche_clustering_sum)
     niche_level_NTScore = niche_cluster_loading @ niche_cluster_score
+    
     return niche_cluster_score, niche_level_NTScore
 
 

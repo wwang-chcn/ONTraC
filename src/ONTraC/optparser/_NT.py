@@ -53,8 +53,8 @@ def add_NT_options_group(optparser: OptionParser) -> None:
         '--trajectory-construct',
         dest='trajectory_construct',
         default='BF',
-        choices=['BF', 'TSP'],
-        help="Method to construct the niche trajectory. Default is 'BF' (brute-force). A faster alternative is 'TSP'.")
+        choices=['BF', 'TSP', 'DM'],
+        help="Method to construct the niche trajectory. Choices: BF (brute force), TSP (Travelling salesman problem), DM (diffusion map). Default is 'BF' (brute-force).")
 
 
 def write_NT_options_memo(options: Values) -> None:
