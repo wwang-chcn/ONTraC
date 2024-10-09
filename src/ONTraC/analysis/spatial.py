@@ -53,6 +53,7 @@ def plot_cell_type_composition_dataset(ana_data: AnaData) -> Optional[Tuple[plt.
     fig.tight_layout()
     if ana_data.options.output is not None:
         fig.savefig(f'{ana_data.options.output}/cell_type_composition.pdf', transparent=True)
+        plt.close(fig)
         return None
     else:
         return fig, axes
@@ -257,6 +258,7 @@ def plot_niche_NT_score_dataset(ana_data: AnaData) -> Optional[Tuple[plt.Figure,
     fig.tight_layout()
     if ana_data.options.output is not None:
         fig.savefig(f'{ana_data.options.output}/niche_NT_score.pdf', transparent=True)
+        plt.close(fig)
         return None
     else:
         return fig, axes
@@ -346,6 +348,7 @@ def plot_cell_NT_score_dataset(ana_data: AnaData) -> Optional[Tuple[plt.Figure, 
     fig.tight_layout()
     if ana_data.options.output is not None:
         fig.savefig(f'{ana_data.options.output}/cell_NT_score.pdf', transparent=True)
+        plt.close(fig)
         return None
     else:
         return fig, axes
@@ -410,7 +413,7 @@ def spatial_visualization(ana_data: AnaData) -> None:
     :return: None.
     """
 
-    # 1. cell type compostion
+    # 1. cell type composition
     if hasattr(ana_data.options, 'suppress_cell_type_composition') and ana_data.options.suppress_cell_type_composition:
         info('Skip the cell type composition visualization due to suppression setting.')
     else:

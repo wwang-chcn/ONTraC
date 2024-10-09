@@ -35,7 +35,7 @@ Added:
 
 Changed:
 
-- `log` file is optional for `ONTraC_analysis`
+- Make `log` file optional for `ONTraC_analysis`
 
 Fixed:
 
@@ -244,5 +244,5 @@ Changed:
 - Running process
 - Uniform parameters control
 - Output directories
-- `createDataSet` generate cell type compostion and GNN input from raw input
+- `createDataSet` generate cell type composition and GNN input from raw input
 - Input data format

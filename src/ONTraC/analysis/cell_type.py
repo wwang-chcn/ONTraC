@@ -53,6 +53,7 @@ def plot_violin_cell_type_along_NT_score(ana_data: AnaData) -> Optional[Tuple[pl
     fig.tight_layout()
     if ana_data.options.output is not None:
         fig.savefig(f'{ana_data.options.output}/cell_type_along_NT_score_violin.pdf', transparent=True)
+        plt.close(fig)
         return None
     else:
         return fig, ax
@@ -81,6 +82,7 @@ def plot_kde_cell_type_along_NT_score(ana_data: AnaData) -> Optional[Tuple[plt.F
     fig.tight_layout()
     if ana_data.options.output is not None:
         fig.savefig(f'{ana_data.options.output}/cell_type_along_NT_score_kde.pdf', transparent=True)
+        plt.close(fig)
         return None
     else:
         return fig, ax
@@ -117,6 +119,7 @@ def plot_hist_cell_type_along_NT_score(ana_data: AnaData) -> Optional[Tuple[plt.
     fig.tight_layout()
     if ana_data.options.output is not None:
         fig.savefig(f'{ana_data.options.output}/cell_type_along_NT_score_hist.pdf', transparent=True)
+        plt.close(fig)
         return None
     else:
         return fig, ax
@@ -190,6 +193,7 @@ def plot_cell_type_dis_in_niche_clusters(ana_data: AnaData,
     fig.tight_layout()
     if ana_data.options.output is not None:
         fig.savefig(f'{ana_data.options.output}/cell_type_dis_in_niche_clusters.pdf', transparent=True)
+        plt.close(fig)
         return None
     else:
         return fig, ax
@@ -210,6 +214,7 @@ def plot_cell_type_across_niche_cluster(ana_data: AnaData,
     fig.tight_layout()
     if ana_data.options.output is not None:
         fig.savefig(f'{ana_data.options.output}/cell_type_dis_across_niche_cluster.pdf', transparent=True)
+        plt.close(fig)
         return None
     else:
         return fig, ax
