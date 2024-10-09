@@ -82,6 +82,7 @@ def _plot_niche_cluster_connectivity(
 
     if output_file_path is not None:
         fig.savefig(output_file_path)
+        plt.close(fig)
         return None
     else:
         return fig, [ax1, ax2]
@@ -158,6 +159,7 @@ def plot_cluster_proportion(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt
     fig.tight_layout()
     if ana_data.options.output is not None:
         fig.savefig(f'{ana_data.options.output}/niche_cluster_proportion.pdf')
+        plt.close(fig)
         return None
     else:
         return fig, ax
@@ -201,6 +203,7 @@ def plot_niche_cluster_loadings_dataset(ana_data: AnaData) -> Optional[Tuple[plt
     fig.tight_layout()
     if ana_data.options.output is not None:
         fig.savefig(f'{ana_data.options.output}/niche_cluster_loadings.pdf')
+        plt.close(fig)
         return None
     else:
         return fig, ax
@@ -246,6 +249,7 @@ def plot_niche_cluster_loadings_sample(ana_data: AnaData) -> Optional[List[Tuple
         output.append((fig, axes))
         if ana_data.options.output is not None:
             fig.savefig(f'{ana_data.options.output}/niche_cluster_loadings_{sample}.pdf')
+            plt.close(fig)
     return output if len(output) > 0 else None
 
 
@@ -306,6 +310,7 @@ def plot_max_niche_cluster_dataset(ana_data: AnaData) -> Optional[Tuple[plt.Figu
     fig.tight_layout()
     if ana_data.options.output is not None:
         fig.savefig(f'{ana_data.options.output}/max_niche_cluster.pdf')
+        plt.close(fig)
         return None
     else:
         return fig, axes
@@ -356,6 +361,7 @@ def plot_max_niche_cluster_sample(ana_data: AnaData) -> Optional[List[Tuple[plt.
         output.append((fig, ax))
         if ana_data.options.output is not None:
             fig.savefig(f'{ana_data.options.output}/max_niche_cluster_{sample}.pdf')
+            plt.close(fig)
     return output if len(output) > 0 else None
 
 
@@ -398,6 +404,7 @@ def plot_niche_cluster_gini(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt
     fig.tight_layout()
     if ana_data.options.output is not None:
         fig.savefig(f'{ana_data.options.output}/niche_cluster_gini.pdf')
+        plt.close(fig)
         return None
     else:
         return fig, ax
