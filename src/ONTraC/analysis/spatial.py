@@ -51,7 +51,7 @@ def plot_cell_type_composition_dataset(ana_data: AnaData) -> Optional[Tuple[plt.
 
     fig.tight_layout()
     if ana_data.options.output is not None:
-        fig.savefig(f'{ana_data.options.output}/cell_type_compostion.pdf', transparent=True)
+        fig.savefig(f'{ana_data.options.output}/cell_type_composition.pdf', transparent=True)
         plt.close(fig)
         return None
     else:
@@ -97,7 +97,7 @@ def plot_cell_type_composition_sample(ana_data: AnaData) -> Optional[List[Tuple[
             ax.set_title(f"{sample} {cell_type}")
         fig.tight_layout()
         if ana_data.options.output is not None:
-            fig.savefig(f'{ana_data.options.output}/{sample}_cell_type_compostion.pdf', transparent=True)
+            fig.savefig(f'{ana_data.options.output}/{sample}_cell_type_composition.pdf', transparent=True)
             plt.close(fig)
         else:
             output.append((fig, axes))
@@ -306,7 +306,7 @@ def spatial_visualization(ana_data: AnaData) -> None:
     :return: None.
     """
 
-    # 1. cell type compostion
+    # 1. cell type composition
     if not hasattr(ana_data.options,
                    'suppress_cell_type_composition') or not ana_data.options.suppress_cell_type_composition:
         plot_cell_type_composition(ana_data=ana_data)
