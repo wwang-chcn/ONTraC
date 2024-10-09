@@ -244,5 +244,5 @@ Changed:
 - Running process
 - Uniform parameters control
 - Output directories
-- `createDataSet` generate cell type compostion and GNN input from raw input
+- `createDataSet` generate cell type composition and GNN input from raw input
 - Input data format

@@ -413,7 +413,7 @@ def spatial_visualization(ana_data: AnaData) -> None:
     :return: None.
     """
 
-    # 1. cell type compostion
+    # 1. cell type composition
     if hasattr(ana_data.options, 'suppress_cell_type_composition') and ana_data.options.suppress_cell_type_composition:
         info('Skip the cell type composition visualization due to suppression setting.')
     else:
