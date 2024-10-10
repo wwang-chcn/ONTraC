@@ -2,7 +2,6 @@
 
 import os
 import sys
-from os import path
 from typing import Callable, Optional
 
 from ..model import GraphPooling
@@ -44,12 +43,11 @@ def main() -> None:
 
     # load parameters
     options = load_parameters(opt_validate_func=opt_GNN_validate, prepare_optparser_func=prepare_GNN_optparser)
-    options.dataset = f'{options.preprocessing_dir}/original_data.csv'
-    if not os.path.exists(options.dataset):
-        raise FileNotFoundError(f"Dataset file not found: {options.dataset}. You may need to run createDataSet first or copy original dataset file into {options.preprocessing_dir} directory with the name 'original_data.csv'.")
-
+    
     # load meta data
-    options.meta_input = path.join(options.preprocessing_dir, 'meta_data.csv')
+    options.meta_input = os.path.join(options.preprocessing_dir, 'meta_data.csv')
+    if not os.path.exists(options.meta_input):
+        raise FileNotFoundError(f"Meta data file not found: {options.meta_input}. You may need to run createDataSet first or copy meta data file into {options.preprocessing_dir} directory with the name 'meta_data.csv'.")
     meta_data_df = load_meta_data(options=options)
 
     # ----- GNN -----
