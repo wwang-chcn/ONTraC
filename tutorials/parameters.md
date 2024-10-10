@@ -5,15 +5,15 @@
 ### Full parameters for ONTraC
 
 ```{text}
-Usage: ONTraC <--meta-input META_INPUT> [--exp-input EXP_INPUT] [--embedding-input EMBEDDING_INPUT]
+Usage: ONTraC <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR>
+    <--meta-input META_INPUT> [--exp-input EXP_INPUT] [--embedding-input EMBEDDING_INPUT]
     [--decomposition-cell-type-composition-input DECOMPOSITION_CELL_TYPE_COMPOSITION_INPUT]
-    [--decomposition-expression-input DECOMPOSITION_EXPRESSION_INPUT] <--preprocessing-dir PREPROCESSING_DIR>
-    <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR> [--n-cpu N_CPU] [--n-neighbors N_NEIGHBORS] [--n-local N_LOCAL]
+    [--decomposition-expression-input DECOMPOSITION_EXPRESSION_INPUT] [--n-cpu N_CPU] [--n-neighbors N_NEIGHBORS] [--n-local N_LOCAL]
     [--embedding-adjust] [--sigma SIGMA] [--device DEVICE] [--epochs EPOCHS] [--patience PATIENCE]
     [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] [-s SEED] [--seed SEED] [--lr LR]
     [--hidden-feats HIDDEN_FEATS] [-k K_CLUSTERS] [--modularity-loss-weight MODULARITY_LOSS_WEIGHT]
     [--purity-loss-weight PURITY_LOSS_WEIGHT] [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA]
-    [--trajectory-construct TRAJECTORY_CONSTRUCT]
+    [--trajectory-construct TRAJECTORY_CONSTRUCT] [--equal-space]
 
 All steps of ONTraC including dataset creation, Graph Pooling, and NT score calculation.
 
@@ -22,8 +22,11 @@ Options:
   -h, --help            show this help message and exit
 
   IO:
-    -d DATASET, --dataset=DATASET
-                        This options will be deprecated in V3. Please use --meta-input instead.
+    --preprocessing-dir=PREPROCESSING_DIR
+                        Directory for preprocessing outputs.
+    --GNN-dir=GNN_DIR   Directory for the GNN output.
+    --NTScore-dir=NTSCORE_DIR
+                        Directory for the NTScore output.
     --meta-input=META_INPUT
                         Meta data file in csv format. Each row is a cell and each column is a meta data. The
                         first column should be the cell name. Coordinates (x, y) and sample should be
@@ -41,11 +44,8 @@ Options:
                         Decomposition outputed expression of each cell type in csv format. The first column
                         should be the cell type name corresponding to the columns name of decomposition
                         outputed cell type composition.
-    --preprocessing-dir=PREPROCESSING_DIR
-                        Directory for preprocessing outputs.
-    --GNN-dir=GNN_DIR   Directory for the GNN output.
-    --NTScore-dir=NTSCORE_DIR
-                        Directory for the NTScore output.
+    -d DATASET, --dataset=DATASET
+                        This options will be deprecated in V3. Please use --meta-input instead.
 
   Preprocessing:
     --resolution=RESOLUTION
@@ -92,20 +92,20 @@ Options:
     --beta=BETA         Beta value control niche cluster assignment matrix. Default is 0.3.
 
   Options for niche trajectory:
-    --equal-space       Whether to assign equally spaced values to for each niche cluster. Default is False,
-                        based on total loadings of each niche cluster.
     --trajectory-construct=TRAJECTORY_CONSTRUCT
                         Method to construct the niche trajectory. Default is 'BF' (brute-force). A faster
                         alternative is 'TSP'.
+    --equal-space       Whether to assign equally spaced values to for each niche cluster. Default is False,
+                        based on total loadings of each niche cluster.
 ```
 
 ### Full parameters for ONTraC_pp
 
 ```{text}
-Usage: ONTraC_pp <--meta-input META_INPUT> [--exp-input EXP_INPUT] [--embedding-input EMBEDDING_INPUT]
-    [--decomposition-cell-type-composition-input DECOMPOSITION_CELL_TYPE_COMPOSITION_INPUT]
-    [--decomposition-expression-input DECOMPOSITION_EXPRESSION_INPUT] <--preprocessing-dir PREPROCESSING_DIR> [--n-cpu N_CPU]
-    [--n-neighbors N_NEIGHBORS] [--n-local N_LOCAL] [--embedding-adjust] [--sigma SIGMA]
+Usage: ONTraC_pp <--preprocessing-dir PREPROCESSING_DIR> <--meta-input META_INPUT> [--exp-input EXP_INPUT]
+    [--embedding-input EMBEDDING_INPUT] [--decomposition-cell-type-composition-input DECOMPOSITION_CELL_TYPE_COMPOSITION_INPUT]
+    [--decomposition-expression-input DECOMPOSITION_EXPRESSION_INPUT] [--n-cpu N_CPU] [--n-neighbors N_NEIGHBORS] [--n-local N_LOCAL]
+    [--embedding-adjust] [--sigma SIGMA]
 
 Preporcessing and create dataset for GNN and following analysis.
 
@@ -114,8 +114,8 @@ Options:
   -h, --help            show this help message and exit
 
   IO:
-    -d DATASET, --dataset=DATASET
-                        This options will be deprecated in V3. Please use --meta-input instead.
+    --preprocessing-dir=PREPROCESSING_DIR
+                        Directory for preprocessing outputs.
     --meta-input=META_INPUT
                         Meta data file in csv format. Each row is a cell and each column is a meta data. The first column should be the cell name. Coordinates (x, y) and sample should be included. Cell type is optional.
     --exp-input=EXP_INPUT
@@ -126,8 +126,8 @@ Options:
                         Decomposition outputed cell type composition of each spot in csv format. The first column should be the spot name.
     --decomposition-expression-input=DECOMPOSITION_EXPRESSION_INPUT
                         Decomposition outputed expression of each cell type in csv format. The first column should be the cell type name corresponding to the columns name of decomposition outputed cell type composition.
-    --preprocessing-dir=PREPROCESSING_DIR
-                        Directory for preprocessing outputs.
+    -d DATASET, --dataset=DATASET
+                        This options will be deprecated in V3. Please use --meta-input instead.
 
   Preprocessing:
     --resolution=RESOLUTION
@@ -193,9 +193,9 @@ Options:
 
 ```{text}
 Usage: NicheTrajectory <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR> 
-            <--trajectory-construct TRAJECTORY_CONSTRUCT>
+            [--trajectory-construct TRAJECTORY_CONSTRUCT]
 
-PseudoTime: Calculate PseudoTime for each node in a graph
+Niche trajectory: construct niche trajectory for niche cluster and project the NT score to each cell
 
 Options:
   --version             show program's version number and exit
@@ -209,9 +209,9 @@ Options:
                         Directory for the NTScore output.
 
   Options for niche trajectory:
+                        Method to construct the niche trajectory. Default is 'BF' (brute-force). A faster alternative is 'TSP'.
     --equal-space       Whether to assign equally spaced values to for each niche cluster. Default is False, based on total loadings of each niche cluster.
     --trajectory-construct=TRAJECTORY_CONSTRUCT
-                        Method to construct the niche trajectory. Default is 'BF' (brute-force). A faster alternative is 'TSP'.
 ```
 
 ### Full parameters for ONTraC_analysis
@@ -237,10 +237,22 @@ Options:
     --GNN-dir=GNN_DIR   Directory for the GNN output.
     --NTScore-dir=NTSCORE_DIR
                         Directory for the NTScore output.
+    -d DATASET, --dataset=DATASET
+                        Original input dataset.
+
+  Visualization options:
+    -s, --sample        Plot each sample separately.
+    --scale-factor=SCALE_FACTOR
+                        Scale factor control the size of spatial-based plots.
 
   Embedding adjust options:
     --embedding-adjust  Adjust the cell type coding according to embeddings. Default is False. At least two (Embedding_1 and Embedding_2) should be in the original data if embedding_adjust is True.
     --sigma=SIGMA       Sigma for the exponential function to control the similarity between different cell types or clusters. Default is 1.
+
+  Visualization options:
+    -s, --sample        Plot each sample separately.
+    --scale-factor=SCALE_FACTOR
+                        Scale factor control the size of spatial-based plots.
 
   Suppress options:
     --suppress-cell-type-composition
@@ -251,11 +263,6 @@ Options:
                         Suppress the cell type visualization.
     --suppress-niche-trajectory
                         Suppress the niche trajectory related visualization.
-
-  Visualization options:
-    -s, --sample        Plot each sample separately.
-    --scale-factor=SCALE_FACTOR
-                        Scale factor control the size of spatial-based plots.
 
   Deprecated options:
     -d DATASET, --dataset=DATASET
@@ -273,33 +280,22 @@ Options:
 ### Full parameters for ONTraC_GP
 
 ```{text}
-Usage: ONTraC_GP <--meta-input META_INPUT> [--exp-input EXP_INPUT] [--embedding-input EMBEDDING_INPUT]
+Usage: ONTraC_GP <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR>
+    <--meta-input META_INPUT> [--exp-input EXP_INPUT] [--embedding-input EMBEDDING_INPUT]
     [--decomposition-cell-type-composition-input DECOMPOSITION_CELL_TYPE_COMPOSITION_INPUT]
-    [--decomposition-expression-input DECOMPOSITION_EXPRESSION_INPUT] <--preprocessing-dir PREPROCESSING_DIR>
-    <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR>  [--device DEVICE] [--epochs EPOCHS] [--patience PATIENCE]
-    [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] [-s SEED] [--seed SEED] [--lr LR]
-    [--hidden-feats HIDDEN_FEATS] [-k K_CLUSTERS] [--modularity-loss-weight MODULARITY_LOSS_WEIGHT]
-    [--purity-loss-weight PURITY_LOSS_WEIGHT] [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA]
+    [--decomposition-expression-input DECOMPOSITION_EXPRESSION_INPUT]
+    [--device DEVICE] [--epochs EPOCHS] [--patience PATIENCE] [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] 
+    [-s SEED] [--seed SEED] [--lr LR] [--hidden-feats HIDDEN_FEATS] [-k K_CLUSTERS]
+    [--modularity-loss-weight MODULARITY_LOSS_WEIGHT] [--purity-loss-weight PURITY_LOSS_WEIGHT] 
+    [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA] [--trajectory-construct TRAJECTORY_CONSTRUCT] [--equal-space]
 
-GP (Graph Pooling): GNN & Node Pooling
+ONTraC_GP: GNN and Niche Trajectory
 
 Options:
   --version             show program's version number and exit
   -h, --help            show this help message and exit
 
   IO:
-    -d DATASET, --dataset=DATASET
-                        This options will be deprecated in V3. Please use --meta-input instead.
-    --meta-input=META_INPUT
-                        Meta data file in csv format. Each row is a cell and each column is a meta data. The first column should be the cell name. Coordinates (x, y) and sample should be included. Cell type is optional.
-    --exp-input=EXP_INPUT
-                        Normalized expression file in csv format. Each row is a cell and each column is a gene. The first column should be the cell name. If not provided, cell type should be included in the meta data file.
-    --embedding-input=EMBEDDING_INPUT
-                        Embedding file in csv format. The first column should be the cell name.
-    --decomposition-cell-type-composition-input=DECOMPOSITION_CELL_TYPE_COMPOSITION_INPUT
-                        Decomposition outputed cell type composition of each spot in csv format. The first column should be the spot name.
-    --decomposition-expression-input=DECOMPOSITION_EXPRESSION_INPUT
-                        Decomposition outputed expression of each cell type in csv format. The first column should be the cell type name corresponding to the columns name of decomposition outputed cell type composition.
     --preprocessing-dir=PREPROCESSING_DIR
                         Directory for preprocessing outputs.
     --GNN-dir=GNN_DIR   Directory for the GNN output.
@@ -333,9 +329,9 @@ Options:
     --beta=BETA         Beta value control niche cluster assignment matrix. Default is 0.3.
 
   Options for niche trajectory:
-    --equal-space       Whether to assign equally spaced values to for each niche cluster. Default is False, based on total loadings of each niche cluster.
     --trajectory-construct=TRAJECTORY_CONSTRUCT
                         Method to construct the niche trajectory. Default is 'BF' (brute-force). A faster alternative is 'TSP'.
+    --equal-space       Whether to assign equally spaced values to for each niche cluster. Default is False, based on total loadings of each niche cluster.
 ```
 
 ## Detailed explanation

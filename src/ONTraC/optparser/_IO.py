@@ -17,12 +17,19 @@ def add_IO_options_group(optparser: OptionParser, io_options: Optional[List[str]
         return
     # I/O options group
     group_io = OptionGroup(optparser, "IO")
-    if 'input' in io_options:
-        group_io.add_option('-d',
-                            '--dataset',
-                            dest='dataset',
+    if 'preprocessing_dir' in io_options:
+        group_io.add_option('--preprocessing-dir',
+                            dest='preprocessing_dir',
                             type='string',
-                            help='This options will be deprecated in V3. Please use --meta-input instead.')
+                            help='Directory for preprocessing outputs.')
+    if 'GNN_dir' in io_options:
+        group_io.add_option('--GNN-dir', dest='GNN_dir', type='string', help='Directory for the GNN output.')
+    if 'NTScore_dir' in io_options:
+        group_io.add_option('--NTScore-dir',
+                            dest='NTScore_dir',
+                            type='string',
+                            help='Directory for the NTScore output.')
+    if 'input' in io_options:
         group_io.add_option(
             '--meta-input',
             dest='meta_input',
@@ -55,18 +62,11 @@ def add_IO_options_group(optparser: OptionParser, io_options: Optional[List[str]
             help=
             'Decomposition outputed expression of each cell type in csv format. The first column should be the cell type name corresponding to the columns name of decomposition outputed cell type composition.'
         )
-    if 'preprocessing_dir' in io_options:
-        group_io.add_option('--preprocessing-dir',
-                            dest='preprocessing_dir',
+        group_io.add_option('-d',
+                            '--dataset',
+                            dest='dataset',
                             type='string',
-                            help='Directory for preprocessing outputs.')
-    if 'GNN_dir' in io_options:
-        group_io.add_option('--GNN-dir', dest='GNN_dir', type='string', help='Directory for the GNN output.')
-    if 'NTScore_dir' in io_options:
-        group_io.add_option('--NTScore-dir',
-                            dest='NTScore_dir',
-                            type='string',
-                            help='Directory for the NTScore output.')
+                            help='This options will be deprecated in V3. Please use --meta-input instead.')
 
     optparser.add_option_group(group_io)
 
