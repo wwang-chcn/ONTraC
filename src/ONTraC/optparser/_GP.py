@@ -23,7 +23,7 @@ def prepare_GP_optparser() -> OptionParser:
     [--device DEVICE] [--epochs EPOCHS] [--patience PATIENCE] [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] 
     [-s SEED] [--seed SEED] [--lr LR] [--hidden-feats HIDDEN_FEATS] [-k K_CLUSTERS]
     [--modularity-loss-weight MODULARITY_LOSS_WEIGHT] [--purity-loss-weight PURITY_LOSS_WEIGHT] 
-    [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA]'''
+    [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA] [--trajectory-construct TRAJECTORY_CONSTRUCT]'''
     description = 'GP (Graph Pooling): GNN & Node Pooling'
 
     # option processor

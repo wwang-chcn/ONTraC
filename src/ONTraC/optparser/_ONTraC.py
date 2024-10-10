@@ -46,7 +46,7 @@ def prepare_ontrac_optparser() -> OptionParser:
     add_NP_options_group(group_train)
 
     # Niche trajectory
-    group_NT = add_NT_options_group(optparser)
+    add_NT_options_group(optparser)
 
     return optparser
 

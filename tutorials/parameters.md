@@ -169,7 +169,7 @@ Options:
 Usage: NicheTrajectory <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR> 
             <--trajectory-construct TRAJECTORY_CONSTRUCT>
 
-PseudoTime: Calculate PseudoTime for each node in a graph
+Niche trajectory: construct niche trajectory for niche cluster and project the NT score to each cell
 
 Options:
   --version             show program's version number and exit
