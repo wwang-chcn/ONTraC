@@ -55,23 +55,38 @@ def held_karp(conn_matrix: np.ndarray) -> List[int]:
     for k in range(1, n):
         res.append((C[(bits, k)][0] + conn_matrix[k][0], C[(bits, k)][1]))
 
-    _, optimal_circle = max(res)
-    optimal_circle.append(0)  # complete the cycle
+    max_cost, optimal_path = max(res)
+    optimal_path.append(0)  # complete the cycle
 
-    # --- make the circle become a path ---
-    # Cut the shortest edge out from the cycle
-    min_edge_index = 0
-    min_edge_conn = conn_matrix[optimal_circle[0]][optimal_circle[1]]
-    for (i, start_node), end_node in zip(enumerate(optimal_circle[:-1]), optimal_circle[1:]):
-        if conn := conn_matrix[start_node][end_node] < min_edge_conn:
-            min_edge_conn = conn
-            min_edge_index = i
+    # --- Cut the shortest edge out from the cycle ---
+    dists = []
+    for i in range(len(optimal_path)-1):
+        dists.append(conn_matrix[optimal_path[i]][optimal_path[i+1]])
 
-    optimal_path = optimal_circle[min_edge_index + 1:-1] + optimal_circle[:min_edge_index + 1]
+    cut_index = dists.index(min(dists))
+    if optimal_path[cut_index] < optimal_path[cut_index + 1]:
+        start_index = cut_index
+        end_index = cut_index + 1
+    else:
+        start_index = cut_index + 1
+        end_index = cut_index
 
-    # Reverse the path if the start node index is smaller than the end node index
-    # This is to make sure the path is the same as Brute force method
-    if optimal_path[0] > optimal_path[-1]:
+    if start_index == len(optimal_path) - 1:
+        optimal_path.pop(start_index)
+    elif start_index == 0:
+        optimal_path.pop(start_index)
         optimal_path.reverse()
+    elif start_index < end_index:
+        optimal_path.pop(len(optimal_path)-1)
+        seg1 = optimal_path[:start_index + 1]
+        seg1.reverse()
+        seg2 = optimal_path[end_index:]
+        seg2.reverse()
+        optimal_path = seg1 + seg2
+    else:
+        optimal_path.pop(len(optimal_path)-1)
+        seg1 = optimal_path[start_index:]
+        seg2 = optimal_path[:end_index + 1]
+        optimal_path = seg1 + seg2
 
     return optimal_path
