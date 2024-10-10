@@ -5,7 +5,7 @@
 ### Full parameters for ONTraC
 
 ```{text}
-Usage: ONTraC <-d DATASET> <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR>
+Usage: ONTraC <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR> <-d DATASET>
     [--n-cpu N_CPU] [--n-neighbors N_NEIGHBORS] [--n-local N_LOCAL] [--device DEVICE] [--epochs EPOCHS] [--patience PATIENCE]
     [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] [-s SEED] [--seed SEED] [--lr LR]
     [--hidden-feats HIDDEN_FEATS] [-k K_CLUSTERS] [--modularity-loss-weight MODULARITY_LOSS_WEIGHT]
@@ -20,13 +20,13 @@ Options:
   -h, --help            show this help message and exit
 
   IO:
-    -d DATASET, --dataset=DATASET
-                        Original input dataset.
     --preprocessing-dir=PREPROCESSING_DIR
                         Directory for preprocessing outputs.
     --GNN-dir=GNN_DIR   Directory for the GNN output.
     --NTScore-dir=NTSCORE_DIR
                         Directory for the NTScore output.
+    -d DATASET, --dataset=DATASET
+                        Original input dataset.
 
   Niche Network Construction:
     --n-cpu=N_CPU       Number of CPUs used for parallel computing in dataset
@@ -81,7 +81,7 @@ Options:
 ### Full parameters for createDataSet
 
 ```{text}
-Usage: createDataSet <-d DATASET> <--preprocessing-dir PREPROCESSING_DIR> [--n-cpu N_CPU] [--n-neighbors N_NEIGHBORS] [--n-local N_LOCAL]
+Usage: createDataSet <--preprocessing-dir PREPROCESSING_DIR> <-d DATASET> [--n-cpu N_CPU] [--n-neighbors N_NEIGHBORS] [--n-local N_LOCAL]
 
 Create dataset for follwoing analysis.
 
@@ -90,10 +90,10 @@ Options:
   -h, --help            show this help message and exit
 
   IO:
-    -d DATASET, --dataset=DATASET
-                        Original input dataset.
     --preprocessing-dir=PREPROCESSING_DIR
                         Directory for preprocessing outputs.
+    -d DATASET, --dataset=DATASET
+                        Original input dataset.
 
   Niche Network Construction:
     --n-cpu=N_CPU       Number of CPUs used for parallel computing in dataset
@@ -111,8 +111,8 @@ Options:
 ### Full parameters for ONTraC_GNN
 
 ```{text}
-Usage: ONTraC_GNN <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> [--device DEVICE] [--epochs EPOCHS]
-    [--patience PATIENCE] [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] 
+Usage: ONTraC_GNN <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> [--device DEVICE]
+    [--epochs EPOCHS] [--patience PATIENCE] [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] 
     [-s SEED] [--seed SEED] [--lr LR] [--hidden-feats HIDDEN_FEATS] [-k K_CLUSTERS]
     [--modularity-loss-weight MODULARITY_LOSS_WEIGHT] [--purity-loss-weight PURITY_LOSS_WEIGHT] 
     [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA]
@@ -167,7 +167,7 @@ Options:
 
 ```{text}
 Usage: NicheTrajectory <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR> 
-            <--trajectory-construct TRAJECTORY_CONSTRUCT>
+            [--trajectory-construct TRAJECTORY_CONSTRUCT]
 
 Niche trajectory: construct niche trajectory for niche cluster and project the NT score to each cell
 
@@ -206,13 +206,18 @@ Options:
   -r, --reverse         Reverse the NT score.
 
   IO:
-    -d DATASET, --dataset=DATASET
-                        Original input dataset.
     --preprocessing-dir=PREPROCESSING_DIR
                         Directory for preprocessing outputs.
     --GNN-dir=GNN_DIR   Directory for the GNN output.
     --NTScore-dir=NTSCORE_DIR
                         Directory for the NTScore output.
+    -d DATASET, --dataset=DATASET
+                        Original input dataset.
+
+  Visualization options:
+    -s, --sample        Plot each sample separately.
+    --scale-factor=SCALE_FACTOR
+                        Scale factor control the size of spatial-based plots.
 
   Suppress options:
     --suppress-cell-type-composition
@@ -221,36 +226,31 @@ Options:
                         Suppress the niche cluster loadings visualization.
     --suppress-niche-trajectory
                         Suppress the niche trajectory related visualization.
-
-  Visualization options:
-    -s, --sample        Plot each sample separately.
-    --scale-factor=SCALE_FACTOR
-                        Scale factor control the size of spatial-based plots.
 ```
 
 ### Full parameters for ONTraC_GP
 
 ```{text}
-Usage: ONTraC_GP <-d DATASET> <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR> 
+Usage: ONTraC_GP <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR> <-d DATASET>
     [--device DEVICE] [--epochs EPOCHS] [--patience PATIENCE] [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] 
     [-s SEED] [--seed SEED] [--lr LR] [--hidden-feats HIDDEN_FEATS] [-k K_CLUSTERS]
     [--modularity-loss-weight MODULARITY_LOSS_WEIGHT] [--purity-loss-weight PURITY_LOSS_WEIGHT] 
-    [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA]
+    [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA] [--trajectory-construct TRAJECTORY_CONSTRUCT]
 
-GP (Graph Pooling): GNN & Node Pooling
+ONTraC_GP: GNN and Niche Trajectory
 
 Options:
   --version             show program's version number and exit
   -h, --help            show this help message and exit
 
   IO:
-    -d DATASET, --dataset=DATASET
-                        Original input dataset.
     --preprocessing-dir=PREPROCESSING_DIR
                         Directory for preprocessing outputs.
     --GNN-dir=GNN_DIR   Directory for the GNN output.
     --NTScore-dir=NTSCORE_DIR
                         Directory for the NTScore output.
+    -d DATASET, --dataset=DATASET
+                        Original input dataset.
 
   Options for GNN training:
     --device=DEVICE     Device for training. We support cpu and cuda now. Auto select if not specified.
@@ -277,6 +277,11 @@ Options:
     --regularization-loss-weight=REGULARIZATION_LOSS_WEIGHT
                         Weight for regularization loss. Default is 0.1.
     --beta=BETA         Beta value control niche cluster assignment matrix. Default is 0.03.
+
+  Options for niche trajectory:
+    --trajectory-construct=TRAJECTORY_CONSTRUCT
+                        Method to construct the niche trajectory. Default is
+                        'BF' (brute-force). A faster alternative is 'TSP'.
 ```
 
 ## Detailed explanation
