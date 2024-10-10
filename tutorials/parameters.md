@@ -112,7 +112,7 @@ Usage: ONTraC_GNN <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> [-
     [--modularity-loss-weight MODULARITY_LOSS_WEIGHT] [--purity-loss-weight PURITY_LOSS_WEIGHT] 
     [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA]
 
-ONTraC_GP (Graph Pooling): GNN & Node Pooling
+Graph Neural Network (GNN)
 
 Options:
   --version             show program's version number and exit
@@ -158,7 +158,7 @@ Options:
                         Default is 0.3.
 ```
 
-### Full parameters for NTScore
+### Full parameters for NicheTrajectory
 
 ```{text}
 Usage: NicheTrajectory <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR> 
@@ -186,7 +186,9 @@ Options:
 ### Full parameters for ONTraC_analysis
 
 ```{text}
-Usage: ONTraC_analysis <-d DATASET> <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR> <-o OUTPUT_DIR> [-l LOG_FILE] [-r REVERSE]
+Usage: ONTraC_analysis <-d DATASET> <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR>
+    <--NTScore-dir NTSCORE_DIR> <-o OUTPUT_DIR> [-l LOG_FILE] [-r REVERSE] [-s SAMPLE] [--scale-factor SCALE_FACTOR]
+    [--suppress-cell-type-composition] [--suppress-niche-cluster-loadings] [--suppress-niche-trajectory]
 
 Analysis the results of ONTraC.
 
@@ -197,7 +199,6 @@ Options:
                         Output directory.
   -l LOG, --log=LOG     Log file.
   -r, --reverse         Reverse the NT score.
-  -s, --sample          Plot each sample separately.
 
   IO:
     -d DATASET, --dataset=DATASET
@@ -207,6 +208,19 @@ Options:
     --GNN-dir=GNN_DIR   Directory for the GNN output.
     --NTScore-dir=NTSCORE_DIR
                         Directory for the NTScore output.
+
+  Suppress options:
+    --suppress-cell-type-composition
+                        Suppress the cell type composition visualization.
+    --suppress-niche-cluster-loadings
+                        Suppress the niche cluster loadings visualization.
+    --suppress-niche-trajectory
+                        Suppress the niche trajectory related visualization.
+
+  Visualization options:
+    -s, --sample        Plot each sample separately.
+    --scale-factor=SCALE_FACTOR
+                        Scale factor control the size of spatial-based plots.
 ```
 
 ### Full parameters for ONTraC_GP
@@ -218,7 +232,7 @@ Usage: ONTraC_GP <-d DATASET> <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir
     [--modularity-loss-weight MODULARITY_LOSS_WEIGHT] [--purity-loss-weight PURITY_LOSS_WEIGHT] 
     [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA]
 
-ONTraC_GP (Graph Pooling): GNN & Node Pooling
+GP (Graph Pooling): GNN & Node Pooling
 
 Options:
   --version             show program's version number and exit
@@ -233,22 +247,17 @@ Options:
     --NTScore-dir=NTSCORE_DIR
                         Directory for the NTScore output.
 
-  Options for training:
-    --device=DEVICE     Device for training. We support cpu and cuda now. Auto
-                        select if not specified.
-    --epochs=EPOCHS     Number of maximum epochs for training. Default is
-                        1000.
+  Options for GNN training:
+    --device=DEVICE     Device for training. We support cpu and cuda now. Auto select if not specified.
+    --epochs=EPOCHS     Number of maximum epochs for training. Default is 1000.
     --patience=PATIENCE
-                        Number of epochs wait for better result. Default is
-                        100.
+                        Number of epochs wait for better result. Default is 100.
     --min-delta=MIN_DELTA
                         Minimum delta for better result. Default is 0.001
     --min-epochs=MIN_EPOCHS
-                        Minimum number of epochs for training. Default is 50.
-                        Set to 0 to disable.
+                        Minimum number of epochs for training. Default is 50. Set to 0 to disable.
     --batch-size=BATCH_SIZE
-                        Batch size for training. Default is 0 for whole
-                        dataset.
+                        Batch size for training. Default is 0 for whole dataset.
     -s SEED, --seed=SEED
                         Random seed for training. Default is random.
     --lr=LR             Learning rate for training. Default is 0.03.
@@ -262,8 +271,7 @@ Options:
                         Weight for purity loss. Default is 300.
     --regularization-loss-weight=REGULARIZATION_LOSS_WEIGHT
                         Weight for regularization loss. Default is 0.1.
-    --beta=BETA         Beta value control niche cluster assignment matrix.
-                        Default is 0.03.
+    --beta=BETA         Beta value control niche cluster assignment matrix. Default is 0.03.
 ```
 
 ## Detailed explanation
