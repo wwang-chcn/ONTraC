@@ -9,7 +9,7 @@ from ._train import *
 # ------------------------------------
 # Constants
 # ------------------------------------
-IO_OPTIONS = ['dataset', 'preprocessing_dir', 'GNN_dir', 'NTScore_dir']
+IO_OPTIONS = ['preprocessing_dir', 'GNN_dir', 'NTScore_dir']
 
 
 # ------------------------------------
@@ -20,7 +20,7 @@ def prepare_GP_optparser() -> OptionParser:
     Prepare optparser object. New options will be added in thisfunction first.
     :return: OptionParser object.
     """
-    usage = f'''USAGE: %prog <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR> <-d DATASET>
+    usage = f'''USAGE: %prog <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR>
     [--device DEVICE] [--epochs EPOCHS] [--patience PATIENCE] [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] 
     [-s SEED] [--seed SEED] [--lr LR] [--hidden-feats HIDDEN_FEATS] [-k K_CLUSTERS]
     [--modularity-loss-weight MODULARITY_LOSS_WEIGHT] [--purity-loss-weight PURITY_LOSS_WEIGHT] 
