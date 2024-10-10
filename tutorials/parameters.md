@@ -22,25 +22,16 @@ Options:
   -h, --help            show this help message and exit
 
   IO:
-    -d DATASET, --dataset=DATASET
-                        This options will be deprecated in V3. Please use --meta-input instead.
     --meta-input=META_INPUT
-                        Meta data file in csv format. Each row is a cell and each column is a meta data. The
-                        first column should be the cell name. Coordinates (x, y) and sample should be
-                        included. Cell type is optional.
+                        Meta data file in csv format. Each row is a cell and each column is a meta data. The first column should be the cell name. Coordinates (x, y) and sample should be included. Cell type is optional.
     --exp-input=EXP_INPUT
-                        Normalized expression file in csv format. Each row is a cell and each column is a
-                        gene. The first column should be the cell name. If not provided, cell type should be
-                        included in the meta data file.
+                        Normalized expression file in csv format. Each row is a cell and each column is a gene. The first column should be the cell name. If not provided, cell type should be included in the meta data file.
     --embedding-input=EMBEDDING_INPUT
                         Embedding file in csv format. The first column should be the cell name.
     --decomposition-cell-type-composition-input=DECOMPOSITION_CELL_TYPE_COMPOSITION_INPUT
-                        Decomposition outputed cell type composition of each spot in csv format. The first
-                        column should be the spot name.
+                        Decomposition outputed cell type composition of each spot in csv format. The first column should be the spot name.
     --decomposition-expression-input=DECOMPOSITION_EXPRESSION_INPUT
-                        Decomposition outputed expression of each cell type in csv format. The first column
-                        should be the cell type name corresponding to the columns name of decomposition
-                        outputed cell type composition.
+                        Decomposition outputed expression of each cell type in csv format. The first column should be the cell type name corresponding to the columns name of decomposition outputed cell type composition.
     --preprocessing-dir=PREPROCESSING_DIR
                         Directory for preprocessing outputs.
     --GNN-dir=GNN_DIR   Directory for the GNN output.
@@ -49,21 +40,15 @@ Options:
 
   Preprocessing:
     --resolution=RESOLUTION
-                        Resolution for leiden clustering. Used for clustering cells into cell types when
-                        gene expression data is provided. Default is 1.0.
+                        Resolution for leiden clustering. Used for clustering cells into cell types when gene expression data is provided. Default is 1.0.
 
   Niche Network Construction:
     --n-cpu=N_CPU       Number of CPUs used for parallel computing in dataset preprocessing. Default is 4.
     --n-neighbors=N_NEIGHBORS
-                        Number of neighbors used for kNN graph construction. It should be less than the
-                        number of cells in each sample. Default is 50.
-    --n-local=N_LOCAL   Specifies the nth closest local neighbors used for gaussian distance normalization.
-                        It should be less than the number of cells in each sample. Default is 20.
-    --embedding-adjust  Adjust the cell type coding according to embeddings. Default is False. At least two
-                        (Embedding_1 and Embedding_2) should be in the original data if embedding_adjust is
-                        True.
-    --sigma=SIGMA       Sigma for the exponential function to control the similarity between different cell
-                        types or clusters. Default is 1.
+                        Number of neighbors used for kNN graph construction. It should be less than the number of cells in each sample. Default is 50.
+    --n-local=N_LOCAL   Specifies the nth closest local neighbors used for gaussian distance normalization. It should be less than the number of cells in each sample. Default is 20.
+    --embedding-adjust  Adjust the cell type coding according to embeddings. Default is False. At least two (Embedding_1 and Embedding_2) should be in the original data if embedding_adjust is True.
+    --sigma=SIGMA       Sigma for the exponential function to control the similarity between different cell types or clusters. Default is 1.
 
   Options for GNN training:
     --device=DEVICE     Device for training. We support cpu and cuda now. Auto select if not specified.
@@ -92,11 +77,9 @@ Options:
     --beta=BETA         Beta value control niche cluster assignment matrix. Default is 0.3.
 
   Options for niche trajectory:
-    --equal-space       Whether to assign equally spaced values to for each niche cluster. Default is False,
-                        based on total loadings of each niche cluster.
+    --equal-space       Whether to assign equally spaced values to for each niche cluster. Default is False, based on total loadings of each niche cluster.
     --trajectory-construct=TRAJECTORY_CONSTRUCT
-                        Method to construct the niche trajectory. Default is 'BF' (brute-force). A faster
-                        alternative is 'TSP'.
+                        Method to construct the niche trajectory. Default is 'BF' (brute-force). A faster alternative is 'TSP'.
 ```
 
 ### Full parameters for ONTraC_pp
@@ -107,15 +90,13 @@ Usage: ONTraC_pp <--meta-input META_INPUT> [--exp-input EXP_INPUT] [--embedding-
     [--decomposition-expression-input DECOMPOSITION_EXPRESSION_INPUT] <--preprocessing-dir PREPROCESSING_DIR> [--n-cpu N_CPU]
     [--n-neighbors N_NEIGHBORS] [--n-local N_LOCAL] [--embedding-adjust] [--sigma SIGMA]
 
-Preporcessing and create dataset for GNN and following analysis.
+Create dataset for follwoing analysis.
 
 Options:
   --version             show program's version number and exit
   -h, --help            show this help message and exit
 
   IO:
-    -d DATASET, --dataset=DATASET
-                        This options will be deprecated in V3. Please use --meta-input instead.
     --meta-input=META_INPUT
                         Meta data file in csv format. Each row is a cell and each column is a meta data. The first column should be the cell name. Coordinates (x, y) and sample should be included. Cell type is optional.
     --exp-input=EXP_INPUT
@@ -256,18 +237,6 @@ Options:
     -s, --sample        Plot each sample separately.
     --scale-factor=SCALE_FACTOR
                         Scale factor control the size of spatial-based plots.
-
-  Deprecated options:
-    -d DATASET, --dataset=DATASET
-                        This options is deprecated.
-    --meta-input=META_INPUT
-                        This options is deprecated.
-    --exp-input=EXP_INPUT
-                        This options is deprecated.
-    --decomposition-cell-type-composition-input=DECOMPOSITION_CELL_TYPE_COMPOSITION_INPUT
-                        This options is deprecated.
-    --decomposition-expression-input=DECOMPOSITION_EXPRESSION_INPUT
-                        This options is deprecated.
 ```
 
 ### Full parameters for ONTraC_GP
