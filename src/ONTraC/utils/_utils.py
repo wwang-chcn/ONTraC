@@ -47,9 +47,9 @@ def write_version_info() -> None:
 #  - ONTraC_GNN
 #    - read_meta_data
 #    - valid_meta_data
-#
-# note:
-#  - meta data save function moves to preprocessing part
+#  - ONTraC_GP
+#    - read_meta_data
+#    - valid_meta_data
 # ------------------------------------
 
 

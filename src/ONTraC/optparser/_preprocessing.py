@@ -143,11 +143,11 @@ def prepare_preprocessing_optparser() -> OptionParser:
     :return: OptionParser object.
     """
 
-    usage = f'''USAGE: %prog <--meta-input META_INPUT> [--exp-input EXP_INPUT] [--embedding-input EMBEDDING_INPUT]
-    [--decomposition-cell-type-composition-input DECOMPOSITION_CELL_TYPE_COMPOSITION_INPUT]
-    [--decomposition-expression-input DECOMPOSITION_EXPRESSION_INPUT] <--preprocessing-dir PREPROCESSING_DIR> [--n-cpu N_CPU]
-    [--n-neighbors N_NEIGHBORS] [--n-local N_LOCAL] [--embedding-adjust] [--sigma SIGMA]'''
-    description = 'Create dataset for follwoing analysis.'
+    usage = f'''USAGE: %prog <--preprocessing-dir PREPROCESSING_DIR> <--meta-input META_INPUT> [--exp-input EXP_INPUT]
+    [--embedding-input EMBEDDING_INPUT] [--decomposition-cell-type-composition-input DECOMPOSITION_CELL_TYPE_COMPOSITION_INPUT]
+    [--decomposition-expression-input DECOMPOSITION_EXPRESSION_INPUT] [--n-cpu N_CPU] [--n-neighbors N_NEIGHBORS] [--n-local N_LOCAL]
+    [--embedding-adjust] [--sigma SIGMA]'''
+    description = 'Preporcessing and create dataset for GNN and following analysis.'
 
     # option processor
     optparser = OptionParser(version=f'%prog {__version__}', description=description, usage=usage, add_help_option=True)
