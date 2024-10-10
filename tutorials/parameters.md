@@ -107,7 +107,7 @@ Usage: ONTraC_pp <--meta-input META_INPUT> [--exp-input EXP_INPUT] [--embedding-
     [--decomposition-expression-input DECOMPOSITION_EXPRESSION_INPUT] <--preprocessing-dir PREPROCESSING_DIR> [--n-cpu N_CPU]
     [--n-neighbors N_NEIGHBORS] [--n-local N_LOCAL] [--embedding-adjust] [--sigma SIGMA]
 
-Create dataset for follwoing analysis.
+Preporcessing and create dataset for GNN and following analysis.
 
 Options:
   --version             show program's version number and exit
