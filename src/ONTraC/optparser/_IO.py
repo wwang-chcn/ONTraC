@@ -46,14 +46,14 @@ def add_IO_options_group(optparser: OptionParser, io_options: Optional[List[str]
             dest='decomposition_cell_type_composition_input',
             type='string',
             help=
-            'Decomposition outputed cell type compostion of each spot in csv format. The first column should be the spot name.'
+            'Decomposition outputed cell type composition of each spot in csv format. The first column should be the spot name.'
         )
         group_io.add_option(
             '--decomposition-expression-input',
             dest='decomposition_expression_input',
             type='string',
             help=
-            'Decomposition outputed expression of each cell type in csv format. The first column should be the cell type name corresponding to the columns name of decomposition outputed cell type compostion.'
+            'Decomposition outputed expression of each cell type in csv format. The first column should be the cell type name corresponding to the columns name of decomposition outputed cell type composition.'
         )
     if 'preprocessing_dir' in io_options:
         group_io.add_option('--preprocessing-dir',
@@ -127,24 +127,24 @@ def validate_io_options(optparser: OptionParser,
         # decomposition
         # two decomposition input files should be provided together
         if options.decomposition_cell_type_composition_input and not options.decomposition_expression_input:
-            error('Please provide both decomposition cell type compostion file and decomposition expression file.')
+            error('Please provide both decomposition cell type composition file and decomposition expression file.')
             optparser.print_help()
             sys.exit(1)
         if not options.decomposition_cell_type_composition_input and options.decomposition_expression_input:
-            error('Please provide both decomposition cell type compostion file and decomposition expression file.')
+            error('Please provide both decomposition cell type composition file and decomposition expression file.')
             optparser.print_help()
             sys.exit(1)
         # check decomposition input files
         if options.decomposition_cell_type_composition_input:
             if not os.path.isfile(options.decomposition_cell_type_composition_input):
                 error(
-                    f'The decomposition outputed cell type compostion file ({options.decomposition_cell_type_composition_input}) you given does not exist.'
+                    f'The decomposition outputed cell type composition file ({options.decomposition_cell_type_composition_input}) you given does not exist.'
                 )
                 optparser.print_help()
                 sys.exit(1)
             if not options.decomposition_cell_type_composition_input.endswith(('csv', 'csv.gz')):
                 error(
-                    f'The decomposition outputed cell type compostion file ({options.decomposition_cell_type_composition_input}) should be in csv format.'
+                    f'The decomposition outputed cell type composition file ({options.decomposition_cell_type_composition_input}) should be in csv format.'
                 )
                 optparser.print_help()
                 sys.exit(1)
@@ -221,7 +221,7 @@ def write_io_options_memo(options: Values, io_options: Optional[List[str]]) -> N
         if options.embedding_input:
             info(f'embedding file:  {options.embedding_input}')
         if options.decomposition_cell_type_composition_input:
-            info(f'decomposition cell type compostion file:  {options.decomposition_cell_type_composition_input}')
+            info(f'decomposition cell type composition file:  {options.decomposition_cell_type_composition_input}')
         if options.decomposition_expression_input:
             info(f'decomposition expression file:  {options.decomposition_expression_input}')
     if 'preprocessing_dir' in io_options:

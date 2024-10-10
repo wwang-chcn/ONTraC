@@ -115,10 +115,10 @@ for i, sample in enumerate(samples):
 
 
 fig.tight_layout()
-fig.savefig('figures/cell_type_compostion.png', dpi=100)
+fig.savefig('figures/cell_type_composition.png', dpi=100)
 ```
 
-![cell_type_composition_image](../docs/source/_static/images/tutorials/post_analysis/cell_type_compostion.png)
+![cell_type_composition_image](../docs/source/_static/images/tutorials/post_analysis/cell_type_composition.png)
 
 ### Niche cluster
 

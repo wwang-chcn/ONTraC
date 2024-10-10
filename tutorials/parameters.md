@@ -35,12 +35,12 @@ Options:
     --embedding-input=EMBEDDING_INPUT
                         Embedding file in csv format. The first column should be the cell name.
     --decomposition-cell-type-composition-input=DECOMPOSITION_CELL_TYPE_COMPOSITION_INPUT
-                        Decomposition outputed cell type compostion of each spot in csv format. The first
+                        Decomposition outputed cell type composition of each spot in csv format. The first
                         column should be the spot name.
     --decomposition-expression-input=DECOMPOSITION_EXPRESSION_INPUT
                         Decomposition outputed expression of each cell type in csv format. The first column
                         should be the cell type name corresponding to the columns name of decomposition
-                        outputed cell type compostion.
+                        outputed cell type composition.
     --preprocessing-dir=PREPROCESSING_DIR
                         Directory for preprocessing outputs.
     --GNN-dir=GNN_DIR   Directory for the GNN output.
@@ -123,9 +123,9 @@ Options:
     --embedding-input=EMBEDDING_INPUT
                         Embedding file in csv format. The first column should be the cell name.
     --decomposition-cell-type-composition-input=DECOMPOSITION_CELL_TYPE_COMPOSITION_INPUT
-                        Decomposition outputed cell type compostion of each spot in csv format. The first column should be the spot name.
+                        Decomposition outputed cell type composition of each spot in csv format. The first column should be the spot name.
     --decomposition-expression-input=DECOMPOSITION_EXPRESSION_INPUT
-                        Decomposition outputed expression of each cell type in csv format. The first column should be the cell type name corresponding to the columns name of decomposition outputed cell type compostion.
+                        Decomposition outputed expression of each cell type in csv format. The first column should be the cell type name corresponding to the columns name of decomposition outputed cell type composition.
     --preprocessing-dir=PREPROCESSING_DIR
                         Directory for preprocessing outputs.
 
@@ -297,9 +297,9 @@ Options:
     --embedding-input=EMBEDDING_INPUT
                         Embedding file in csv format. The first column should be the cell name.
     --decomposition-cell-type-composition-input=DECOMPOSITION_CELL_TYPE_COMPOSITION_INPUT
-                        Decomposition outputed cell type compostion of each spot in csv format. The first column should be the spot name.
+                        Decomposition outputed cell type composition of each spot in csv format. The first column should be the spot name.
     --decomposition-expression-input=DECOMPOSITION_EXPRESSION_INPUT
-                        Decomposition outputed expression of each cell type in csv format. The first column should be the cell type name corresponding to the columns name of decomposition outputed cell type compostion.
+                        Decomposition outputed expression of each cell type in csv format. The first column should be the cell type name corresponding to the columns name of decomposition outputed cell type composition.
     --preprocessing-dir=PREPROCESSING_DIR
                         Directory for preprocessing outputs.
     --GNN-dir=GNN_DIR   Directory for the GNN output.
