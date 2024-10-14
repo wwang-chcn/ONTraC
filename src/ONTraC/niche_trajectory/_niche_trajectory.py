@@ -38,6 +38,8 @@ def get_niche_trajectory_path(trajectory_construct_method: str, niche_adj_matrix
     :return: List[int], the niche trajectory
     """
 
+    niche_adj_matrix = (niche_adj_matrix + niche_adj_matrix.T) / 2
+    
     if trajectory_construct_method == 'BF':
         info('Finding niche trajectory with maximum connectivity using Brute Force.')
 

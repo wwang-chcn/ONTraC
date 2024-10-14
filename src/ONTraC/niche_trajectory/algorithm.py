@@ -23,6 +23,8 @@ def brute_force(conn_matrix: np.ndarray) -> List[int]:
 def held_karp(conn_matrix: np.ndarray) -> List[int]:
     """
     Held-Karp algorithm to find the optimal path with the highest connectivity.
+    If multiple paths have the same connectivity, the lexicographically smallest
+    path or its reverse is chosen after evaluating all possible paths.
     """
     n = conn_matrix.shape[0]
     max_connectivity = float('-inf')
@@ -60,8 +62,21 @@ def held_karp(conn_matrix: np.ndarray) -> List[int]:
         bits = (2**n - 1) - (1 << start_node)
         for k in range(n):
             if k != start_node and (bits, k) in C:
-                if C[(bits, k)][0] > max_connectivity:
-                    max_connectivity = C[(bits, k)][0]
-                    optimal_path = C[(bits, k)][1]
+                current_connectivity = C[(bits, k)][0]
+                current_path = C[(bits, k)][1]
+
+                # Check if we need to update the list of best paths
+                if current_connectivity > max_connectivity:
+                    max_connectivity = current_connectivity
+                    best_paths = [current_path]  # Reset the best_paths list
+                elif current_connectivity == max_connectivity:
+                    best_paths.append(current_path)
+
+    # After all paths have been evaluated, choose the lexicographically smallest one
+    if best_paths:
+        # Find the smallest path or its reverse
+        optimal_path = min(min(path, path[::-1]) for path in best_paths)
+    else:
+        optimal_path = []
 
     return optimal_path
