@@ -76,7 +76,7 @@ def get_niche_trajectory_path(options: Values, niche_adj_matrix: ndarray) -> Lis
     elif options.trajectory_construct == 'DM':
         niche_trajectory_path = apply_diffusion_map(niche_adj_matrix=niche_adj_matrix,
                                                     output_dir=options.NTScore_dir,
-                                                    components=1)
+                                                    components=options.DM_embedding_index)
 
     return niche_trajectory_path
 
