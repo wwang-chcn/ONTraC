@@ -1,6 +1,6 @@
 import os
 from optparse import Values
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -30,11 +30,12 @@ def load_consolidate_data(options: Values) -> Tuple[ndarray, ndarray]:
     return consolidate_s_array, consolidate_out_adj_array
 
 
-def apply_diffusion_map(options: Values, niche_adj_matrix: ndarray) -> List[int]:
+def apply_diffusion_map(niche_adj_matrix: ndarray, output_dir: Optional[str] = None, components: int = 1) -> List[int]:
     """
     Apply diffusion map to the niche adjacency matrix
-    :param options: Values, options
     :param niche_adj_matrix: ndarray, the adjacency matrix of the graph
+    :param output_dir: Optional[str], the output directory
+    :param components: Union[int, List[int]], the components to use
     :return: ndarray, the NTScore
     """
 
@@ -43,10 +44,11 @@ def apply_diffusion_map(options: Values, niche_adj_matrix: ndarray) -> List[int]
     _, eigvecs = diffusion_map(niche_adj_matrix)
 
     # save the eigenvectors
-    np.savetxt(f'{options.NTScore_dir}/DM_eigvecs.csv.gz', eigvecs, delimiter=',')
+    if output_dir is not None:
+        np.savetxt(f'{output_dir}/DM_eigvecs.csv.gz', eigvecs, delimiter=',')
 
     # get the first eigenvector as the niche cluster score by default
-    niche_cluster_score = eigvecs[:, 1]
+    niche_cluster_score = eigvecs[:, components]
 
     niche_cluster_path = niche_cluster_score.argsort().tolist()
 
@@ -72,7 +74,9 @@ def get_niche_trajectory_path(options: Values, niche_adj_matrix: ndarray) -> Lis
         niche_trajectory_path = held_karp(niche_adj_matrix)
 
     elif options.trajectory_construct == 'DM':
-        niche_trajectory_path = apply_diffusion_map(niche_adj_matrix=niche_adj_matrix)
+        niche_trajectory_path = apply_diffusion_map(niche_adj_matrix=niche_adj_matrix,
+                                                    output_dir=options.NTScore_dir,
+                                                    components=1)
 
     return niche_trajectory_path
 
@@ -92,7 +96,7 @@ def trajectory_path_to_NC_score(niche_trajectory_path: List[int]) -> ndarray:
     for i, index in enumerate(niche_trajectory_path):
         # debug(f'i: {i}, index: {index}')
         niche_NT_score[index] = values[i]
-        
+
     return niche_NT_score
 
 
@@ -110,7 +114,7 @@ def get_niche_NTScore(options: Values, niche_cluster_loading: ndarray,
     niche_trajectory_path = get_niche_trajectory_path(options=options, niche_adj_matrix=niche_adj_matrix)
     niche_cluster_score = trajectory_path_to_NC_score(niche_trajectory_path)
     niche_level_NTScore = niche_cluster_loading @ niche_cluster_score
-    
+
     return niche_cluster_score, niche_level_NTScore
 
 
