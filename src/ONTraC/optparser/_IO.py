@@ -55,6 +55,18 @@ def add_IO_options_group(optparser: OptionParser, io_options: Optional[List[str]
                             dest='dataset',
                             type='string',
                             help='This options will be deprecated in V3. Please use --meta-input instead.')
+    if 'preprocessing_dir' in io_options:
+        group_io.add_option('--preprocessing-dir',
+                            dest='preprocessing_dir',
+                            type='string',
+                            help='Directory for preprocessing outputs.')
+    if 'GNN_dir' in io_options:
+        group_io.add_option('--GNN-dir', dest='GNN_dir', type='string', help='Directory for the GNN output.')
+    if 'NTScore_dir' in io_options:
+        group_io.add_option('--NTScore-dir',
+                            dest='NTScore_dir',
+                            type='string',
+                            help='Directory for the NTScore output.')
 
     optparser.add_option_group(group_io)
 
