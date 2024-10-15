@@ -1,1 +1,1 @@
-__version__ = "3.0a1.dev0"
+__version__ = "3.0a1.dev0+20241014"
