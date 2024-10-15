@@ -10,7 +10,7 @@ Usage: ONTraC <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTS
     [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] [-s SEED] [--seed SEED] [--lr LR]
     [--hidden-feats HIDDEN_FEATS] [-k K_CLUSTERS] [--modularity-loss-weight MODULARITY_LOSS_WEIGHT]
     [--purity-loss-weight PURITY_LOSS_WEIGHT] [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA]
-    [--trajectory-construct TRAJECTORY_CONSTRUCT]
+    [--trajectory-construct TRAJECTORY_CONSTRUCT] [--DM-embedding-index DM_EMBEDDING_INDEX]
 
 All steps of ONTraC including dataset creation, Graph Pooling, and NT score
 calculation.
@@ -76,6 +76,10 @@ Options:
     --trajectory-construct=TRAJECTORY_CONSTRUCT
                         Method to construct the niche trajectory. Default is
                         'BF' (brute-force). A faster alternative is 'TSP'.
+    --DM-embedding-index=DM_embedding_index
+                        The index of the embedding in the diffusion map.
+                        Valid only when --trajectory-construct is set to DM.
+                        Default is 1 which means the first embedding.
 ```
 
 ### Full parameters for createDataSet
@@ -167,7 +171,7 @@ Options:
 
 ```{text}
 Usage: NicheTrajectory <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR> 
-            [--trajectory-construct TRAJECTORY_CONSTRUCT]
+            [--trajectory-construct TRAJECTORY_CONSTRUCT] [--DM-embedding-index DM_EMBEDDING_INDEX]
 
 Niche trajectory: construct niche trajectory for niche cluster and project the NT score to each cell
 
@@ -186,6 +190,10 @@ Options:
     --trajectory-construct=TRAJECTORY_CONSTRUCT
                         Method to construct the niche trajectory. Default is
                         'BF' (brute-force). A faster alternative is 'TSP'.
+    --DM-embedding-index=DM_embedding_index
+                        The index of the embedding in the diffusion map.
+                        Valid only when --trajectory-construct is set to DM.
+                        Default is 1 which means the first embedding.
 ```
 
 ### Full parameters for ONTraC_analysis
@@ -233,9 +241,9 @@ Options:
 ```{text}
 Usage: ONTraC_GP <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR>
     [--device DEVICE] [--epochs EPOCHS] [--patience PATIENCE] [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] 
-    [-s SEED] [--seed SEED] [--lr LR] [--hidden-feats HIDDEN_FEATS] [-k K_CLUSTERS]
-    [--modularity-loss-weight MODULARITY_LOSS_WEIGHT] [--purity-loss-weight PURITY_LOSS_WEIGHT] 
-    [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA] [--trajectory-construct TRAJECTORY_CONSTRUCT]
+    [-s SEED] [--seed SEED] [--lr LR] [--hidden-feats HIDDEN_FEATS] [-k K_CLUSTERS] [--modularity-loss-weight MODULARITY_LOSS_WEIGHT]
+    [--purity-loss-weight PURITY_LOSS_WEIGHT] [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA]
+    [--trajectory-construct TRAJECTORY_CONSTRUCT] [--DM-embedding-index DM_EMBEDDING_INDEX]
 
 ONTraC_GP: GNN and Niche Trajectory
 
@@ -282,6 +290,10 @@ Options:
     --trajectory-construct=TRAJECTORY_CONSTRUCT
                         Method to construct the niche trajectory. Default is
                         'BF' (brute-force). A faster alternative is 'TSP'.
+    --DM-embedding-index=DM_embedding_index
+                        The index of the embedding in the diffusion map.
+                        Valid only when --trajectory-construct is set to DM.
+                        Default is 1 which means the first embedding.
 ```
 
 ## Detailed explanation

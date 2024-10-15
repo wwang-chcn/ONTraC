@@ -6,7 +6,8 @@ from ._create_dataset import (add_niche_net_constr_options_group,
                               validate_niche_net_constr_options,
                               write_niche_net_constr_memo)
 from ._IO import *
-from ._NT import add_NT_options_group, write_NT_options_memo
+from ._NT import (add_NT_options_group, validate_NT_options,
+                  write_NT_options_memo)
 from ._train import *
 
 # ------------------------------------
@@ -28,7 +29,7 @@ def prepare_ontrac_optparser() -> OptionParser:
     [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] [-s SEED] [--seed SEED] [--lr LR]
     [--hidden-feats HIDDEN_FEATS] [-k K_CLUSTERS] [--modularity-loss-weight MODULARITY_LOSS_WEIGHT]
     [--purity-loss-weight PURITY_LOSS_WEIGHT] [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA]
-    [--trajectory-construct TRAJECTORY_CONSTRUCT]'''
+    [--trajectory-construct TRAJECTORY_CONSTRUCT] [--DM-embedding-index DM_EMBEDDING_INDEX]'''
     description = 'All steps of ONTraC including dataset creation, Graph Pooling, and NT score calculation.'
 
     # option processor
@@ -66,6 +67,8 @@ def opt_ontrac_validate(optparser) -> Values:
     # training
     validate_train_options(optparser, options)
     validate_NP_options(optparser, options)
+    # niche trajectory
+    validate_NT_options(optparser, options)
 
     # print parameters to stdout
     info('------------------ RUN params memo ------------------ ')
