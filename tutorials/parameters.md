@@ -13,7 +13,7 @@ Usage: ONTraC <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTS
     [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] [-s SEED] [--seed SEED] [--lr LR]
     [--hidden-feats HIDDEN_FEATS] [-k K_CLUSTERS] [--modularity-loss-weight MODULARITY_LOSS_WEIGHT]
     [--purity-loss-weight PURITY_LOSS_WEIGHT] [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA]
-    [--trajectory-construct TRAJECTORY_CONSTRUCT] [--equal-space]
+    [--trajectory-construct TRAJECTORY_CONSTRUCT] [--DM-embedding-index DM_EMBEDDING_INDEX]
 
 All steps of ONTraC including dataset creation, Graph Pooling, and NT score calculation.
 
@@ -78,10 +78,16 @@ Options:
 
   Options for niche trajectory:
     --trajectory-construct=TRAJECTORY_CONSTRUCT
-                        Method to construct the niche trajectory. Default is 'BF' (brute-force). A faster
-                        alternative is 'TSP'.
-    --equal-space       Whether to assign equally spaced values to for each niche cluster. Default is False,
-                        based on total loadings of each niche cluster.
+                        Method to construct the niche trajectory. Choices:
+                        BF (brute force), TSP (Travelling salesman problem),
+                        DM (diffusion map). Default is 'BF' (brute-force).
+    --DM-embedding-index=DM_embedding_index
+                        The index of the embedding in the diffusion map.
+                        Valid only when --trajectory-construct is set to DM.
+                        Default is 1 which means the first embedding.
+    --equal-space       Whether to assign equally spaced values to for each
+                        niche cluster. Default is False, based on total
+                        loadings of each niche cluster.
 ```
 
 ### Full parameters for ONTraC_pp
@@ -176,7 +182,7 @@ Options:
 
 ```{text}
 Usage: NicheTrajectory <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR> 
-            [--trajectory-construct TRAJECTORY_CONSTRUCT]
+            [--trajectory-construct TRAJECTORY_CONSTRUCT] [--DM-embedding-index DM_EMBEDDING_INDEX] [--equal-space]
 
 Niche trajectory: construct niche trajectory for niche cluster and project the NT score to each cell
 
@@ -192,9 +198,17 @@ Options:
                         Directory for the NTScore output.
 
   Options for niche trajectory:
-                        Method to construct the niche trajectory. Default is 'BF' (brute-force). A faster alternative is 'TSP'.
-    --equal-space       Whether to assign equally spaced values to for each niche cluster. Default is False, based on total loadings of each niche cluster.
     --trajectory-construct=TRAJECTORY_CONSTRUCT
+                        Method to construct the niche trajectory. Choices:
+                        BF (brute force), TSP (Travelling salesman problem),
+                        DM (diffusion map). Default is 'BF' (brute-force).
+    --DM-embedding-index=DM_embedding_index
+                        The index of the embedding in the diffusion map.
+                        Valid only when --trajectory-construct is set to DM.
+                        Default is 1 which means the first embedding.
+    --equal-space       Whether to assign equally spaced values to for each
+                        niche cluster. Default is False, based on total
+                        loadings of each niche cluster.
 ```
 
 ### Full parameters for ONTraC_analysis
@@ -253,9 +267,9 @@ Options:
 ```{text}
 Usage: ONTraC_GP <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR>
     [--device DEVICE] [--epochs EPOCHS] [--patience PATIENCE] [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] 
-    [-s SEED] [--seed SEED] [--lr LR] [--hidden-feats HIDDEN_FEATS] [-k K_CLUSTERS]
-    [--modularity-loss-weight MODULARITY_LOSS_WEIGHT] [--purity-loss-weight PURITY_LOSS_WEIGHT] 
-    [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA] [--trajectory-construct TRAJECTORY_CONSTRUCT] [--equal-space]
+    [-s SEED] [--seed SEED] [--lr LR] [--hidden-feats HIDDEN_FEATS] [-k K_CLUSTERS] [--modularity-loss-weight MODULARITY_LOSS_WEIGHT]
+    [--purity-loss-weight PURITY_LOSS_WEIGHT] [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA]
+    [--trajectory-construct TRAJECTORY_CONSTRUCT]  [--DM-embedding-index DM_EMBEDDING_INDEX] [--equal-space]
 
 ONTraC_GP: GNN and Niche Trajectory
 
@@ -298,8 +312,16 @@ Options:
 
   Options for niche trajectory:
     --trajectory-construct=TRAJECTORY_CONSTRUCT
-                        Method to construct the niche trajectory. Default is 'BF' (brute-force). A faster alternative is 'TSP'.
-    --equal-space       Whether to assign equally spaced values to for each niche cluster. Default is False, based on total loadings of each niche cluster.
+                        Method to construct the niche trajectory. Choices:
+                        BF (brute force), TSP (Travelling salesman problem),
+                        DM (diffusion map). Default is 'BF' (brute-force).
+    --DM-embedding-index=DM_embedding_index
+                        The index of the embedding in the diffusion map.
+                        Valid only when --trajectory-construct is set to DM.
+                        Default is 1 which means the first embedding.
+    --equal-space       Whether to assign equally spaced values to for each
+                        niche cluster. Default is False, based on total
+                        loadings of each niche cluster.
 ```
 
 ## Detailed explanation

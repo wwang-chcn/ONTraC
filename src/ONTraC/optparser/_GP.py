@@ -3,7 +3,8 @@ from optparse import OptionParser, Values
 from ..log import *
 from ..version import __version__
 from ._IO import *
-from ._NT import add_NT_options_group, write_NT_options_memo
+from ._NT import (add_NT_options_group, validate_NT_options,
+                  write_NT_options_memo)
 from ._train import *
 from ._NT import add_NT_options_group, write_NT_options_memo
 
@@ -23,9 +24,9 @@ def prepare_GP_optparser() -> OptionParser:
     """
     usage = f'''USAGE: %prog <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR>
     [--device DEVICE] [--epochs EPOCHS] [--patience PATIENCE] [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] 
-    [-s SEED] [--seed SEED] [--lr LR] [--hidden-feats HIDDEN_FEATS] [-k K_CLUSTERS]
-    [--modularity-loss-weight MODULARITY_LOSS_WEIGHT] [--purity-loss-weight PURITY_LOSS_WEIGHT] 
-    [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA] [--trajectory-construct TRAJECTORY_CONSTRUCT] [--equal-space]'''
+    [-s SEED] [--seed SEED] [--lr LR] [--hidden-feats HIDDEN_FEATS] [-k K_CLUSTERS] [--modularity-loss-weight MODULARITY_LOSS_WEIGHT]
+    [--purity-loss-weight PURITY_LOSS_WEIGHT] [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA]
+    [--trajectory-construct TRAJECTORY_CONSTRUCT]  [--DM-embedding-index DM_EMBEDDING_INDEX] [--equal-space]'''
     description = 'ONTraC_GP: GNN and Niche Trajectory'
 
     # option processor
@@ -58,6 +59,7 @@ def opt_GP_validate(optparser: OptionParser) -> Values:
     validate_train_options(optparser, options)
     validate_GNN_options(optparser, options)
     validate_NP_options(optparser, options)
+    validate_NT_options(optparser, options)
 
     info('------------------ RUN params memo ------------------ ')
     # print parameters to stdout
