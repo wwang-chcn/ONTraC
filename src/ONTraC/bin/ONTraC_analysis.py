@@ -80,6 +80,22 @@ def add_embedding_adjust_group(optparser: OptionParser) -> None:
     optparser.add_option_group(group)
 
 
+def add_visualization_group(optparser: OptionParser) -> None:
+    group = OptionGroup(optparser, 'Visualization options')
+    group.add_option('-s',
+                     '--sample',
+                     dest='sample',
+                     action='store_true',
+                     default=False,
+                     help='Plot each sample separately.')
+    group.add_option('--scale-factor',
+                     dest='scale_factor',
+                     type='float',
+                     default=1.0,
+                     help='Scale factor control the size of spatial-based plots.')
+    optparser.add_option_group(group)
+
+
 def add_suppress_group(optparser: OptionParser) -> None:
     group = OptionGroup(optparser, 'Suppress options')
     group.add_option('--suppress-cell-type-composition',
@@ -102,22 +118,6 @@ def add_suppress_group(optparser: OptionParser) -> None:
                      action='store_true',
                      default=False,
                      help='Suppress the niche trajectory related visualization.')
-    optparser.add_option_group(group)
-
-
-def add_visualization_group(optparser: OptionParser) -> None:
-    group = OptionGroup(optparser, 'Visualization options')
-    group.add_option('-s',
-                     '--sample',
-                     dest='sample',
-                     action='store_true',
-                     default=False,
-                     help='Plot each sample separately.')
-    group.add_option('--scale-factor',
-                     dest='scale_factor',
-                     type='float',
-                     default=1.0,
-                     help='Scale factor control the size of spatial-based plots.')
     optparser.add_option_group(group)
 
 
@@ -145,8 +145,8 @@ def prepare_optparser() -> OptionParser:
                          default=False,
                          help='Reverse the NT score.')
     add_embedding_adjust_group(optparser)
-    add_suppress_group(optparser)
     add_visualization_group(optparser)
+    add_suppress_group(optparser)
     return optparser
 
 

@@ -3,13 +3,14 @@ from optparse import OptionParser, Values
 from ..log import *
 from ..version import __version__
 from ._IO import *
+from ._NT import add_NT_options_group, write_NT_options_memo
 from ._train import *
 from ._NT import add_NT_options_group, write_NT_options_memo
 
 # ------------------------------------
 # Constants
 # ------------------------------------
-IO_OPTIONS = ['input', 'preprocessing_dir', 'GNN_dir', 'NTScore_dir']
+IO_OPTIONS = ['preprocessing_dir', 'GNN_dir', 'NTScore_dir']
 
 
 # ------------------------------------
@@ -20,20 +21,15 @@ def prepare_GP_optparser() -> OptionParser:
     Prepare optparser object. New options will be added in thisfunction first.
     :return: OptionParser object.
     """
-    usage = f'''USAGE: %prog <--meta-input META_INPUT> [--exp-input EXP_INPUT] [--embedding-input EMBEDDING_INPUT]
-    [--decomposition-cell-type-composition-input DECOMPOSITION_CELL_TYPE_COMPOSITION_INPUT]
-    [--decomposition-expression-input DECOMPOSITION_EXPRESSION_INPUT] <--preprocessing-dir PREPROCESSING_DIR>
-    <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR>  [--device DEVICE] [--epochs EPOCHS] [--patience PATIENCE]
-    [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] [-s SEED] [--seed SEED] [--lr LR]
-    [--hidden-feats HIDDEN_FEATS] [-k K_CLUSTERS] [--modularity-loss-weight MODULARITY_LOSS_WEIGHT]
-    [--purity-loss-weight PURITY_LOSS_WEIGHT] [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA]'''
-    description = 'GP (Graph Pooling): GNN & Node Pooling'
+    usage = f'''USAGE: %prog <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR>
+    [--device DEVICE] [--epochs EPOCHS] [--patience PATIENCE] [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] 
+    [-s SEED] [--seed SEED] [--lr LR] [--hidden-feats HIDDEN_FEATS] [-k K_CLUSTERS]
+    [--modularity-loss-weight MODULARITY_LOSS_WEIGHT] [--purity-loss-weight PURITY_LOSS_WEIGHT] 
+    [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA] [--trajectory-construct TRAJECTORY_CONSTRUCT] [--equal-space]'''
+    description = 'ONTraC_GP: GNN and Niche Trajectory'
 
     # option processor
-    optparser = OptionParser(version=f'%prog {__version__}',
-                             description=description,
-                             usage=usage,
-                             add_help_option=True)
+    optparser = OptionParser(version=f'%prog {__version__}', description=description, usage=usage, add_help_option=True)
 
     # I/O options group
     add_IO_options_group(optparser=optparser, io_options=IO_OPTIONS)
