@@ -4,17 +4,19 @@ Below is an example of post-analysis on stereo-seq brain data.
 The command for running on this dataset is:
 
 ```{sh}
-ONTraC -d stereo_seq_dataset.csv --preprocessing-dir stereo_seq_final_preprocessing_dir --GNN-dir stereo_seq_final_GNN --NTScore-dir stereo_seq_final_NTScore --epochs 100 --batch-size 5 -s 42 --patience 100 --min-delta 0.001 --min-epochs 50 --lr 0.03 --hidden-feats 4 -k 6 --modularity-loss-weight 1 --purity-loss-weight 30 --regularization-loss-weight 0.1 --beta 0.03 2>&1 | tee stereo_seq_final.log
+ONTraC --meta-input stereo_seq_dataset_meta_input.csv --preprocessing-dir stereo_seq_preprocessing --GNN-dir stereo_seq_GNN --NTScore-dir stereo_seq_NTScore \
+       --device cuda --epochs 1000 --batch-size 5 -s 42 --patience 100 --min-delta 0.001 --min-epochs 50 --lr 0.03 --hidden-feats 4 -k 6 \
+       --modularity-loss-weight 1 --purity-loss-weight 30 --regularization-loss-weight 0.1 --beta 0.3 --equal-space 2>&1 | tee stereo_seq.log
 ```
 
-The input dataset and output files could be downloaded from [Zenodo](https://zenodo.org/records/11186620).
+Download `stereo_seq_dataset_meta_input.csv` and precomputed results from [Zenodo](https://zenodo.org/records/XXXXXX)
 
 ## prepare
 
 ### Install required packages
 
 ```{sh}
-pip install ONTraC[analysis]
+pip install "ONTraC[analysis]==2.*"
 # or
 pip install seaborn
 ```
@@ -55,24 +57,25 @@ from ONTraC.analysis.data import AnaData
 from optparse import Values
 
 options = Values()
-options.dataset = 'stereo_seq_dataset.csv'
-options.preprocessing_dir = 'stereo_seq_final_preprocessing_dir'
-options.GNN_dir = 'stereo_seq_final_GNN'
-options.NTScore_dir = 'stereo_seq_final_NTScore'
-options.log = 'stereo_seq_final.log'
+options.preprocessing_dir = 'train_backup/V2/V1_reproduce_stereo_seq_dataset/stereo_seq_preprocessing/'
+options.GNN_dir = 'train_backup/V2/V1_reproduce_stereo_seq_dataset/stereo_seq_GNN/'
+options.NTScore_dir = 'train_backup/V2/V1_reproduce_stereo_seq_dataset/stereo_seq_NTScore/'
+options.log = 'train_backup/V2/V1_reproduce_stereo_seq_dataset/stereo_seq.log'
 options.reverse = True  # Set it to False if you don't want reverse NT score
+options.embedding_adjust = False
+
 ana_data = AnaData(options)
 ```
 
 ### Spatial cell type distribution
 
 ```{python}
-data_df = ana_data.cell_id.join(ana_data.cell_type_composition[['sample', 'x', 'y']])
-samples = data_df['sample'].unique()
+data_df = ana_data.meta_data
+samples = data_df['Sample'].unique()
 N = len(samples)
 fig, axes = plt.subplots(1, N, figsize = (4 * N, 3))
 for i, sample in enumerate(samples):
-    sample_df = data_df.loc[data_df['sample'] == sample]
+    sample_df = data_df.loc[data_df['Sample'] == sample]
     ax = axes[i] if N > 1 else axes
     sns.scatterplot(data = sample_df,
                 x = 'x',
@@ -89,7 +92,7 @@ for i, sample in enumerate(samples):
 
 
 fig.tight_layout()
-fig.savefig('figures/Spatial_cell_type.png', dpi=150)
+fig.savefig('Spatial_cell_type.png', dpi=150)
 ```
 
 ![spatial_cell_type_image](../docs/source/_static/images/tutorials/post_analysis/Spatial_cell_type.png)
@@ -97,13 +100,14 @@ fig.savefig('figures/Spatial_cell_type.png', dpi=150)
 ### Spatial cell type composition distribution
 
 ```{python}
-samples = ana_data.cell_type_composition['sample'].unique().tolist()
+samples = ana_data.meta_data['Sample'].unique()
 cell_types = ana_data.cell_type_codes['Cell_Type'].tolist()
 
 M, N = len(samples), len(cell_types)
 fig, axes = plt.subplots(M, N, figsize = (3.5 * N, 3 * M))
 for i, sample in enumerate(samples):
-    sample_df = ana_data.cell_type_composition.loc[ana_data.cell_type_composition['sample'] == sample]
+    sample_df = ana_data.cell_type_composition.loc[ana_data.cell_type_composition['Sample'] == sample]
+    sample_df = sample_df.join(ana_data.meta_data[['x','y']])
     for j, cell_type in enumerate(cell_types):
         ax = axes[i, j] if M > 1 else axes[j]
         scatter = ax.scatter(sample_df['x'], sample_df['y'], c=sample_df[cell_type], cmap='Reds', vmin=0, vmax=1, s=1)
@@ -115,7 +119,7 @@ for i, sample in enumerate(samples):
 
 
 fig.tight_layout()
-fig.savefig('figures/cell_type_composition.png', dpi=100)
+fig.savefig('cell_type_composition.png', dpi=100)
 ```
 
 ![cell_type_composition_image](../docs/source/_static/images/tutorials/post_analysis/cell_type_composition.png)
@@ -126,14 +130,14 @@ fig.savefig('figures/cell_type_composition.png', dpi=100)
 
 ```{python}
 nc_scores = 1 - ana_data.niche_cluster_score if ana_data.options.reverse else ana_data.niche_cluster_score
-samples = ana_data.cell_type_composition['sample'].unique().tolist()
+samples = ana_data.meta_data['Sample'].unique()
 M, N = len(samples), ana_data.cell_level_niche_cluster_assign.shape[1]
 
 fig, axes = plt.subplots(M, N, figsize=(3.3 * N, 3 * M))
 for i, sample in enumerate(samples):
-    sample_df = ana_data.cell_level_niche_cluster_assign.loc[ana_data.cell_type_composition[
-        ana_data.cell_type_composition['sample'] == sample].index]
-    sample_df = sample_df.join(ana_data.cell_type_composition[['x', 'y']])
+    sample_df = ana_data.cell_level_niche_cluster_assign.loc[ana_data.meta_data[
+        ana_data.meta_data['Sample'] == sample].index,:]
+    sample_df = sample_df.join(ana_data.meta_data[['x', 'y']])
     for j, c_index in enumerate(nc_scores.argsort()):
         ax = axes[i, j] if M > 1 else axes[j]
         scatter = ax.scatter(sample_df['x'],
@@ -149,7 +153,7 @@ for i, sample in enumerate(samples):
         # ax.set_yticks([]) # uncomment this line if you don't want to show y coordinates
         plt.colorbar(scatter)
 fig.tight_layout()
-fig.savefig('figures/Spatial_niche_clustering_loadings.png', dpi=100)
+fig.savefig('Spatial_niche_clustering_loadings.png', dpi=100)
 ```
 
 ![spatial_niche_cluster_loadings_image](../docs/source/_static/images/tutorials/post_analysis/Spatial_niche_clustering_loadings.png)
@@ -167,15 +171,15 @@ nc_scores = 1 - ana_data.niche_cluster_score if ana_data.options.reverse else an
 niche_cluster_colors = [sm.to_rgba(nc_scores[n]) for n in np.arange(ana_data.niche_cluster_score.shape[0])]
 palette = {f'niche cluster {i}': niche_cluster_colors[i] for i in range(ana_data.niche_cluster_score.shape[0])}
 
-samples = ana_data.cell_type_composition['sample'].unique().tolist()
+samples = ana_data.meta_data['Sample'].unique().tolist()
 M = len(samples)
 
 fig, axes = plt.subplots(1, M, figsize=(5 * M, 3))
 for i, sample in enumerate(samples):
     ax = axes[i] if M > 1 else axes
-    sample_df = ana_data.cell_level_max_niche_cluster.loc[ana_data.cell_type_composition[
-        ana_data.cell_type_composition['sample'] == sample].index]
-    sample_df = sample_df.join(ana_data.cell_type_composition[['x', 'y']])
+    sample_df = ana_data.cell_level_max_niche_cluster.loc[ana_data.meta_data[
+        ana_data.meta_data['Sample'] == sample].index]
+    sample_df = sample_df.join(ana_data.meta_data[['x', 'y']])
     sample_df['Niche_Cluster'] = 'niche cluster ' + sample_df['Niche_Cluster'].astype(str)
     sns.scatterplot(data=sample_df,
                     x='x',
@@ -191,7 +195,7 @@ for i, sample in enumerate(samples):
     # ax.set_yticks([]) # uncomment this line if you don't want to show y coordinates
     ax.legend(loc='upper left', bbox_to_anchor=(1, 1))
 fig.tight_layout()
-fig.savefig('figures/Spatial_max_niche_cluster.png', dpi=300)
+fig.savefig('Spatial_max_niche_cluster.png', dpi=300)
 ```
 
 ![spatial_max_niche_cluster_image](../docs/source/_static/images/tutorials/post_analysis/Spatial_max_niche_cluster.png)
@@ -252,7 +256,7 @@ ax2.set_ylabel('Connectivity')
 
 fig.tight_layout()
 
-fig.savefig('figures/Niche_cluster_connectivity.png', dpi=300)
+fig.savefig('Niche_cluster_connectivity.png', dpi=300)
 ```
 
 ![niche_cluster_connectivity_image](../docs/source/_static/images/tutorials/post_analysis/Niche_cluster_connectivity.png)
@@ -260,7 +264,6 @@ fig.savefig('figures/Niche_cluster_connectivity.png', dpi=300)
 #### Niche cluster proportion
 
 ```{python}
-# Set the colors corresponding to NT score
 norm = Normalize(vmin=0, vmax=1)
 sm = ScalarMappable(cmap=plt.cm.rainbow, norm=norm)  # type: ignore
 nc_scores = 1 - ana_data.niche_cluster_score if ana_data.options.reverse else ana_data.niche_cluster_score
@@ -278,7 +281,7 @@ ax.pie(niche_cluster_loading,
        labeldistance=.6)
 ax.set_title(f'Niche proportions for each niche cluster')
 fig.tight_layout()
-fig.savefig('figures/Niche_cluster_proportions.png', dpi=300)
+fig.savefig('Niche_cluster_proportions.png', dpi=300)
 ```
 
 ![niche_cluster_proportions_image](../docs/source/_static/images/tutorials/post_analysis/Niche_cluster_proportions.png)
@@ -288,7 +291,8 @@ fig.savefig('figures/Niche_cluster_proportions.png', dpi=300)
 #### calculate cell type distribution in each niche cluster
 
 ```{python}
-data_df = ana_data.cell_id.join(ana_data.cell_level_niche_cluster_assign)
+# calculate cell type distribution in each niche cluster
+data_df = ana_data.meta_data.join(ana_data.cell_level_niche_cluster_assign)
 t = pd.CategoricalDtype(categories=ana_data.cell_type_codes['Cell_Type'], ordered=True)
 cell_type_one_hot = np.zeros(shape=(data_df.shape[0], ana_data.cell_type_codes.shape[0]))
 cell_type = data_df['Cell_Type'].astype(t)
@@ -322,7 +326,7 @@ g = sns.catplot(cell_type_dis_melt_df, kind="bar", x="Number", y="Cell type", co
 g.add_legend()
 g.tight_layout()
 g.set_xticklabels(rotation='vertical')
-g.savefig('figures/cell_type_loading_in_niche_clusters.png', dpi=300)
+g.savefig('cell_type_loading_in_niche_clusters.png', dpi=300)
 ```
 
 ![cell_type_loading_in_niche_clusters_image](../docs/source/_static/images/tutorials/post_analysis/cell_type_loading_in_niche_clusters.png)
@@ -335,7 +339,7 @@ sns.heatmap(cell_type_dis_df.apply(lambda x: x / x.sum(), axis=1), ax=ax)
 ax.set_xlabel('Cell Type')
 ax.set_ylabel('Niche Cluster')
 fig.tight_layout()
-fig.savefig('figures/cell_type_dis_in_niche_clusters.png', dpi=300)
+fig.savefig('cell_type_dis_in_niche_clusters.png', dpi=300)
 ```
 
 ![cell_type_dis_in_niche_clusters_image](../docs/source/_static/images/tutorials/post_analysis/cell_type_dis_in_niche_clusters.png)
@@ -348,20 +352,22 @@ sns.heatmap(cell_type_dis_df.apply(lambda x: x / x.sum(), axis=0), ax=ax)
 ax.set_xlabel('Cell Type')
 ax.set_ylabel('Niche Cluster')
 fig.tight_layout()
-fig.savefig('figures/cell_type_dis_across_niche_clusters.png', dpi=300)
+fig.savefig('cell_type_dis_across_niche_clusters.png', dpi=300)
 ```
 
 ![cell_type_dis_across_niche_clusters_image](../docs/source/_static/images/tutorials/post_analysis/cell_type_dis_across_niche_clusters.png)
 
 ### Spatial niche-level NT score distribution
 
+NT score for each niche. Here, we use the anchor cells for each niche to represent niche-level NT score.
+
 ```{python}
-samples = ana_data.NT_score['sample'].unique().tolist()
+samples = ana_data.NT_score['Sample'].unique().tolist()
 
 N = len(samples)
 fig, axes = plt.subplots(1, N, figsize=(3.5 * N, 3))
 for i, sample in enumerate(samples):
-    sample_df = ana_data.NT_score.loc[ana_data.NT_score['sample'] == sample]
+    sample_df = ana_data.NT_score.loc[ana_data.NT_score['Sample'] == sample]
     ax = axes[i] if N > 1 else axes
     NT_score = sample_df['Niche_NTScore'] if not ana_data.options.reverse else 1 - sample_df['Niche_NTScore']
     scatter = ax.scatter(sample_df['x'], sample_df['y'], c=NT_score, cmap='rainbow', vmin=0, vmax=1, s=1)
@@ -372,7 +378,7 @@ for i, sample in enumerate(samples):
     ax.set_title(f"{sample} Niche-level NT Score")
 
 fig.tight_layout()
-fig.savefig('figures/niche_NT_score.png', dpi=200)
+fig.savefig('niche_NT_score.png', dpi=200)
 ```
 
 ![niche_level_NT_score_image](../docs/source/_static/images/tutorials/post_analysis/niche_NT_score.png)
@@ -380,12 +386,12 @@ fig.savefig('figures/niche_NT_score.png', dpi=200)
 ## Spatial cell-level NT score distribution
 
 ```{python}
-samples = ana_data.NT_score['sample'].unique().tolist()
+samples = ana_data.NT_score['Sample'].unique().tolist()
 
 N = len(samples)
 fig, axes = plt.subplots(1, N, figsize=(3.5 * N, 3))
 for i, sample in enumerate(samples):
-    sample_df = ana_data.NT_score.loc[ana_data.NT_score['sample'] == sample]
+    sample_df = ana_data.NT_score.loc[ana_data.NT_score['Sample'] == sample]
     ax = axes[i] if N > 1 else axes
     NT_score = sample_df['Cell_NTScore'] if not ana_data.options.reverse else 1 - sample_df['Cell_NTScore']
     scatter = ax.scatter(sample_df['x'], sample_df['y'], c=NT_score, cmap='rainbow', vmin=0, vmax=1, s=1)
@@ -396,7 +402,7 @@ for i, sample in enumerate(samples):
     ax.set_title(f"{sample} Cell-level NT Score")
 
 fig.tight_layout()
-fig.savefig('figures/cell_NT_score.png', dpi=200)
+fig.savefig('cell_NT_score.png', dpi=200)
 ```
 
 ![cell_level_NT_score_image](../docs/source/_static/images/tutorials/post_analysis/cell_NT_score.png)
@@ -404,7 +410,7 @@ fig.savefig('figures/cell_NT_score.png', dpi=200)
 ## Cell-level NT score distribution for each cell type
 
 ```{python}
-data_df = ana_data.cell_id.join(ana_data.NT_score['Cell_NTScore'])
+data_df = ana_data.meta_data.join(ana_data.NT_score['Cell_NTScore'])
 if ana_data.options.reverse: data_df['Cell_NTScore'] = 1 - data_df['Cell_NTScore']
 
 fig, ax = plt.subplots(figsize=(6, ana_data.cell_type_codes.shape[0] / 2))
@@ -421,7 +427,7 @@ sns.violinplot(data=data_df,
 ax.set_xlabel('Cell-level NT score')
 ax.set_ylabel('Cell Type')
 fig.tight_layout()
-fig.savefig('figures/cell_type_along_NT_score_violin.png', dpi=300)
+fig.savefig('cell_type_along_NT_score_violin.png', dpi=300)
 ```
 
 ![cell_level_NT_score_distribution_for_each_cell_type](../docs/source/_static/images/tutorials/post_analysis/cell_type_along_NT_score_violin.png)
