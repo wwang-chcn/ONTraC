@@ -1,4 +1,5 @@
 import os
+import sys
 from optparse import Values
 from typing import Dict, List, Optional, Tuple
 
@@ -30,7 +31,9 @@ def load_consolidate_data(options: Values) -> Tuple[ndarray, ndarray]:
     return consolidate_s_array, consolidate_out_adj_array
 
 
-def apply_diffusion_map(niche_adj_matrix: ndarray, output_dir: Optional[str] = None, components: int = 1) -> List[int]:
+def apply_diffusion_map(niche_adj_matrix: ndarray,
+                        output_dir: Optional[str] = None,
+                        component_index: int = 1) -> List[int]:
     """
     Apply diffusion map to the niche adjacency matrix
     :param niche_adj_matrix: ndarray, the adjacency matrix of the graph
@@ -47,8 +50,11 @@ def apply_diffusion_map(niche_adj_matrix: ndarray, output_dir: Optional[str] = N
     if output_dir is not None:
         np.savetxt(f'{output_dir}/DM_eigvecs.csv.gz', eigvecs, delimiter=',')
 
-    # get the first eigenvector as the niche cluster score by default
-    niche_cluster_score = eigvecs[:, components]
+    # get the niche cluster score based on the eigenvectors
+    if component_index >= eigvecs.shape[1]:
+        error(f'The component index ({component_index}) is out of range. The maximum index is {eigvecs.shape[1] - 1}.')
+        sys.exit(1)
+    niche_cluster_score = eigvecs[:, component_index]
 
     niche_cluster_path = niche_cluster_score.argsort().tolist()
 
@@ -76,7 +82,7 @@ def get_niche_trajectory_path(options: Values, niche_adj_matrix: ndarray) -> Lis
     elif options.trajectory_construct == 'DM':
         niche_trajectory_path = apply_diffusion_map(niche_adj_matrix=niche_adj_matrix,
                                                     output_dir=options.NTScore_dir,
-                                                    components=options.DM_embedding_index)
+                                                    component_index=options.DM_embedding_index)
 
     return niche_trajectory_path
 
