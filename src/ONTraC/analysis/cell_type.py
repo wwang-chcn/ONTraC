@@ -186,7 +186,7 @@ def plot_cell_type_dis_in_niche_clusters(ana_data: AnaData,
     :param cell_type_dis_df: pd.DataFrame, the cell type distribution in each niche cluster.
     :return: None or Tuple[plt.Figure, plt.Axes]
     """
-    fig, ax = plt.subplots(figsize=(2 + cell_type_dis_df.shape[1] / 3, 4))
+    fig, ax = plt.subplots(figsize=(2 + cell_type_dis_df.shape[1] / 3, 1 + cell_type_dis_df.shape[0] / 5))
     sns.heatmap(cell_type_dis_df.apply(lambda x: x / x.sum(), axis=1), ax=ax)
     ax.set_xlabel('Cell Type')
     ax.set_ylabel('Niche Cluster')
@@ -207,7 +207,7 @@ def plot_cell_type_across_niche_cluster(ana_data: AnaData,
     :param cell_type_dis_df: pd.DataFrame, the cell type distribution in each niche cluster.
     :return: None or Tuple[plt.Figure, plt.Axes]
     """
-    fig, ax = plt.subplots(figsize=(2 + cell_type_dis_df.shape[1] / 3, 4))
+    fig, ax = plt.subplots(figsize=(2 + cell_type_dis_df.shape[1] / 3, 1 + cell_type_dis_df.shape[0] / 5))
     sns.heatmap(cell_type_dis_df.apply(lambda x: x / x.sum(), axis=0), ax=ax)
     ax.set_xlabel('Cell Type')
     ax.set_ylabel('Niche Cluster')
