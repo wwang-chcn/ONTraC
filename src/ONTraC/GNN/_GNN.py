@@ -11,6 +11,7 @@ from torch_geometric.loader import DataLoader
 from ..data import SpatailOmicsDataset, load_dataset
 from ..log import info
 from ..train import SubBatchTrainProtocol
+from ..utils import consolidate_out_adj_norm
 
 
 def load_data(options: Values) -> Tuple[SpatailOmicsDataset, DataLoader]:
@@ -139,6 +140,12 @@ def predict(output_dir: str, batch_train: SubBatchTrainProtocol, dataset: Spatai
             out_adj_ = torch.sparse.mm(s.t(), adj_).mm(s)
             consolidate_out_adj = out_adj_ if consolidate_out_adj is None else consolidate_out_adj + out_adj_
 
+    # save raw consolidate_out_adj
+    if consolidate_out_adj is not None:
+        np.savetxt(fname=f'{output_dir}/consolidate_out_adj_raw.csv.gz',
+                   X=consolidate_out_adj.to_dense().detach().cpu().numpy(),
+                   delimiter=',')
+
     consolidate_s_array, consolidate_out_adj_array = None, None
     if consolidate_flag:
         # consolidate s
@@ -150,13 +157,9 @@ def predict(output_dir: str, batch_train: SubBatchTrainProtocol, dataset: Spatai
         consolidate_out_array = consolidate_out.detach().cpu().numpy()
         np.savetxt(fname=f'{output_dir}/consolidate_out.csv.gz', X=consolidate_out_array, delimiter=',')
         # consolidate out_adj
-        ind = torch.arange(consolidate_s.shape[-1], device=consolidate_out_adj.device)  # type: ignore
-        consolidate_out_adj[ind, ind] = 0  # type: ignore # remove intra-niche cluster edges
-        d = torch.einsum('ij->i', consolidate_out_adj)
-        d = torch.sqrt(d)[:, None] + 1e-15
-        consolidate_out_adj = (consolidate_out_adj / d) / d.transpose(0, 1)
-        consolidate_out_adj_array = consolidate_out_adj.to_dense().detach().cpu().numpy()
-        np.savetxt(fname=f'{output_dir}/consolidate_out_adj.csv.gz', X=consolidate_out_adj_array, delimiter=',')
+        consolidate_out_adj_array = consolidate_out_adj.to_dense().detach().cpu().numpy()  # type: ignore
+        consolidate_out_adj_array = consolidate_out_adj_norm(consolidate_out_adj_array)
+        np.savetxt(fname=f'{output_dir}/consolidate_out_adj.csv.gz', X=consolidate_out_adj_array, delimiter=',')  # type: ignore
 
     info(f'Predicting process end.')
     return consolidate_s_array, consolidate_out_adj_array

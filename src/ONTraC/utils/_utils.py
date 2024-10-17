@@ -3,6 +3,7 @@ from copy import deepcopy
 from optparse import Values
 from typing import Dict
 
+import numpy as np
 import pandas as pd
 import yaml
 
@@ -199,3 +200,21 @@ def round_epoch_filter(epoch: int) -> bool:
         return n % (10**(num - 1)) == 0
 
     return epoch < 10 or _is_power_of_10(epoch)
+
+
+def consolidate_out_adj_norm(consolidate_out_adj_raw: np.ndarray) -> np.ndarray:
+    """
+    Normalized the consolidate_out_adj matrix.
+    :param consolidate_out_adj_raw: np.ndarray with N x N, consolidate_out_adj matrix.
+    :return: np.ndarray, normalized consolidate_out_adj matrix.
+    """
+
+    # normalization of the consolidate out adj matrix
+    # same as the original implementation (V1 & V2)
+    ind = np.arange(consolidate_out_adj_raw.shape[0])
+    consolidate_out_adj_raw[ind, ind] = 0
+    d = np.einsum('ij->i', consolidate_out_adj_raw)
+    d = np.sqrt(d)[:, None] + 1e-15
+    consolidate_out_adj = (consolidate_out_adj_raw / d) / d.T
+
+    return consolidate_out_adj

@@ -11,6 +11,7 @@ from scipy.sparse import load_npz
 from ..data import SpatailOmicsDataset
 from ..log import error, info
 from .algorithm import brute_force, diffusion_map, held_karp
+from ..utils import consolidate_out_adj_norm
 
 
 def load_consolidate_data(options: Values) -> Tuple[ndarray, ndarray]:
@@ -22,13 +23,14 @@ def load_consolidate_data(options: Values) -> Tuple[ndarray, ndarray]:
 
     info('Loading consolidate s_array and out_adj_array...')
 
-    if not os.path.exists(f'{options.GNN_dir}/consolidate_s.csv.gz') or not os.path.exists(
-            f'{options.GNN_dir}/consolidate_out_adj.csv.gz'):
-        error(f'consolidate_s.csv.gz or consolidate_out_adj.csv.gz does not exist in {options.GNN_dir} directory.')
+    if not os.path.exists(f'{options.GNN_dir}/consolidate_s.csv.gz'):
+        error(f'consolidate_s.csv.gz does not exist in {options.GNN_dir} directory.')
+    if not os.path.exists(f'{options.GNN_dir}/consolidate_out_adj_raw.csv.gz'):
+        error(f'consolidate_out_adj.csv.gz does not exist in {options.GNN_dir} directory.')
     consolidate_s_array = np.loadtxt(fname=f'{options.GNN_dir}/consolidate_s.csv.gz', delimiter=',')
-    consolidate_out_adj_array = np.loadtxt(fname=f'{options.GNN_dir}/consolidate_out_adj.csv.gz', delimiter=',')
+    consolidate_out_adj_raw_array = np.loadtxt(fname=f'{options.GNN_dir}/consolidate_out_adj_raw.csv.gz', delimiter=',')
 
-    return consolidate_s_array, consolidate_out_adj_array
+    return consolidate_s_array, consolidate_out_adj_raw_array
 
 
 def apply_diffusion_map(niche_adj_matrix: ndarray,
@@ -71,10 +73,11 @@ def get_niche_trajectory_path(options: Values, niche_adj_matrix: ndarray) -> Lis
 
     if options.trajectory_construct == 'BF':
         info('Finding niche trajectory with maximum connectivity using Brute Force.')
-
+        niche_adj_matrix = consolidate_out_adj_norm(niche_adj_matrix)
         niche_trajectory_path = brute_force(niche_adj_matrix)
 
     elif options.trajectory_construct == 'TSP':
+        niche_adj_matrix = consolidate_out_adj_norm(niche_adj_matrix)
         info('Finding niche trajectory with maximum connectivity using TSP.')
 
         niche_trajectory_path = held_karp(niche_adj_matrix)
