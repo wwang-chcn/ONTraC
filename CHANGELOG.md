@@ -5,6 +5,7 @@
 Added:
 
 - Niche cluster connectivity visualization for each sample
+- Node colorbar for cluster connectivity visualization
 - `scale factor` controlling the size of spatial-based plots
 - `N_GCN_LAYERS` controlling the number of GCN layers in the model
 

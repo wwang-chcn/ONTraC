@@ -51,12 +51,13 @@ def _plot_niche_cluster_connectivity(
     fig = plt.figure(figsize=(7, 6))
 
     # Create a gridspec with 1 row and 2 columns, with widths of A and B
-    gs = gridspec.GridSpec(1, 2, width_ratios=[6, 1])  # 6:1 ratio
-    ax1 = fig.add_subplot(gs[0])
-    ax2 = fig.add_subplot(gs[1])
+    gs = gridspec.GridSpec(1, 3, width_ratios=[6, .5, .5])  # 6:.5:.5 ratio
+    graph_ax = fig.add_subplot(gs[0])
+    nodel_colorbar_ax = fig.add_subplot(gs[1])
+    edge_colorbar_ax = fig.add_subplot(gs[2])
 
     # Draw the graph
-    nx.draw_networkx_nodes(G, pos, node_color=niche_cluster_colors, node_size=500, ax=ax1)
+    nx.draw_networkx_nodes(G, pos, node_color=niche_cluster_colors, node_size=500, ax=graph_ax)
     nx.draw_networkx_edges(
         G,
         pos,
@@ -64,19 +65,27 @@ def _plot_niche_cluster_connectivity(
         alpha=weights,
         width=3.0,
         edge_cmap=plt.cm.Reds,  # type: ignore
-        ax=ax1)
-    nx.draw_networkx_labels(G, pos, ax=ax1)
-    ax1.set_title('Niche cluster connectivity')
+        ax=graph_ax)
+    nx.draw_networkx_labels(G, pos, ax=graph_ax)
+    graph_ax.set_title('Niche cluster connectivity')
 
-    # Draw the colorbar
+    # Draw the colorbar for nodes
+    gradient = np.linspace(0, 1, 1000).reshape(-1, 1)
+    nodel_colorbar_ax.imshow(gradient, aspect='auto', cmap=plt.cm.rainbow)
+    nodel_colorbar_ax.set_xticks([])
+    nodel_colorbar_ax.set_yticks(np.linspace(0, 1000, 5))
+    nodel_colorbar_ax.set_yticklabels(f'{x:.2f}' for x in np.linspace(0, 1, 5))
+    nodel_colorbar_ax.set_ylabel('NT score (nodes)')
+
+    # Draw the colorbar for edges
     colors = [(1, 1, 1, 0), (1, 0, 0, 1)]
     custom_cmap = LinearSegmentedColormap.from_list('custom_cmap', colors)
     gradient = np.linspace(1, 0, 1000).reshape(-1, 1)
-    ax2.imshow(gradient, aspect='auto', cmap=custom_cmap)
-    ax2.set_xticks([])
-    ax2.set_yticks(np.linspace(1000, 0, 5))
-    ax2.set_yticklabels(f'{x:.2f}' for x in np.linspace(0, niche_cluster_connectivity.max(), 5))
-    ax2.set_ylabel('Connectivity')
+    edge_colorbar_ax.imshow(gradient, aspect='auto', cmap=custom_cmap)
+    edge_colorbar_ax.set_xticks([])
+    edge_colorbar_ax.set_yticks(np.linspace(1000, 0, 5))
+    edge_colorbar_ax.set_yticklabels(f'{x:.2f}' for x in np.linspace(0, niche_cluster_connectivity.max(), 5))
+    edge_colorbar_ax.set_ylabel('Connectivity (edges)')
 
     fig.tight_layout()
 
@@ -85,7 +94,7 @@ def _plot_niche_cluster_connectivity(
         plt.close(fig)
         return None
     else:
-        return fig, [ax1, ax2]
+        return fig, [graph_ax, nodel_colorbar_ax, edge_colorbar_ax]
 
 
 def plot_niche_cluster_connectivity(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.Axes | List[plt.Axes]]]:
