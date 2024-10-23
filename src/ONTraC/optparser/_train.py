@@ -67,6 +67,11 @@ def add_GNN_options_group(group_train: OptionGroup) -> None:
                            type='int',
                            default=4,
                            help='Number of hidden features. Default is 4.')
+    group_train.add_option('--n-gcn-layers',
+                           dest='n_gcn_layers',
+                           type='int',
+                           default=2,
+                           help='Number of GCN layers. Default is 2.')
 
 
 def add_NP_options_group(group_train: OptionGroup) -> None:
@@ -150,6 +155,9 @@ def validate_GNN_options(optparser: OptionParser, options: Values) -> Values:
     if getattr(options, 'hidden_feats') < 2:
         error(f'hidden_feats must be greater than 1, exit!')
         sys.exit(1)
+    if getattr(options, 'n_gcn_layers') < 1:
+        error(f'n_gcn_layers must be greater than 0, exit!')
+        sys.exit(1)
 
     return options
 
@@ -196,6 +204,7 @@ def write_GNN_options_memo(options: Values) -> None:
     """
 
     info(f'hidden_feats:  {options.hidden_feats}')
+    info(f'n_gcn_layers:  {options.n_gcn_layers}')
 
 
 def write_NP_options_memo(options: Values) -> None:

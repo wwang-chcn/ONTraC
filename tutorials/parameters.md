@@ -61,6 +61,8 @@ Options:
     --lr=LR             Learning rate for training. Default is 0.03.
     --hidden-feats=HIDDEN_FEATS
                         Number of hidden features. Default is 4.
+    --n-gcn-layers=N_GCN_LAYERS
+                        Number of GCN layers. Default is 2.
     -k K, --k-clusters=K
                         Number of niche clusters. Default is 6.
     --modularity-loss-weight=MODULARITY_LOSS_WEIGHT
@@ -151,6 +153,8 @@ Options:
     --lr=LR             Learning rate for training. Default is 0.03.
     --hidden-feats=HIDDEN_FEATS
                         Number of hidden features. Default is 4.
+    --n-gcn-layers=N_GCN_LAYERS
+                        Number of GCN layers. Default is 2.
     -k K, --k-clusters=K
                         Number of niche clusters. Default is 6.
     --modularity-loss-weight=MODULARITY_LOSS_WEIGHT
@@ -268,6 +272,8 @@ Options:
     --lr=LR             Learning rate for training. Default is 0.03.
     --hidden-feats=HIDDEN_FEATS
                         Number of hidden features. Default is 4.
+    --n-gcn-layers=N_GCN_LAYERS
+                        Number of GCN layers. Default is 2.
     -k K, --k-clusters=K
                         Number of niche clusters. Default is 6.
     --modularity-loss-weight=MODULARITY_LOSS_WEIGHT

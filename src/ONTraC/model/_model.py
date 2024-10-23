@@ -2,6 +2,8 @@ from typing import Optional, Tuple
 
 import torch
 from torch import Tensor
+from torch import nn
+from copy import deepcopy
 
 from ..log import *
 from .dmon_exp_pool import DMoNPooling
@@ -61,23 +63,24 @@ class GraphPooling(torch.nn.Module):
                  input_feats: int,
                  hidden_feats: int,
                  k: int,
+                 n_gcn_layers: int = 2,
                  dropout: float = 0,
                  exponent: float = 1,
                  *args,
                  **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self.gcn1 = NormDenseGCNConv(input_feats, hidden_feats)
-        self.activation1 = torch.nn.SELU()
-        self.gcn2 = NormDenseGCNConv(hidden_feats, hidden_feats)
-        self.activation2 = torch.nn.SELU()
+        self.n_gcn_layers = n_gcn_layers
+        self.gcns = nn.ModuleList([NormDenseGCNConv(input_feats if i == 0 else hidden_feats, hidden_feats)
+                                   for i in range(self.n_gcn_layers)])
+        self.activations = nn.ModuleList([torch.nn.SELU() for _ in range(self.n_gcn_layers)])
         self.pool = NodePooling(input_feats=hidden_feats, k=k, dropout=dropout, exponent=exponent)
         self.k = k
 
         self.reset_parameters()
 
     def reset_parameters(self) -> None:
-        self.gcn1.reset_parameters()
-        self.gcn2.reset_parameters()
+        for gcn in self.gcns:
+            gcn.reset_parameters()
         self.pool.reset_parameters()
 
     def forward(self,
@@ -103,8 +106,8 @@ class GraphPooling(torch.nn.Module):
         Returns:
             Tensor: output feature matrix
         """
-        x = self.activation1(self.gcn1(x=x, adj=adj, mask=mask))
-        x = self.activation2(self.gcn2(x=x, adj=adj, mask=mask))
+        for i in range(self.n_gcn_layers):
+            x = self.activations[i](self.gcns[i](x=x, adj=adj, mask=mask))
         s, out, out_adj, spectral_loss, ortho_loss, cluster_loss = self.pool(x=x, adj=adj, mask=mask)
         return s, out, out_adj, spectral_loss, ortho_loss, cluster_loss
 
@@ -112,8 +115,9 @@ class GraphPooling(torch.nn.Module):
                  x: Tensor,
                  adj: Tensor,
                  mask: Optional[Tensor] = None) -> Tuple[Tensor, Tensor, Tensor, Tensor, Tensor, Tensor]:
-        x = self.activation1(self.gcn1(x=x, adj=adj, mask=mask))
-        x = self.activation2(self.gcn2(x=x, adj=adj, mask=mask))
+        
+        for i in range(self.n_gcn_layers):
+            x = self.activations[i](self.gcns[i](x=x, adj=adj, mask=mask))
         s, out, out_adj, spectral_loss, ortho_loss, cluster_loss = self.pool(x=x, adj=adj, mask=mask)
         return s, out, out_adj, spectral_loss, ortho_loss, cluster_loss
 
@@ -138,14 +142,15 @@ class GraphPooling(torch.nn.Module):
             out_adj (torch.Tensor): Output adjacency matrix
                 :math:`\mathbf{A} \in \mathbb{R}^{B \times K \times K}`
             """
-        x = self.activation1(self.gcn1(x=x, adj=adj, mask=mask))
-        x = self.activation2(self.gcn2(x=x, adj=adj, mask=mask))
+        
+        for i in range(self.n_gcn_layers):
+            x = self.activations[i](self.gcns[i](x=x, adj=adj, mask=mask))
         s, out, out_adj, *_ = self.pool(x=x, adj=adj, mask=mask)
         return s, out, out_adj
 
     def predict_embed(self, x: Tensor, adj: Tensor, mask: Optional[Tensor] = None) -> Tensor:
-        x = self.activation1(self.gcn1(x=x, adj=adj, mask=mask))
-        x = self.activation2(self.gcn2(x=x, adj=adj, mask=mask))
+        for i in range(self.n_gcn_layers):
+            x = self.activations[i](self.gcns[i](x=x, adj=adj, mask=mask))
         return x
 
 
