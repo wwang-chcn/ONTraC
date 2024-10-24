@@ -43,3 +43,11 @@ pip install .
 # Use this command if you want to visualise the results by `ONTraC_analysis`.
 pip install ".[analysis]"
 ```
+
+## Optional dependicies
+
+### STdeconvolve
+
+```sh
+conda install bioconda::bioconductor-stdeconvolve -y
+```
