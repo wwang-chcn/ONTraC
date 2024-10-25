@@ -8,7 +8,7 @@ from ._IO import *
 # ------------------------------------
 # Constants
 # ------------------------------------
-IO_OPTIONS = ['dataset', 'preprocessing_dir']
+IO_OPTIONS = ['input', 'preprocessing_dir']
 
 
 # ------------------------------------
@@ -43,6 +43,13 @@ def add_niche_net_constr_options_group(optparser: OptionParser) -> None:
         help=
         'Specifies the nth closest local neighbors used for gaussian distance normalization. It should be less than the number of cells in each sample. Default is 20.'
     )
+    group_niche.add_option(
+        '--deconvolution-num-cell-type',
+        dest='deconvolution_num_cell_type',
+        type='int',
+        default=10,
+        help='Number of cell type that the deconvolution method will deconvolve.'
+    )
     optparser.add_option_group(group_niche)
 
 
@@ -67,6 +74,10 @@ def validate_niche_net_constr_options(optparser: OptionParser, options: Values) 
         error('n_local must be greater than 0.')
         optparser.print_help()
         sys.exit(1)
+    if options.deconvolution_num_cell_type < 2:
+        error('deconvolution_num_cell_type must be greater than 2.')
+        optparser.print_help()
+        sys.exit(1)
 
 
 def write_niche_net_constr_memo(options: Values) -> None:
@@ -81,6 +92,7 @@ def write_niche_net_constr_memo(options: Values) -> None:
     info(f'n_cpu:   {options.n_cpu}')
     info(f'n_neighbors: {options.n_neighbors}')
     info(f'n_local: {options.n_local}')
+    info(f'deconvolution_num_cell_type: {options.deconvolution_num_cell_type}')
 
 
 def prepare_create_ds_optparser() -> OptionParser:

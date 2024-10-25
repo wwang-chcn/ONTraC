@@ -16,7 +16,7 @@ from ..version import __version__
 # ------------------------------------
 # Constants
 # ------------------------------------
-IO_OPTIONS = ['dataset', 'preprocessing_dir', 'GNN_dir', 'NTScore_dir']
+IO_OPTIONS = ['input', 'preprocessing_dir', 'GNN_dir', 'NTScore_dir']
 
 
 # ------------------------------------
@@ -81,7 +81,7 @@ def prepare_optparser() -> OptionParser:
 
     Ret: OptParser object.
     """
-    usage = """USAGE: %prog <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <-d DATASET>
+    usage = """USAGE: %prog <--meta-input META_INPUT> <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR>
     <--NTScore-dir NTSCORE_DIR> <-o OUTPUT_DIR> [-l LOG_FILE] [-r REVERSE] [-s SAMPLE] [--scale-factor SCALE_FACTOR]
     [--suppress-cell-type-composition] [--suppress-niche-cluster-loadings] [--suppress-niche-trajectory]"""
     description = "Analysis the results of ONTraC."

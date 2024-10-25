@@ -1,5 +1,7 @@
 from optparse import Values
 from typing import Any, Dict, List, Optional, Tuple
+from importlib import resources
+import subprocess
 
 import numpy as np
 import pandas as pd
@@ -196,9 +198,27 @@ def construct_niche_network_sample(options: Values, sample_data_df: pd.DataFrame
                                                    sample_name=sample_name)  # type: ignore
 
     # calculate cell type composition
-    cell_type_composition = calc_cell_type_composition(sample_data_df=sample_data_df,
-                                                       niche_weight_matrix=niche_weight_matrix,
-                                                       sample_name=sample_name)
+    if options.exp_input:
+        with resources.path("ONTraC.utils", "STdeconvolve.R") as stdeconvolve_script_path:
+            try:
+                stdeconvolve_script_path_str = str(stdeconvolve_script_path)
+                subprocess.run(
+                    ["Rscript", stdeconvolve_script_path, options.exp_input, str(options.deconvolution_num_cell_type), options.preprocessing_dir]
+                )
+            except subprocess.CalledProcessError as e:
+                print("Error in running R script:", e)
+                print("R script stderr:", e.stderr)
+        decomposited_cell_type = pd.read_csv(f'{options.preprocessing_dir}/spot_x_celltype_deconvolution.csv')
+        decomposited_cell_type = decomposited_cell_type.drop(decomposited_cell_type.columns[0], axis=1)
+        decomposited_cell_type = decomposited_cell_type.to_numpy()
+        cell_type_composition = calc_cell_type_composition(sample_data_df=sample_data_df,
+                                                        niche_weight_matrix=niche_weight_matrix,
+                                                        sample_name=sample_name,
+                                                        decompsited_cell_type=decomposited_cell_type)
+    else:
+        cell_type_composition = calc_cell_type_composition(sample_data_df=sample_data_df,
+                                                        niche_weight_matrix=niche_weight_matrix,
+                                                        sample_name=sample_name)
 
     save_niche_network(options=options,
                        sample_data_df=sample_data_df,

@@ -62,7 +62,7 @@ def read_original_data(options: Values) -> pd.DataFrame:
     :return: pd.DataFrame, original data.
     """
 
-    return pd.read_csv(options.dataset, header=0, index_col=False, sep=',')
+    return pd.read_csv(options.meta_input, header=0, index_col=False, sep=',')
 
 
 def valid_original_data(ori_data_df: pd.DataFrame) -> pd.DataFrame:
