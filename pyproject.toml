@@ -75,4 +75,4 @@ version = {attr = "ONTraC.__version__"}
 where = ["src"]
 
 [tool.setuptools.package-data]
-"ONTraC.utils" = ["*.R"]
+"ONTraC.external" = ["STdeconvolve.R"]
