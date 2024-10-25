@@ -19,7 +19,7 @@ from .utils import temp_dirs
 def options() -> Values:
     # Create an options object for testing
     _options = Values()
-    _options.dataset = 'tests/_data/test_data.csv'
+    _options.meta_input = 'tests/_data/test_data.csv'
     _options.preprocessing_dir = 'tests/temp/preprocessing'
     _options.n_local = 2
     _options.n_neighbors = 5
@@ -29,7 +29,7 @@ def options() -> Values:
 @pytest.fixture()
 def sample_data_df(options: Values) -> pd.DataFrame:
     # Create sample data
-    sample_data_df = pd.read_csv(options.dataset)
+    sample_data_df = pd.read_csv(options.meta_input)
     sample_data_df = sample_data_df[sample_data_df['Sample'] == 'S1']
     sample_data_df['Cell_Type'] = sample_data_df['Cell_Type'].astype('category')
     return sample_data_df
@@ -118,7 +118,7 @@ def test_load_original_data(options: Values) -> None:
 
     with temp_dirs(options=options):
         # load_original_data function should:
-        # 1) read original data file (options.dataset)
+        # 1) read original data file (options.meta_input)
         # 2) retrun original data with Cell_ID, Sample, Cell_Type, x, and y columns
         # 3) Cell_ID should be unique
         # 4) Cell_Type should be categorical

@@ -51,7 +51,7 @@ from ONTraC.analysis.data import AnaData
 from optparse import Values
 
 options = Values
-options.dataset = 'stereo_seq_dataset.csv'
+options.meta_input = 'stereo_seq_dataset.csv'
 options.preprocessing_dir = 'stereo_seq_final_preprocessing_dir'
 options.GNN_dir = 'stereo_seq_final_GNN'
 options.NTScore_dir = 'stereo_seq_final_NTScore'
