@@ -11,10 +11,15 @@ num_cell_type <- as.numeric(args[2])
 save_directory <- args[3]
 
 counts_df <- read.csv(counts_path, row.names = 1, header=TRUE)
+counts_df[is.na(counts_df)] <- 0
 counts_matrix <- as.matrix(counts_df)
 sparse_counts <- as(counts_matrix, "dgCMatrix")
 
-counts <- cleanCounts(sparse_counts, min.lib.size = 100, min.reads = 10)
+if (nrow(sparse_counts) == 0 || ncol(sparse_counts) == 0) {
+    stop("The input matrix is empty after filtering.")
+}
+
+counts <- cleanCounts(sparse_counts, min.lib.size = 50, min.reads = 10)
 corpus <- restrictCorpus(counts, removeAbove=1.0, removeBelow = 0.05, nTopOD = 1000)
 ldas <- fitLDA(t(as.matrix(corpus)), Ks = c(num_cell_type))
 optLDA <- optimalModel(models = ldas, opt = "min")
