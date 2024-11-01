@@ -122,8 +122,8 @@ def validate_io_options(optparser: OptionParser,
             else:
                 pass
         else:
-            info(f'Creating directory: {options.preprocessing_dir}')
-            os.makedirs(options.preprocessing_dir, exist_ok=True)
+            info(f'Creating directory: {options.NN_dir}')
+            os.makedirs(options.NN_dir, exist_ok=True)
 
     if 'GNN_dir' in io_options:
         if not options.GNN_dir:
@@ -186,11 +186,11 @@ def write_io_options_memo(options: Values, io_options: Optional[List[str]]) -> N
         return
     info('            -------- I/O options -------             ')
     if 'NN_dir' in io_options:
-        info(f'preprocessing output directory:  {options.NN_dir}')
+        info(f'Niche network output directory:  {options.NN_dir}')
     if 'GNN_dir' in io_options:
         info(f'GNN output directory:  {options.GNN_dir}')
     if 'NT_dir' in io_options:
-        info(f'NTScore output directory:  {options.NT_dir}')
+        info(f'Niche trajectory output directory:  {options.NT_dir}')
     if 'output' in io_options:
         info(f'Output directory:  {options.output}')
     if 'input' in io_options:
