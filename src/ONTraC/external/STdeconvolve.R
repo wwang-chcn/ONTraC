@@ -9,6 +9,7 @@ args <- commandArgs(trailingOnly = TRUE)
 counts_path <- args[1]
 num_cell_type <- as.numeric(args[2])
 save_directory <- args[3]
+output_file_name <- args[4]
 
 counts_df <- read.csv(counts_path, row.names = 1, header = TRUE)
 counts_df[is.na(counts_df)] <- 0
@@ -32,6 +33,6 @@ results <- getBetaTheta(optLDA, perc.filt = 0.05, betaScale = 1000)
 
 write.table(
     results$theta,
-    file = paste0(save_directory, "/spot_x_celltype_deconvolution.csv.gz"),
+    file = file.path(save_directory, output_file_name),
     sep = ","
 )

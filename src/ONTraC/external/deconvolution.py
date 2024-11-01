@@ -19,6 +19,8 @@ def apply_STdeconvolve(NN_dir: Union[str, Path], exp_matrix: np.ndarray, ct_num:
     exp_matrix_file = f'{NN_dir}/filtered_spot_exp.csv.gz'
     np.savetxt(fname=exp_matrix_file, X=exp_matrix, delimiter=',')
 
+    spot_x_cell_type_file = 'spot_x_celltype_deconvolution.csv.gz'
+
     with resources.path("ONTraC.utils", "STdeconvolve.R") as stdeconvolve_script_path:
         try:
             stdeconvolve_script_path_str = str(stdeconvolve_script_path)
@@ -28,6 +30,6 @@ def apply_STdeconvolve(NN_dir: Union[str, Path], exp_matrix: np.ndarray, ct_num:
             print("R script stderr:", e.stderr)
 
     # load deconvoluted cell type composition data
-    deconvoluted_ct_matrix = np.loadtxt(f'{NN_dir}/spot_x_celltype_deconvolution.csv.gz', delimiter=',')
+    deconvoluted_ct_matrix = np.loadtxt(Path(NN_dir).joinpath(spot_x_cell_type_file), delimiter=',')
 
     return deconvoluted_ct_matrix
