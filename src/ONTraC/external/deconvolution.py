@@ -21,7 +21,7 @@ def apply_STdeconvolve(NN_dir: Union[str, Path], exp_matrix: np.ndarray, ct_num:
 
     spot_x_cell_type_file = 'spot_x_celltype_deconvolution.csv.gz'
 
-    with resources.path("ONTraC.utils", "STdeconvolve.R") as stdeconvolve_script_path:
+    with resources.path("ONTraC.external", "STdeconvolve.R") as stdeconvolve_script_path:
         try:
             stdeconvolve_script_path_str = str(stdeconvolve_script_path)
             subprocess.run(["Rscript", stdeconvolve_script_path_str, exp_matrix_file, str(ct_num), NN_dir])
