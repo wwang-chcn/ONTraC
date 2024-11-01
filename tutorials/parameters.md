@@ -202,6 +202,7 @@ Options:
 
 ### Full parameters for ONTraC_analysis
 
+```{text}
 Usage: ONTraC_analysis <--NN-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR>
     <--NT-dir NTSCORE_DIR> <-o OUTPUT_DIR> [-l LOG_FILE] [-r REVERSE] [-s SAMPLE] [--scale-factor SCALE_FACTOR]
     [--suppress-cell-type-composition] [--suppress-niche-cluster-loadings] [--suppress-niche-trajectory]
