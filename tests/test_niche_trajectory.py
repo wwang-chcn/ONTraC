@@ -19,11 +19,11 @@ def test_get_niche_trajectory_path() -> None:
 
     options = Mock()
 
-    options.trajectory_construct = "BF"
-    assert get_niche_trajectory_path(options=options, niche_adj_matrix=adj_matrix) == expected_path
+    # BF
+    assert get_niche_trajectory_path(trajectory_construct_method='BF', niche_adj_matrix=adj_matrix) == expected_path
 
-    options.trajectory_construct = "TSP"
-    assert get_niche_trajectory_path(options=options, niche_adj_matrix=adj_matrix) == expected_path
+    # TSP
+    assert get_niche_trajectory_path(trajectory_construct_method='TSP', niche_adj_matrix=adj_matrix) == expected_path
 
 
 def test_trajectory_path_to_NC_score() -> None:
@@ -56,9 +56,10 @@ def test_get_niche_NTScore() -> None:
     options = Mock()
     options.trajectory_construct = "BF"
 
-    niche_cluster_score, niche_level_NTScore = get_niche_NTScore(options=options,
-                                                                 niche_cluster_loading=niche_cluster_loading,
-                                                                 niche_adj_matrix=niche_adj_matrix)
+    niche_cluster_score, niche_level_NTScore = get_niche_NTScore(
+        trajectory_construct_method=options.trajectory_construct,
+        niche_cluster_loading=niche_cluster_loading,
+        niche_adj_matrix=niche_adj_matrix)
 
     assert np.allclose(niche_cluster_score, expected_niche_cluster_score)
     assert np.allclose(niche_level_NTScore, expected_niche_level_NTScore)

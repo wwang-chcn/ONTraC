@@ -1,28 +1,10 @@
 #!/usr/bin/env python
 
 import sys
-from typing import Callable, Optional
 
-from ..log import *
-from ..model import GraphPooling
 from ..optparser import opt_ontrac_validate, prepare_ontrac_optparser
 from ..run.processes import NTScore, gnn, load_parameters, niche_network_construct
-from ..train import GPBatchTrain
-from ..train.inspect_funcs import loss_record
-from ..utils import load_original_data, write_version_info
-
-
-# ------------------------------------
-# Functions
-# ------------------------------------
-def get_inspect_funcs() -> Optional[list[Callable]]:
-    """
-    Inspect function list
-    :param output_dir: output dir
-    :param epoch_filter: epoch filter
-    :return: list of inspect functions
-    """
-    return [loss_record]
+from ..utils import write_version_info
 
 
 # ------------------------------------
@@ -30,8 +12,7 @@ def get_inspect_funcs() -> Optional[list[Callable]]:
 # ------------------------------------
 def main() -> None:
     """
-    main function
-    Input data files information should be stored in a YAML file.
+    The main function
     """
 
     # write version information
@@ -40,18 +21,11 @@ def main() -> None:
     # load parameters
     options = load_parameters(opt_validate_func=opt_ontrac_validate, prepare_optparser_func=prepare_ontrac_optparser)
 
-    # load original data
-    ori_data_df = load_original_data(options=options)
-
     # ----- Niche Network Construct -----
-    niche_network_construct(options=options, ori_data_df=ori_data_df)
+    niche_network_construct(options=options)
 
     # ----- GNN -----
-    gnn(options=options,
-        ori_data_df=ori_data_df,
-        nn_model=GraphPooling,
-        BatchTrain=GPBatchTrain,
-        inspect_funcs=get_inspect_funcs())
+    gnn(options=options)
 
     # ----- NT score -----
     NTScore(options=options)

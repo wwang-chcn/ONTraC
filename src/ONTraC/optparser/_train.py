@@ -54,14 +54,14 @@ def add_train_options_group(optparser: OptionParser) -> OptionGroup:
     return group_train
 
 
-def add_GNN_options_group(group_train: OptionGroup) -> None:
+def add_GCN_options_group(group_train: OptionGroup) -> None:
     """
-    Add GNN options group to optparser.
+    Add GCN options group to optparser.
     :param optparser: OptionParser object.
     :return: None.
     """
 
-    # GNN options group
+    # GCN options group
     group_train.add_option('--hidden-feats',
                            dest='hidden_feats',
                            type='int',
@@ -74,9 +74,9 @@ def add_GNN_options_group(group_train: OptionGroup) -> None:
                            help='Number of GCN layers. Default is 2.')
 
 
-def add_NP_options_group(group_train: OptionGroup) -> None:
+def add_GP_options_group(group_train: OptionGroup) -> None:
     """
-    Add Node Pooling options group to optparser.
+    Add Graph Pooling options group to optparser.
     :param optparser: OptionParser object.
     :return: None.
     """
@@ -135,7 +135,7 @@ def validate_train_options(optparser: OptionParser, options: Values) -> Values:
         #     options.device = 'mps'
         else:
             options.device = 'cpu'
-    
+
     # determin random seed
     if getattr(options, 'seed') is None:
         options.seed = randint(0, 10000)
@@ -143,9 +143,9 @@ def validate_train_options(optparser: OptionParser, options: Values) -> Values:
     return options
 
 
-def validate_GNN_options(optparser: OptionParser, options: Values) -> Values:
+def validate_GCN_options(optparser: OptionParser, options: Values) -> Values:
     """
-    Validate GNN options.
+    Validate GCN options.
     :param optparser: OptionParser object.
     :param options: Options object.
     :return: Validated options object.
@@ -162,9 +162,9 @@ def validate_GNN_options(optparser: OptionParser, options: Values) -> Values:
     return options
 
 
-def validate_NP_options(optparser: OptionParser, options: Values) -> Values:
+def validate_GP_options(optparser: OptionParser, options: Values) -> Values:
     """
-    Validate Node Pooling options.
+    Validate Graph Pooling options.
     :param optparser: OptionParser object.
     :param options: Options object.
     :return: Validated options object.
@@ -196,9 +196,9 @@ def write_train_options_memo(options: Values) -> None:
     info(f'lr:  {options.lr}')
 
 
-def write_GNN_options_memo(options: Values) -> None:
+def write_GCN_options_memo(options: Values) -> None:
     """
-    Write GNN options memo to stdout.
+    Write GCN options memo to stdout.
     :param options: Options object.
     :return: None.
     """
@@ -207,9 +207,9 @@ def write_GNN_options_memo(options: Values) -> None:
     info(f'n_gcn_layers:  {options.n_gcn_layers}')
 
 
-def write_NP_options_memo(options: Values) -> None:
+def write_GP_options_memo(options: Values) -> None:
     """
-    Write Node Pooling options memo to stdout.
+    Write Graph Pooling options memo to stdout.
     :param options: Options object.
     :return: None.
     """
@@ -223,12 +223,12 @@ def write_NP_options_memo(options: Values) -> None:
 
 __all__ = [
     'add_train_options_group',
-    'add_GNN_options_group',
-    'add_NP_options_group',
+    'add_GCN_options_group',
+    'add_GP_options_group',
     'validate_train_options',
-    'validate_GNN_options',
-    'validate_NP_options',
+    'validate_GCN_options',
+    'validate_GP_options',
     'write_train_options_memo',
-    'write_GNN_options_memo',
-    'write_NP_options_memo',
+    'write_GCN_options_memo',
+    'write_GP_options_memo',
 ]

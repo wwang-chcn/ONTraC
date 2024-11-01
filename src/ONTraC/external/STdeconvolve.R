@@ -32,6 +32,6 @@ results <- getBetaTheta(optLDA, perc.filt = 0.05, betaScale = 1000)
 
 write.table(
     results$theta,
-    file = paste0(save_directory, "/spot_x_celltype_deconvolution.csv"),
+    file = paste0(save_directory, "/spot_x_celltype_deconvolution.csv.gz"),
     sep = ","
 )

@@ -1,4 +1,3 @@
-from networkx import laplacian_matrix
 import torch
 from torch import Tensor
 from torch.nn import Parameter
@@ -12,6 +11,7 @@ from ..log import *
 
 class NormDenseGCNConv(torch.nn.Module):
     r"""See :class:`torch_geometric.nn.conv.GCNConv`."""
+
     def __init__(
         self,
         in_channels: int,
@@ -25,8 +25,7 @@ class NormDenseGCNConv(torch.nn.Module):
         self.out_channels = out_channels
         self.improved = improved
 
-        self.lin = Linear(in_channels, out_channels, bias=False,
-                          weight_initializer='glorot')
+        self.lin = Linear(in_channels, out_channels, bias=False, weight_initializer='glorot')
 
         if bias:
             self.bias = Parameter(torch.Tensor(out_channels))
@@ -70,7 +69,7 @@ class NormDenseGCNConv(torch.nn.Module):
         # calculate \mathbf{\hat{L}} = \mathbf{D}^{-1/2}\mathbf{A}\mathbf{D}^{-1/2} + I
         deg_inv_sqrt = adj.sum(dim=-1).clamp(min=1).pow(-0.5)
         adj = deg_inv_sqrt.unsqueeze(-1) * adj * deg_inv_sqrt.unsqueeze(-2)
-        eye_matrix = torch.eye(N).to(adj.device).unsqueeze(0).repeat(B,1,1)
+        eye_matrix = torch.eye(N).to(adj.device).unsqueeze(0).repeat(B, 1, 1)
         laplacian = adj + eye_matrix if not self.improved else adj + 2 * eye_matrix
 
         # \mathbf{\hat{L}}X\mathbf{\Theta}

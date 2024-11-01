@@ -7,7 +7,7 @@ import pandas as pd
 from pandas import DataFrame
 
 from ..log import info
-from ..utils import get_rel_params, read_yaml_file
+from ..utils import get_meta_data_file, get_rel_params, read_yaml_file
 
 
 # ----------------------------
@@ -95,9 +95,9 @@ def load_niche_cluster_score(options: Values) -> np.ndarray:
     Returns:
         np.ndarray: the niche cluster score
     """
-    niche_cluster_score_file = f'{options.NTScore_dir}/niche_cluster_score.csv.gz'
+    niche_cluster_score_file = f'{options.NT_dir}/niche_cluster_score.csv.gz'
     if not os.path.isfile(niche_cluster_score_file):
-        niche_cluster_score_file = f'{options.NTScore_dir}/niche_cluster_score.csv'
+        niche_cluster_score_file = f'{options.NT_dir}/niche_cluster_score.csv'
     if not os.path.isfile(niche_cluster_score_file):  # skip if file not exist
         raise FileNotFoundError(f"Cannot find niche cluster score file: {niche_cluster_score_file}.")
 
@@ -210,10 +210,11 @@ class AnaData:
         # save options
         self.options = options
         # get real path
-        params = read_yaml_file(f'{options.preprocessing_dir}/samples.yaml')
-        self.rel_params = get_rel_params(options, params)
-        # save the original Cell ID
-        self.cell_id = pd.read_csv(options.meta_input, usecols=['Cell_ID', 'Cell_Type']).set_index('Cell_ID')
+        params = read_yaml_file(f'{options.NN_dir}/samples.yaml')
+        self.rel_params = get_rel_params(options.NN_dir, params)
+        # save the original Cell_ID
+        self.cell_id = pd.read_csv(get_meta_data_file(options.NN_dir), usecols=['Cell_ID',
+                                                                                'Cell_Type']).set_index('Cell_ID')
 
     @property
     def train_loss(self):
@@ -224,7 +225,7 @@ class AnaData:
     @property
     def cell_type_codes(self) -> pd.DataFrame:
         if not hasattr(self, '_cell_type_codes'):
-            self._cell_type_codes = pd.read_csv(f'{self.options.preprocessing_dir}/cell_type_code.csv', index_col=0)
+            self._cell_type_codes = pd.read_csv(f'{self.options.NN_dir}/cell_type_code.csv', index_col=0)
         return self._cell_type_codes
 
     def _load_cell_type_composition_and_NT_score(self) -> None:
@@ -237,7 +238,7 @@ class AnaData:
             cell_type_composition_df = pd.read_csv(sample['Features'], header=None)
             cell_type_composition_df.columns = self.cell_type_codes.loc[np.arange(cell_type_composition_df.shape[1]),
                                                                         'Cell_Type'].tolist()  # type: ignore
-            NTScore_df = pd.read_csv(f'{self.options.NTScore_dir}/{sample["Name"]}_NTScore.csv.gz', index_col=0)
+            NTScore_df = pd.read_csv(f'{self.options.NT_dir}/{sample["Name"]}_NTScore.csv.gz', index_col=0)
             sample_df = pd.concat([NTScore_df.reset_index(drop=True), cell_type_composition_df], axis=1)
             sample_df.index = NTScore_df.index
             sample_df['sample'] = [sample["Name"]] * sample_df.shape[0]

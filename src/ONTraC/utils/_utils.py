@@ -1,12 +1,10 @@
+import os
 import sys
 from copy import deepcopy
-from optparse import Values
-from typing import Dict
+from pathlib import Path
+from typing import Dict, Union
 
-import pandas as pd
 import yaml
-
-from ..log import warning
 
 
 def write_version_info() -> None:
@@ -32,125 +30,20 @@ def write_version_info() -> None:
     sys.stdout.flush()
 
 
-# ------------------------------------
-# original data functions logic
-# functions:
-#  - read_original_data
-#  - valid_original_data
-#  - save_cell_type_code
-#  - save_original_data
-# pipeline:
-#  - ONTraC
-#    - load_original_data
-#      - read_original_data
-#      - valid_original_data
-#      - save_cell_type_code
-#      - save_original_data
-#  - ONTraC_GNN
-#    - read_original_data
-#    - valid_original_data
-#  - ONTraC_GP
-#    - read_original_data
-#    - valid_original_data
-# ------------------------------------
-
-
-def read_original_data(options: Values) -> pd.DataFrame:
+def get_rel_params(NN_dir: Union[str, Path], params: Dict) -> Dict:
     """
-    Read original data file.
-    :param options: Values, options.
-    :return: pd.DataFrame, original data.
+    Get relative paths for params.
+    :param NN_dir: str or Path, NN_dir.
+    :param params: Dict, input samples.
+    :return: Dict, relative paths.
     """
-
-    return pd.read_csv(options.meta_input, header=0, index_col=False, sep=',')
-
-
-def valid_original_data(ori_data_df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Validate original data.
-    :param ori_data_df: pd.DataFrame, original data.
-    :return: pd.DataFrame, original data.
-
-    1) check if Cell_ID, Sample, Cell_Type, x, and y columns in the original data
-    2) make the Cell_Type column categorical
-    3) return original data with Cell_ID, Sample, Cell_Type, x, and y columns
-    """
-
-    # check if Cell_ID, Sample, Cell_Type, x, and y columns in the original data
-    if 'Cell_ID' not in ori_data_df.columns:
-        raise ValueError('Cell_ID column is missing in the original data.')
-    if 'Sample' not in ori_data_df.columns:
-        raise ValueError('Sample column is missing in the original data.')
-    if 'Cell_Type' not in ori_data_df.columns:
-        raise ValueError('Cell_Type column is missing in the original data.')
-    if 'x' not in ori_data_df.columns:
-        raise ValueError('x column is missing in the original data.')
-    if 'y' not in ori_data_df.columns:
-        raise ValueError('y column is missing in the original data.')
-
-    # check if there any duplicated Cell_ID
-    if ori_data_df['Cell_ID'].duplicated().any():
-        warning(
-            'There are duplicated Cell_ID in the original data. Sample name will added to Cell_ID to distinguish them.')
-        ori_data_df['Cell_ID'] = ori_data_df['Sample'] + '_' + ori_data_df['Cell_ID']
-    if ori_data_df['Cell_ID'].isnull().any():
-        raise ValueError(f'Duplicated Cell_ID within same sample found!')
-
-    ori_data_df = ori_data_df.dropna(subset=['Cell_ID', 'Sample', 'Cell_Type', 'x', 'y'])
-
-    # make the Cell_Type column categorical
-    ori_data_df['Cell_Type'] = ori_data_df['Cell_Type'].astype('category')
-    # check if the cell type category number is less than 2
-    if len(ori_data_df['Cell_Type'].cat.categories) < 2:
-        raise ValueError('At least two cell types are required.')
-
-    # make the Sample column string
-    ori_data_df['Sample'] = ori_data_df['Sample'].astype(str)
-
-    return ori_data_df
-
-
-def save_cell_type_code(options: Values, ori_data_df: pd.DataFrame) -> None:
-    """
-    Save mappings of the categorical data.
-    :param options: Values, options.
-    :param ori_data_df: pd.DataFrame, original data.
-    :return: None.
-    """
-
-    # save mappings of the categorical data
-    cell_type_code = pd.DataFrame(enumerate(ori_data_df['Cell_Type'].cat.categories), columns=['Code', 'Cell_Type'])
-    cell_type_code.to_csv(f'{options.preprocessing_dir}/cell_type_code.csv', index=False)
-
-
-def save_original_data(options: Values, ori_data_df: pd.DataFrame) -> None:
-    """
-    Save original data.
-    :param options: Values, options.
-    :param ori_data_df: pd.DataFrame, original data.
-    :return: None.
-    """
-
-    ori_data_df.to_csv(f'{options.preprocessing_dir}/original_data.csv', index=False)
-
-
-def load_original_data(options: Values) -> pd.DataFrame:
-    """
-    Load original data.
-    :param options: Values, options.
-    :return: pd.DataFrame, original data.
-    """
-
-    # read original data file
-    ori_data_df = read_original_data(options=options)
-
-    ori_data_df = valid_original_data(ori_data_df=ori_data_df)
-
-    save_cell_type_code(options=options, ori_data_df=ori_data_df)
-
-    save_original_data(options=options, ori_data_df=ori_data_df)
-
-    return ori_data_df
+    rel_params = deepcopy(params)
+    for data in rel_params['Data']:
+        for k, v in data.items():
+            if k == 'Name':
+                continue
+            data[k] = f'{NN_dir}/{v}'
+    return rel_params
 
 
 def read_yaml_file(yaml_file: str) -> dict:
@@ -182,20 +75,21 @@ def count_lines(filename: str) -> int:
     return i
 
 
-def get_rel_params(options: Values, params: Dict) -> Dict:
+def get_meta_data_file(NN_dir: Union[str, Path]) -> Union[str, Path]:
     """
-    Get relative paths for params.
-    :param options: Values, options.
-    :param params: Dict, input samples.
-    :return: Dict, relative paths.
+    Get meta data file.
+    :param NN_dir: str or Path, NN_dir.
+    :return: str, meta data file.
     """
-    rel_params = deepcopy(params)
-    for data in rel_params['Data']:
-        for k, v in data.items():
-            if k == 'Name':
-                continue
-            data[k] = f'{options.preprocessing_dir}/{v}'
-    return rel_params
+    # meta data
+    meta_data_file = f'{NN_dir}/meta_data.csv.gz'
+    if not os.path.isfile(meta_data_file):
+        meta_data_file = f'{NN_dir}/meta_data.csv'
+    if not os.path.isfile(meta_data_file):
+        raise ValueError(
+            'meta_data.csv. is required for preprocessing. Copy the input meta_data.csv to the NN_dir may solve this problem.'
+        )
+    return Path(meta_data_file)
 
 
 def round_epoch_filter(epoch: int) -> bool:

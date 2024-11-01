@@ -2,9 +2,13 @@
 
 import sys
 
-from ..optparser import opt_gnn_validate, prepare_gnn_optparser
-from ..run.processes import gnn, load_parameters
+from ..optparser import opt_gt_validate, prepare_gt_optparser
+from ..run.processes import NTScore, gnn, load_parameters
 from ..utils import write_version_info
+
+# ------------------------------------
+# Classes
+# ------------------------------------
 
 
 # ------------------------------------
@@ -19,10 +23,13 @@ def main() -> None:
     write_version_info()
 
     # load parameters
-    options = load_parameters(opt_validate_func=opt_gnn_validate, prepare_optparser_func=prepare_gnn_optparser)
+    options = load_parameters(opt_validate_func=opt_gt_validate, prepare_optparser_func=prepare_gt_optparser)
 
     # ----- GNN -----
     gnn(options=options)
+
+    # ----- NT score -----
+    NTScore(options=options)
 
 
 # ------------------------------------

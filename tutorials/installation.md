@@ -46,7 +46,11 @@ pip install ".[analysis]"
 
 ## Optional dependicies
 
-### STdeconvolve
+### Deconvolution
+
+#### STdeconvolve
+
+[STdeconvolve](https://github.com/JEFworks-Lab/STdeconvolve) is a reference-free cell-type deconvolution method. Please install through following command if you want use it in the preprocessing step in analyzing low resolution data.
 
 ```sh
 conda install bioconda::bioconductor-stdeconvolve -y

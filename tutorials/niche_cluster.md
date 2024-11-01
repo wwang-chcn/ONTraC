@@ -13,7 +13,7 @@ Please see the [installation tutorial](installation.md)
 ### Running ONTraC
 
 ```{sh}
-ONTraC -d stereo_seq_dataset.csv --preprocessing-dir stereo_seq_final_preprocessing_dir --GNN-dir stereo_seq_final_GNN --NTScore-dir stereo_seq_final_NTScore --epochs 100 --batch-size 5 -s 42 --patience 100 --min-delta 0.001 --min-epochs 50 --lr 0.03 --hidden-feats 4 -k 6 --modularity-loss-weight 0.3 --regularization-loss-weight 0.1 --purity-loss-weight 300 --beta 0.03 2>&1 | tee stereo_seq_final.log
+ONTraC --meta-input stereo_seq_dataset.csv --NN-dir stereo_seq_NN --GNN-dir stereo_seq_GNN --NT-dir stereo_seq_NT --epochs 100 --batch-size 5 -s 42 --patience 100 --min-delta 0.001 --min-epochs 50 --lr 0.03 --hidden-feats 4 -k 6 --modularity-loss-weight 0.3 --regularization-loss-weight 0.1 --purity-loss-weight 300 --beta 0.03 2>&1 | tee stereo_seq_final.log
 ```
 
 The input dataset and output files could be downloaded from [Zenodo](https://zenodo.org/records/11186620).
@@ -50,11 +50,10 @@ from ONTraC.analysis.data import AnaData
 ```{python}
 from optparse import Values
 
-options = Values
-options.meta_input = 'stereo_seq_dataset.csv'
-options.preprocessing_dir = 'stereo_seq_final_preprocessing_dir'
-options.GNN_dir = 'stereo_seq_final_GNN'
-options.NTScore_dir = 'stereo_seq_final_NTScore'
+options = Values()
+options.NN_dir = 'stereo_seq_NN'
+options.GNN_dir = 'stereo_seq_GNN'
+options.NT_dir = 'stereo_seq_NT'
 options.log = 'stereo_seq_final.log'
 options.reverse = True  # Set it to False if you don't want reverse NT score
 ana_data = AnaData(options)

@@ -17,36 +17,50 @@ def add_IO_options_group(optparser: OptionParser, io_options: Optional[List[str]
         return
     # I/O options group
     group_io = OptionGroup(optparser, "IO")
+
+    # directories
+    if 'NN_dir' in io_options:
+        group_io.add_option('--NN-dir', dest='NN_dir', type='string', help='Directory for niche network outputs.')
+    if 'GNN_dir' in io_options:
+        group_io.add_option('--GNN-dir', dest='GNN_dir', type='string', help='Directory for the GNN output.')
+    if 'NT_dir' in io_options:
+        group_io.add_option('--NT-dir', dest='NT_dir', type='string', help='Directory for the niche trajectory output.')
+    if 'output' in io_options:
+        group_io.add_option('-o', '--output', dest='output', type='string', help='Directory for analysis output.')
+
+    # input files
     if 'input' in io_options:
-        group_io.add_option('-d',
-                            '--dataset',
-                            dest='dataset',
-                            type='string',
-                            help='This options will be deprecated in future versions. Please use --meta-input instead.')
         group_io.add_option(
             '--meta-input',
             dest='meta_input',
             type='string',
             help=
-            'Meta data file in csv format. Each row is a cell and each column is a meta data. The first column should be the cell name. Coordinates (x, y) and sample should be included. Cell type is optional.'
+            'Meta data file in csv format. Each row is a cell and each column is a meta data. The first column should be the cell name. Coordinates (x, y) and sample should be included. Cell type is required for cell-level data.'
         )
-        group_io.add_option(
-            '--exp-input',
-            dest='exp_input',
-            type='string',
-            help=
-            'Normalized expression file in csv format. Each row is a cell and each column is a gene. The first column should be the cell name. If not provided, cell type should be included in the meta data file.'
-        )
-    if 'preprocessing_dir' in io_options:
+        group_io.add_option('--low-res-exp-input',
+                            dest='low_res_exp_input',
+                            type='string',
+                            help='Spot X gene matrix in csv format for low-resolution dataset.')
+    if 'log' in io_options:
+        group_io.add_option('-l', '--log', dest='log', type='string', help='Log file.')
+
+    # deprecated options
+    if 'NN_dir' in io_options:
         group_io.add_option('--preprocessing-dir',
                             dest='preprocessing_dir',
                             type='string',
-                            help='Directory for preprocessing outputs.')
-    if 'GNN_dir' in io_options:
-        group_io.add_option('--GNN-dir', dest='GNN_dir', type='string', help='Directory for the GNN output.')
-    if 'NTScore_dir' in io_options:
-        group_io.add_option('--NTScore-dir', dest='NTScore_dir', type='string', help='Directory for the NTScore output.')
-
+                            help='This options will be deprecated from v3.0. Please use --NN-dir instead.')
+    if 'NT_dir' in io_options:
+        group_io.add_option('--NTScore-dir',
+                            dest='NTScore_dir',
+                            type='string',
+                            help='This options will be deprecated from v3.0. Please use --NT-dir instead.')
+    if 'input' in io_options:
+        group_io.add_option('-d',
+                            '--dataset',
+                            dest='dataset',
+                            type='string',
+                            help='This options will be deprecated from v3.0. Please use --meta-input instead.')
 
     optparser.add_option_group(group_io)
 
@@ -65,10 +79,11 @@ def validate_io_options(optparser: OptionParser,
     if io_options is None:
         return
     if 'input' in io_options:
-        # dataset
+
+        # meta data
         if options.dataset and not options.meta_input:
+            warning('The --dataset option will be deprecated from v3.0. Please use --meta-input instead.')
             options.meta_input = options.dataset
-        # Metadata
         if not options.meta_input:
             error('Please provide a meta data file in csv format.')
             optparser.print_help()
@@ -81,26 +96,29 @@ def validate_io_options(optparser: OptionParser,
             error(f'The meta data file ({options.meta_input}) should be in csv format.')
             optparser.print_help()
             sys.exit(1)
+
         # expression data
-        if options.exp_input:
-            if not os.path.isfile(options.exp_input):
-                error(f'The expression data file ({options.exp_input}) you given does not exist.')
+        if options.low_res_exp_input:
+            if not os.path.isfile(options.low_res_exp_input):
+                error(f'The expression data file ({options.low_res_exp_input}) you given does not exist.')
                 optparser.print_help()
                 sys.exit(1)
-            if not options.exp_input.endswith(('csv', 'csv.gz')):
-                error(f'The expression data file ({options.exp_input}) should be in csv format.')
+            if not options.low_res_exp_input.endswith(('csv', 'csv.gz')):
+                error(f'The expression data file ({options.low_res_exp_input}) should be in csv format.')
                 optparser.print_help()
                 sys.exit(1)
 
-    if 'preprocessing_dir' in io_options:
-        if not options.preprocessing_dir:
-            error('Please provide a directory for preprocessing outputs.')
+    if 'NN_dir' in io_options:
+        if options.preprocessing_dir and not options.NN_dir:
+            warning('The --preprocessing-dir option will be deprecated from v3.0. Please use --NN-dir instead.')
+            options.NN_dir = options.preprocessing_dir
+        if not options.NN_dir:
+            error('Please provide a directory for niche network outputs.')
             optparser.print_help()
             sys.exit(1)
-        if os.path.isdir(options.preprocessing_dir):
+        if os.path.isdir(options.NN_dir):
             if overwrite_validation:
-                warning(
-                    f'The directory ({options.preprocessing_dir}) you given already exists. It will be overwritten.')
+                warning(f'The directory ({options.NN_dir}) you given already exists. It will be overwritten.')
             else:
                 pass
         else:
@@ -121,19 +139,41 @@ def validate_io_options(optparser: OptionParser,
             info(f'Creating directory: {options.GNN_dir}')
             os.makedirs(options.GNN_dir, exist_ok=True)
 
-    if 'NTScore_dir' in io_options:
-        if not options.NTScore_dir:
+    if 'NT_dir' in io_options:
+        if options.NTScore_dir and not options.NT_dir:
+            warning('The --NTScore-dir option will be deprecated from v3.0. Please use --NT-dir instead.')
+            options.NT_dir = options.NTScore_dir
+        if not options.NT_dir:
             error('Please provide a directory for the NTScore output.')
             optparser.print_help()
             sys.exit(1)
-        if os.path.isdir(options.NTScore_dir):
+        if os.path.isdir(options.NT_dir):
             if overwrite_validation:
-                warning(f'The directory ({options.NTScore_dir}) you given already exists. It will be overwritten.')
+                warning(f'The directory ({options.NT_dir}) you given already exists. It will be overwritten.')
             else:
                 pass
         else:
-            info(f'Creating directory: {options.NTScore_dir}')
-            os.makedirs(options.NTScore_dir, exist_ok=True)
+            info(f'Creating directory: {options.NT_dir}')
+            os.makedirs(options.NT_dir, exist_ok=True)
+
+    if 'output' in io_options:
+        if not options.output:
+            error('Please provide a directory for analysis output.')
+            optparser.print_help()
+            sys.exit(1)
+        if os.path.isdir(options.output):
+            if overwrite_validation:
+                warning(f'The directory ({options.output}) you given already exists. It will be overwritten.')
+            else:
+                pass
+        else:
+            info(f'Creating directory: {options.output}')
+            os.makedirs(options.output, exist_ok=True)
+
+    if 'log' in io_options:
+        if options.log and not os.path.exists(options.log):
+            error(f'Log file: {options.log} you given does not exist.')
+            sys.exit(1)
 
 
 def write_io_options_memo(options: Values, io_options: Optional[List[str]]) -> None:
@@ -145,13 +185,18 @@ def write_io_options_memo(options: Values, io_options: Optional[List[str]]) -> N
     if io_options is None:
         return
     info('            -------- I/O options -------             ')
-    if 'input' in io_options:
-        info(f'meta data file:  {options.meta_input}')
-        if options.exp_input:
-            info(f'expression data file:  {options.exp_input}')
-    if 'preprocessing_dir' in io_options:
-        info(f'preprocessing output directory:  {options.preprocessing_dir}')
+    if 'NN_dir' in io_options:
+        info(f'preprocessing output directory:  {options.NN_dir}')
     if 'GNN_dir' in io_options:
         info(f'GNN output directory:  {options.GNN_dir}')
-    if 'NTScore_dir' in io_options:
-        info(f'NTScore output directory:  {options.NTScore_dir}')
+    if 'NT_dir' in io_options:
+        info(f'NTScore output directory:  {options.NT_dir}')
+    if 'output' in io_options:
+        info(f'Output directory:  {options.output}')
+    if 'input' in io_options:
+        info(f'Meta data file:  {options.meta_input}')
+        if options.low_res_exp_input:
+            info(f'Low resolution expression data file:  {options.low_res_exp_input}')
+    if 'log' in io_options:
+        if options.log:
+            info(f'Log file:  {options.log}')

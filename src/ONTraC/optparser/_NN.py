@@ -1,15 +1,11 @@
+# niche network construction options
+
 import sys
 from optparse import OptionGroup, OptionParser, Values
 
 from ..log import *
 from ..version import __version__
 from ._IO import *
-
-# ------------------------------------
-# Constants
-# ------------------------------------
-IO_OPTIONS = ['input', 'preprocessing_dir']
-
 
 # ------------------------------------
 # Functions
@@ -43,13 +39,6 @@ def add_niche_net_constr_options_group(optparser: OptionParser) -> None:
         help=
         'Specifies the nth closest local neighbors used for gaussian distance normalization. It should be less than the number of cells in each sample. Default is 20.'
     )
-    group_niche.add_option(
-        '--deconvolution-num-cell-type',
-        dest='deconvolution_num_cell_type',
-        type='int',
-        default=10,
-        help='Number of cell type that the deconvolution method will deconvolve.'
-    )
     optparser.add_option_group(group_niche)
 
 
@@ -74,10 +63,6 @@ def validate_niche_net_constr_options(optparser: OptionParser, options: Values) 
         error('n_local must be greater than 0.')
         optparser.print_help()
         sys.exit(1)
-    if options.deconvolution_num_cell_type < 2:
-        error('deconvolution_num_cell_type must be greater than 2.')
-        optparser.print_help()
-        sys.exit(1)
 
 
 def write_niche_net_constr_memo(options: Values) -> None:
@@ -92,46 +77,5 @@ def write_niche_net_constr_memo(options: Values) -> None:
     info(f'n_cpu:   {options.n_cpu}')
     info(f'n_neighbors: {options.n_neighbors}')
     info(f'n_local: {options.n_local}')
-    info(f'deconvolution_num_cell_type: {options.deconvolution_num_cell_type}')
 
 
-def prepare_create_ds_optparser() -> OptionParser:
-    """
-    Prepare optparser object. New options will be added in thisfunction first.
-    :return: OptionParser object.
-    """
-
-    usage = f'''USAGE: %prog <--preprocessing-dir PREPROCESSING_DIR> <-d DATASET> [--n-cpu N_CPU] [--n-neighbors N_NEIGHBORS] [--n-local N_LOCAL]'''
-    description = 'Create dataset for follwoing analysis.'
-
-    # option processor
-    optparser = OptionParser(version=f'%prog {__version__}', description=description, usage=usage, add_help_option=True)
-
-    # I/O options group
-    add_IO_options_group(optparser=optparser, io_options=IO_OPTIONS)
-
-    # niche network construction options group
-    add_niche_net_constr_options_group(optparser)
-
-    return optparser
-
-
-def opt_create_ds_validate(optparser) -> Values:
-    """Validate options from a OptParser object.
-
-    :param optparser: OptionParser object.
-    :return: Values object.
-    """
-
-    (options, args) = optparser.parse_args()
-
-    validate_io_options(optparser=optparser, options=options, io_options=IO_OPTIONS)
-    validate_niche_net_constr_options(optparser, options)
-
-    # print parameters to stdout
-    info('------------------ RUN params memo ------------------ ')
-    write_io_options_memo(options, IO_OPTIONS)
-    write_niche_net_constr_memo(options)
-    info('--------------- RUN params memo end ----------------- ')
-
-    return options
