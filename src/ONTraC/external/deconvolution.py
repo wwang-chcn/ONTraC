@@ -24,7 +24,7 @@ def apply_STdeconvolve(NN_dir: Union[str, Path], exp_matrix: np.ndarray, ct_num:
     with resources.path("ONTraC.external", "STdeconvolve.R") as stdeconvolve_script_path:
         try:
             stdeconvolve_script_path_str = str(stdeconvolve_script_path)
-            subprocess.run(["Rscript", stdeconvolve_script_path_str, exp_matrix_file, str(ct_num), NN_dir])
+            subprocess.run(f'Rscript {stdeconvolve_script_path_str} {exp_matrix_file} {ct_num} {spot_x_cell_type_file}', shell=True)
         except subprocess.CalledProcessError as e:
             print("Error in running R script:", e)
             print("R script stderr:", e.stderr)
