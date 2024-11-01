@@ -19,6 +19,11 @@ Changed:
 - Refine the optparser structures
 - Extract preprocessing modules
 
+Fixed:
+
+- `TSP` method for Niche Trajectory construction
+- Asymmeteric niche cluster connectivities
+
 ## [1.0.7] - 2024-Oct-23
 
 Added:
