@@ -19,7 +19,7 @@ def load_input_data(meta_input: Union[str, Path],
     Load data from original inputs.
     :param meta_input: str or Path, meta data file.
     :param NN_dir: str or Path, save directory.
-    :param low_res_exp_input: str or Path, low resolution expression file.
+    :param low_res_exp_input: str or Path, low resolution expression file. Gene X Spot matrix in csv format.
     :return: Dict[str, pd.DataFrame], loaded data.
     """
 
@@ -36,13 +36,13 @@ def load_input_data(meta_input: Union[str, Path],
         # validate
         if 'Spot_ID' not in meta_data_df.columns:
             raise ValueError('Spot_ID in metadata input is required for spot-level data.')
-        if not set(meta_data_df['Spot_ID']).issubset(low_res_exp_df.index):
+        if not set(meta_data_df['Spot_ID']).issubset(low_res_exp_df.columns.to_list()):
             raise ValueError('There are spots in metadata that are not in low resolution expression data.')
-        if not set(low_res_exp_df.index).issubset(meta_data_df['Spot_ID']):
+        if not set(low_res_exp_df.columns.to_list()).issubset(meta_data_df['Spot_ID']):
             warning(
                 'There are spots in low resolution expression data that are not in metadata. These spots will be ignored.'
             )
-            low_res_exp_df = low_res_exp_df.loc[meta_data_df['Spot_ID'], :]
+            low_res_exp_df = low_res_exp_df[meta_data_df['Spot_ID'].to_list()]
 
         # save
         output['low_res_exp'] = low_res_exp_df
