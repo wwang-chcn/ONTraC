@@ -1,15 +1,11 @@
+# niche network construction options
+
 import sys
 from optparse import OptionGroup, OptionParser, Values
 
 from ..log import *
 from ..version import __version__
 from ._IO import *
-
-# ------------------------------------
-# Constants
-# ------------------------------------
-IO_OPTIONS = ['dataset', 'preprocessing_dir']
-
 
 # ------------------------------------
 # Functions
@@ -83,43 +79,3 @@ def write_niche_net_constr_memo(options: Values) -> None:
     info(f'n_local: {options.n_local}')
 
 
-def prepare_create_ds_optparser() -> OptionParser:
-    """
-    Prepare optparser object. New options will be added in thisfunction first.
-    :return: OptionParser object.
-    """
-
-    usage = f'''USAGE: %prog <--preprocessing-dir PREPROCESSING_DIR> <-d DATASET> [--n-cpu N_CPU] [--n-neighbors N_NEIGHBORS] [--n-local N_LOCAL]'''
-    description = 'Create dataset for follwoing analysis.'
-
-    # option processor
-    optparser = OptionParser(version=f'%prog {__version__}', description=description, usage=usage, add_help_option=True)
-
-    # I/O options group
-    add_IO_options_group(optparser=optparser, io_options=IO_OPTIONS)
-
-    # niche network construction options group
-    add_niche_net_constr_options_group(optparser)
-
-    return optparser
-
-
-def opt_create_ds_validate(optparser) -> Values:
-    """Validate options from a OptParser object.
-
-    :param optparser: OptionParser object.
-    :return: Values object.
-    """
-
-    (options, args) = optparser.parse_args()
-
-    validate_io_options(optparser=optparser, options=options, io_options=IO_OPTIONS)
-    validate_niche_net_constr_options(optparser, options)
-
-    # print parameters to stdout
-    info('------------------ RUN params memo ------------------ ')
-    write_io_options_memo(options, IO_OPTIONS)
-    write_niche_net_constr_memo(options)
-    info('--------------- RUN params memo end ----------------- ')
-
-    return options

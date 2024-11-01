@@ -121,9 +121,9 @@ class SubBatchTrainProtocol(Protocol):
         ...
 
 
-class GPBatchTrain(BatchTrain):
+class GNNBatchTrain(BatchTrain):
     """
-    Graph Pooling batch training class.
+    GNN batch training class.
     """
 
     @selective_args_decorator
@@ -178,7 +178,8 @@ class GPBatchTrain(BatchTrain):
                         modularity_loss=spectral_loss,
                         # ortho_loss=ortho_loss,
                         purity_loss=feat_similarity_loss,
-                        regularization_loss=cluster_loss,)
+                        regularization_loss=cluster_loss,
+                    )
             train_loss += loss.item()
         return train_loss
 
@@ -233,4 +234,4 @@ class GPBatchTrain(BatchTrain):
         return z
 
 
-__all__ = ['SubBatchTrainProtocol', 'GPBatchTrain']
+__all__ = ['SubBatchTrainProtocol', 'GNNBatchTrain']

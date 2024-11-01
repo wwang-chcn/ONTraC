@@ -10,9 +10,9 @@ from .dmon_exp_pool import DMoNPooling
 from .norm_dense_gcn_conv import NormDenseGCNConv
 
 
-class NodePooling(torch.nn.Module):
+class GraphPooling(torch.nn.Module):
     """
-    NodePooling
+    GraphPooling
     """
 
     def __init__(self, input_feats, k: int, dropout: float = 0, exponent: float = 1, *args, **kwargs) -> None:
@@ -54,9 +54,9 @@ class NodePooling(torch.nn.Module):
         return s, out, out_adj
 
 
-class GraphPooling(torch.nn.Module):
+class GNN(torch.nn.Module):
     """
-    GNN with Node Pooling
+    GCN + GraphPooling
     """
 
     def __init__(self,
@@ -73,7 +73,7 @@ class GraphPooling(torch.nn.Module):
         self.gcns = nn.ModuleList([NormDenseGCNConv(input_feats if i == 0 else hidden_feats, hidden_feats)
                                    for i in range(self.n_gcn_layers)])
         self.activations = nn.ModuleList([torch.nn.SELU() for _ in range(self.n_gcn_layers)])
-        self.pool = NodePooling(input_feats=hidden_feats, k=k, dropout=dropout, exponent=exponent)
+        self.pool = GraphPooling(input_feats=hidden_feats, k=k, dropout=dropout, exponent=exponent)
         self.k = k
 
         self.reset_parameters()
@@ -154,4 +154,4 @@ class GraphPooling(torch.nn.Module):
         return x
 
 
-__all__ = ['NodePooling', 'GraphPooling']
+__all__ = ['GraphPooling', 'GNN']

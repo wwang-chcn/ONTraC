@@ -1,5 +1,19 @@
 # Change log
 
+## [1.1.0] - XXXX-XXX-XX
+
+Changed:
+
+- Make options and modules' name consistent
+  - NN/niche network
+  - GNN/graph neural network
+  - NT/niche trajectory
+  - Rename `createDataSet` to `ONTraC_NN`
+  - Rename `NicheTrajectory` to `ONTraC_NT`
+  - Rename `ONTraC_GP` to `ONTraC_GT`
+- Refine the optparser structures
+- Extract preprocessing modules
+
 ## [1.0.7] - 2024-Oct-23
 
 Added:

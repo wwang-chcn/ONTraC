@@ -4,7 +4,7 @@ Below is an example of post-analysis on stereo-seq brain data.
 The command for running on this dataset is:
 
 ```{sh}
-ONTraC -d stereo_seq_dataset.csv --preprocessing-dir stereo_seq_final_preprocessing_dir --GNN-dir stereo_seq_final_GNN --NTScore-dir stereo_seq_final_NTScore --epochs 100 --batch-size 5 -s 42 --patience 100 --min-delta 0.001 --min-epochs 50 --lr 0.03 --hidden-feats 4 -k 6 --modularity-loss-weight 0.3 --regularization-loss-weight 0.1 --purity-loss-weight 300 --beta 0.03 2>&1 | tee stereo_seq_final.log
+ONTraC --meta-input stereo_seq_dataset.csv --NN-dir stereo_seq_NN --GNN-dir stereo_seq_GNN --NT-dir stereo_seq_NT --epochs 100 --batch-size 5 -s 42 --patience 100 --min-delta 0.001 --min-epochs 50 --lr 0.03 --hidden-feats 4 -k 6 --modularity-loss-weight 0.3 --regularization-loss-weight 0.1 --purity-loss-weight 300 --beta 0.03 2>&1 | tee stereo_seq_final.log
 ```
 
 The input dataset and output files could be downloaded from [Zenodo](https://zenodo.org/records/11186620).
@@ -24,7 +24,7 @@ pip install seaborn
 You can get all the output figures with this command and check the results in `analysis_output` directory.
 
 ```{sh}
-ONTraC_analysis -o analysis_output -l ONTraC.log --preprocessing-dir preprocessing_dir --GNN-dir GNN_dir --NTScore-dir NTScore_dir
+ONTraC_analysis -o analysis_output/simulation -l log/simulation.log --NN-dir stereo_seq_NN --GNN-dir stereo_seq_GNN --NT-dir stereo_seq_NT
 ```
 
 ## Step-by-step analysis
@@ -55,10 +55,9 @@ from ONTraC.analysis.data import AnaData
 from optparse import Values
 
 options = Values()
-options.dataset = 'stereo_seq_dataset.csv'
-options.preprocessing_dir = 'stereo_seq_final_preprocessing_dir'
-options.GNN_dir = 'stereo_seq_final_GNN'
-options.NTScore_dir = 'stereo_seq_final_NTScore'
+options.NN_dir = 'stereo_seq_NN'
+options.GNN_dir = 'stereo_seq_GNN'
+options.NT_dir = 'stereo_seq_NT'
 options.log = 'stereo_seq_final.log'
 options.reverse = True  # Set it to False if you don't want reverse NT score
 ana_data = AnaData(options)

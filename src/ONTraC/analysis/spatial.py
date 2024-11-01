@@ -1,14 +1,13 @@
 from typing import List, Optional, Tuple, Union
 
 import matplotlib as mpl
-import numpy as np
 
 mpl.rcParams['pdf.fonttype'] = 42
 mpl.rcParams['ps.fonttype'] = 42
 mpl.rcParams['font.family'] = 'Arial'
 import matplotlib.pyplot as plt
 
-from ..log import debug, warning
+from ..log import warning
 from .data import AnaData
 from .utils import saptial_figsize
 
