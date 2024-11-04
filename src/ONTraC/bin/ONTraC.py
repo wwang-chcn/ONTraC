@@ -3,7 +3,7 @@
 import sys
 
 from ..optparser import opt_ontrac_validate, prepare_ontrac_optparser
-from ..run.processes import NTScore, gnn, load_parameters, niche_network_construct
+from ..run.processes import niche_trajectory_construct, gnn, load_parameters, niche_network_construct
 from ..utils import write_version_info
 
 
@@ -28,7 +28,7 @@ def main() -> None:
     gnn(options=options)
 
     # ----- NT score -----
-    NTScore(options=options)
+    niche_trajectory_construct(options=options)
 
 
 # ------------------------------------

@@ -11,7 +11,7 @@ from ..optparser._NN import write_niche_net_constr_memo
 from ..optparser._NT import write_NT_options_memo
 from ..optparser._preprocessing import write_preprocessing_memo
 from ..optparser._train import write_GCN_options_memo, write_GP_options_memo, write_train_options_memo
-from ..run.processes import NTScore, gnn, niche_network_construct
+from ..run.processes import niche_trajectory_construct, gnn, niche_network_construct
 
 
 def io_opt_valid(options: Values, process='ontrac', io_options: Optional[List[str]] = None) -> Values:
@@ -378,4 +378,4 @@ def run_ontrac(options: Values, ori_data_df: pd.DataFrame) -> None:
     gnn(options=options)
 
     # ----- NT score -----
-    NTScore(options=options)
+    niche_trajectory_construct(options=options)

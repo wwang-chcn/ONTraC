@@ -102,7 +102,7 @@ def gnn(options: Values) -> None:
     info('--------------------- GNN end ---------------------- ')
 
 
-def NTScore(options: Values) -> None:
+def niche_trajectory_construct(options: Values) -> None:
     """
     Pseudotime calculateion process.
     :param options: options.
