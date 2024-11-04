@@ -58,6 +58,6 @@ def write_preprocessing_memo(options: Values) -> None:
     """
     # print parameters to stdout
     info(message='      -------- preprocessing options -------      ')
-    if options.low_res_exp_input is not None:
+    if hasattr(options, 'low_res_exp_input') and options.low_res_exp_input is not None:
         info(message=f'deconvolution_method: {options.dc_method}')
         info(message=f'deconvolution_cell_type_number: {options.dc_cell_type_num}')

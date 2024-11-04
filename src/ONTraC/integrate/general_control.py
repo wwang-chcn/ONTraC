@@ -48,6 +48,8 @@ def io_opt_valid(options: Values, process='ontrac', io_options: Optional[List[st
                 raise ValueError(f'The expression data file ({options.low_res_exp_input}) you given does not exist.')
             if not options.low_res_exp_input.endswith(('csv', 'csv.gz')):
                 raise ValueError(f'The expression data file ({options.low_res_exp_input}) should be in csv format.')
+        else:
+            options.low_res_exp_input = None
 
     # NN_dir
     if 'NN_dir' in io_options:
@@ -81,7 +83,7 @@ def io_opt_valid(options: Values, process='ontrac', io_options: Optional[List[st
             options.NT_dir = options.NTScore_dir
         if not hasattr(options, 'NT_dir'):
             raise AttributeError('Please provide a directory for the niche trajectory output.')
-        if os.path.isdir(options.NTScore_dir):
+        if os.path.isdir(options.NT_dir):
             warning(f'The directory ({options.NT_dir}) you given already exists. It will be overwritten.')
             shutil.rmtree(options.NT_dir)
         else:
@@ -119,6 +121,9 @@ def preprocessing_opt_valid(options: Values, process='ontrac') -> Values:
             options.dc_cell_type_num = int(options.dc_cell_type_num)
         if options.dc_cell_type_num < 2:
             raise ValueError(f'dc_cell_type_num should be greater than 2. You provided {options.dc_cell_type_num}.')
+    else:
+        options.dc_method = None
+        options.dc_cell_type_num = None
 
     return options
 
@@ -340,6 +345,10 @@ def nt_opt_valid(options: Values, process='ontrac') -> Values:
     :param process: str, process name
     :return: options
     """
+
+    # trajectory_construct
+    if not hasattr(options, 'trajectory_construct'):
+        options.trajectory_construct = 'BF'
 
     return options
 

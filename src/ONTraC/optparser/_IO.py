@@ -97,7 +97,7 @@ def validate_io_options(optparser: OptionParser,
             optparser.print_help()
             sys.exit(1)
 
-        # expression data
+        # low resolution expression data
         if options.low_res_exp_input:
             if not os.path.isfile(options.low_res_exp_input):
                 error(f'The expression data file ({options.low_res_exp_input}) you given does not exist.')
@@ -195,8 +195,8 @@ def write_io_options_memo(options: Values, io_options: Optional[List[str]]) -> N
         info(f'Output directory:  {options.output}')
     if 'input' in io_options:
         info(f'Meta data file:  {options.meta_input}')
-        if options.low_res_exp_input:
+        if hasattr(options, 'low_res_exp_input') and options.low_res_exp_input is not None:
             info(f'Low resolution expression data file:  {options.low_res_exp_input}')
-    if 'log' in io_options:
-        if options.log:
+    if 'log' in io_options and options.log is not None:
+        if hasattr(options, 'log'):
             info(f'Log file:  {options.log}')
