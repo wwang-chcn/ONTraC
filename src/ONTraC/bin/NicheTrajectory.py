@@ -4,7 +4,7 @@ import sys
 
 from ..log import warning
 from ..optparser import opt_nt_validate, prepare_nt_optparser
-from ..run.processes import NTScore, load_parameters
+from ..run.processes import niche_trajectory_construct, load_parameters
 from ..utils import write_version_info
 
 
@@ -26,7 +26,7 @@ def main() -> None:
     options = load_parameters(opt_validate_func=opt_nt_validate, prepare_optparser_func=prepare_nt_optparser)
 
     # ----- NT score -----
-    NTScore(options=options)
+    niche_trajectory_construct(options=options)
 
 
 # ------------------------------------
