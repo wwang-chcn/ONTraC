@@ -28,7 +28,7 @@ def plot_violin_cell_type_along_NT_score(
     :return: None or Tuple[plt.Figure, plt.Axes].
     """
 
-    if n_cell_type := len(cell_types) > 100:
+    if (n_cell_type := len(cell_types)) > 100:
         warning(
             "There are more than 100 cell types, skip violin plot to avoid long runtime. You could manually plot it according to our tutorial."
         )
