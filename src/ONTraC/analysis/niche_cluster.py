@@ -197,27 +197,27 @@ def plot_cluster_proportion_from_anadata(ana_data: AnaData) -> Optional[Tuple[pl
 
 def plot_niche_cluster_loadings_dataset(
     cell_level_niche_cluster_assign: pd.DataFrame,
-    cell_id: pd.DataFrame,
+    meta_df: pd.DataFrame,
     nc_scores: np.ndarray,
     output_file_path: Optional[Union[str,
                                      Path]] = None) -> Optional[Tuple[plt.Figure, Union[plt.Axes, List[plt.Axes]]]]:
     """
     Plot niche cluster loadings for each cell.
     :param cell_level_niche_cluster_assign: pd.DataFrame, the niche cluster assign data.
-    :param cell_id: pd.DataFrame, the cell id data.
+    :param meta_df: pd.DataFrame, the meta data.
     :param nc_scores: np.ndarray, the score of each niche cluster.
     :param output_file_path: Optional[Union[str, Path]], the output file path.
     :return: None or Tuple[plt.Figure, plt.Axes].
     """
 
-    samples = cell_id['Sample'].unique()
+    samples = meta_df['Sample'].unique()
     n_sample = len(samples)
     n_niche_cluster = cell_level_niche_cluster_assign.shape[1]
 
     fig, axes = plt.subplots(n_sample, n_niche_cluster, figsize=(3.3 * n_niche_cluster, 3 * n_sample))
     for i, sample in enumerate(samples):
-        sample_df = cell_level_niche_cluster_assign.loc[cell_id[cell_id['Sample'] == sample].index]
-        sample_df = sample_df.join(cell_id[['x', 'y']])
+        sample_df = cell_level_niche_cluster_assign.loc[meta_df[meta_df['Sample'] == sample].index]
+        sample_df = sample_df.join(meta_df[['x', 'y']])
         for j, c_index in enumerate(nc_scores.argsort()):
             ax = axes[i, j] if n_sample > 1 else axes[j]
             scatter = ax.scatter(sample_df['x'],
@@ -257,33 +257,33 @@ def plot_niche_cluster_loadings_dataset_from_anadata(
     nc_scores = 1 - ana_data.niche_cluster_score if ana_data.options.reverse else ana_data.niche_cluster_score
 
     return plot_niche_cluster_loadings_dataset(cell_level_niche_cluster_assign=ana_data.cell_level_niche_cluster_assign,
-                                               cell_id=ana_data.cell_id,
+                                               meta_df=ana_data.meta_df,
                                                nc_scores=nc_scores,
                                                output_file_path=ana_data.options.output)
 
 
 def plot_niche_cluster_loadings_sample(
         cell_level_niche_cluster_assign: pd.DataFrame,
-        cell_id: pd.DataFrame,
+        meta_df: pd.DataFrame,
         nc_scores: np.ndarray,
         spatial_scaling_factor: float = 1.0,
         output_file_path: Optional[Union[str, Path]] = None) -> Optional[List[Tuple[plt.Figure, plt.Axes]]]:
     """
     Plot niche cluster loadings for each cell.
     :param cell_level_niche_cluster_assign: pd.DataFrame, the niche cluster assign data.
-    :param cell_id: pd.DataFrame, the cell id data.
+    :param meta_df: pd.DataFrame, the meta data.
     :param nc_scores: np.ndarray, the score of each niche cluster.
     :param spatial_scaling_factor: float, the scale factor control the size of spatial-based plots.
     :param output_file_path: Optional[Union[str, Path]], the output file path.
     :return: None or List[Tuple[plt.Figure, plt.Axes]].
     """
 
-    samples = cell_id['Sample'].unique()
+    samples = meta_df['Sample'].unique()
 
     output = []
     for sample in samples:
-        sample_df = cell_level_niche_cluster_assign.loc[cell_id[cell_id['Sample'] == sample].index]
-        sample_df = sample_df.join(cell_id[['x', 'y']])
+        sample_df = cell_level_niche_cluster_assign.loc[meta_df[meta_df['Sample'] == sample].index]
+        sample_df = sample_df.join(meta_df[['x', 'y']])
         fig_width, fig_height = saptial_figsize(sample_df, scaling_factor=spatial_scaling_factor)
         fig, axes = plt.subplots(1, nc_scores.shape[0], figsize=(fig_width * nc_scores.shape[0], fig_height))
         for j, c_index in enumerate(nc_scores.argsort()):
@@ -323,7 +323,7 @@ def plot_niche_cluster_loadings_sample_from_anadata(ana_data: AnaData) -> Option
     nc_scores = 1 - ana_data.niche_cluster_score if ana_data.options.reverse else ana_data.niche_cluster_score
 
     return plot_niche_cluster_loadings_sample(cell_level_niche_cluster_assign=ana_data.cell_level_niche_cluster_assign,
-                                              cell_id=ana_data.cell_id,
+                                              meta_df=ana_data.meta_df,
                                               nc_scores=nc_scores,
                                               spatial_scaling_factor=ana_data.options.scale_factor,
                                               output_file_path=ana_data.options.output)
@@ -345,19 +345,19 @@ def plot_niche_cluster_loadings(
 
 def plot_max_niche_cluster_dataset(
         cell_level_max_niche_cluster: pd.DataFrame,
-        cell_id: pd.DataFrame,
+        meta_df: pd.DataFrame,
         nc_scores: np.ndarray,
         output_file_path: Optional[Union[str, Path]] = None) -> Optional[Tuple[plt.Figure, plt.Axes]]:
     """
     Plot the maximum niche cluster for each cell.
     :param cell_level_max_niche_cluster: pd.DataFrame, the maximum niche cluster data.
-    :param cell_id: pd.DataFrame, the cell id data.
+    :param meta_df: pd.DataFrame, the meta data.
     :param nc_scores: np.ndarray, the score of each niche cluster.
     :param output_file_path: Optional[Union[str, Path]], the output file path.
     :return: None or Tuple[plt.Figure, plt.Axes].
     """
 
-    samples = cell_id['Sample'].unique()
+    samples = meta_df['Sample'].unique()
     n_sample = len(samples)
 
     # colors
@@ -369,8 +369,8 @@ def plot_max_niche_cluster_dataset(
     fig, axes = plt.subplots(1, n_sample, figsize=(5 * n_sample, 3))
     for i, sample in enumerate(samples):
         ax: Axes = axes[i] if n_sample > 1 else axes  # type: ignore
-        sample_df = cell_level_max_niche_cluster.loc[cell_id[cell_id['Sample'] == sample].index]
-        sample_df = sample_df.join(cell_id[['x', 'y']])
+        sample_df = cell_level_max_niche_cluster.loc[meta_df[meta_df['Sample'] == sample].index]
+        sample_df = sample_df.join(meta_df[['x', 'y']])
         sample_df['Niche_Cluster'] = 'niche cluster ' + sample_df['Niche_Cluster'].astype(str)
         sns.scatterplot(data=sample_df,
                         x='x',
@@ -409,7 +409,7 @@ def plot_max_niche_cluster_dataset_from_anadata(ana_data: AnaData) -> Optional[T
     nc_scores = 1 - ana_data.niche_cluster_score if ana_data.options.reverse else ana_data.niche_cluster_score
 
     return plot_max_niche_cluster_dataset(cell_level_max_niche_cluster=ana_data.cell_level_max_niche_cluster,
-                                          cell_id=ana_data.cell_id,
+                                          meta_df=ana_data.meta_df,
                                           nc_scores=nc_scores,
                                           output_file_path=ana_data.options.output)
 
