@@ -1,4 +1,3 @@
-from math import inf
 import os
 import sys
 from optparse import OptionGroup, OptionParser, Values
@@ -36,7 +35,7 @@ def add_IO_options_group(optparser: OptionParser, io_options: Optional[List[str]
             dest='meta_input',
             type='string',
             help=
-            'Meta data file in csv format. Each row is a cell or spot. The first column should be the cell name with column name Cell_ID (cell-level data) or Spot_ID (low resolution data). Coordinates (x, y) and sample should be included. Cell type is required for cell-level data.'
+            'Meta data file in csv format. Each row is a cell. The first column should be the cell name with column name Cell_ID. Coordinates (x, y) and sample should be included. Cell type is required for cell-level data.'
         )
     if 'log' in io_options:
         group_io.add_option('-l', '--log', dest='log', type='string', help='Log file.')
@@ -166,21 +165,21 @@ def validate_io_options(optparser: OptionParser,
         if options.dataset and not options.meta_input:
             warning('The --dataset option will be deprecated from v3.0. Please use --meta-input instead.')
             options.meta_input = options.dataset
-        if not options.meta_input:
+        if not hasattr(options, 'meta_input') or options.meta_input is None:
             error('Please provide a meta data file in csv format.')
             optparser.print_help()
             sys.exit(1)
-        if not os.path.isfile(options.dataset):
-            error(f'The input file ({options.dataset}) you given does not exist.')
+        if not os.path.isfile(options.meta_input):
+            error(f'The input file ({options.meta_input}) you given does not exist.')
             optparser.print_help()
             sys.exit(1)
-        if not options.dataset.endswith(('csv', 'csv.gz')):
-            error(f'The input file ({options.dataset}) should be in csv format.')
+        if not options.meta_input.endswith(('csv', 'csv.gz')):
+            error(f'The input file ({options.meta_input}) should be in csv format.')
             optparser.print_help()
             sys.exit(1)
 
     if 'output' in io_options:
-        if not options.output:
+        if not hasattr(options, 'output') or options.output is None:
             error('Please provide a directory for analysis output.')
             optparser.print_help()
             sys.exit(1)
@@ -193,7 +192,7 @@ def validate_io_options(optparser: OptionParser,
             info(f'Creating directory: {options.output}')
             os.makedirs(options.output, exist_ok=True)
 
-    if 'log' in io_options:
+    if 'log' in io_options:  # this is a optional option
         if hasattr(options, 'log') and options.log is not None and not os.path.isfile(options.log):
             error(f'Log file: {options.log} you given does not exist.')
             sys.exit(1)
