@@ -359,12 +359,13 @@ def plot_max_niche_cluster_dataset(
 
     samples = meta_df['Sample'].unique()
     n_sample = len(samples)
+    n_niche_cluster = len(nc_scores)
 
     # colors
     norm = Normalize(vmin=0, vmax=1)
     sm = ScalarMappable(cmap=plt.cm.rainbow, norm=norm)  # type: ignore
-    niche_cluster_colors = [sm.to_rgba(nc_scores[n]) for n in np.arange(cell_level_max_niche_cluster.shape[1])]
-    palette = {f'niche cluster {i}': niche_cluster_colors[i] for i in range(cell_level_max_niche_cluster.shape[1])}
+    niche_cluster_colors = [sm.to_rgba(nc_scores[n]) for n in np.arange(n_niche_cluster)]
+    palette = {f'niche cluster {i}': niche_cluster_colors[i] for i in range(n_niche_cluster)}
 
     fig, axes = plt.subplots(1, n_sample, figsize=(5 * n_sample, 3))
     for i, sample in enumerate(samples):
@@ -414,6 +415,54 @@ def plot_max_niche_cluster_dataset_from_anadata(ana_data: AnaData) -> Optional[T
                                           output_file_path=ana_data.options.output)
 
 
+def plot_max_niche_cluster_sample(
+        cell_level_max_niche_cluster: pd.DataFrame,
+        meta_df: pd.DataFrame,
+        nc_scores: np.ndarray,
+        output_file_path: Optional[Union[str, Path]] = None) -> Optional[List[Tuple[plt.Figure, plt.Axes]]]:
+    """
+    Plot the maximum niche cluster for each cell.
+    :param cell_level_max_niche_cluster: pd.DataFrame, the maximum niche cluster data.
+    :param meta_df: pd.DataFrame, the meta data.
+    :param nc_scores: np.ndarray, the score of each niche cluster.
+    :param output_file_path: Optional[Union[str, Path]], the output file path.
+    :return: None or List[Tuple[plt.Figure, plt.Axes]].
+    """
+
+    samples = meta_df['Sample'].unique()
+    n_sample = len(samples)
+    n_niche_cluster = len(nc_scores)
+
+    # colors
+    norm = Normalize(vmin=0, vmax=1)
+    sm = ScalarMappable(cmap=plt.cm.rainbow, norm=norm)  # type: ignore
+    niche_cluster_colors = [sm.to_rgba(nc_scores[n]) for n in np.arange(n_niche_cluster)]
+    palette = {f'niche cluster {i}': niche_cluster_colors[i] for i in range(n_niche_cluster)}
+
+    output = []
+    for sample in samples:
+        sample_df = cell_level_max_niche_cluster.loc[meta_df[meta_df['Sample'] == sample].index]
+        sample_df = sample_df.join(meta_df[['x', 'y']])
+        sample_df['Niche_Cluster'] = 'niche cluster ' + sample_df['Niche_Cluster'].astype(str)
+        fig_width, fig_height = saptial_figsize(sample_df, scaling_factor=1)
+        fig, ax = plt.subplots(1, 1, figsize=(fig_width, fig_height))
+        sns.scatterplot(data=sample_df,
+                        x='x',
+                        y='y',
+                        hue='Niche_Cluster',
+                        hue_order=[f'niche cluster {j}' for j in nc_scores.argsort()],
+                        palette=palette,
+                        s=10,
+                        ax=ax)
+        ax.set_title(f'{sample}')
+        ax.legend(loc='upper left', bbox_to_anchor=(1, 1))
+        fig.tight_layout()
+        output.append((fig, ax))
+        if output_file_path is not None:
+            fig.savefig(f'{output_file_path}/max_niche_cluster_{sample}.pdf')
+            plt.close(fig)
+
+
 def plot_max_niche_cluster_sample_from_anadata(ana_data: AnaData) -> Optional[List[Tuple[plt.Figure, plt.Axes]]]:
     """
     Plot the maximum niche cluster for each cell.
@@ -429,38 +478,12 @@ def plot_max_niche_cluster_sample_from_anadata(ana_data: AnaData) -> Optional[Li
         warning(str(e))
         return None
 
-    # colors
-    norm = Normalize(vmin=0, vmax=1)
-    sm = ScalarMappable(cmap=plt.cm.rainbow, norm=norm)  # type: ignore
     nc_scores = 1 - ana_data.niche_cluster_score if ana_data.options.reverse else ana_data.niche_cluster_score
-    niche_cluster_colors = [sm.to_rgba(nc_scores[n]) for n in np.arange(ana_data.niche_cluster_score.shape[0])]
-    palette = {f'niche cluster {i}': niche_cluster_colors[i] for i in range(ana_data.niche_cluster_score.shape[0])}
-    samples: List[str] = ana_data.cell_type_composition['Sample'].unique().tolist()
 
-    output = []
-    for sample in samples:
-        sample_df = ana_data.cell_level_max_niche_cluster.loc[ana_data.cell_type_composition[
-            ana_data.cell_type_composition['Sample'] == sample].index]
-        sample_df = sample_df.join(ana_data.cell_type_composition[['x', 'y']])
-        sample_df['Niche_Cluster'] = 'niche cluster ' + sample_df['Niche_Cluster'].astype(str)
-        fig_width, fig_height = saptial_figsize(sample_df, scaling_factor=ana_data.options.scale_factor)
-        fig, ax = plt.subplots(1, 1, figsize=(fig_width, fig_height))
-        sns.scatterplot(data=sample_df,
-                        x='x',
-                        y='y',
-                        hue='Niche_Cluster',
-                        hue_order=[f'niche cluster {j}' for j in nc_scores.argsort()],
-                        palette=palette,
-                        s=10,
-                        ax=ax)
-        ax.set_title(f'{sample}')
-        ax.legend(loc='upper left', bbox_to_anchor=(1, 1))
-        fig.tight_layout()
-        output.append((fig, ax))
-        if ana_data.options.output is not None:
-            fig.savefig(f'{ana_data.options.output}/max_niche_cluster_{sample}.pdf')
-            plt.close(fig)
-    return output if len(output) > 0 else None
+    return plot_max_niche_cluster_sample(cell_level_max_niche_cluster=ana_data.cell_level_max_niche_cluster,
+                                         meta_df=ana_data.meta_df,
+                                         nc_scores=nc_scores,
+                                         output_file_path=ana_data.options.output)
 
 
 def plot_max_niche_cluster(
