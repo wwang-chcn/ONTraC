@@ -217,20 +217,10 @@ class AnaData:
             self.rel_params = get_rel_params(options.NN_dir, params)
             # save the original Cell_ID
             self.cell_id = pd.read_csv(get_meta_data_file(options.NN_dir))
-            if 'Cell_ID' in self.cell_id.columns:
-                self.cell_id = self.cell_id.set_index('Cell_ID')[['Sample','Cell_Type','x','y']]
-            elif 'Spot_ID' in self.cell_id.columns:
-                self.cell_id = self.cell_id.set_index('Spot_ID')[['Sample','Cell_Type','x','y']]
-            else:
-                raise ValueError('Cannot find Cell_ID or Spot_ID in the meta_data file.')
+            self.cell_id = self.cell_id.set_index('Cell_ID')
         else:  # not NN_dir, only support for visualization of meta_input
             self.meta_input = pd.read_csv(self.options.meta_input)
-            if 'Cell_ID' in self.meta_input.columns:
-                self.meta_input = self.meta_input.set_index('Cell_ID')
-            elif 'Spot_ID' in self.meta_input.columns:
-                self.meta_input = self.meta_input.set_index('Spot_ID')
-            else:
-                raise ValueError('Cannot find Cell_ID or Spot_ID in the meta_input file.')
+            self.meta_input = self.meta_input.set_index('Cell_ID')
 
     @property
     def train_loss(self):
