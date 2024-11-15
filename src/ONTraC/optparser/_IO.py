@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 from optparse import OptionGroup, OptionParser, Values
 from typing import List, Optional
@@ -131,23 +132,26 @@ def validate_io_options(optparser: OptionParser,
     if 'input' in io_options:
 
         # meta data
-        if options.dataset and not options.meta_input:
-            warning('The --dataset option will be deprecated from v3.0. Please use --meta-input instead.')
-            options.meta_input = options.dataset
-        if not hasattr(options, 'meta_input') or options.meta_input is None:
-            error('Please provide a meta data file in csv format.')
-            optparser.print_help()
-            sys.exit(1)
-        if not os.path.isfile(options.meta_input):
-            error(f'The input file ({options.meta_input}) you given does not exist.')
-            optparser.print_help()
-            sys.exit(1)
-        if not options.meta_input.endswith(('csv', 'csv.gz')):
-            error(f'The input file ({options.meta_input}) should be in csv format.')
-            optparser.print_help()
-            sys.exit(1)
+        if not required:
+            pass
+        else:
+            if options.dataset and not options.meta_input:
+                warning('The --dataset option will be deprecated from v3.0. Please use --meta-input instead.')
+                options.meta_input = options.dataset
+            if not hasattr(options, 'meta_input') or options.meta_input is None:
+                error('Please provide a meta data file in csv format.')
+                optparser.print_help()
+                sys.exit(1)
+            if not os.path.isfile(options.meta_input):
+                error(f'The input file ({options.meta_input}) you given does not exist.')
+                optparser.print_help()
+                sys.exit(1)
+            if not options.meta_input.endswith(('csv', 'csv.gz')):
+                error(f'The input file ({options.meta_input}) should be in csv format.')
+                optparser.print_help()
+                sys.exit(1)
 
-    if 'output' in io_options:
+    if 'output' in io_options:  # this is a required option (ONTraC_analysis only)
         if not hasattr(options, 'output') or options.output is None:
             error('Please provide a directory for analysis output.')
             optparser.print_help()
@@ -161,7 +165,7 @@ def validate_io_options(optparser: OptionParser,
             info(f'Creating directory: {options.output}')
             os.makedirs(options.output, exist_ok=True)
 
-    if 'log' in io_options:  # this is a optional option
+    if 'log' in io_options:  # this is a optional option (ONTraC_analysis only)
         if hasattr(options, 'log') and options.log is not None and not os.path.isfile(options.log):
             error(f'Log file: {options.log} you given does not exist.')
             sys.exit(1)
