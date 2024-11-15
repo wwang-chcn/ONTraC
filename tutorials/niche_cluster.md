@@ -63,13 +63,13 @@ ana_data = AnaData(options)
 
 ```{python}
 nc_scores = 1 - ana_data.niche_cluster_score if ana_data.options.reverse else ana_data.niche_cluster_score
-samples = ana_data.cell_type_composition['sample'].unique().tolist()
+samples = ana_data.cell_type_composition['Sample'].unique().tolist()
 M, N = len(samples), ana_data.cell_level_niche_cluster_assign.shape[1]
 
 fig, axes = plt.subplots(M, N, figsize=(3.3 * N, 3 * M))
 for i, sample in enumerate(samples):
     sample_df = ana_data.cell_level_niche_cluster_assign.loc[ana_data.cell_type_composition[
-        ana_data.cell_type_composition['sample'] == sample].index]
+        ana_data.cell_type_composition['Sample'] == sample].index]
     sample_df = sample_df.join(ana_data.cell_type_composition[['x', 'y']])
     for j, c_index in enumerate(nc_scores.argsort()):
         ax = axes[i, j] if M > 1 else axes[j]
@@ -104,14 +104,14 @@ nc_scores = 1 - ana_data.niche_cluster_score if ana_data.options.reverse else an
 niche_cluster_colors = [sm.to_rgba(nc_scores[n]) for n in np.arange(ana_data.niche_cluster_score.shape[0])]
 palette = {f'niche cluster {i}': niche_cluster_colors[i] for i in range(ana_data.niche_cluster_score.shape[0])}
 
-samples = ana_data.cell_type_composition['sample'].unique().tolist()
+samples = ana_data.cell_type_composition['Sample'].unique().tolist()
 M = len(samples)
 
 fig, axes = plt.subplots(1, M, figsize=(5 * M, 3))
 for i, sample in enumerate(samples):
     ax = axes[i] if M > 1 else axes
     sample_df = ana_data.cell_level_max_niche_cluster.loc[ana_data.cell_type_composition[
-        ana_data.cell_type_composition['sample'] == sample].index]
+        ana_data.cell_type_composition['Sample'] == sample].index]
     sample_df = sample_df.join(ana_data.cell_type_composition[['x', 'y']])
     sample_df['Niche_Cluster'] = 'niche cluster ' + sample_df['Niche_Cluster'].astype(str)
     sns.scatterplot(data=sample_df,

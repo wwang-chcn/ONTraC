@@ -129,7 +129,7 @@ def plot_niche_cluster_connectivity_bysample_from_anadata(ana_data: AnaData) -> 
     :return: None.
     """
 
-    for sample in ana_data.cell_type_composition['sample'].unique():
+    for sample in ana_data.cell_type_composition['Sample'].unique():
         niche_cluster_connectivity = np.loadtxt(f'{ana_data.options.GNN_dir}/{sample}_out_adj.csv.gz', delimiter=',')
         output_file_path = f'{ana_data.options.output}/{sample}_cluster_connectivity.pdf'
         plot_niche_cluster_connectivity(niche_cluster_connectivity=niche_cluster_connectivity,
@@ -369,7 +369,7 @@ def plot_max_niche_cluster_dataset(
     fig, axes = plt.subplots(1, n_sample, figsize=(5 * n_sample, 3))
     for i, sample in enumerate(samples):
         ax: Axes = axes[i] if n_sample > 1 else axes  # type: ignore
-        sample_df = cell_level_max_niche_cluster.loc[cell_id[cell_id['sample'] == sample].index]
+        sample_df = cell_level_max_niche_cluster.loc[cell_id[cell_id['Sample'] == sample].index]
         sample_df = sample_df.join(cell_id[['x', 'y']])
         sample_df['Niche_Cluster'] = 'niche cluster ' + sample_df['Niche_Cluster'].astype(str)
         sns.scatterplot(data=sample_df,
@@ -435,12 +435,12 @@ def plot_max_niche_cluster_sample_from_anadata(ana_data: AnaData) -> Optional[Li
     nc_scores = 1 - ana_data.niche_cluster_score if ana_data.options.reverse else ana_data.niche_cluster_score
     niche_cluster_colors = [sm.to_rgba(nc_scores[n]) for n in np.arange(ana_data.niche_cluster_score.shape[0])]
     palette = {f'niche cluster {i}': niche_cluster_colors[i] for i in range(ana_data.niche_cluster_score.shape[0])}
-    samples: List[str] = ana_data.cell_type_composition['sample'].unique().tolist()
+    samples: List[str] = ana_data.cell_type_composition['Sample'].unique().tolist()
 
     output = []
     for sample in samples:
         sample_df = ana_data.cell_level_max_niche_cluster.loc[ana_data.cell_type_composition[
-            ana_data.cell_type_composition['sample'] == sample].index]
+            ana_data.cell_type_composition['Sample'] == sample].index]
         sample_df = sample_df.join(ana_data.cell_type_composition[['x', 'y']])
         sample_df['Niche_Cluster'] = 'niche cluster ' + sample_df['Niche_Cluster'].astype(str)
         fig_width, fig_height = saptial_figsize(sample_df, scaling_factor=ana_data.options.scale_factor)

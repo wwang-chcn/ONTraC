@@ -66,12 +66,12 @@ ana_data = AnaData(options)
 ### Spatial cell type distribution
 
 ```{python}
-data_df = ana_data.cell_id.join(ana_data.cell_type_composition[['sample', 'x', 'y']])
-samples = data_df['sample'].unique()
+data_df = ana_data.cell_id.join(ana_data.cell_type_composition[['Sample', 'x', 'y']])
+samples = data_df['Sample'].unique()
 N = len(samples)
 fig, axes = plt.subplots(1, N, figsize = (4 * N, 3))
 for i, sample in enumerate(samples):
-    sample_df = data_df.loc[data_df['sample'] == sample]
+    sample_df = data_df.loc[data_df['Sample'] == sample]
     ax = axes[i] if N > 1 else axes
     sns.scatterplot(data = sample_df,
                 x = 'x',
@@ -96,13 +96,13 @@ fig.savefig('figures/Spatial_cell_type.png', dpi=150)
 ### Spatial cell type composition distribution
 
 ```{python}
-samples = ana_data.cell_type_composition['sample'].unique().tolist()
+samples = ana_data.cell_type_composition['Sample'].unique().tolist()
 cell_types = ana_data.cell_type_codes['Cell_Type'].tolist()
 
 M, N = len(samples), len(cell_types)
 fig, axes = plt.subplots(M, N, figsize = (3.5 * N, 3 * M))
 for i, sample in enumerate(samples):
-    sample_df = ana_data.cell_type_composition.loc[ana_data.cell_type_composition['sample'] == sample]
+    sample_df = ana_data.cell_type_composition.loc[ana_data.cell_type_composition['Sample'] == sample]
     for j, cell_type in enumerate(cell_types):
         ax = axes[i, j] if M > 1 else axes[j]
         scatter = ax.scatter(sample_df['x'], sample_df['y'], c=sample_df[cell_type], cmap='Reds', vmin=0, vmax=1, s=1)
@@ -125,13 +125,13 @@ fig.savefig('figures/cell_type_compostion.png', dpi=100)
 
 ```{python}
 nc_scores = 1 - ana_data.niche_cluster_score if ana_data.options.reverse else ana_data.niche_cluster_score
-samples = ana_data.cell_type_composition['sample'].unique().tolist()
+samples = ana_data.cell_type_composition['Sample'].unique().tolist()
 M, N = len(samples), ana_data.cell_level_niche_cluster_assign.shape[1]
 
 fig, axes = plt.subplots(M, N, figsize=(3.3 * N, 3 * M))
 for i, sample in enumerate(samples):
     sample_df = ana_data.cell_level_niche_cluster_assign.loc[ana_data.cell_type_composition[
-        ana_data.cell_type_composition['sample'] == sample].index]
+        ana_data.cell_type_composition['Sample'] == sample].index]
     sample_df = sample_df.join(ana_data.cell_type_composition[['x', 'y']])
     for j, c_index in enumerate(nc_scores.argsort()):
         ax = axes[i, j] if M > 1 else axes[j]
@@ -166,14 +166,14 @@ nc_scores = 1 - ana_data.niche_cluster_score if ana_data.options.reverse else an
 niche_cluster_colors = [sm.to_rgba(nc_scores[n]) for n in np.arange(ana_data.niche_cluster_score.shape[0])]
 palette = {f'niche cluster {i}': niche_cluster_colors[i] for i in range(ana_data.niche_cluster_score.shape[0])}
 
-samples = ana_data.cell_type_composition['sample'].unique().tolist()
+samples = ana_data.cell_type_composition['Sample'].unique().tolist()
 M = len(samples)
 
 fig, axes = plt.subplots(1, M, figsize=(5 * M, 3))
 for i, sample in enumerate(samples):
     ax = axes[i] if M > 1 else axes
     sample_df = ana_data.cell_level_max_niche_cluster.loc[ana_data.cell_type_composition[
-        ana_data.cell_type_composition['sample'] == sample].index]
+        ana_data.cell_type_composition['Sample'] == sample].index]
     sample_df = sample_df.join(ana_data.cell_type_composition[['x', 'y']])
     sample_df['Niche_Cluster'] = 'niche cluster ' + sample_df['Niche_Cluster'].astype(str)
     sns.scatterplot(data=sample_df,
@@ -355,12 +355,12 @@ fig.savefig('figures/cell_type_dis_across_niche_clusters.png', dpi=300)
 ### Spatial niche-level NT score distribution
 
 ```{python}
-samples = ana_data.NT_score['sample'].unique().tolist()
+samples = ana_data.NT_score['Sample'].unique().tolist()
 
 N = len(samples)
 fig, axes = plt.subplots(1, N, figsize=(3.5 * N, 3))
 for i, sample in enumerate(samples):
-    sample_df = ana_data.NT_score.loc[ana_data.NT_score['sample'] == sample]
+    sample_df = ana_data.NT_score.loc[ana_data.NT_score['Sample'] == sample]
     ax = axes[i] if N > 1 else axes
     NT_score = sample_df['Niche_NTScore'] if not ana_data.options.reverse else 1 - sample_df['Niche_NTScore']
     scatter = ax.scatter(sample_df['x'], sample_df['y'], c=NT_score, cmap='rainbow', vmin=0, vmax=1, s=1)
@@ -379,12 +379,12 @@ fig.savefig('figures/niche_NT_score.png', dpi=200)
 ## Spatial cell-level NT score distribution
 
 ```{python}
-samples = ana_data.NT_score['sample'].unique().tolist()
+samples = ana_data.NT_score['Sample'].unique().tolist()
 
 N = len(samples)
 fig, axes = plt.subplots(1, N, figsize=(3.5 * N, 3))
 for i, sample in enumerate(samples):
-    sample_df = ana_data.NT_score.loc[ana_data.NT_score['sample'] == sample]
+    sample_df = ana_data.NT_score.loc[ana_data.NT_score['Sample'] == sample]
     ax = axes[i] if N > 1 else axes
     NT_score = sample_df['Cell_NTScore'] if not ana_data.options.reverse else 1 - sample_df['Cell_NTScore']
     scatter = ax.scatter(sample_df['x'], sample_df['y'], c=NT_score, cmap='rainbow', vmin=0, vmax=1, s=1)
