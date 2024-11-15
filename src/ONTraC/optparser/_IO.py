@@ -76,37 +76,6 @@ def validate_io_options(optparser: OptionParser,
     """
     if io_options is None:
         return
-    if 'input' in io_options:
-
-        # meta data
-        if hasattr(options, 'dataset') and options.dataset is not None and (not hasattr(
-                options, 'meta_input') or options.meta_input is None):  # with dataset and without meta_input
-            warning('The --dataset option will be deprecated from v3.0. Please use --meta-input instead.')
-            options.meta_input = options.dataset
-        if required and (not hasattr(options, 'meta_input') or options.meta_input is None):
-            error('Please provide a meta data file in csv format.')
-            optparser.print_help()
-            sys.exit(1)
-        if hasattr(options, 'meta_input') and options.meta_input is not None and not os.path.isfile(options.meta_input):
-            error(f'The meta data file ({options.meta_input}) you given does not exist.')
-            optparser.print_help()
-            sys.exit(1)
-        if hasattr(options, 'meta_input') and options.meta_input is not None and not options.meta_input.endswith(
-            ('csv', 'csv.gz')):
-            error(f'The meta data file ({options.meta_input}) should be in csv format.')
-            optparser.print_help()
-            sys.exit(1)
-
-        # low resolution expression data
-        if hasattr(options, 'low_res_exp_input') and options.low_res_exp_input is not None:
-            if not os.path.isfile(options.low_res_exp_input):
-                error(f'The expression data file ({options.low_res_exp_input}) you given does not exist.')
-                optparser.print_help()
-                sys.exit(1)
-            if not options.low_res_exp_input.endswith(('csv', 'csv.gz')):
-                error(f'The expression data file ({options.low_res_exp_input}) should be in csv format.')
-                optparser.print_help()
-                sys.exit(1)
 
     if 'NN_dir' in io_options:
         if hasattr(options,
