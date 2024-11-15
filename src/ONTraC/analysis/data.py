@@ -255,14 +255,14 @@ class AnaData:
             cell_type_composition_df.columns = self.cell_type_codes.loc[np.arange(cell_type_composition_df.shape[1]),
                                                                         'Cell_Type'].tolist()  # type: ignore
             data_df = pd.concat([data_df, cell_type_composition_df])
-        self._cell_type_composition = data_df[self.cell_id.index]
+        self._cell_type_composition = data_df.loc[self.cell_id.index]
 
     def _load_NT_score(self) -> None:
         data_df = pd.DataFrame()
         for sample in self.rel_params['Data']:
             NTScore_df = pd.read_csv(f'{self.options.NT_dir}/{sample["Name"]}_NTScore.csv.gz', index_col=0)
         data_df = pd.concat([data_df, NTScore_df])
-        self._NT_score = data_df[self.cell_id.index]
+        self._NT_score = data_df.loc[self.cell_id.index]
 
     @property
     def cell_type_composition(self) -> DataFrame:
@@ -295,7 +295,7 @@ class AnaData:
         if not hasattr(self, '_niche_level_niche_cluster_assign'):
             self._niche_level_niche_cluster_assign = load_niche_level_niche_cluster_assign(self.options)
             try:
-                self._niche_level_niche_cluster_assign = self._niche_level_niche_cluster_assign[self.cell_id.index]
+                self._niche_level_niche_cluster_assign = self._niche_level_niche_cluster_assign.loc[self.cell_id.index]
             except:
                 pass
         return self._niche_level_niche_cluster_assign
@@ -305,7 +305,7 @@ class AnaData:
         if not hasattr(self, '_cell_level_niche_cluster_assign'):
             self._cell_level_niche_cluster_assign = load_cell_level_niche_cluster_assign(self.options)
             try:
-                self._cell_level_niche_cluster_assign = self._cell_level_niche_cluster_assign[self.cell_id.index]
+                self._cell_level_niche_cluster_assign = self._cell_level_niche_cluster_assign.loc[self.cell_id.index]
             except:
                 pass
         return self._cell_level_niche_cluster_assign
@@ -315,7 +315,7 @@ class AnaData:
         if not hasattr(self, '_niche_level_max_niche_cluster'):
             self._niche_level_max_niche_cluster = load_niche_level_max_niche_cluster(self.options)
             try:
-                self._niche_level_max_niche_cluster = self._niche_level_max_niche_cluster[self.cell_id.index]
+                self._niche_level_max_niche_cluster = self._niche_level_max_niche_cluster.loc[self.cell_id.index]
             except:
                 pass
         return self._niche_level_max_niche_cluster
@@ -325,7 +325,7 @@ class AnaData:
         if not hasattr(self, '_cell_level_max_niche_cluster'):
             self._cell_level_max_niche_cluster = load_cell_level_max_niche_cluster(self.options)
             try:
-                self._cell_level_max_niche_cluster = self._cell_level_max_niche_cluster[self.cell_id.index]
+                self._cell_level_max_niche_cluster = self._cell_level_max_niche_cluster.loc[self.cell_id.index]
             except:
                 pass
         return self._cell_level_max_niche_cluster
