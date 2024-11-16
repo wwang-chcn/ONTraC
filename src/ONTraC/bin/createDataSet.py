@@ -20,7 +20,7 @@ def main() -> None:
     write_version_info()
 
     # deprecation warning
-    warning('createDataSet will be deprecated from v3.0. Please use ONTraC_NN instead.')
+    warning('createDataSet will be deprecated from v2.0. Please use ONTraC_NN instead.')
 
     # load parameters
     options = load_parameters(opt_validate_func=opt_nn_validate, prepare_optparser_func=prepare_nn_optparser)
