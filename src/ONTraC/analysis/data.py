@@ -209,7 +209,7 @@ class AnaData:
 
         # save options
         self.options = options
-        
+
         if hasattr(self.options, 'NN_dir'):
 
             # get real path
@@ -248,11 +248,8 @@ class AnaData:
         self._cell_type_composition = data_df.loc[self.meta_df.index]
 
     def _load_NT_score(self) -> None:
-        data_df = pd.DataFrame()
-        for sample in self.rel_params['Data']:
-            NTScore_df = pd.read_csv(f'{self.options.NT_dir}/{sample["Name"]}_NTScore.csv.gz', index_col=0)
-        data_df = pd.concat([data_df, NTScore_df])
-        self._NT_score = data_df.loc[self.meta_df.index]
+        NTScore_df = pd.read_csv(f'{self.options.NT_dir}/NTScore.csv.gz', index_col=0)
+        self._NT_score = NTScore_df.loc[self.meta_df.index]
 
     @property
     def cell_type_composition(self) -> DataFrame:
