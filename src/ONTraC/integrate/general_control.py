@@ -9,7 +9,6 @@ from ..log import *
 from ..optparser._IO import write_io_options_memo
 from ..optparser._NN import write_niche_net_constr_memo
 from ..optparser._NT import write_NT_options_memo
-from ..optparser._preprocessing import write_preprocessing_memo
 from ..optparser._train import write_GCN_options_memo, write_GP_options_memo, write_train_options_memo
 from ..run.processes import niche_trajectory_construct, gnn, niche_network_construct
 
@@ -43,13 +42,11 @@ def io_opt_valid(options: Values, process='ontrac', io_options: Optional[List[st
             raise ValueError(f'The input file ({options.meta_input}) should be in csv format.')
 
         # low resolution expression data
-        if hasattr(options, 'low_res_exp_input'):
-            if not os.path.isfile(options.low_res_exp_input):
-                raise ValueError(f'The expression data file ({options.low_res_exp_input}) you given does not exist.')
-            if not options.low_res_exp_input.endswith(('csv', 'csv.gz')):
-                raise ValueError(f'The expression data file ({options.low_res_exp_input}) should be in csv format.')
-        else:
-            options.low_res_exp_input = None
+        if hasattr(options, 'deconvoluted_ct_composition'):
+            if not os.path.isfile(options.deconvoluted_ct_composition):
+                raise ValueError(f'The The deconvoluted cell type composition file ({options.deconvoluted_ct_composition}) you given does not exist.')
+            if not options.deconvoluted_ct_composition.endswith(('csv', 'csv.gz')):
+                raise ValueError(f'The deconvoluted cell type composition file ({options.deconvoluted_ct_composition}) should be in csv format.')
 
     # NN_dir
     if 'NN_dir' in io_options:
@@ -100,30 +97,6 @@ def preprocessing_opt_valid(options: Values, process='ontrac') -> Values:
     :param process: str, process name
     :return: options
     """
-
-    if hasattr(options, 'low_res_exp_input') and options.low_res_exp_input is not None:
-        # dc_method
-        if not hasattr(options, 'dc_method'):
-            options.dc_method = 'STdeconvolve'
-        elif not isinstance(options.dc_method, str):
-            raise ValueError(f'dc_method should be a string. You provided {options.dc_method}.')
-        else:
-            options.dc_method = str(options.dc_method)
-        if options.dc_method not in ['STdeconvolve']:
-            raise ValueError(f'dc_method should be either "STdeconvolve". You provided {options.dc_method}.')
-
-        # dc_cell_type_num
-        if not hasattr(options, 'dc_cell_type_num'):
-            options.dc_cell_type_num = 10
-        elif not isinstance(options.dc_cell_type_num, int):
-            raise ValueError(f'dc_cell_type_num should be an integer. You provided {options.dc_cell_type_num}.')
-        else:
-            options.dc_cell_type_num = int(options.dc_cell_type_num)
-        if options.dc_cell_type_num < 2:
-            raise ValueError(f'dc_cell_type_num should be greater than 2. You provided {options.dc_cell_type_num}.')
-    else:
-        options.dc_method = None
-        options.dc_cell_type_num = None
 
     return options
 
@@ -346,10 +319,6 @@ def nt_opt_valid(options: Values, process='ontrac') -> Values:
     :return: options
     """
 
-    # trajectory_construct
-    if not hasattr(options, 'trajectory_construct'):
-        options.trajectory_construct = 'BF'
-
     return options
 
 
@@ -379,7 +348,6 @@ def options_valid(options: Values, process='ontrac') -> Values:
 
     info('------------------ RUN params memo ------------------ ')
     write_io_options_memo(options=options, io_options=io_options)
-    write_preprocessing_memo(options=options)
     write_niche_net_constr_memo(options=options)
     write_train_options_memo(options=options)
     write_GCN_options_memo(options=options)
@@ -390,11 +358,10 @@ def options_valid(options: Values, process='ontrac') -> Values:
     return options
 
 
-def run_ontrac(options: Values, ori_data_df: pd.DataFrame) -> None:
+def run_ontrac(options: Values) -> None:
     """
     Run ONTraC
     :param options: options
-    :param ori_data_df: pd.DataFrame, original data
     :return: None
     """
 

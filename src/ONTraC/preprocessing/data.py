@@ -22,14 +22,14 @@ def valid_meta_data(meta_data_df: pd.DataFrame) -> pd.DataFrame:
     :param meta_data_df: pd.DataFrame, original data.
     :return: pd.DataFrame, original data.
 
-    1) check if Cell_ID/Spot_ID, Sample, Cell_Type, x, and y columns in the original data
+    1) check if Cell_ID, Sample, Cell_Type, x, and y columns in the original data
     2) make the Cell_Type column categorical
     3) return original data with Cell_ID/Spot_ID, Sample, Cell_Type, x, and y columns
     """
 
-    # check if Cell_ID/Spot_ID, Sample, Cell_Type, x, and y columns in the original data
+    # check if Cell_ID, Sample, Cell_Type, x, and y columns in the original data
     if 'Cell_ID' not in meta_data_df.columns and 'Spot_ID' not in meta_data_df.columns:
-        raise ValueError('Cell_ID/Spot_ID column is missing in the original data.')
+        raise ValueError('Cell_ID column is missing in the original data.')
     if 'Sample' not in meta_data_df.columns:
         raise ValueError('Sample column is missing in the original data.')
     if 'x' not in meta_data_df.columns:
@@ -37,8 +37,9 @@ def valid_meta_data(meta_data_df: pd.DataFrame) -> pd.DataFrame:
     if 'y' not in meta_data_df.columns:
         raise ValueError('y column is missing in the original data.')
 
+    id_name = 'Cell_ID'  # cell-level data
+
     # check if there any duplicated Cell_ID/Spot_ID in the original data
-    id_name = 'Cell_ID' if 'Cell_ID' in meta_data_df.columns else 'Spot_ID'
     if meta_data_df[id_name].duplicated().any():
         warning(
             f'There are duplicated {id_name} in the original data. Sample name will added to {id_name} to distinguish them.'
@@ -47,14 +48,12 @@ def valid_meta_data(meta_data_df: pd.DataFrame) -> pd.DataFrame:
     if meta_data_df[id_name].isnull().any():
         raise ValueError(f'Duplicated {id_name} within same sample found!')
 
-    if id_name == 'Cell_ID':  # cell-level data
-        meta_data_df['Cell_Type'] = meta_data_df['Cell_Type'].astype('category')
-        # check if the cell type category number is less than 2
-        if len(meta_data_df['Cell_Type'].cat.categories) < 2:
-            raise ValueError('Cell_Type column found but less than 2 cell types.')
-        meta_data_df = meta_data_df.dropna(subset=[id_name, 'Sample', 'Cell_Type', 'x', 'y'])
-    else:  # spot-level data
-        meta_data_df = meta_data_df.dropna(subset=[id_name, 'Sample', 'x', 'y'])
+    
+    meta_data_df['Cell_Type'] = meta_data_df['Cell_Type'].astype('category')
+    # check if the cell type category number is less than 2
+    if len(meta_data_df['Cell_Type'].cat.categories) < 2:
+        raise ValueError('Cell_Type column found but less than 2 cell types.')
+    meta_data_df = meta_data_df.dropna(subset=[id_name, 'Sample', 'Cell_Type', 'x', 'y'])
 
     # make the Sample column string
     meta_data_df['Sample'] = meta_data_df['Sample'].astype(str)
@@ -105,17 +104,3 @@ def load_meta_data(save_dir: Union[str, Path], meta_data_file: Union[str, Path])
     save_meta_data(save_dir=save_dir, meta_data_df=meta_data_df)
 
     return meta_data_df
-
-
-def load_low_res_exp_data(low_res_exp_file: Union[str, Path]) -> pd.DataFrame:
-    """
-    Load low resolution expression data.
-    :param save_dir: str or Path, save directory.
-    :param low_res_exp_file: str or Path, low resolution expression file.
-    :return: pd.DataFrame, low resolution expression data.
-    """
-
-    # read low resolution expression data file
-    low_res_exp_df = pd.read_csv(low_res_exp_file, header=0, index_col=0, sep=',')
-
-    return low_res_exp_df

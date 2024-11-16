@@ -36,3 +36,6 @@ def temp_dirs(options: Values):
         #     shutil.rmtree(options.NT_dir)
         # if hasattr(options, 'output'):
         #     shutil.rmtree(options.output)
+
+        # Remove generated files
+        os.remove(f'{options.NN_dir}/meta_data.csv.gz')

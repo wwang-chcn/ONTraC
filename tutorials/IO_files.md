@@ -36,11 +36,6 @@ The meta data file looks like the following:
   
   Y coordinate for each cell.
 
-
-### Low resolution expression file
-
-TBA
-
 ## Output files
 
 ### NN-dir

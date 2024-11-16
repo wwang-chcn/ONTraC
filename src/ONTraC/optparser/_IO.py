@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 from optparse import OptionGroup, OptionParser, Values
 from typing import List, Optional
@@ -35,12 +36,8 @@ def add_IO_options_group(optparser: OptionParser, io_options: Optional[List[str]
             dest='meta_input',
             type='string',
             help=
-            'Meta data file in csv format. Each row is a cell and each column is a meta data. The first column should be the cell name. Coordinates (x, y) and sample should be included. Cell type is required for cell-level data.'
+            'Meta data file in csv format. Each row is a cell. The first column should be the cell name with column name Cell_ID. Coordinates (x, y) and sample should be included. Cell type is required for cell-level data.'
         )
-        group_io.add_option('--low-res-exp-input',
-                            dest='low_res_exp_input',
-                            type='string',
-                            help='Spot X gene matrix in csv format for low-resolution dataset.')
     if 'log' in io_options:
         group_io.add_option('-l', '--log', dest='log', type='string', help='Log file.')
 
@@ -68,55 +65,30 @@ def add_IO_options_group(optparser: OptionParser, io_options: Optional[List[str]
 def validate_io_options(optparser: OptionParser,
                         options: Values,
                         io_options: Optional[List[str]],
+                        required: bool = True,
                         overwrite_validation: bool = True) -> None:
     """Validate IO options from a OptParser object.
     :param optparser: OptionParser object.
     :param options: Options object.
     :param io_options: List of I/O options.
+    :param required: Required flag.
     :param overwrite_validation: Overwrite validation flag.
     :return: None.
     """
     if io_options is None:
         return
-    if 'input' in io_options:
-
-        # meta data
-        if options.dataset and not options.meta_input:
-            warning('The --dataset option will be deprecated from v3.0. Please use --meta-input instead.')
-            options.meta_input = options.dataset
-        if not options.meta_input:
-            error('Please provide a meta data file in csv format.')
-            optparser.print_help()
-            sys.exit(1)
-        if not os.path.isfile(options.meta_input):
-            error(f'The meta data file ({options.meta_input}) you given does not exist.')
-            optparser.print_help()
-            sys.exit(1)
-        if not options.meta_input.endswith(('csv', 'csv.gz')):
-            error(f'The meta data file ({options.meta_input}) should be in csv format.')
-            optparser.print_help()
-            sys.exit(1)
-
-        # low resolution expression data
-        if options.low_res_exp_input:
-            if not os.path.isfile(options.low_res_exp_input):
-                error(f'The expression data file ({options.low_res_exp_input}) you given does not exist.')
-                optparser.print_help()
-                sys.exit(1)
-            if not options.low_res_exp_input.endswith(('csv', 'csv.gz')):
-                error(f'The expression data file ({options.low_res_exp_input}) should be in csv format.')
-                optparser.print_help()
-                sys.exit(1)
 
     if 'NN_dir' in io_options:
-        if options.preprocessing_dir and not options.NN_dir:
+        if hasattr(options,
+                   'preprocessing_dir') and options.preprocessing_dir is not None and (not hasattr(options, 'NN_dir')
+                                                                                       or options.NN_dir is None):
             warning('The --preprocessing-dir option will be deprecated from v3.0. Please use --NN-dir instead.')
             options.NN_dir = options.preprocessing_dir
-        if not options.NN_dir:
+        if required and (not hasattr(options, 'NN_dir') or options.NN_dir is None):
             error('Please provide a directory for niche network outputs.')
             optparser.print_help()
             sys.exit(1)
-        if os.path.isdir(options.NN_dir):
+        if hasattr(options, 'NN_dir') and options.NN_dir is not None and os.path.isdir(options.NN_dir):
             if overwrite_validation:
                 warning(f'The directory ({options.NN_dir}) you given already exists. It will be overwritten.')
             else:
@@ -126,11 +98,11 @@ def validate_io_options(optparser: OptionParser,
             os.makedirs(options.NN_dir, exist_ok=True)
 
     if 'GNN_dir' in io_options:
-        if not options.GNN_dir:
+        if required and (not hasattr(options, 'GNN_dir') or options.GNN_dir is None):
             error('Please provide a directory for the GNN output.')
             optparser.print_help()
             sys.exit(1)
-        if os.path.isdir(options.GNN_dir):
+        if hasattr(options, 'GNN_dir') and options.GNN_dir is not None and os.path.isdir(options.GNN_dir):
             if overwrite_validation:
                 warning(f'The directory ({options.GNN_dir}) you given already exists. It will be overwritten.')
             else:
@@ -140,14 +112,15 @@ def validate_io_options(optparser: OptionParser,
             os.makedirs(options.GNN_dir, exist_ok=True)
 
     if 'NT_dir' in io_options:
-        if options.NTScore_dir and not options.NT_dir:
+        if hasattr(options, 'NTScore_dir') and options.NTScore_dir is not None and (not hasattr(options, 'NT_dir')
+                                                                                    or options.NT_dir is None):
             warning('The --NTScore-dir option will be deprecated from v3.0. Please use --NT-dir instead.')
             options.NT_dir = options.NTScore_dir
-        if not options.NT_dir:
+        if required and (not hasattr(options, 'NT_dir') or options.NT_dir is None):
             error('Please provide a directory for the NTScore output.')
             optparser.print_help()
             sys.exit(1)
-        if os.path.isdir(options.NT_dir):
+        if hasattr(options, 'NT_dir') and options.NT_dir is not None and os.path.isdir(options.NT_dir):
             if overwrite_validation:
                 warning(f'The directory ({options.NT_dir}) you given already exists. It will be overwritten.')
             else:
@@ -156,8 +129,30 @@ def validate_io_options(optparser: OptionParser,
             info(f'Creating directory: {options.NT_dir}')
             os.makedirs(options.NT_dir, exist_ok=True)
 
-    if 'output' in io_options:
-        if not options.output:
+    if 'input' in io_options:
+
+        # meta data
+        if not required:
+            pass
+        else:
+            if options.dataset and not options.meta_input:
+                warning('The --dataset option will be deprecated from v3.0. Please use --meta-input instead.')
+                options.meta_input = options.dataset
+            if not hasattr(options, 'meta_input') or options.meta_input is None:
+                error('Please provide a meta data file in csv format.')
+                optparser.print_help()
+                sys.exit(1)
+            if not os.path.isfile(options.meta_input):
+                error(f'The input file ({options.meta_input}) you given does not exist.')
+                optparser.print_help()
+                sys.exit(1)
+            if not options.meta_input.endswith(('csv', 'csv.gz')):
+                error(f'The input file ({options.meta_input}) should be in csv format.')
+                optparser.print_help()
+                sys.exit(1)
+
+    if 'output' in io_options:  # this is a required option (ONTraC_analysis only)
+        if not hasattr(options, 'output') or options.output is None:
             error('Please provide a directory for analysis output.')
             optparser.print_help()
             sys.exit(1)
@@ -170,8 +165,8 @@ def validate_io_options(optparser: OptionParser,
             info(f'Creating directory: {options.output}')
             os.makedirs(options.output, exist_ok=True)
 
-    if 'log' in io_options:
-        if options.log and not os.path.exists(options.log):
+    if 'log' in io_options:  # this is a optional option (ONTraC_analysis only)
+        if hasattr(options, 'log') and options.log is not None and not os.path.isfile(options.log):
             error(f'Log file: {options.log} you given does not exist.')
             sys.exit(1)
 
@@ -185,18 +180,16 @@ def write_io_options_memo(options: Values, io_options: Optional[List[str]]) -> N
     if io_options is None:
         return
     info('            -------- I/O options -------             ')
-    if 'NN_dir' in io_options:
+    if 'NN_dir' in io_options and hasattr(options, 'NN_dir') and options.NN_dir is not None:
         info(f'Niche network output directory:  {options.NN_dir}')
-    if 'GNN_dir' in io_options:
+    if 'GNN_dir' in io_options and hasattr(options, 'GNN_dir') and options.GNN_dir is not None:
         info(f'GNN output directory:  {options.GNN_dir}')
-    if 'NT_dir' in io_options:
+    if 'NT_dir' in io_options and hasattr(options, 'NT_dir') and options.NT_dir is not None:
         info(f'Niche trajectory output directory:  {options.NT_dir}')
     if 'output' in io_options:
         info(f'Output directory:  {options.output}')
-    if 'input' in io_options:
+    if 'input' in io_options and hasattr(options, 'meta_input') and options.meta_input is not None:
         info(f'Meta data file:  {options.meta_input}')
-        if hasattr(options, 'low_res_exp_input') and options.low_res_exp_input is not None:
-            info(f'Low resolution expression data file:  {options.low_res_exp_input}')
-    if 'log' in io_options and options.log is not None:
-        if hasattr(options, 'log'):
+    if 'log' in io_options:
+        if options.log:
             info(f'Log file:  {options.log}')

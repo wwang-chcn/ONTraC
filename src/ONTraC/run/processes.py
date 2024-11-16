@@ -39,10 +39,7 @@ def niche_network_construct(options: Values) -> None:
 
     # load input information
     meta_df, ct_coding = preprocessing_nn(meta_input=options.meta_input,
-                                          NN_dir=options.NN_dir,
-                                          low_res_exp_input=options.low_res_exp_input,
-                                          dc_method=options.dc_method,
-                                          dc_cell_type_num=options.dc_cell_type_num)
+                                          NN_dir=options.NN_dir)
 
     # construct niche network
     construct_niche_network(meta_df=meta_df,

@@ -50,9 +50,9 @@ For detailed information about input and output file, please see [IO files expla
 
 The required options for running ONTraC are the paths to the input file and the three output directories:
 
-- **preprocessing-dir:** This directory stores preprocessed data and other intermediary datasets for analysis.
-- **GNN-dir:** This directory stores output from running the GP (Graph Pooling) algorithm.
-- **NTScore-dir:** This directory stores NTScore output.
+- **NN-dir:** This directory stores preprocessed data and other intermediary datasets for analysis.
+- **GNN-dir:** This directory stores output from he GNN algorithm.
+- **NT-dir:** This directory stores NT output.
 
 For detailed description about all parameters, please see [Parameters explanation](tutorials/parameters.md).
 
@@ -66,7 +66,7 @@ We recommand running `ONTraC` on GPU, it may take much more time on your own lap
 
 ### Output
 
-The intermediate and final results are located in `preprocessing-dir`, `GNN-dir`, and `NTScore-dir` directories. Please see [IO files explanation](tutorials/IO_files.md#output-files) for detailed infromation.
+The intermediate and final results are located in `NN-dir`, `GNN-dir`, and `NT-dir` directories. Please see [IO files explanation](tutorials/IO_files.md#output-files) for detailed infromation.
 
 ### Visualization
 

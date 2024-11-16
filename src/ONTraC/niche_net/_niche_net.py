@@ -17,7 +17,7 @@ def build_knn_network(sample_name: str,
     """
     Build KNN network for a sample.
     :param sample_name: str, sample name.
-    :param sample_data_df: pd.DataFrame, sample data.
+    :param sample_meta_df: pd.DataFrame, sample data.
     :param n_neighbors: int, number of neighbors.
     :param n_local: int, index of distance used for normalization.
     :return: Tuple[np.ndarray, np.ndarray, np.ndarray] (coordinates, dis_matrix, indices_matrix).
@@ -124,12 +124,9 @@ def calc_cell_type_composition(sample_name: str,
 
     # calculate cell type composition
     cell_to_niche_matrix = niche_weight_matrix / niche_weight_matrix.sum(axis=1)  # N x N, #niche x #cell
-    if decompsited_cell_type is None:
-        one_hot_matrix = np.zeros(shape=(N, sample_meta_df['Cell_Type'].cat.categories.shape[0]))  # N x #cell_type
-        one_hot_matrix[np.arange(N), sample_meta_df.Cell_Type.cat.codes.values] = 1
-        cell_type_composition = cell_to_niche_matrix @ one_hot_matrix  # N x n_cell_type
-    else:
-        cell_type_composition = cell_to_niche_matrix @ decompsited_cell_type  # N (#niche) x #cell_type
+    one_hot_matrix = np.zeros(shape=(N, sample_meta_df['Cell_Type'].cat.categories.shape[0]))  # N x #cell_type
+    one_hot_matrix[np.arange(N), sample_meta_df.Cell_Type.cat.codes.values] = 1
+    cell_type_composition = cell_to_niche_matrix @ one_hot_matrix  # N x n_cell_type
 
     return cell_type_composition
 
