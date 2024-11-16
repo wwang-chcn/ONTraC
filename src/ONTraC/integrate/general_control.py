@@ -9,7 +9,6 @@ from ..log import *
 from ..optparser._IO import write_io_options_memo
 from ..optparser._NN import write_niche_net_constr_memo
 from ..optparser._NT import write_NT_options_memo
-from ..optparser._preprocessing import write_preprocessing_memo
 from ..optparser._train import write_GCN_options_memo, write_GP_options_memo, write_train_options_memo
 from ..run.processes import niche_trajectory_construct, gnn, niche_network_construct
 
@@ -81,7 +80,7 @@ def io_opt_valid(options: Values, process='ontrac', io_options: Optional[List[st
             options.NT_dir = options.NTScore_dir
         if not hasattr(options, 'NT_dir'):
             raise AttributeError('Please provide a directory for the niche trajectory output.')
-        if os.path.isdir(options.NTScore_dir):
+        if os.path.isdir(options.NT_dir):
             warning(f'The directory ({options.NT_dir}) you given already exists. It will be overwritten.')
             shutil.rmtree(options.NT_dir)
         else:
@@ -349,7 +348,6 @@ def options_valid(options: Values, process='ontrac') -> Values:
 
     info('------------------ RUN params memo ------------------ ')
     write_io_options_memo(options=options, io_options=io_options)
-    write_preprocessing_memo(options=options)
     write_niche_net_constr_memo(options=options)
     write_train_options_memo(options=options)
     write_GCN_options_memo(options=options)
