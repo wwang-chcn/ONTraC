@@ -4,9 +4,7 @@ Below is an example of post-analysis on stereo-seq brain data.
 The command for running on this dataset is:
 
 ```{sh}
-ONTraC --meta-input stereo_seq_dataset_meta_input.csv --preprocessing-dir stereo_seq_preprocessing --GNN-dir stereo_seq_GNN --NTScore-dir stereo_seq_NTScore \
-       --device cuda --epochs 1000 --batch-size 5 -s 42 --patience 100 --min-delta 0.001 --min-epochs 50 --lr 0.03 --hidden-feats 4 -k 6 \
-       --modularity-loss-weight 1 --purity-loss-weight 30 --regularization-loss-weight 0.1 --beta 0.3 --equal-space 2>&1 | tee stereo_seq.log
+ONTraC --meta-input stereo_seq_dataset.csv --NN-dir stereo_seq_NN --GNN-dir stereo_seq_GNN --NT-dir stereo_seq_NT --epochs 100 --batch-size 5 -s 42 --patience 100 --min-delta 0.001 --min-epochs 50 --lr 0.03 --hidden-feats 4 -k 6 --modularity-loss-weight 0.3 --regularization-loss-weight 0.1 --purity-loss-weight 300 --beta 0.03 2>&1 | tee stereo_seq_final.log
 ```
 
 Download `stereo_seq_dataset_meta_input.csv` and precomputed results from [Zenodo](https://zenodo.org/records/XXXXXX)
@@ -26,7 +24,7 @@ pip install seaborn
 You can get all the output figures with this command and check the results in `analysis_output` directory.
 
 ```{sh}
-ONTraC_analysis -o analysis_output -l ONTraC.log --preprocessing-dir preprocessing_dir --GNN-dir GNN_dir --NTScore-dir NTScore_dir
+ONTraC_analysis -o analysis_output/simulation -l log/simulation.log --NN-dir stereo_seq_NN --GNN-dir stereo_seq_GNN --NT-dir stereo_seq_NT
 ```
 
 ## Step-by-step analysis
@@ -57,10 +55,10 @@ from ONTraC.analysis.data import AnaData
 from optparse import Values
 
 options = Values()
-options.preprocessing_dir = 'train_backup/V2/V1_reproduce_stereo_seq_dataset/stereo_seq_preprocessing/'
-options.GNN_dir = 'train_backup/V2/V1_reproduce_stereo_seq_dataset/stereo_seq_GNN/'
-options.NTScore_dir = 'train_backup/V2/V1_reproduce_stereo_seq_dataset/stereo_seq_NTScore/'
-options.log = 'train_backup/V2/V1_reproduce_stereo_seq_dataset/stereo_seq.log'
+options.NN_dir = 'stereo_seq_NN'
+options.GNN_dir = 'stereo_seq_GNN'
+options.NT_dir = 'stereo_seq_NT'
+options.log = 'stereo_seq_final.log'
 options.reverse = True  # Set it to False if you don't want reverse NT score
 options.embedding_adjust = False
 
@@ -70,7 +68,7 @@ ana_data = AnaData(options)
 ### Spatial cell type distribution
 
 ```{python}
-data_df = ana_data.meta_data
+data_df = ana_data.cell_id.join(ana_data.cell_type_composition[['Sample', 'x', 'y']])
 samples = data_df['Sample'].unique()
 N = len(samples)
 fig, axes = plt.subplots(1, N, figsize = (4 * N, 3))
@@ -100,14 +98,13 @@ fig.savefig('Spatial_cell_type.png', dpi=150)
 ### Spatial cell type composition distribution
 
 ```{python}
-samples = ana_data.meta_data['Sample'].unique()
+samples = ana_data.cell_type_composition['Sample'].unique().tolist()
 cell_types = ana_data.cell_type_codes['Cell_Type'].tolist()
 
 M, N = len(samples), len(cell_types)
 fig, axes = plt.subplots(M, N, figsize = (3.5 * N, 3 * M))
 for i, sample in enumerate(samples):
     sample_df = ana_data.cell_type_composition.loc[ana_data.cell_type_composition['Sample'] == sample]
-    sample_df = sample_df.join(ana_data.meta_data[['x','y']])
     for j, cell_type in enumerate(cell_types):
         ax = axes[i, j] if M > 1 else axes[j]
         scatter = ax.scatter(sample_df['x'], sample_df['y'], c=sample_df[cell_type], cmap='Reds', vmin=0, vmax=1, s=1)
@@ -130,14 +127,14 @@ fig.savefig('cell_type_composition.png', dpi=100)
 
 ```{python}
 nc_scores = 1 - ana_data.niche_cluster_score if ana_data.options.reverse else ana_data.niche_cluster_score
-samples = ana_data.meta_data['Sample'].unique()
+samples = ana_data.cell_type_composition['Sample'].unique().tolist()
 M, N = len(samples), ana_data.cell_level_niche_cluster_assign.shape[1]
 
 fig, axes = plt.subplots(M, N, figsize=(3.3 * N, 3 * M))
 for i, sample in enumerate(samples):
-    sample_df = ana_data.cell_level_niche_cluster_assign.loc[ana_data.meta_data[
-        ana_data.meta_data['Sample'] == sample].index,:]
-    sample_df = sample_df.join(ana_data.meta_data[['x', 'y']])
+    sample_df = ana_data.cell_level_niche_cluster_assign.loc[ana_data.cell_type_composition[
+        ana_data.cell_type_composition['Sample'] == sample].index]
+    sample_df = sample_df.join(ana_data.cell_type_composition[['x', 'y']])
     for j, c_index in enumerate(nc_scores.argsort()):
         ax = axes[i, j] if M > 1 else axes[j]
         scatter = ax.scatter(sample_df['x'],
@@ -171,15 +168,15 @@ nc_scores = 1 - ana_data.niche_cluster_score if ana_data.options.reverse else an
 niche_cluster_colors = [sm.to_rgba(nc_scores[n]) for n in np.arange(ana_data.niche_cluster_score.shape[0])]
 palette = {f'niche cluster {i}': niche_cluster_colors[i] for i in range(ana_data.niche_cluster_score.shape[0])}
 
-samples = ana_data.meta_data['Sample'].unique().tolist()
+samples = ana_data.cell_type_composition['Sample'].unique().tolist()
 M = len(samples)
 
 fig, axes = plt.subplots(1, M, figsize=(5 * M, 3))
 for i, sample in enumerate(samples):
     ax = axes[i] if M > 1 else axes
-    sample_df = ana_data.cell_level_max_niche_cluster.loc[ana_data.meta_data[
-        ana_data.meta_data['Sample'] == sample].index]
-    sample_df = sample_df.join(ana_data.meta_data[['x', 'y']])
+    sample_df = ana_data.cell_level_max_niche_cluster.loc[ana_data.cell_type_composition[
+        ana_data.cell_type_composition['Sample'] == sample].index]
+    sample_df = sample_df.join(ana_data.cell_type_composition[['x', 'y']])
     sample_df['Niche_Cluster'] = 'niche cluster ' + sample_df['Niche_Cluster'].astype(str)
     sns.scatterplot(data=sample_df,
                     x='x',

@@ -1,4 +1,4 @@
-# pre-processing options
+# niche network construction options
 
 import sys
 from optparse import OptionGroup, OptionParser, Values
@@ -130,5 +130,4 @@ def write_niche_net_constr_memo(options: Values) -> None:
     info(f'n_neighbors: {options.n_neighbors}')
     info(f'n_local: {options.n_local}')
     info(f'embedding_adjust: {options.embedding_adjust}')
-    if options.embedding_adjust:
-        info(f'sigma: {options.sigma}')
+    info(f'sigma: {options.sigma}')

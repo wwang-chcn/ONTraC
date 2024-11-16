@@ -13,7 +13,7 @@ Please see the [installation tutorial](installation.md)
 ### Running ONTraC
 
 ```{sh}
-ONTraC -d stereo_seq_dataset.csv --preprocessing-dir stereo_seq_final_preprocessing_dir --GNN-dir stereo_seq_final_GNN --NTScore-dir stereo_seq_final_NTScore --epochs 100 --batch-size 5 -s 42 --patience 100 --min-delta 0.001 --min-epochs 50 --lr 0.03 --hidden-feats 4 -k 6 --modularity-loss-weight 1 --purity-loss-weight 30 --regularization-loss-weight 0.1 --beta 0.03 2>&1 | tee stereo_seq_final.log
+ONTraC --meta-input stereo_seq_dataset.csv --NN-dir stereo_seq_NN --GNN-dir stereo_seq_GNN --NT-dir stereo_seq_NT --epochs 100 --batch-size 5 -s 42 --patience 100 --min-delta 0.001 --min-epochs 50 --lr 0.03 --hidden-feats 4 -k 6 --modularity-loss-weight 0.3 --regularization-loss-weight 0.1 --purity-loss-weight 300 --beta 0.03 2>&1 | tee stereo_seq_final.log
 ```
 
 The input dataset and output files could be downloaded from [Zenodo](https://zenodo.org/records/11186620).
@@ -50,11 +50,10 @@ from ONTraC.analysis.data import AnaData
 ```{python}
 from optparse import Values
 
-options = Values
-options.dataset = 'stereo_seq_dataset.csv'
-options.preprocessing_dir = 'stereo_seq_final_preprocessing_dir'
-options.GNN_dir = 'stereo_seq_final_GNN'
-options.NTScore_dir = 'stereo_seq_final_NTScore'
+options = Values()
+options.NN_dir = 'stereo_seq_NN'
+options.GNN_dir = 'stereo_seq_GNN'
+options.NT_dir = 'stereo_seq_NT'
 options.log = 'stereo_seq_final.log'
 options.reverse = True  # Set it to False if you don't want reverse NT score
 ana_data = AnaData(options)
@@ -64,13 +63,13 @@ ana_data = AnaData(options)
 
 ```{python}
 nc_scores = 1 - ana_data.niche_cluster_score if ana_data.options.reverse else ana_data.niche_cluster_score
-samples = ana_data.cell_type_composition['sample'].unique().tolist()
+samples = ana_data.cell_type_composition['Sample'].unique().tolist()
 M, N = len(samples), ana_data.cell_level_niche_cluster_assign.shape[1]
 
 fig, axes = plt.subplots(M, N, figsize=(3.3 * N, 3 * M))
 for i, sample in enumerate(samples):
     sample_df = ana_data.cell_level_niche_cluster_assign.loc[ana_data.cell_type_composition[
-        ana_data.cell_type_composition['sample'] == sample].index]
+        ana_data.cell_type_composition['Sample'] == sample].index]
     sample_df = sample_df.join(ana_data.cell_type_composition[['x', 'y']])
     for j, c_index in enumerate(nc_scores.argsort()):
         ax = axes[i, j] if M > 1 else axes[j]
@@ -105,14 +104,14 @@ nc_scores = 1 - ana_data.niche_cluster_score if ana_data.options.reverse else an
 niche_cluster_colors = [sm.to_rgba(nc_scores[n]) for n in np.arange(ana_data.niche_cluster_score.shape[0])]
 palette = {f'niche cluster {i}': niche_cluster_colors[i] for i in range(ana_data.niche_cluster_score.shape[0])}
 
-samples = ana_data.cell_type_composition['sample'].unique().tolist()
+samples = ana_data.cell_type_composition['Sample'].unique().tolist()
 M = len(samples)
 
 fig, axes = plt.subplots(1, M, figsize=(5 * M, 3))
 for i, sample in enumerate(samples):
     ax = axes[i] if M > 1 else axes
     sample_df = ana_data.cell_level_max_niche_cluster.loc[ana_data.cell_type_composition[
-        ana_data.cell_type_composition['sample'] == sample].index]
+        ana_data.cell_type_composition['Sample'] == sample].index]
     sample_df = sample_df.join(ana_data.cell_type_composition[['x', 'y']])
     sample_df['Niche_Cluster'] = 'niche cluster ' + sample_df['Niche_Cluster'].astype(str)
     sns.scatterplot(data=sample_df,

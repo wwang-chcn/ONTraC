@@ -39,3 +39,15 @@ conda install -c gyuanlab -c pytorch -c pyg -c default -c nvidia -c conda-forge 
 ```sh
 pip install git+https://github.com/gyuanlab/ONTraC.git@V2
 ```
+
+## Optional dependicies
+
+### Deconvolution
+
+#### STdeconvolve
+
+[STdeconvolve](https://github.com/JEFworks-Lab/STdeconvolve) is a reference-free cell-type deconvolution method. Please install through following command if you want use it in the preprocessing step in analyzing low resolution data.
+
+```sh
+conda install bioconda::bioconductor-stdeconvolve -y
+```
