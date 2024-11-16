@@ -26,12 +26,17 @@ def temp_dirs(options: Values):
         yield
 
     finally:
+        pass
+
         # Remove temporary directories
-        if hasattr(options, 'NN_dir'):
-            shutil.rmtree(options.NN_dir)
-        if hasattr(options, 'GNN_dir'):
-            shutil.rmtree(options.GNN_dir)
-        if hasattr(options, 'NT_dir'):
-            shutil.rmtree(options.NT_dir)
-        if hasattr(options, 'output'):
-            shutil.rmtree(options.output)
+        # if hasattr(options, 'NN_dir'):
+        #     shutil.rmtree(options.NN_dir)
+        # if hasattr(options, 'GNN_dir'):
+        #     shutil.rmtree(options.GNN_dir)
+        # if hasattr(options, 'NT_dir'):
+        #     shutil.rmtree(options.NT_dir)
+        # if hasattr(options, 'output'):
+        #     shutil.rmtree(options.output)
+
+        # Remove generated files
+        os.remove(f'{options.NN_dir}/meta_data.csv.gz')
