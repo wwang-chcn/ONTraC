@@ -34,17 +34,17 @@ def add_suppress_group(optparser: OptionParser) -> None:
                      dest='suppress_cell_type_composition',
                      action='store_true',
                      default=False,
-                     help='Suppress the cell type composition visualization.')
+                     help='Skip the cell type composition visualization. It would be useful when the number of cell types is large.')
     group.add_option('--suppress-niche-cluster-loadings',
                      dest='suppress_niche_cluster_loadings',
                      action='store_true',
                      default=False,
-                     help='Suppress the niche cluster loadings visualization.')
+                     help='Skip the niche cluster loadings visualization. It would be useful when the number of clusters or sample size is large.')
     group.add_option('--suppress-niche-trajectory',
                      dest='suppress_niche_trajectory',
                      action='store_true',
                      default=False,
-                     help='Suppress the niche trajectory related visualization.')
+                     help='Skip the niche trajectory related visualization.')
     optparser.add_option_group(group)
 
 

@@ -5,14 +5,13 @@
 ### Full parameters for ONTraC
 
 ```{text}
-Usage: ONTraC <--NN-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NT-dir NTSCORE_DIR> <--meta-input META_INPUT> [--low-res-exp-input LOW_RES_EXP_INPUT]
-    [--deconvolution-method DC_METHOD] [--deconvolution-cell-type-number DC_CELL_TYPE_NUM] [--n-cpu N_CPU] [--n-neighbors N_NEIGHBORS] [--n-local N_LOCAL]
-    [--device DEVICE] [--epochs EPOCHS] [--patience PATIENCE] [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] [-s SEED]
-    [--lr LR] [--hidden-feats HIDDEN_FEATS] [--n-gcn-layers N_GCN_LAYERS] [-k K_CLUSTERS] [--modularity-loss-weight MODULARITY_LOSS_WEIGHT]
-    [--purity-loss-weight PURITY_LOSS_WEIGHT] [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA]
-    [--trajectory-construct TRAJECTORY_CONSTRUCT]
+Usage: ONTraC <--NN-dir NN_DIR> <--GNN-dir GNN_DIR> <--NT-dir NT_DIR> <--meta-input META_INPUT> 
+    [--n-cpu N_CPU] [--n-neighbors N_NEIGHBORS] [--n-local N_LOCAL] [--device DEVICE] [--epochs EPOCHS] [--patience PATIENCE]
+    [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] [-s SEED] [--lr LR] [--hidden-feats HIDDEN_FEATS]
+    [--n-gcn-layers N_GCN_LAYERS] [-k K] [--modularity-loss-weight MODULARITY_LOSS_WEIGHT] [--purity-loss-weight PURITY_LOSS_WEIGHT]
+    [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA] [--trajectory-construct TRAJECTORY_CONSTRUCT]
 
-All steps of ONTraC including dataset creation, Graph Pooling, and NT score calculation.
+All steps of ONTraC including niche network construction, GNN, and niche construction.
 
 Options:
   --version             show program's version number and exit
@@ -23,10 +22,8 @@ Options:
     --GNN-dir=GNN_DIR   Directory for the GNN output.
     --NT-dir=NT_DIR     Directory for the niche trajectory output.
     --meta-input=META_INPUT
-                        Meta data file in csv format. Each row is a cell and each column is a meta data. The first column should be the
-                        cell name. Coordinates (x, y) and sample should be included. Cell type is required for cell-level data.
-    --low-res-exp-input=LOW_RES_EXP_INPUT
-                        Spot X gene matrix in csv format for low-resolution dataset.
+                        Meta data file in csv format. Each row is a cell. The first column should be the cell name with column name
+                        Cell_ID. Coordinates (x, y) and sample should be included. Cell type is required for cell-level data.
     --preprocessing-dir=PREPROCESSING_DIR
                         This options will be deprecated from v3.0. Please use --NN-dir instead.
     --NTScore-dir=NTSCORE_DIR
@@ -34,19 +31,13 @@ Options:
     -d DATASET, --dataset=DATASET
                         This options will be deprecated from v3.0. Please use --meta-input instead.
 
-  Preprocessing:
-    --deconvolution-method=DC_METHOD
-                        Deconvolution method used for low resolution data. Default is STdeconvolve.
-    --deconvolution-cell-type-number=DC_CELL_TYPE_NUM
-                        Number of cell type that the deconvolution method will deconvolve.
-
   Niche Network Construction:
     --n-cpu=N_CPU       Number of CPUs used for parallel computing in dataset preprocessing. Default is 4.
     --n-neighbors=N_NEIGHBORS
-                        Number of neighbors used for kNN graph construction. It should be less than the number of cells in each sample.
-                        Default is 50.
-    --n-local=N_LOCAL   Specifies the nth closest local neighbors used for gaussian distance normalization. It should be less than the
-                        number of cells in each sample. Default is 20.
+                        Number of neighbors used for kNN graph construction. It should be less than the number of cells in each
+                        sample. Default is 50.
+    --n-local=N_LOCAL   Specifies the nth closest local neighbors used for gaussian distance normalization. It should be less than
+                        the number of cells in each sample. Default is 20.
 
   Options for GNN training:
     --device=DEVICE     Device for training. We support cpu and cuda now. Auto select if not specified.
@@ -86,10 +77,10 @@ Options:
 Previouly named as createDataSet.
 
 ```{text}
-Usage: ONTraC_NN <--NN-dir PREPROCESSING_DIR> <--meta-input META_INPUT> [--low-res-exp-input LOW_RES_EXP_INPUT]
-    [--deconvolution-method DC_METHOD] [--deconvolution-cell-type-number DC_CELL_TYPE_NUM] [--n-cpu N_CPU] [--n-neighbors N_NEIGHBORS] [--n-local N_LOCAL]
+Usage: ONTraC_NN <--NN-dir NN_DIR> <--meta-input META_INPUT>
+    [--n-cpu N_CPU] [--n-neighbors N_NEIGHBORS] [--n-local N_LOCAL]
 
-Preporcessing and create dataset for GNN and following analysis.
+Create niche network and calculate features (normalized cell type composition).
 
 Options:
   --version             show program's version number and exit
@@ -97,37 +88,29 @@ Options:
 
   IO:
     --NN-dir=NN_DIR     Directory for niche network outputs.
-    -d DATASET, --dataset=DATASET
-                        This options will be deprecated from v3.0. Please use --meta-input instead.
     --meta-input=META_INPUT
-                        Meta data file in csv format. Each row is a cell and each column is a meta data. The first column should be the
-                        cell name. Coordinates (x, y) and sample should be included. Cell type is required for cell-level data.
-    --low-res-exp-input=LOW_RES_EXP_INPUT
-                        Spot X gene matrix in csv format for low-resolution dataset.
+                        Meta data file in csv format. Each row is a cell. The first column should be the cell name with column name
+                        Cell_ID. Coordinates (x, y) and sample should be included. Cell type is required for cell-level data.
     --preprocessing-dir=PREPROCESSING_DIR
                         This options will be deprecated from v3.0. Please use --NN-dir instead.
-
-  Preprocessing:
-    --deconvolution-method=DC_METHOD
-                        Deconvolution method used for low resolution data. Default is STdeconvolve.
-    --deconvolution-cell-type-number=DC_CELL_TYPE_NUM
-                        Number of cell type that the deconvolution method will deconvolve.
+    -d DATASET, --dataset=DATASET
+                        This options will be deprecated from v3.0. Please use --meta-input instead.
 
   Niche Network Construction:
     --n-cpu=N_CPU       Number of CPUs used for parallel computing in dataset preprocessing. Default is 4.
     --n-neighbors=N_NEIGHBORS
-                        Number of neighbors used for kNN graph construction. It should be less than the number of cells in each sample.
-                        Default is 50.
-    --n-local=N_LOCAL   Specifies the nth closest local neighbors used for gaussian distance normalization. It should be less than the
-                        number of cells in each sample. Default is 20.
+                        Number of neighbors used for kNN graph construction. It should be less than the number of cells in each
+                        sample. Default is 50.
+    --n-local=N_LOCAL   Specifies the nth closest local neighbors used for gaussian distance normalization. It should be less than
+                        the number of cells in each sample. Default is 20.
 ```
 
 ### Full parameters for ONTraC_GNN
 
 ```{text}
-Usage: ONTraC_GNN <--NN-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> [--device DEVICE]
+Usage: ONTraC_GNN <--NN-dir NN_DIR> <--GNN-dir GNN_DIR> [--device DEVICE]
     [--epochs EPOCHS] [--patience PATIENCE] [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] 
-    [-s SEED] [--lr LR] [--hidden-feats HIDDEN_FEATS] [--n-gcn-layers N_GCN_LAYERS] [-k K_CLUSTERS]
+    [-s SEED] [--lr LR] [--hidden-feats HIDDEN_FEATS] [--n-gcn-layers N_GCN_LAYERS] [-k K]
     [--modularity-loss-weight MODULARITY_LOSS_WEIGHT] [--purity-loss-weight PURITY_LOSS_WEIGHT] 
     [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA]
 
@@ -177,7 +160,7 @@ Options:
 Previouly named as NicheTrajectory.
 
 ```{text}
-Usage: ONTraC_NT <--NN-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NT-dir NTSCORE_DIR> 
+Usage: ONTraC_NT <--NN-dir NN_DIR> <--GNN-dir GNN_DIR> <--NT-dir NT_DIR> 
             [--trajectory-construct TRAJECTORY_CONSTRUCT]
 
 ONTraC_NT: construct niche trajectory for niche cluster and project the NT score to each cell
@@ -203,15 +186,16 @@ Options:
 ### Full parameters for ONTraC_analysis
 
 ```{text}
-Usage: ONTraC_analysis <--NN-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR>
-    <--NT-dir NTSCORE_DIR> <-o OUTPUT_DIR> [-l LOG_FILE] [-r REVERSE] [-s SAMPLE] [--scale-factor SCALE_FACTOR]
+Usage: ONTraC_analysis [--NN-dir NN_DIR] [--GNN-dir GNN_DIR] [--NT-dir NT_DIR] [-o OUTPUT]
+    [--meta-input META_INPUT] [-l LOG] [-r REVERSE] [-s SAMPLE] [--scale-factor SCALE_FACTOR]
     [--suppress-cell-type-composition] [--suppress-niche-cluster-loadings] [--suppress-niche-trajectory]
+    
 
-Analysis the results of ONTraC.
+ONTraC_analysis: analysis of ONTraC results
 
 Options:
   --version             show program's version number and exit
-  -h, --help            Show this help message and exit.
+  -h, --help            show this help message and exit
 
   IO:
     --NN-dir=NN_DIR     Directory for niche network outputs.
@@ -219,11 +203,16 @@ Options:
     --NT-dir=NT_DIR     Directory for the niche trajectory output.
     -o OUTPUT, --output=OUTPUT
                         Directory for analysis output.
+    --meta-input=META_INPUT
+                        Meta data file in csv format. Each row is a cell. The first column should be the cell name with column name
+                        Cell_ID. Coordinates (x, y) and sample should be included. Cell type is required for cell-level data.
     -l LOG, --log=LOG   Log file.
     --preprocessing-dir=PREPROCESSING_DIR
                         This options will be deprecated from v3.0. Please use --NN-dir instead.
     --NTScore-dir=NTSCORE_DIR
                         This options will be deprecated from v3.0. Please use --NT-dir instead.
+    -d DATASET, --dataset=DATASET
+                        This options will be deprecated from v3.0. Please use --meta-input instead.
 
   Visualization options:
     -r, --reverse       Reverse the NT score during visualization.
@@ -233,11 +222,12 @@ Options:
 
   Suppress options:
     --suppress-cell-type-composition
-                        Suppress the cell type composition visualization.
+                        Skip the cell type composition visualization. It would be useful when the number of cell types is large.
     --suppress-niche-cluster-loadings
-                        Suppress the niche cluster loadings visualization.
+                        Skip the niche cluster loadings visualization. It would be useful when the number of clusters or sample
+                        size is large.
     --suppress-niche-trajectory
-                        Suppress the niche trajectory related visualization.
+                        Skip the niche trajectory related visualization.
 ```
 
 ### Full parameters for ONTraC_GT
@@ -245,9 +235,9 @@ Options:
 Previouly named as ONTraC_GP.
 
 ```{text}
-Usage: ONTraC_GT <--NN-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NT-dir NTSCORE_DIR>
-    [--device DEVICE] [--epochs EPOCHS] [--patience PATIENCE] [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] 
-    [-s SEED] [--lr LR] [--hidden-feats HIDDEN_FEATS] [--n-gcn-layers N_GCN_LAYERS] [-k K_CLUSTERS]
+Usage: ONTraC_GT <--NN-dir NN_DIR> <--GNN-dir GNN_DIR> <--NT-dir NT_DIR> [--device DEVICE]
+    [--epochs EPOCHS] [--patience PATIENCE] [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] 
+    [-s SEED] [--lr LR] [--hidden-feats HIDDEN_FEATS] [--n-gcn-layers N_GCN_LAYERS] [-k K]
     [--modularity-loss-weight MODULARITY_LOSS_WEIGHT] [--purity-loss-weight PURITY_LOSS_WEIGHT] 
     [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA] [--trajectory-construct TRAJECTORY_CONSTRUCT]
 
