@@ -49,22 +49,22 @@ def preprocessing_nn(meta_input: Union[str, Path],
 
     if 'meta_data' not in input_data:
         raise ValueError('meta_data is required for preprocessing.')
-    meta_df = input_data['meta_data']
+    meta_data_df = input_data['meta_data']
 
     
     # generate cell type coding matrix
-    meta_df['Cell_Type'] = meta_df['Cell_Type'].astype('category')
-    ct_coding_matrix = np.zeros(shape=(meta_df.shape[0],
-                                        meta_df['Cell_Type'].cat.categories.shape[0]))  # N x #cell_type
-    ct_coding_matrix[np.arange(meta_df.shape[0]), meta_df.Cell_Type.cat.codes.values] = 1
+    meta_data_df['Cell_Type'] = meta_data_df['Cell_Type'].astype('category')
+    ct_coding_matrix = np.zeros(shape=(meta_data_df.shape[0],
+                                        meta_data_df['Cell_Type'].cat.categories.shape[0]))  # N x #cell_type
+    ct_coding_matrix[np.arange(meta_data_df.shape[0]), meta_data_df.Cell_Type.cat.codes.values] = 1
     ct_coding = pd.DataFrame(data=ct_coding_matrix,
-                                columns=meta_df['Cell_Type'].cat.categories,
-                                index=meta_df.index)
+                                columns=meta_data_df['Cell_Type'].cat.categories,
+                                index=meta_data_df.index)
 
     # save cell type code
-    save_cell_type_code(save_dir=NN_dir, cell_types=meta_df['Cell_Type'])
+    save_cell_type_code(save_dir=NN_dir, cell_types=meta_data_df['Cell_Type'])
 
-    return meta_df, ct_coding
+    return meta_data_df, ct_coding
 
 
 def load_data(NN_dir: Union[str, Path], batch_size: int = 0) -> Tuple[SpatailOmicsDataset, DenseDataLoader]:

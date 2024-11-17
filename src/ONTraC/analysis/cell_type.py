@@ -70,7 +70,7 @@ def plot_violin_cell_type_along_NT_score_from_anadata(ana_data: AnaData) -> Opti
         warning(str(e))
         return None
 
-    data_df = ana_data.meta_df.join(ana_data.NT_score['Cell_NTScore'])
+    data_df = ana_data.meta_data_df.join(ana_data.NT_score['Cell_NTScore'])
     if ana_data.options.reverse: data_df['Cell_NTScore'] = 1 - data_df['Cell_NTScore']
 
     cell_types = ana_data.cell_type_codes['Cell_Type'].to_list()
@@ -117,7 +117,7 @@ def plot_kde_cell_type_along_NT_score_from_anadata(ana_data: AnaData) -> Optiona
         warning(str(e))
         return None
 
-    data_df = ana_data.meta_df.join(ana_data.NT_score['Cell_NTScore'])
+    data_df = ana_data.meta_data_df.join(ana_data.NT_score['Cell_NTScore'])
     if ana_data.options.reverse: data_df['Cell_NTScore'] = 1 - data_df['Cell_NTScore']
 
     return plot_kde_cell_type_along_NT_score(data_df=data_df, output_file_path=ana_data.options.output)
@@ -162,7 +162,7 @@ def plot_hist_cell_type_along_NT_score_from_anadata(ana_data: AnaData) -> Option
         warning(str(e))
         return None
 
-    data_df = ana_data.meta_df.join(ana_data.NT_score['Cell_NTScore'])
+    data_df = ana_data.meta_data_df.join(ana_data.NT_score['Cell_NTScore'])
     if ana_data.options.reverse: data_df['Cell_NTScore'] = 1 - data_df['Cell_NTScore']
 
     cell_types = ana_data.cell_type_codes['Cell_Type'].to_list()
@@ -187,7 +187,7 @@ def plot_cell_type_along_NT_score(ana_data: AnaData) -> None:
         warning(str(e))
         return None
 
-    data_df = ana_data.meta_df.join(ana_data.NT_score['Cell_NTScore'])
+    data_df = ana_data.meta_data_df.join(ana_data.NT_score['Cell_NTScore'])
     if ana_data.options.reverse: data_df['Cell_NTScore'] = 1 - data_df['Cell_NTScore']
 
     cell_types = ana_data.cell_type_codes['Cell_Type'].to_list()
@@ -255,7 +255,7 @@ def plot_cell_type_loading_in_niche_clusters_from_anadata(ana_data: AnaData) -> 
         return None
 
     # calculate cell type distribution in each niche cluster
-    data_df = ana_data.meta_df.join(ana_data.cell_level_niche_cluster_assign)
+    data_df = ana_data.meta_data_df.join(ana_data.cell_level_niche_cluster_assign)
     t = pd.CategoricalDtype(categories=ana_data.cell_type_codes['Cell_Type'], ordered=True)
     cell_type_one_hot = np.zeros(shape=(data_df.shape[0], ana_data.cell_type_codes.shape[0]))
     cell_type = data_df['Cell_Type'].astype(t)
@@ -316,7 +316,7 @@ def plot_cell_type_dis_in_niche_clusters_from_anadata(ana_data: AnaData) -> Opti
         return None
 
     # calculate cell type distribution in each niche cluster
-    data_df = ana_data.meta_df.join(ana_data.cell_level_niche_cluster_assign)
+    data_df = ana_data.meta_data_df.join(ana_data.cell_level_niche_cluster_assign)
     t = pd.CategoricalDtype(categories=ana_data.cell_type_codes['Cell_Type'], ordered=True)
     cell_type_one_hot = np.zeros(shape=(data_df.shape[0], ana_data.cell_type_codes.shape[0]))
     cell_type = data_df['Cell_Type'].astype(t)
@@ -377,7 +377,7 @@ def plot_cell_type_across_niche_cluster_from_anadata(ana_data: AnaData) -> Optio
         return None
 
     # calculate cell type distribution in each niche cluster
-    data_df = ana_data.meta_df.join(ana_data.cell_level_niche_cluster_assign)
+    data_df = ana_data.meta_data_df.join(ana_data.cell_level_niche_cluster_assign)
     t = pd.CategoricalDtype(categories=ana_data.cell_type_codes['Cell_Type'], ordered=True)
     cell_type_one_hot = np.zeros(shape=(data_df.shape[0], ana_data.cell_type_codes.shape[0]))
     cell_type = data_df['Cell_Type'].astype(t)
@@ -419,7 +419,7 @@ def plot_cell_type_with_niche_cluster(ana_data: AnaData) -> None:
         return None
 
     # calculate cell type distribution in each niche cluster
-    data_df = ana_data.meta_df.join(ana_data.cell_level_niche_cluster_assign)
+    data_df = ana_data.meta_data_df.join(ana_data.cell_level_niche_cluster_assign)
     t = pd.CategoricalDtype(categories=ana_data.cell_type_codes['Cell_Type'], ordered=True)
     cell_type_one_hot = np.zeros(shape=(data_df.shape[0], ana_data.cell_type_codes.shape[0]))
     cell_type = data_df['Cell_Type'].astype(t)
