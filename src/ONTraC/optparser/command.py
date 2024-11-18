@@ -24,12 +24,12 @@ def prepare_ontrac_optparser() -> OptionParser:
     io_options: List[str] = IO_OPTIONS['ONTraC']  # type: ignore
 
     # usage and description
-    usage = f'''USAGE: %prog <--NN-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NT-dir NTSCORE_DIR> <--meta-input META_INPUT> 
+    usage = f'''USAGE: %prog <--NN-dir NN_DIR> <--GNN-dir GNN_DIR> <--NT-dir NT_DIR> <--meta-input META_INPUT> 
     [--n-cpu N_CPU] [--n-neighbors N_NEIGHBORS] [--n-local N_LOCAL] [--device DEVICE] [--epochs EPOCHS] [--patience PATIENCE]
     [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] [-s SEED] [--lr LR] [--hidden-feats HIDDEN_FEATS]
-    [--n-gcn-layers N_GCN_LAYERS] [-k K_CLUSTERS] [--modularity-loss-weight MODULARITY_LOSS_WEIGHT] [--purity-loss-weight PURITY_LOSS_WEIGHT]
+    [--n-gcn-layers N_GCN_LAYERS] [-k K] [--modularity-loss-weight MODULARITY_LOSS_WEIGHT] [--purity-loss-weight PURITY_LOSS_WEIGHT]
     [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA] [--trajectory-construct TRAJECTORY_CONSTRUCT]'''
-    description = 'All steps of ONTraC including dataset creation, Graph Pooling, and NT score calculation.'
+    description = 'All steps of ONTraC including niche network construction, GNN, and niche construction.'
 
     # option processor
     optparser = OptionParser(version=f'%prog {__version__}', description=description, usage=usage, add_help_option=True)
@@ -100,9 +100,9 @@ def prepare_nn_optparser() -> OptionParser:
     io_options: List[str] = IO_OPTIONS['ONTraC_NN']  # type: ignore
 
     # usage and description
-    usage = f'''USAGE: %prog <--NN-dir PREPROCESSING_DIR> <--meta-input META_INPUT>
+    usage = f'''USAGE: %prog <--NN-dir NN_DIR> <--meta-input META_INPUT>
     [--n-cpu N_CPU] [--n-neighbors N_NEIGHBORS] [--n-local N_LOCAL]'''
-    description = 'Preporcessing and create dataset for GNN and following analysis.'
+    description = 'Create niche network and calculate features (normalized cell type composition).'
 
     # option processor
     optparser = OptionParser(version=f'%prog {__version__}', description=description, usage=usage, add_help_option=True)
@@ -153,9 +153,9 @@ def prepare_gnn_optparser() -> OptionParser:
     io_options: List[str] = IO_OPTIONS['ONTraC_GNN']  # type: ignore
 
     # usage and description
-    usage = f'''USAGE: %prog <--NN-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> [--device DEVICE]
+    usage = f'''USAGE: %prog <--NN-dir NN_DIR> <--GNN-dir GNN_DIR> [--device DEVICE]
     [--epochs EPOCHS] [--patience PATIENCE] [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] 
-    [-s SEED] [--lr LR] [--hidden-feats HIDDEN_FEATS] [--n-gcn-layers N_GCN_LAYERS] [-k K_CLUSTERS]
+    [-s SEED] [--lr LR] [--hidden-feats HIDDEN_FEATS] [--n-gcn-layers N_GCN_LAYERS] [-k K]
     [--modularity-loss-weight MODULARITY_LOSS_WEIGHT] [--purity-loss-weight PURITY_LOSS_WEIGHT] 
     [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA]'''
     description = 'Graph Neural Network (GNN). The core algorithm of ONTraC.'
@@ -215,7 +215,7 @@ def prepare_nt_optparser() -> OptionParser:
     io_options: List[str] = IO_OPTIONS['ONTraC_NT']  # type: ignore
 
     # usage and description
-    usage = f'''USAGE: %prog <--NN-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NT-dir NTSCORE_DIR> 
+    usage = f'''USAGE: %prog <--NN-dir NN_DIR> <--GNN-dir GNN_DIR> <--NT-dir NT_DIR> 
             [--trajectory-construct TRAJECTORY_CONSTRUCT]'''
     description = 'ONTraC_NT: construct niche trajectory for niche cluster and project the NT score to each cell'
 
@@ -264,9 +264,9 @@ def prepare_gt_optparser() -> OptionParser:
     # args
     io_options: List[str] = IO_OPTIONS['ONTraC_GT']  # type: ignore
 
-    usage = f'''USAGE: %prog <--NN-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NT-dir NTSCORE_DIR>
-    [--device DEVICE] [--epochs EPOCHS] [--patience PATIENCE] [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] 
-    [-s SEED] [--lr LR] [--hidden-feats HIDDEN_FEATS] [--n-gcn-layers N_GCN_LAYERS] [-k K_CLUSTERS]
+    usage = f'''USAGE: %prog <--NN-dir NN_DIR> <--GNN-dir GNN_DIR> <--NT-dir NT_DIR> [--device DEVICE]
+    [--epochs EPOCHS] [--patience PATIENCE] [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] 
+    [-s SEED] [--lr LR] [--hidden-feats HIDDEN_FEATS] [--n-gcn-layers N_GCN_LAYERS] [-k K]
     [--modularity-loss-weight MODULARITY_LOSS_WEIGHT] [--purity-loss-weight PURITY_LOSS_WEIGHT] 
     [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA] [--trajectory-construct TRAJECTORY_CONSTRUCT]'''
     description = 'ONTraC_GT: GNN and Niche Trajectory'
@@ -333,7 +333,10 @@ def prepare_analysis_optparser() -> OptionParser:
     # args
     io_options: List[str] = IO_OPTIONS['ONTraC_analysis']  # type: ignore
 
-    usage = f'''USAGE: %prog <--NN-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NT-dir NTSCORE_DIR> [--device DEVICE]'''
+    usage = f'''USAGE: %prog [--NN-dir NN_DIR] [--GNN-dir GNN_DIR] [--NT-dir NT_DIR] [-o OUTPUT]
+    [--meta-input META_INPUT] [-l LOG] [-r REVERSE] [-s SAMPLE] [--scale-factor SCALE_FACTOR]
+    [--suppress-cell-type-composition] [--suppress-niche-cluster-loadings] [--suppress-niche-trajectory]
+    '''
     description = 'ONTraC_analysis: analysis of ONTraC results'
 
     # option processor

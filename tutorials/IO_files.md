@@ -4,7 +4,7 @@
 
 ### meta data file
 
-A example meta data file is provided in `examples/stereo_seq_brain/meta_data.csv`.
+A example meta data file is provided in [Zenodo](https://zenodo.org/records/11186620/files/stereo_seq_dataset.csv).
 The meta data file looks like the following:
 
 An example meta file is provided [here](../examples/V2/data/merfish_meta.csv).
@@ -17,9 +17,9 @@ The meta file looks like the following:
 | ...                                     | ...             | ...       | ...                | ...                 |
 | 99747739584919120436167521663441290055  | mouse1_slice221 | L2/3 IT   | -787.2270166575909 | -2622.3839544013144 |
 
-- Cell_ID/Spot_ID
+- Cell_ID
 
-  The name of each cell/spot. It should be Cell_ID for cell-level data and Spot_ID for low resolution data.
+  The name of each cell. It should be Cell_ID for cell-level data and Spot_ID for low resolution data.
   Warning: Duplicated Cell_IDs within the same sample are not permitted. In the event of duplicated Cell_IDs across samples, the sample name will be prefixed to Cell_ID.
 
 - Sample
@@ -96,6 +96,8 @@ The embedding file looks like the following:
 it should be a #cell_type × #gene data frame in csv format.
 
 ## Output files
+
+A example output is provided in [Zenodo](https://zenodo.org/records/11186620/files/stereo_seq_output.zip).
 
 ### NN-dir
 

@@ -14,17 +14,113 @@ import seaborn as sns
 
 from ..log import warning
 from .data import AnaData
+from .utils import saptial_figsize
 
 
-def plot_violin_cell_type_along_NT_score(
-        data_df: pd.DataFrame,
-        cell_types: List[str],
-        output_file_path: Optional[Union[str, Path]] = None) -> Optional[Tuple[plt.Figure, plt.Axes]]:
+def plot_spatial_cell_type_distribution_dataset(data_df: pd.DataFrame,
+                                                output_file_path: Optional[Union[str, Path]] = None,
+                                                **kwargs) -> Optional[Tuple[plt.Figure, List[plt.Axes]]]:
+    """
+    Plot spatial cell type distribution.
+    :param data_df: pd.DataFrame, the data for visualization.
+    :param output_file_path: Optional[Union[str, Path]], the output directory.
+    :param kwargs: Optional, the additional arguments for visualization using seaborn.scatterplot.
+    :return: None or Tuple[plt.Figure, plt.Axes].
+    """
+
+    samples = data_df['Sample'].unique()
+    N = len(samples)
+    fig, axes = plt.subplots(1, N, figsize=(4 * N, 3))
+    for i, sample in enumerate(samples):
+        sample_df = data_df.loc[data_df['Sample'] == sample]
+        ax: plt.Axes = axes[i] if N > 1 else axes  # type: ignore
+        sns.scatterplot(data=sample_df, x='x', y='y', hue='Cell_Type', s=8, ax=ax, **kwargs)
+        ax.set_xlabel('X coordinate')
+        ax.set_ylabel('Y coordinate')
+        ax.legend(loc='upper left', bbox_to_anchor=(1, 1))
+    fig.tight_layout()
+    if output_file_path is not None:
+        fig.savefig(f'{output_file_path}/spatial_cell_type_distribution.pdf', transparent=True)
+        plt.close(fig)
+        return None
+    else:
+        return fig, axes
+
+
+def plot_spatial_cell_type_distribution_dataset_from_anadata(ana_data: AnaData,
+                                                             **kwargs) -> Optional[Tuple[plt.Figure, List[plt.Axes]]]:
+    """
+    Plot spatial cell type distribution.
+    :param ana_data: AnaData, the data for analysis.
+    :param kwargs: Optional, the additional arguments for visualization using seaborn.scatterplot.
+    :return: None or Tuple[plt.Figure, plt.Axes].
+    """
+
+    if 'Cell_Type' not in ana_data.meta_data_df.columns:
+        warning("No cell type data found. Skip spatial cell type distribution visualization.")
+        return None
+
+    return plot_spatial_cell_type_distribution_dataset(data_df=ana_data.meta_data_df,
+                                                       output_file_path=ana_data.options.output,
+                                                       **kwargs)
+
+
+def plot_spatial_cell_type_distribution_sample(data_df: pd.DataFrame,
+                                               output_file_path: Optional[Union[str, Path]] = None,
+                                               **kwargs) -> Optional[List[Tuple[plt.Figure, plt.Axes]]]:
+    """
+    Plot spatial cell type distribution.
+    :param data_df: pd.DataFrame, the data for visualization.
+    :param output_file_path: Optional[Union[str, Path]], the output directory.
+    :param kwargs: Optional, the additional arguments for visualization using seaborn.scatterplot.
+    :return: None or Tuple[plt.Figure, plt.Axes].
+    """
+
+    samples = data_df['Sample'].unique()
+    output = []
+    for sample in samples:
+        sample_df = data_df.loc[data_df['Sample'] == sample]
+        fig, ax = plt.subplots(figsize=saptial_figsize(sample_df))
+        sns.scatterplot(data=sample_df, x='x', y='y', hue='Cell_Type', s=8, ax=ax, **kwargs)
+        ax.set_xlabel('X coordinate')
+        ax.set_ylabel('Y coordinate')
+        ax.legend(loc='upper left', bbox_to_anchor=(1, 1))
+        fig.tight_layout()
+        output.append((fig, ax))
+        if output_file_path is not None:
+            fig.savefig(f'{output_file_path}/spatial_cell_type_distribution_{sample}.pdf', transparent=True)
+            plt.close(fig)
+    return output
+
+
+def plot_spatial_cell_type_distribution_sample_from_anadata(ana_data: AnaData,
+                                                            **kwargs) -> Optional[List[Tuple[plt.Figure, plt.Axes]]]:
+    """
+    Plot spatial cell type distribution.
+    :param ana_data: AnaData, the data for analysis.
+    :param kwargs: Optional, the additional arguments for visualization using seaborn.scatterplot.
+    :return: None or Tuple[plt.Figure, plt.Axes].
+    """
+
+    if 'Cell_Type' not in ana_data.meta_data_df.columns:
+        warning("No cell type data found. Skip spatial cell type distribution visualization.")
+        return None
+
+    return plot_spatial_cell_type_distribution_sample(data_df=ana_data.meta_data_df,
+                                                      output_file_path=ana_data.options.output,
+                                                      **kwargs)
+
+
+def plot_violin_cell_type_along_NT_score(data_df: pd.DataFrame,
+                                         cell_types: List[str],
+                                         output_file_path: Optional[Union[str, Path]] = None,
+                                         **kwargs) -> Optional[Tuple[plt.Figure, plt.Axes]]:
     """
     Plot violinplot cell type composition along NT score.
     :param data_df: pd.DataFrame, the data for visualization.
     :param cell_types: List[str], the cell types.
     :param output_file_path: Optional[Union[str, Path]], the output directory.
+    :param kwargs: Optional, the additional arguments for visualization using seaborn.violinplot.
     :return: None or Tuple[plt.Figure, plt.Axes].
     """
 
@@ -43,7 +139,8 @@ def plot_violin_cell_type_along_NT_score(
                    fill=False,
                    common_norm=True,
                    legend=False,
-                   ax=ax)
+                   ax=ax,
+                   **kwargs)
     ax.set_xlabel('Cell-level NT score')
     ax.set_ylabel('Cell Type')
     fig.tight_layout()
@@ -55,10 +152,12 @@ def plot_violin_cell_type_along_NT_score(
         return fig, ax
 
 
-def plot_violin_cell_type_along_NT_score_from_anadata(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.Axes]]:
+def plot_violin_cell_type_along_NT_score_from_anadata(ana_data: AnaData,
+                                                      **kwargs) -> Optional[Tuple[plt.Figure, plt.Axes]]:
     """
     Plot violinplot cell type composition along NT score.
     :param ana_data: AnaData, the data for analysis.
+    :param kwargs: Optional, the additional arguments for visualization using seaborn.violinplot.
     :return: None or Tuple[plt.Figure, plt.Axes].
     """
 
@@ -70,14 +169,15 @@ def plot_violin_cell_type_along_NT_score_from_anadata(ana_data: AnaData) -> Opti
         warning(str(e))
         return None
 
-    data_df = ana_data.meta_df.join(ana_data.NT_score['Cell_NTScore'])
+    data_df = ana_data.meta_data_df.join(ana_data.NT_score['Cell_NTScore'])
     if ana_data.options.reverse: data_df['Cell_NTScore'] = 1 - data_df['Cell_NTScore']
 
     cell_types = ana_data.cell_type_codes['Cell_Type'].to_list()
 
     return plot_violin_cell_type_along_NT_score(data_df=data_df,
                                                 cell_types=cell_types,
-                                                output_file_path=ana_data.options.output)
+                                                output_file_path=ana_data.options.output,
+                                                **kwargs)
 
 
 def plot_kde_cell_type_along_NT_score(
@@ -117,7 +217,7 @@ def plot_kde_cell_type_along_NT_score_from_anadata(ana_data: AnaData) -> Optiona
         warning(str(e))
         return None
 
-    data_df = ana_data.meta_df.join(ana_data.NT_score['Cell_NTScore'])
+    data_df = ana_data.meta_data_df.join(ana_data.NT_score['Cell_NTScore'])
     if ana_data.options.reverse: data_df['Cell_NTScore'] = 1 - data_df['Cell_NTScore']
 
     return plot_kde_cell_type_along_NT_score(data_df=data_df, output_file_path=ana_data.options.output)
@@ -162,7 +262,7 @@ def plot_hist_cell_type_along_NT_score_from_anadata(ana_data: AnaData) -> Option
         warning(str(e))
         return None
 
-    data_df = ana_data.meta_df.join(ana_data.NT_score['Cell_NTScore'])
+    data_df = ana_data.meta_data_df.join(ana_data.NT_score['Cell_NTScore'])
     if ana_data.options.reverse: data_df['Cell_NTScore'] = 1 - data_df['Cell_NTScore']
 
     cell_types = ana_data.cell_type_codes['Cell_Type'].to_list()
@@ -187,7 +287,7 @@ def plot_cell_type_along_NT_score(ana_data: AnaData) -> None:
         warning(str(e))
         return None
 
-    data_df = ana_data.meta_df.join(ana_data.NT_score['Cell_NTScore'])
+    data_df = ana_data.meta_data_df.join(ana_data.NT_score['Cell_NTScore'])
     if ana_data.options.reverse: data_df['Cell_NTScore'] = 1 - data_df['Cell_NTScore']
 
     cell_types = ana_data.cell_type_codes['Cell_Type'].to_list()
@@ -261,7 +361,7 @@ def plot_cell_type_loading_in_niche_clusters_from_anadata(ana_data: AnaData) -> 
         return None
 
     # calculate cell type distribution in each niche cluster
-    data_df = ana_data.meta_df.join(ana_data.cell_level_niche_cluster_assign)
+    data_df = ana_data.meta_data_df.join(ana_data.cell_level_niche_cluster_assign)
     t = pd.CategoricalDtype(categories=ana_data.cell_type_codes['Cell_Type'], ordered=True)
     cell_type_one_hot = np.zeros(shape=(data_df.shape[0], ana_data.cell_type_codes.shape[0]))
     cell_type = data_df['Cell_Type'].astype(t)
@@ -303,7 +403,7 @@ def plot_cell_type_dis_in_niche_clusters(
         return fig, ax
 
 
-def plot_cell_type_dis_in_niche_clusters_from_anadata(ana_data: AnaData) -> Optional[sns.FacetGrid]:
+def plot_cell_type_dis_in_niche_clusters_from_anadata(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.Axes]]:
     """
     Plot cell type distribution in each niche cluster.
     :param ana_data: AnaData, the data for analysis.
@@ -322,7 +422,7 @@ def plot_cell_type_dis_in_niche_clusters_from_anadata(ana_data: AnaData) -> Opti
         return None
 
     # calculate cell type distribution in each niche cluster
-    data_df = ana_data.meta_df.join(ana_data.cell_level_niche_cluster_assign)
+    data_df = ana_data.meta_data_df.join(ana_data.cell_level_niche_cluster_assign)
     t = pd.CategoricalDtype(categories=ana_data.cell_type_codes['Cell_Type'], ordered=True)
     cell_type_one_hot = np.zeros(shape=(data_df.shape[0], ana_data.cell_type_codes.shape[0]))
     cell_type = data_df['Cell_Type'].astype(t)
@@ -338,8 +438,8 @@ def plot_cell_type_dis_in_niche_clusters_from_anadata(ana_data: AnaData) -> Opti
     nc_order = [f'NicheCluster_{x}' for x in nc_scores.argsort()]
     cell_type_dis_df = cell_type_dis_df.loc[nc_order]
 
-    return plot_cell_type_loading_in_niche_clusters(cell_type_dis_df=cell_type_dis_df,
-                                                    output_file_path=ana_data.options.output)
+    return plot_cell_type_dis_in_niche_clusters(cell_type_dis_df=cell_type_dis_df,
+                                                output_file_path=ana_data.options.output)
 
 
 def plot_cell_type_across_niche_cluster(
@@ -383,7 +483,7 @@ def plot_cell_type_across_niche_cluster_from_anadata(ana_data: AnaData) -> Optio
         return None
 
     # calculate cell type distribution in each niche cluster
-    data_df = ana_data.meta_df.join(ana_data.cell_level_niche_cluster_assign)
+    data_df = ana_data.meta_data_df.join(ana_data.cell_level_niche_cluster_assign)
     t = pd.CategoricalDtype(categories=ana_data.cell_type_codes['Cell_Type'], ordered=True)
     cell_type_one_hot = np.zeros(shape=(data_df.shape[0], ana_data.cell_type_codes.shape[0]))
     cell_type = data_df['Cell_Type'].astype(t)
@@ -425,7 +525,7 @@ def plot_cell_type_with_niche_cluster(ana_data: AnaData) -> None:
         return None
 
     # calculate cell type distribution in each niche cluster
-    data_df = ana_data.meta_df.join(ana_data.cell_level_niche_cluster_assign)
+    data_df = ana_data.meta_data_df.join(ana_data.cell_level_niche_cluster_assign)
     t = pd.CategoricalDtype(categories=ana_data.cell_type_codes['Cell_Type'], ordered=True)
     cell_type_one_hot = np.zeros(shape=(data_df.shape[0], ana_data.cell_type_codes.shape[0]))
     cell_type_one_hot[np.arange(data_df.shape[0]),

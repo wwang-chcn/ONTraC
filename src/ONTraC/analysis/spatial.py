@@ -15,24 +15,27 @@ from .utils import saptial_figsize
 
 
 def plot_cell_type_composition_dataset(
+        meta_data_df: pd.DataFrame,
+        cell_type_codes: pd.DataFrame,
         cell_type_composition: pd.DataFrame,
-        meta_df: pd.DataFrame,
         output_file_path: Optional[Union[str, Path]] = None) -> Optional[Tuple[plt.Figure, plt.Axes]]:
     """
     Plot spatial distribution of cell type composition.
+    :param meta_data_df: pd.DataFrame, the meta data.
+    :param cell_type_codes: pd.DataFrame, the cell type codes.
     :param cell_type_composition: pd.DataFrame, the cell type composition data.
-    :param meta_df: pd.DataFrame, the meta data.
     :param output_file_path: Optional[Union[str, Path]], the output file path.
     :return: None or Tuple[plt.Figure, plt.Axes].
     """
 
-    samples: List[str] = meta_df['Sample'].unique().tolist()
-    cell_types: List[str] = meta_df['Cell_Type'].tolist()
+    samples: List[str] = meta_data_df['Sample'].unique().tolist()
+    cell_types: List[str] = cell_type_codes['Cell_Type'].tolist()
 
     M, N = len(samples), len(cell_types)
     fig, axes = plt.subplots(M, N, figsize=(3.5 * N, 3 * M))
     for i, sample in enumerate(samples):
-        sample_df = cell_type_composition.loc[meta_df[meta_df['Sample'] == sample].index]
+        sample_df = cell_type_composition.loc[meta_data_df['Sample'] == sample]
+        sample_df = sample_df.join(meta_data_df.loc[sample_df.index][['x', 'y']])
         for j, cell_type in enumerate(cell_types):
             ax = axes[i, j] if M > 1 else axes[j]
             scatter = ax.scatter(sample_df['x'],
@@ -56,7 +59,7 @@ def plot_cell_type_composition_dataset(
         return fig, axes
 
 
-def plot_cell_type_composition_dataset_from_anandata(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.Axes]]:
+def plot_cell_type_composition_dataset_from_anadata(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.Axes]]:
     """
     Plot spatial distribution of cell type composition.
     :param ana_data: AnaData, the data for analysis.
@@ -71,28 +74,36 @@ def plot_cell_type_composition_dataset_from_anandata(ana_data: AnaData) -> Optio
         warning(str(e))
         return None
 
-    return plot_cell_type_composition_dataset(cell_type_composition=ana_data.cell_type_composition,
-                                              meta_df=ana_data.cell_type_codes,
+    return plot_cell_type_composition_dataset(meta_data_df=ana_data.meta_data_df,
+                                              cell_type_codes=ana_data.cell_type_codes,
+                                              cell_type_composition=ana_data.cell_type_composition,
                                               output_file_path=ana_data.options.output)
 
 
 def plot_cell_type_composition_sample(
+        meta_data_df: pd.DataFrame,
+        cell_type_codes: pd.DataFrame,
         cell_type_composition: pd.DataFrame,
-        meta_df: pd.DataFrame,
         spatial_scaling_factor: float = 1.0,
         output_file_path: Optional[Union[str, Path]] = None) -> Optional[List[Tuple[plt.Figure, plt.Axes]]]:
     """
     Plot spatial distribution of cell type composition.
+    :param meta_data_df: pd.DataFrame, the meta data.
+    :param cell_type_codes: pd.DataFrame, the cell type codes.
+    :param cell_type_composition: pd.DataFrame, the cell type composition data.
+    :param spatial_scaling_factor: float, the scale factor control the size of spatial-based plots.
+    :param output_file_path: Optional[Union[str, Path]], the output file path.
     :return: None.
     """
 
-    samples: List[str] = meta_df['Sample'].unique().tolist()
-    cell_types: List[str] = meta_df['Cell_Type'].tolist()
+    samples: List[str] = meta_data_df['Sample'].unique().tolist()
+    cell_types: List[str] = cell_type_codes['Cell_Type'].tolist()
 
     output = []
     N = len(cell_types)
     for sample in samples:
-        sample_df = cell_type_composition.loc[meta_df[meta_df['Sample'] == sample].index]
+        sample_df = cell_type_composition.loc[meta_data_df['Sample'] == sample]
+        sample_df = sample_df.join(meta_data_df[['x', 'y']])
         fig_width, fig_height = saptial_figsize(sample_df, scaling_factor=spatial_scaling_factor)
         fig, axes = plt.subplots(1, N, figsize=(fig_width * N, fig_height))
         for j, cell_type in enumerate(cell_types):
@@ -117,7 +128,7 @@ def plot_cell_type_composition_sample(
     return output if len(output) > 0 else None
 
 
-def plot_cell_type_composition_sample_from_anandata(ana_data: AnaData) -> Optional[List[Tuple[plt.Figure, plt.Axes]]]:
+def plot_cell_type_composition_sample_from_anadata(ana_data: AnaData) -> Optional[List[Tuple[plt.Figure, plt.Axes]]]:
     """
     Plot spatial distribution of cell type composition.
     :param ana_data: AnaData, the data for analysis.
@@ -132,8 +143,9 @@ def plot_cell_type_composition_sample_from_anandata(ana_data: AnaData) -> Option
         warning(str(e))
         return None
 
-    return plot_cell_type_composition_sample(cell_type_composition=ana_data.cell_type_composition,
-                                             meta_df=ana_data.cell_type_codes,
+    return plot_cell_type_composition_sample(meta_data_df=ana_data.meta_data_df,
+                                             cell_type_codes=ana_data.cell_type_codes,
+                                             cell_type_composition=ana_data.cell_type_composition,
                                              spatial_scaling_factor=ana_data.options.scale_factor,
                                              output_file_path=ana_data.options.output)
 
@@ -147,31 +159,31 @@ def plot_cell_type_composition(
     """
 
     if hasattr(ana_data.options, 'sample') and ana_data.options.sample:
-        return plot_cell_type_composition_sample_from_anandata(ana_data=ana_data)
+        return plot_cell_type_composition_sample_from_anadata(ana_data=ana_data)
     else:
-        return plot_cell_type_composition_dataset_from_anandata(ana_data=ana_data)
+        return plot_cell_type_composition_dataset_from_anadata(ana_data=ana_data)
 
 
 def plot_niche_NT_score_dataset(
         NT_score: pd.DataFrame,
-        meta_df: pd.DataFrame,
+        meta_data_df: pd.DataFrame,
         reverse: bool = False,
         output_file_path: Optional[Union[str, Path]] = None) -> Optional[Tuple[plt.Figure, plt.Axes]]:
     """
     Plot spatial distribution of niche NT score.
     :param NT_score: pd.DataFrame, the NT score data.
-    :param meta_df: pd.DataFrame, the meta data.
+    :param meta_data_df: pd.DataFrame, the meta data.
     :param reverse: bool, reverse the NT score or not.
     :param output_file_path: Optional[Union[str, Path]], the output file path.
     :return: None or Tuple[plt.Figure, plt.Axes].
     """
 
-    samples: List[str] = meta_df['Sample'].unique().tolist()
+    samples: List[str] = meta_data_df['Sample'].unique().tolist()
 
     N = len(samples)
     fig, axes = plt.subplots(1, N, figsize=(3.5 * N, 3))
     for i, sample in enumerate(samples):
-        sample_df = NT_score.loc[meta_df[meta_df['Sample'] == sample].index]
+        sample_df = NT_score.loc[meta_data_df[meta_data_df['Sample'] == sample].index]
         ax: plt.Axes = axes[i] if N > 1 else axes  # type: ignore
         NT_score_values = sample_df['Niche_NTScore'] if not reverse else 1 - sample_df['Niche_NTScore']
         scatter = ax.scatter(sample_df['x'], sample_df['y'], c=NT_score_values, cmap='rainbow', vmin=0, vmax=1, s=1)
@@ -205,32 +217,32 @@ def plot_niche_NT_score_dataset_from_anadata(ana_data: AnaData) -> Optional[Tupl
         return None
 
     return plot_niche_NT_score_dataset(NT_score=ana_data.NT_score,
-                                       meta_df=ana_data.meta_df,
+                                       meta_data_df=ana_data.meta_data_df,
                                        reverse=ana_data.options.reverse,
                                        output_file_path=ana_data.options.output)
 
 
 def plot_niche_NT_score_sample(
         NT_score: pd.DataFrame,
-        meta_df: pd.DataFrame,
+        meta_data_df: pd.DataFrame,
         reverse: bool = False,
         spatial_scaling_factor: float = 1.0,
         output_file_path: Optional[Union[str, Path]] = None) -> Optional[List[Tuple[plt.Figure, plt.Axes]]]:
     """
     Plot spatial distribution of niche NT score.
     :param NT_score: pd.DataFrame, the NT score data.
-    :param meta_df: pd.DataFrame, the meta data.
+    :param meta_data_df: pd.DataFrame, the meta data.
     :param reverse: bool, reverse the NT score or not.
     :param spatial_scaling_factor: float, the scale factor control the size of spatial-based plots.
     :param output_file_path: Optional[Union[str, Path]], the output file path.
     :return: None or Tuple[plt.Figure, plt.Axes].
     """
 
-    samples: List[str] = meta_df['Sample'].unique().tolist()
+    samples: List[str] = meta_data_df['Sample'].unique().tolist()
 
     output = []
     for sample in samples:
-        sample_df = NT_score.loc[meta_df[meta_df['Sample'] == sample].index]
+        sample_df = NT_score.loc[meta_data_df[meta_data_df['Sample'] == sample].index]
         fig_width, fig_height = saptial_figsize(sample_df, scaling_factor=spatial_scaling_factor)
         fig, ax = plt.subplots(1, 1, figsize=(fig_width, fig_height))
         NT_score_values = sample_df['Niche_NTScore'] if not reverse else 1 - sample_df['Niche_NTScore']
@@ -265,7 +277,7 @@ def plot_niche_NT_score_sample_from_anadata(ana_data: AnaData) -> Optional[List[
         return None
 
     return plot_niche_NT_score_sample(NT_score=ana_data.NT_score,
-                                      meta_df=ana_data.meta_df,
+                                      meta_data_df=ana_data.meta_data_df,
                                       reverse=ana_data.options.reverse,
                                       spatial_scaling_factor=ana_data.options.scale_factor,
                                       output_file_path=ana_data.options.output)
@@ -287,24 +299,24 @@ def plot_niche_NT_score(
 
 def plot_cell_NT_score_dataset(
         NT_score: pd.DataFrame,
-        meta_df: pd.DataFrame,
+        meta_data_df: pd.DataFrame,
         reverse: bool = False,
         output_file_path: Optional[Union[str, Path]] = None) -> Optional[Tuple[plt.Figure, plt.Axes]]:
     """
     Plot spatial distribution of cell NT score.
     :param NT_score: pd.DataFrame, the NT score data.
-    :param meta_df: pd.DataFrame, the meta data.
+    :param meta_data_df: pd.DataFrame, the meta data.
     :param reverse: bool, reverse the NT score or not.
     :param output_file_path: Optional[Union[str, Path]], the output file path.
     :return: None or Tuple[plt.Figure, plt.Axes].
     """
 
-    samples: List[str] = meta_df['Sample'].unique().tolist()
+    samples: List[str] = meta_data_df['Sample'].unique().tolist()
 
     N = len(samples)
     fig, axes = plt.subplots(1, N, figsize=(3.5 * N, 3))
     for i, sample in enumerate(samples):
-        sample_df = NT_score.loc[meta_df[meta_df['Sample'] == sample].index]
+        sample_df = NT_score.loc[meta_data_df[meta_data_df['Sample'] == sample].index]
         ax: plt.Axes = axes[i] if N > 1 else axes  # type: ignore
         NT_score_values = sample_df['Cell_NTScore'] if not reverse else 1 - sample_df['Cell_NTScore']
         scatter = ax.scatter(sample_df['x'], sample_df['y'], c=NT_score_values, cmap='rainbow', vmin=0, vmax=1, s=1)
@@ -338,32 +350,32 @@ def plot_cell_NT_score_dataset_from_anadata(ana_data: AnaData) -> Optional[Tuple
         return None
 
     return plot_cell_NT_score_dataset(NT_score=ana_data.NT_score,
-                                      meta_df=ana_data.meta_df,
+                                      meta_data_df=ana_data.meta_data_df,
                                       reverse=ana_data.options.reverse,
                                       output_file_path=ana_data.options.output)
 
 
 def plot_cell_NT_score_sample(
         NT_score: pd.DataFrame,
-        meta_df: pd.DataFrame,
+        meta_data_df: pd.DataFrame,
         reverse: bool = False,
         spatial_scaling_factor: float = 1.0,
         output_file_path: Optional[Union[str, Path]] = None) -> Optional[List[Tuple[plt.Figure, plt.Axes]]]:
     """
     Plot spatial distribution of cell NT score.
     :param NT_score: pd.DataFrame, the NT score data.
-    :param meta_df: pd.DataFrame, the meta data.
+    :param meta_data_df: pd.DataFrame, the meta data.
     :param reverse: bool, reverse the NT score or not.
     :param spatial_scaling_factor: float, the scale factor control the size of spatial-based plots.
     :param output_file_path: Optional[Union[str, Path]], the output file path.
     :return: None or Tuple[plt.Figure, plt.Axes].
     """
 
-    samples: List[str] = meta_df['Sample'].unique().tolist()
+    samples: List[str] = meta_data_df['Sample'].unique().tolist()
 
     output = []
     for sample in samples:
-        sample_df = NT_score.loc[meta_df[meta_df['Sample'] == sample].index]
+        sample_df = NT_score.loc[meta_data_df[meta_data_df['Sample'] == sample].index]
         fig_width, fig_height = saptial_figsize(sample_df, scaling_factor=spatial_scaling_factor)
         fig, ax = plt.subplots(1, 1, figsize=(fig_width, fig_height))
         NT_score_values = sample_df['Cell_NTScore'] if not reverse else 1 - sample_df['Cell_NTScore']
@@ -398,7 +410,7 @@ def plot_cell_NT_score_sample_from_anadata(ana_data: AnaData) -> Optional[List[T
         return None
 
     return plot_cell_NT_score_sample(NT_score=ana_data.NT_score,
-                                     meta_df=ana_data.meta_df,
+                                     meta_data_df=ana_data.meta_data_df,
                                      reverse=ana_data.options.reverse,
                                      spatial_scaling_factor=ana_data.options.scale_factor,
                                      output_file_path=ana_data.options.output)

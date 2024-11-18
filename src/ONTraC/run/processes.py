@@ -38,10 +38,11 @@ def niche_network_construct(options: Values) -> None:
     info('------------- Niche network construct --------------- ')
 
     # load input information
-    meta_df, ct_coding = preprocessing_nn(meta_input=options.meta_input, NN_dir=options.NN_dir)
+    meta_data_df, ct_coding = preprocessing_nn(meta_input=options.meta_input,
+                                          NN_dir=options.NN_dir)
 
     # construct niche network
-    construct_niche_network(meta_df=meta_df,
+    construct_niche_network(meta_data_df=meta_data_df,
                             ct_coding=ct_coding,
                             save_dir=options.NN_dir,
                             n_neighbors=options.n_neighbors,
@@ -55,8 +56,7 @@ def niche_network_construct(options: Values) -> None:
                          sigma=options.sigma)
 
     # generate samples.yaml to indicate file paths for each sample
-    gen_samples_yaml(meta_df=meta_df, save_dir=options.NN_dir)
-
+    gen_samples_yaml(meta_data_df=meta_data_df, save_dir=options.NN_dir)
     info('------------ Niche network construct end ------------ ')
 
 

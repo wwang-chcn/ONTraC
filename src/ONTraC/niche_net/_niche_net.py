@@ -229,14 +229,14 @@ def construct_niche_network_sample(sample_name: str,
                        save_dir=save_dir)
 
 
-def construct_niche_network(meta_df: pd.DataFrame,
+def construct_niche_network(meta_data_df: pd.DataFrame,
                             ct_coding: pd.DataFrame,
                             save_dir: Union[str, Path],
                             n_neighbors: int = 50,
                             n_local: int = 20) -> None:
     """
     Construct niche network.
-    :param meta_df: pd.DataFrame, meta data.
+    :param meta_data_df: pd.DataFrame, meta data.
     :param ct_coding: pd.DataFrame, cell type coding.
     :param save_dir: str, save directory.
     :param n_neighbors: int, number of neighbors.
@@ -245,12 +245,12 @@ def construct_niche_network(meta_df: pd.DataFrame,
     """
 
     # get samples
-    samples = meta_df['Sample'].unique()
+    samples = meta_data_df['Sample'].unique()
 
     # construct niche network for each sample
     for sample_name in samples:
-        sample_meta_df = meta_df[meta_df['Sample'] == sample_name]
-        sample_ct_coding = ct_coding[meta_df['Sample'] == sample_name]
+        sample_meta_df = meta_data_df[meta_data_df['Sample'] == sample_name]
+        sample_ct_coding = ct_coding[meta_data_df['Sample'] == sample_name]
         construct_niche_network_sample(sample_name=sample_name,
                                        sample_meta_df=sample_meta_df,
                                        sample_ct_coding=sample_ct_coding,
@@ -259,10 +259,10 @@ def construct_niche_network(meta_df: pd.DataFrame,
                                        n_local=n_local)
 
 
-def gen_samples_yaml(meta_df: pd.DataFrame, save_dir: Union[str, Path]) -> None:
+def gen_samples_yaml(meta_data_df: pd.DataFrame, save_dir: Union[str, Path]) -> None:
     """
     Generate samples.yaml.
-    :param meta_df: pd.DataFrame, meta data.
+    :param meta_data_df: pd.DataFrame, meta data.
     :param save_dir: str, save directory.
     :return: None.
     """
@@ -270,7 +270,7 @@ def gen_samples_yaml(meta_df: pd.DataFrame, save_dir: Union[str, Path]) -> None:
     info('Generating samples.yaml file.')
 
     data: Dict[str, List[Any]] = {'Data': []}
-    for sample in meta_df['Sample'].unique():
+    for sample in meta_data_df['Sample'].unique():
         data['Data'].append({
             'Name': f'{sample}',
             'Coordinates': f'{sample}_Coordinates.csv',

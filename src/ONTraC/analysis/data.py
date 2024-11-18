@@ -191,7 +191,7 @@ class AnaData:
     This class have the following attributes:
     - options: Values, the options from optparse
     - rel_params: Dict, the relative paths for params
-    - meta_df: pd.DataFrame, the original Cell ID and Cell Type
+    - meta_data_df: pd.DataFrame, the original Cell ID and Cell Type
     - train_loss: Dict, the training loss
     - cell_type_codes: pd.DataFrame, the cell type codes
     - cell_type_composition: pd.DataFrame, the cell type composition
@@ -221,11 +221,11 @@ class AnaData:
             params = read_yaml_file(f'{options.NN_dir}/samples.yaml')
             self.rel_params = get_rel_params(options.NN_dir, params)
             # save the original Cell_ID
-            self.meta_df = pd.read_csv(get_meta_data_file(options.NN_dir))
-            self.meta_df = self.meta_df.set_index('Cell_ID')
+            self.meta_data_df = pd.read_csv(get_meta_data_file(options.NN_dir))
+            self.meta_data_df = self.meta_data_df.set_index('Cell_ID')
         else:  # not NN_dir, only support for visualization of meta_input
-            self.meta_df = pd.read_csv(self.options.meta_input)
-            self.meta_df = self.meta_df.set_index('Cell_ID')
+            self.meta_data_df = pd.read_csv(self.options.meta_input)
+            self.meta_data_df = self.meta_data_df.set_index('Cell_ID')
 
     @property
     def train_loss(self):
@@ -285,7 +285,7 @@ class AnaData:
 
     def _load_NT_score(self) -> None:
         NTScore_df = pd.read_csv(f'{self.options.NT_dir}/NTScore.csv.gz', index_col=0)
-        self._NT_score = NTScore_df.loc[self.meta_df.index]
+        self._NT_score = NTScore_df.loc[self.meta_data_df.index]
 
     @property
     def cell_type_composition(self) -> DataFrame:
@@ -326,7 +326,7 @@ class AnaData:
         if not hasattr(self, '_niche_level_niche_cluster_assign'):
             self._niche_level_niche_cluster_assign = load_niche_level_niche_cluster_assign(self.options)
             try:
-                self._niche_level_niche_cluster_assign = self._niche_level_niche_cluster_assign.loc[self.meta_df.index]
+                self._niche_level_niche_cluster_assign = self._niche_level_niche_cluster_assign.loc[self.meta_data_df.index]
             except:
                 pass
         return self._niche_level_niche_cluster_assign
@@ -336,7 +336,7 @@ class AnaData:
         if not hasattr(self, '_cell_level_niche_cluster_assign'):
             self._cell_level_niche_cluster_assign = load_cell_level_niche_cluster_assign(self.options)
             try:
-                self._cell_level_niche_cluster_assign = self._cell_level_niche_cluster_assign.loc[self.meta_df.index]
+                self._cell_level_niche_cluster_assign = self._cell_level_niche_cluster_assign.loc[self.meta_data_df.index]
             except:
                 pass
         return self._cell_level_niche_cluster_assign
@@ -346,7 +346,7 @@ class AnaData:
         if not hasattr(self, '_niche_level_max_niche_cluster'):
             self._niche_level_max_niche_cluster = load_niche_level_max_niche_cluster(self.options)
             try:
-                self._niche_level_max_niche_cluster = self._niche_level_max_niche_cluster.loc[self.meta_df.index]
+                self._niche_level_max_niche_cluster = self._niche_level_max_niche_cluster.loc[self.meta_data_df.index]
             except:
                 pass
         return self._niche_level_max_niche_cluster
@@ -356,7 +356,7 @@ class AnaData:
         if not hasattr(self, '_cell_level_max_niche_cluster'):
             self._cell_level_max_niche_cluster = load_cell_level_max_niche_cluster(self.options)
             try:
-                self._cell_level_max_niche_cluster = self._cell_level_max_niche_cluster.loc[self.meta_df.index]
+                self._cell_level_max_niche_cluster = self._cell_level_max_niche_cluster.loc[self.meta_data_df.index]
             except:
                 pass
         return self._cell_level_max_niche_cluster
