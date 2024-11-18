@@ -430,7 +430,6 @@ def plot_max_niche_cluster_sample(
     """
 
     samples = meta_data_df['Sample'].unique()
-    n_sample = len(samples)
     n_niche_cluster = len(nc_scores)
 
     # colors
@@ -457,10 +456,12 @@ def plot_max_niche_cluster_sample(
         ax.set_title(f'{sample}')
         ax.legend(loc='upper left', bbox_to_anchor=(1, 1))
         fig.tight_layout()
-        output.append((fig, ax))
         if output_file_path is not None:
             fig.savefig(f'{output_file_path}/max_niche_cluster_{sample}.pdf')
             plt.close(fig)
+        else:
+            output.append((fig, ax))
+    return output if len(output) > 0 else None
 
 
 def plot_max_niche_cluster_sample_from_anadata(ana_data: AnaData) -> Optional[List[Tuple[plt.Figure, plt.Axes]]]:
