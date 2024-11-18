@@ -129,7 +129,7 @@ def plot_niche_cluster_connectivity_bysample_from_anadata(ana_data: AnaData) -> 
     :return: None.
     """
 
-    for sample in ana_data.cell_type_composition['Sample'].unique():
+    for sample in ana_data.meta_data_df['Sample'].unique():
         niche_cluster_connectivity = np.loadtxt(f'{ana_data.options.GNN_dir}/{sample}_out_adj.csv.gz', delimiter=',')
         output_file_path = f'{ana_data.options.output}/{sample}_cluster_connectivity.pdf'
         plot_niche_cluster_connectivity(niche_cluster_connectivity=niche_cluster_connectivity,
