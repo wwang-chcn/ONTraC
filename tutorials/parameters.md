@@ -80,7 +80,7 @@ Previouly named as createDataSet.
 Usage: ONTraC_NN <--NN-dir NN_DIR> <--meta-input META_INPUT>
     [--n-cpu N_CPU] [--n-neighbors N_NEIGHBORS] [--n-local N_LOCAL]
 
-Create niche network and calculate features (normalized cell type composition).
+Create niche network and calculate features (normalized cell type composition). (Step 1 of ONTraC)
 
 Options:
   --version             show program's version number and exit
@@ -114,7 +114,7 @@ Usage: ONTraC_GNN <--NN-dir NN_DIR> <--GNN-dir GNN_DIR> [--device DEVICE]
     [--modularity-loss-weight MODULARITY_LOSS_WEIGHT] [--purity-loss-weight PURITY_LOSS_WEIGHT] 
     [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA]
 
-Graph Neural Network (GNN). The core algorithm of ONTraC.
+Graph Neural Network (GNN). The core algorithm of ONTraC. (Step 2/3 of ONTraC)
 
 Options:
   --version             show program's version number and exit
@@ -163,7 +163,7 @@ Previouly named as NicheTrajectory.
 Usage: ONTraC_NT <--NN-dir NN_DIR> <--GNN-dir GNN_DIR> <--NT-dir NT_DIR> 
             [--trajectory-construct TRAJECTORY_CONSTRUCT]
 
-ONTraC_NT: construct niche trajectory for niche cluster and project the NT score to each cell
+ONTraC_NT: construct niche trajectory for niche cluster and project the NT score to each cell. (Step 4 of ONTraC)
 
 Options:
   --version             show program's version number and exit
