@@ -104,6 +104,11 @@ def niche_weight_matrix() -> csr_matrix:
 
 
 @pytest.fixture()
+def ct_coding_matrix() -> np.ndarray:
+    return np.array([[1., 0.], [0., 1.], [1., 0.], [0., 1.], [1., 0.], [0., 1.], [1., 0.], [0., 1.]])
+
+
+@pytest.fixture()
 def cell_type_composition() -> np.ndarray:
     return np.array([[0.61003367, 0.38996633], [0.41949784, 0.58050216], [0.58483686, 0.41516314],
                      [0.41516314, 0.58483686], [0.58483686, 0.41516314], [0.41516314, 0.58483686],
@@ -247,7 +252,7 @@ def test_calc_niche_weight_matrix(options: Values, sample_data_df: pd.DataFrame,
     assert np.allclose(a=gen_niche_weight_matrix.toarray(), b=niche_weight_matrix.toarray(), atol=1e-7)
 
 
-def test_calc_cell_type_composition(sample_data_df: pd.DataFrame, niche_weight_matrix: csr_matrix,
+def test_calc_cell_type_composition(niche_weight_matrix: csr_matrix, ct_coding_matrix: np.ndarray,
                                     cell_type_composition: np.ndarray) -> None:
     """
     Test the calc_cell_type_composition function.
@@ -259,10 +264,8 @@ def test_calc_cell_type_composition(sample_data_df: pd.DataFrame, niche_weight_m
     """
 
     # Call the function
-    gen_cell_type_composition = calc_cell_type_composition(sample_name='sample',
-                                                           sample_meta_df=sample_data_df,
-                                                           niche_weight_matrix=niche_weight_matrix,
-                                                           decompsited_cell_type=None)
+    gen_cell_type_composition = calc_cell_type_composition(niche_weight_matrix=niche_weight_matrix,
+                                                           ct_coding_matrix=ct_coding_matrix)
 
     # Check the output type
     assert isinstance(gen_cell_type_composition, np.ndarray)
