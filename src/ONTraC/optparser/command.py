@@ -108,7 +108,7 @@ def prepare_nn_optparser() -> OptionParser:
     # usage and description
     usage = f'''USAGE: %prog <--NN-dir NN_DIR> <--meta-input META_INPUT>
     [--n-cpu N_CPU] [--n-neighbors N_NEIGHBORS] [--n-local N_LOCAL]'''
-    description = 'Create niche network and calculate features (normalized cell type composition).'
+    description = 'Create niche network and calculate features (normalized cell type composition). (Step 1 of ONTraC)'
 
     # option processor
     optparser = OptionParser(version=f'%prog {__version__}', description=description, usage=usage, add_help_option=True)
@@ -169,7 +169,7 @@ def prepare_gnn_optparser() -> OptionParser:
     [-s SEED] [--lr LR] [--hidden-feats HIDDEN_FEATS] [--n-gcn-layers N_GCN_LAYERS] [-k K]
     [--modularity-loss-weight MODULARITY_LOSS_WEIGHT] [--purity-loss-weight PURITY_LOSS_WEIGHT] 
     [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA]'''
-    description = 'Graph Neural Network (GNN). The core algorithm of ONTraC.'
+    description = 'Graph Neural Network (GNN, GCN + GP). The core algorithm of ONTraC. (Step 2/3 of ONTraC)'
 
     # option processor
     optparser = OptionParser(version=f'%prog {__version__}', description=description, usage=usage, add_help_option=True)
@@ -228,7 +228,7 @@ def prepare_nt_optparser() -> OptionParser:
     # usage and description
     usage = f'''USAGE: %prog <--NN-dir NN_DIR> <--GNN-dir GNN_DIR> <--NT-dir NT_DIR> 
             [--trajectory-construct TRAJECTORY_CONSTRUCT]'''
-    description = 'ONTraC_NT: construct niche trajectory for niche cluster and project the NT score to each cell'
+    description = 'ONTraC_NT: construct niche trajectory for niche cluster and project the NT score to each cell. (Step 4 of ONTraC)'
 
     # option processor
     optparser = OptionParser(version=f'%prog {__version__}', description=description, usage=usage, add_help_option=True)
