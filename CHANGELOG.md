@@ -4,15 +4,13 @@
 
 Added:
 
-- Added flexible cell type coding function
-- Cell type coding adjust visualization
-- Adjusted cell type composition visualization
-- Support gene expression input
-- Support embeddings input
+- Flexible cell type coding moduel
+  - gene expression, embeddings, low resolution expression, and deconvoluted cell_type X gene
+- Support to low resolution dataset
+- Support to deconvoluted results as input
+- Visualization for adjusted cell type composition
 - Weighted NT score assign for niche clusters
-- Support spots-based data and analysis its results
 - Visualization of cell clustering results
-- Warning for deprecated options
 
 Changed:
 

@@ -39,7 +39,7 @@ def get_niche_trajectory_path(trajectory_construct_method: str, niche_adj_matrix
     """
 
     niche_adj_matrix = (niche_adj_matrix + niche_adj_matrix.T) / 2
-    
+
     if trajectory_construct_method == 'BF':
         info('Finding niche trajectory with maximum connectivity using Brute Force.')
 
@@ -53,18 +53,21 @@ def get_niche_trajectory_path(trajectory_construct_method: str, niche_adj_matrix
     return niche_trajectory_path
 
 
-def trajectory_path_to_NC_score(options: Values, niche_trajectory_path: List[int],
-                                niche_clustering_sum: ndarray) -> ndarray:
+def trajectory_path_to_NC_score(niche_trajectory_path: List[int],
+                                niche_clustering_sum: ndarray,
+                                equal_space: bool = True) -> ndarray:
     """
     Convert niche cluster trajectory path to NTScore
     :param niche_trajectory_path: List[int], the niche trajectory path
+    :param niche_clustering_sum: ndarray, the sum of each niche cluster
+    :param equal_space: bool, whether the niche clusters are equally spaced in the trajectory
     :return: ndarray, the NTScore
     """
 
     info('Calculating NTScore for each niche cluster based on the trajectory path.')
 
     niche_NT_score = np.zeros(len(niche_trajectory_path))
-    if options.equal_space:
+    if equal_space:
         values = np.linspace(0, 1, len(niche_trajectory_path))
         for i, index in enumerate(niche_trajectory_path):
             # debug(f'i: {i}, index: {index}')
@@ -80,13 +83,16 @@ def trajectory_path_to_NC_score(options: Values, niche_trajectory_path: List[int
         return niche_NT_score
 
 
-def get_niche_NTScore(trajectory_construct_method: str, niche_cluster_loading: ndarray,
-                      niche_adj_matrix: ndarray) -> Tuple[ndarray, ndarray]:
+def get_niche_NTScore(trajectory_construct_method: str,
+                      niche_cluster_loading: ndarray,
+                      niche_adj_matrix: ndarray,
+                      equal_space: bool = False) -> Tuple[ndarray, ndarray]:
     """
     Get niche-level niche trajectory and cell-level niche trajectory
     :param trajectory_construct_method: str, the method to construct trajectory
     :param niche_cluster_loading: ndarray, the loading of cell x niche clusters
     :param adj_matrix: ndarray, the adjacency matrix of the graph
+    :param equal_space: bool, whether the niche clusters are equally spaced in the trajectory
     :return: Tuple[ndarray, ndarray], the niche-level niche trajectory and cell-level niche trajectory
     """
 
@@ -96,9 +102,9 @@ def get_niche_NTScore(trajectory_construct_method: str, niche_cluster_loading: n
                                                       niche_adj_matrix=niche_adj_matrix)
 
     niche_clustering_sum = niche_cluster_loading.sum(axis=0)
-    niche_cluster_score = trajectory_path_to_NC_score(options=options,
-                                                      niche_trajectory_path=niche_trajectory_path,
-                                                      niche_clustering_sum=niche_clustering_sum)
+    niche_cluster_score = trajectory_path_to_NC_score(niche_trajectory_path=niche_trajectory_path,
+                                                      niche_clustering_sum=niche_clustering_sum,
+                                                      equal_space=equal_space)
     niche_level_NTScore = niche_cluster_loading @ niche_cluster_score
     return niche_cluster_score, niche_level_NTScore
 

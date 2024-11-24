@@ -7,6 +7,7 @@ from ..log import *
 from ..version import __version__
 from ._IO import *
 
+
 # ------------------------------------
 # Functions
 # ------------------------------------
@@ -14,96 +15,63 @@ def add_preprocessing_options_group(optparser: OptionParser) -> None:
     """
     Add preprocessing options group to optparser.
     :param optparser: OptionParser object.
+    :param preprocessing_options: Set of preprocessing options.
     :return: OptionGroup object.
     """
+
     # preprocessing options group
     group_preprocessing = OptionGroup(optparser, "Preprocessing")
     group_preprocessing.add_option(
         '--resolution',
         dest='resolution',
         type=float,
-        default=1.0,
+        default=10.0,
         help=
         'Resolution for leiden clustering. Used for clustering cells into cell types when gene expression data is provided. Default is 1.0.'
     )
+    group_preprocessing.add_option('--deconvolution-method',
+                                   dest='dc_method',
+                                   default='STdeconvolve',
+                                   choices=['STdeconvolve'],
+                                   help='Deconvolution method used for low resolution data. Default is STdeconvolve.')
+    group_preprocessing.add_option('--deconvolution-ct-num',
+                                   dest='dc_ct_num',
+                                   type='int',
+                                   default=10,
+                                   help='Number of cell type that the deconvolution method will deconvolve.')
     optparser.add_option_group(group_preprocessing)
 
 
-def add_niche_net_constr_options_group(optparser: OptionParser) -> None:
+def validate_preprocessing_options(optparser: OptionParser, options: Values) -> None:
     """
-    Add niche network construction options group to optparser.
-    :param optparser: OptionParser object.
-    :return: OptionGroup object.
-    """
-    # niche network construction options group
-    group_niche = OptionGroup(optparser, "Niche Network Construction")
-    group_niche.add_option('--n-cpu',
-                           dest='n_cpu',
-                           type='int',
-                           default=4,
-                           help='Number of CPUs used for parallel computing in dataset preprocessing. Default is 4.')
-    group_niche.add_option(
-        '--n-neighbors',
-        dest='n_neighbors',
-        type='int',
-        default=50,
-        help=
-        'Number of neighbors used for kNN graph construction. It should be less than the number of cells in each sample. Default is 50.'
-    )
-    group_niche.add_option(
-        '--n-local',
-        dest='n_local',
-        type='int',
-        default=20,
-        help=
-        'Specifies the nth closest local neighbors used for gaussian distance normalization. It should be less than the number of cells in each sample. Default is 20.'
-    )
-    group_niche.add_option(
-        '--embedding-adjust',
-        dest='embedding_adjust',
-        action='store_true',
-        default=False,
-        help=
-        'Adjust the cell type coding according to embeddings. Default is False. At least two (Embedding_1 and Embedding_2) should be in the original data if embedding_adjust is True.'
-    )
-    group_niche.add_option(
-        '--sigma',
-        dest='sigma',
-        type='float',
-        default=1,
-        help=
-        'Sigma for the exponential function to control the similarity between different cell types or clusters. Default is 1.'
-    )
-    optparser.add_option_group(group_niche)
-
-
-def validate_niche_net_constr_options(optparser: OptionParser, options: Values) -> None:
-    """
-    Validate niche network construction options.
+    Validate preprocessing options.
     :param optparser: OptionParser object.
     :param options: Options object.
+    :param preprocessing_options: Set of preprocessing options.
     :return: None.
     """
-    if options.n_cpu < 1:
-        error('n_cpu must be greater than 0.')
+
+    if options.exp_input is None and options.embedding_input is None:  # no cell-level expression data or embedding data
+        info(
+            message=
+            'No expression data or embedding data is provided. ONTraC will not perform any preprocessing for cell-level data.'
+        )
+        options.resolution = None
+    elif options.resolution < 0:
+        error('resolution must be greater than 0.')
         optparser.print_help()
         sys.exit(1)
 
-    if options.n_neighbors < 1:
-        error('n_neighbors must be greater than 0.')
-        optparser.print_help()
-        sys.exit(1)
-
-    if options.n_local < 1:
-        error('n_local must be greater than 0.')
-        optparser.print_help()
-        sys.exit(1)
-
-    if options.embedding_adjust:
-        if options.embedding_input is None and options.exp_input is None and options.decomposition_expression_input is None:
-            error('Please provide an embedding file or expression data file in csv format.')
+    if options.low_res_exp_input is None:  # low resolution data is not provided
+        options.dc_method = None
+        options.dc_ct_num = None
+    else:  # low resolution data is provided
+        if options.dc_ct_num < 2:
+            error('deconvolution_cell_type_number must be greater than 2.')
             optparser.print_help()
             sys.exit(1)
+        if options.dc_ct_num < 4:
+            warning('deconvolution_cell_type_number is less than 4. The result may not be reliable.')
 
 
 def write_preprocessing_memo(options: Values):
@@ -114,21 +82,9 @@ def write_preprocessing_memo(options: Values):
     """
 
     # print parameters to stdout
-    info('      -------- preprocessing options -------      ')
-    info(f'resolution: {options.resolution}')
-
-def write_niche_net_constr_memo(options: Values) -> None:
-    """Write niche network construction memos to stdout.
-
-    :param options: Options object.
-    :return: None.
-    """
-
-    # print parameters to stdout
-    info('      -------- niche net constr options -------      ')
-    info(f'n_cpu:   {options.n_cpu}')
-    info(f'n_neighbors: {options.n_neighbors}')
-    info(f'n_local: {options.n_local}')
-    info(f'embedding_adjust: {options.embedding_adjust}')
-    if options.embedding_adjust:
-        info(f'sigma: {options.sigma}')
+    info(message='      -------- preprocessing options -------      ')
+    if options.resolution is not None:
+        info(message=f'resolution: {options.resolution}')
+    if options.dc_method is not None:
+        info(message=f'deconvolution method: {options.dc_method}')
+        info(message=f'deconvolution cell type number: {options.dc_ct_num}')

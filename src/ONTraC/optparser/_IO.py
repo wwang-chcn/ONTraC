@@ -1,16 +1,16 @@
 import os
 import sys
 from optparse import OptionGroup, OptionParser, Values
-from typing import List, Optional
+from typing import Optional, Set
 
 from ..log import *
 
 
-def add_IO_options_group(optparser: OptionParser, io_options: Optional[List[str]]) -> None:
+def add_IO_options_group(optparser: OptionParser, io_options: Optional[Set[str]]) -> None:
     """
     Add I/O options group to optparser.
     :param optparser: OptionParser object.
-    :param io_options: List of I/O options.
+    :param io_options: Set of I/O options.
     :return: OptionGroup object.
     """
     if io_options is None:
@@ -41,26 +41,36 @@ def add_IO_options_group(optparser: OptionParser, io_options: Optional[List[str]
             '--exp-input',
             dest='exp_input',
             type='string',
+            default=None,
             help=
-            'Normalized expression file in csv format. Each row is a cell and each column is a gene. The first column should be the cell name. If not provided, cell type should be included in the meta data file.'
+            'Normalized expression file in csv format. Each row is a cell and each column is a gene. The first column should be the cell name with column name Cell_ID. If not provided, cell type should be included in the meta data file.'
         )
-        group_io.add_option('--embedding-input',
-                            dest='embedding_input',
+        group_io.add_option(
+            '--embedding-input',
+            dest='embedding_input',
+            type='string',
+            default=None,
+            help='Embedding file in csv format. The first column should be the cell name with column name Cell_ID.')
+        group_io.add_option('--low-res-exp-input',
+                            dest='low_res_exp_input',
                             type='string',
-                            help='Embedding file in csv format. The first column should be the cell name.')
+                            default=None,
+                            help='Gene X spot matrix in csv format for low-resolution dataset.')
         group_io.add_option(
-            '--decomposition-cell-type-composition-input',
-            dest='decomposition_cell_type_composition_input',
+            '--deconvoluted-ct-composition',
+            dest='deconvoluted_ct_composition',
             type='string',
+            default=None,
             help=
-            'Decomposition outputed cell type composition of each spot in csv format. The first column should be the spot name.'
+            'Deconvoluted cell type composition of each spot in csv format. The first column should be the spot name with column name Spot_ID.'
         )
         group_io.add_option(
-            '--decomposition-expression-input',
-            dest='decomposition_expression_input',
+            '--deconvoluted-exp-input',
+            dest='deconvoluted_exp_input',
             type='string',
+            default=None,
             help=
-            'Decomposition outputed expression of each cell type in csv format. The first column should be the cell type name corresponding to the columns name of decomposition outputed cell type composition.'
+            'Deconvoluted expression of each cell type in csv format. The first column should be the cell type name corresponding to the columns name of decomposition outputed cell type composition.'
         )
     if 'log' in io_options:
         group_io.add_option('-l', '--log', dest='log', type='string', help='Log file.')
@@ -88,13 +98,13 @@ def add_IO_options_group(optparser: OptionParser, io_options: Optional[List[str]
 
 def validate_io_options(optparser: OptionParser,
                         options: Values,
-                        io_options: Optional[List[str]],
+                        io_options: Optional[Set[str]],
                         required: bool = True,
                         overwrite_validation: bool = True) -> None:
     """Validate IO options from a OptParser object.
     :param optparser: OptionParser object.
     :param options: Options object.
-    :param io_options: List of I/O options.
+    :param io_options: Set of I/O options.
     :param required: Required flag.
     :param overwrite_validation: Overwrite validation flag.
     :return: None.
@@ -174,16 +184,6 @@ def validate_io_options(optparser: OptionParser,
                 error(f'The input file ({options.meta_input}) should be in csv format.')
                 optparser.print_help()
                 sys.exit(1)
-        # expression data
-        if options.exp_input:
-            if not os.path.isfile(options.exp_input):
-                error(f'The expression data file ({options.exp_input}) you given does not exist.')
-                optparser.print_help()
-                sys.exit(1)
-            if not options.exp_input.endswith(('csv', 'csv.gz')):
-                error(f'The expression data file ({options.exp_input}) should be in csv format.')
-                optparser.print_help()
-                sys.exit(1)
         # embedding
         if options.embedding_input:
             if not os.path.isfile(options.embedding_input):
@@ -194,40 +194,59 @@ def validate_io_options(optparser: OptionParser,
                 error(f'The embedding file ({options.embedding_input}) should be in csv format.')
                 optparser.print_help()
                 sys.exit(1)
-        # decomposition
-        # two decomposition input files should be provided together
-        if options.decomposition_cell_type_composition_input and not options.decomposition_expression_input:
-            error('Please provide both decomposition cell type composition file and decomposition expression file.')
-            optparser.print_help()
-            sys.exit(1)
-        if not options.decomposition_cell_type_composition_input and options.decomposition_expression_input:
-            error('Please provide both decomposition cell type composition file and decomposition expression file.')
-            optparser.print_help()
-            sys.exit(1)
-        # check decomposition input files
-        if options.decomposition_cell_type_composition_input:
-            if not os.path.isfile(options.decomposition_cell_type_composition_input):
+            options.exp_input = None
+        # expression data
+        if options.exp_input:
+            if not os.path.isfile(options.exp_input):
+                error(f'The expression data file ({options.exp_input}) you given does not exist.')
+                optparser.print_help()
+                sys.exit(1)
+            if not options.exp_input.endswith(('csv', 'csv.gz')):
+                error(f'The expression data file ({options.exp_input}) should be in csv format.')
+                optparser.print_help()
+                sys.exit(1)
+        # low-res expression data
+        if options.low_res_exp_input:
+            if not os.path.isfile(options.low_res_exp_input):
                 error(
-                    f'The decomposition outputed cell type composition file ({options.decomposition_cell_type_composition_input}) you given does not exist.'
+                    f'The low-resolution expression data file ({options.low_res_exp_input}) you given does not exist.')
+                optparser.print_help()
+                sys.exit(1)
+            if not options.low_res_exp_input.endswith(('csv', 'csv.gz')):
+                error(f'The low-resolution expression data file ({options.low_res_exp_input}) should be in csv format.')
+                optparser.print_help()
+                sys.exit(1)
+        # check deconvoluted results files
+        if options.deconvoluted_ct_composition:
+            if not os.path.isfile(options.deconvoluted_ct_composition):
+                error(
+                    f'The deconvoluted outputed cell type composition file ({options.deconvoluted_ct_composition}) you given does not exist.'
                 )
                 optparser.print_help()
                 sys.exit(1)
-            if not options.decomposition_cell_type_composition_input.endswith(('csv', 'csv.gz')):
+            if not options.deconvoluted_ct_composition.endswith(('csv', 'csv.gz')):
                 error(
-                    f'The decomposition outputed cell type composition file ({options.decomposition_cell_type_composition_input}) should be in csv format.'
+                    f'The deconvoluted outputed cell type composition file ({options.decomposition_cell_type_composition_input}) should be in csv format.'
                 )
                 optparser.print_help()
                 sys.exit(1)
-        if options.decomposition_expression_input:
-            if not os.path.isfile(options.decomposition_expression_input):
+        if options.deconvoluted_exp_input:
+            if not hasattr(options, 'deconvoluted_ct_composition') or options.deconvoluted_ct_composition is None:
                 error(
-                    f'The decomposition outputed expression file ({options.decomposition_expression_input}) you given does not exist.'
+                    message=
+                    'If you want to provide deconvolution results as input. Deconvoluted cell type composition file is required.'
                 )
                 optparser.print_help()
                 sys.exit(1)
-            if not options.decomposition_expression_input.endswith(('csv', 'csv.gz')):
+            if not os.path.isfile(options.deconvoluted_exp_input):
                 error(
-                    f'The decomposition outputed expression file ({options.decomposition_expression_input}) should be in csv format.'
+                    f'The decomposition outputed expression file ({options.deconvoluted_exp_input}) you given does not exist.'
+                )
+                optparser.print_help()
+                sys.exit(1)
+            if not options.deconvoluted_exp_input.endswith(('csv', 'csv.gz')):
+                error(
+                    f'The decomposition outputed expression file ({options.deconvoluted_exp_input}) should be in csv format.'
                 )
                 optparser.print_help()
 
@@ -251,10 +270,10 @@ def validate_io_options(optparser: OptionParser,
             sys.exit(1)
 
 
-def write_io_options_memo(options: Values, io_options: Optional[List[str]]) -> None:
+def write_io_options_memo(options: Values, io_options: Optional[Set[str]]) -> None:
     """Write IO options to stdout.
     :param options: Options object.
-    :param io_options: List of I/O options.
+    :param io_options: Set of I/O options.
     :return: None.
     """
     if io_options is None:
@@ -270,15 +289,17 @@ def write_io_options_memo(options: Values, io_options: Optional[List[str]]) -> N
         info(f'Output directory:  {options.output}')
     if 'input' in io_options and hasattr(options, 'meta_input') and options.meta_input is not None:
         info(f'Meta data file:  {options.meta_input}')
+        # TODO: refine logic here
         if hasattr(options, 'exp_input') and options.exp_input is not None:
             info(f'expression data file:  {options.exp_input}')
         if hasattr(options, 'embedding_input') and options.embedding_input is not None:
             info(f'embedding file:  {options.embedding_input}')
-        if hasattr(options, 'decomposition_cell_type_composition_input'
-                   ) and options.decomposition_cell_type_composition_input is not None:
-            info(f'decomposition cell type composition file:  {options.decomposition_cell_type_composition_input}')
-        if hasattr(options, 'decomposition_expression_input') and options.decomposition_expression_input is not None:
-            info(f'decomposition expression file:  {options.decomposition_expression_input}')
+        if hasattr(options, 'low_res_exp_input') and options.low_res_exp_input is not None:
+            info(f'low-resolution expression data file:  {options.low_res_exp_input}')
+        if hasattr(options, 'deconvoluted_ct_composition') and options.deconvoluted_ct_composition is not None:
+            info(f'deconvoluted outputed cell type composition file:  {options.deconvoluted_ct_composition}')
+        if hasattr(options, 'deconvoluted_exp_input') and options.deconvoluted_exp_input is not None:
+            info(f'decomposition outputed expression file:  {options.deconvoluted_exp_input}')
     if 'log' in io_options:
         if options.log:
             info(f'Log file:  {options.log}')

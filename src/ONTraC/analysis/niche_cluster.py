@@ -24,7 +24,7 @@ from .utils import gini, saptial_figsize
 
 def plot_niche_cluster_connectivity(
     niche_cluster_connectivity: np.ndarray,
-    niche_cluster_score: np.ndarray,
+    niche_cluster_score: Optional[np.ndarray] = None,
     reverse: bool = False,
     output_file_path: Optional[Union[str,
                                      Path]] = None) -> Optional[Tuple[plt.Figure, Union[plt.Axes, List[plt.Axes]]]]:
@@ -45,13 +45,13 @@ def plot_niche_cluster_connectivity(
     edges = G.edges()
     weights = [G[u][v]['weight'] for u, v in edges]
     # node color
-    norm = Normalize(vmin=0, vmax=1)
-    sm = ScalarMappable(cmap=plt.cm.rainbow, norm=norm)  # type: ignore
     if niche_cluster_score is not None:
+        norm = Normalize(vmin=0, vmax=1)
+        sm = ScalarMappable(cmap=plt.cm.rainbow, norm=norm)  # type: ignore
         nc_scores = 1 - niche_cluster_score if reverse else niche_cluster_score
         niche_cluster_colors = [sm.to_rgba(nc_scores[n]) for n in G.nodes]
     else:
-        niche_cluster_colors = [sm.to_rgba(i) for i in np.linspace(0, 1, len(G.nodes))]
+        niche_cluster_colors = ["#1f78b4"] * niche_cluster_connectivity.shape[0]
 
     # Create a figure
     fig = plt.figure(figsize=(7, 6))
@@ -96,7 +96,7 @@ def plot_niche_cluster_connectivity(
     fig.tight_layout()
 
     if output_file_path is not None:
-        fig.savefig(output_file_path)
+        fig.savefig(output_file_path, transparent=True)
         plt.close(fig)
         return None
     else:
@@ -262,7 +262,11 @@ def plot_niche_cluster_loadings_dataset_from_anadata(
         warning(str(e))
         return None
 
-    nc_scores = 1 - ana_data.niche_cluster_score if ana_data.options.reverse else ana_data.niche_cluster_score
+    if ana_data.niche_cluster_score is None:
+        info("No niche cluster score found. The niche cluster loadings will be plotted with default color.")
+        nc_scores = np.linspace(0, 1, ana_data.cell_level_niche_cluster_assign.shape[1])
+    else:
+        nc_scores = 1 - ana_data.niche_cluster_score if ana_data.options.reverse else ana_data.niche_cluster_score
 
     return plot_niche_cluster_loadings_dataset(cell_level_niche_cluster_assign=ana_data.cell_level_niche_cluster_assign,
                                                meta_data_df=ana_data.meta_data_df,
@@ -328,7 +332,11 @@ def plot_niche_cluster_loadings_sample_from_anadata(ana_data: AnaData) -> Option
         warning(str(e))
         return None
 
-    nc_scores = 1 - ana_data.niche_cluster_score if ana_data.options.reverse else ana_data.niche_cluster_score
+    if ana_data.niche_cluster_score is None:
+        info("No niche cluster score found. The niche cluster loadings will be plotted with default color.")
+        nc_scores = np.linspace(0, 1, ana_data.cell_level_niche_cluster_assign.shape[1])
+    else:
+        nc_scores = 1 - ana_data.niche_cluster_score if ana_data.options.reverse else ana_data.niche_cluster_score
 
     return plot_niche_cluster_loadings_sample(cell_level_niche_cluster_assign=ana_data.cell_level_niche_cluster_assign,
                                               meta_data_df=ana_data.meta_data_df,
@@ -415,7 +423,11 @@ def plot_max_niche_cluster_dataset_from_anadata(ana_data: AnaData) -> Optional[T
         warning(str(e))
         return None
 
-    nc_scores = 1 - ana_data.niche_cluster_score if ana_data.options.reverse else ana_data.niche_cluster_score
+    if ana_data.niche_cluster_score is None:
+        info("No niche cluster score found. The niche cluster loadings will be plotted with default color.")
+        nc_scores = np.linspace(0, 1, ana_data.cell_level_niche_cluster_assign.shape[1])
+    else:
+        nc_scores = 1 - ana_data.niche_cluster_score if ana_data.options.reverse else ana_data.niche_cluster_score
 
     return plot_max_niche_cluster_dataset(cell_level_max_niche_cluster=ana_data.cell_level_max_niche_cluster,
                                           meta_data_df=ana_data.meta_data_df,
@@ -487,7 +499,11 @@ def plot_max_niche_cluster_sample_from_anadata(ana_data: AnaData) -> Optional[Li
         warning(str(e))
         return None
 
-    nc_scores = 1 - ana_data.niche_cluster_score if ana_data.options.reverse else ana_data.niche_cluster_score
+    if ana_data.niche_cluster_score is None:
+        info("No niche cluster score found. The niche cluster loadings will be plotted with default color.")
+        nc_scores = np.linspace(0, 1, ana_data.cell_level_niche_cluster_assign.shape[1])
+    else:
+        nc_scores = 1 - ana_data.niche_cluster_score if ana_data.options.reverse else ana_data.niche_cluster_score
 
     return plot_max_niche_cluster_sample(cell_level_max_niche_cluster=ana_data.cell_level_max_niche_cluster,
                                          meta_data_df=ana_data.meta_data_df,

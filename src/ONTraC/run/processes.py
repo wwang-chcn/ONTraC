@@ -8,7 +8,7 @@ from ..GNN import evaluate, predict, save_graph_pooling_results, set_seed, train
 from ..log import *
 from ..model import GNN
 from ..niche_net import construct_niche_network, ct_coding_adjust, gen_samples_yaml
-from ..niche_trajectory import (NTScore_table, get_niche_NTScore, load_consolidate_data, niche_to_cell_NTScore)
+from ..niche_trajectory import NTScore_table, get_niche_NTScore, load_consolidate_data, niche_to_cell_NTScore
 from ..optparser import *
 from ..preprocessing.pp_control import preprocessing_gnn, preprocessing_nn
 from ..train import GNNBatchTrain
@@ -38,8 +38,17 @@ def niche_network_construct(options: Values) -> None:
     info('------------- Niche network construct --------------- ')
 
     # load input information
-    meta_data_df, ct_coding = preprocessing_nn(meta_input=options.meta_input,
-                                          NN_dir=options.NN_dir)
+    meta_data_df, embedding_df, ct_coding = preprocessing_nn(
+        meta_input=options.meta_input,
+        NN_dir=options.NN_dir,
+        exp_input=options.exp_input,
+        embedding_input=options.embedding_input,
+        low_res_exp_input=options.low_res_exp_input,
+        deconvoluted_ct_composition=options.deconvoluted_ct_composition,
+        deconvoluted_exp_input=options.deconvoluted_exp_input,
+        resolution=options.resolution,
+        dc_method=options.dc_method,
+        dc_ct_num=options.dc_ct_num)
 
     # construct niche network
     construct_niche_network(meta_data_df=meta_data_df,
@@ -51,8 +60,9 @@ def niche_network_construct(options: Values) -> None:
     # cell type coding adjust
     if options.embedding_adjust:
         ct_coding_adjust(NN_dir=options.NN_dir,
-                         meta_data_df=meta_df,
-                         decomposition_cell_type_composition_input=options.decomposition_cell_type_composition_input,
+                         meta_data_df=meta_data_df,
+                         embedding_df=embedding_df,
+                         deconvoluted_exp_input=options.deconvoluted_exp_input,
                          sigma=options.sigma)
 
     # generate samples.yaml to indicate file paths for each sample
@@ -126,7 +136,8 @@ def niche_trajectory_construct(options: Values) -> None:
     niche_cluster_score, niche_level_NTScore = get_niche_NTScore(
         trajectory_construct_method=options.trajectory_construct,
         niche_cluster_loading=consolidate_s_array,
-        niche_adj_matrix=consolidate_out_adj_array)
+        niche_adj_matrix=consolidate_out_adj_array,
+        equal_space=options.equal_space)
     cell_level_NTScore, all_niche_level_NTScore_dict, all_cell_level_NTScore_dict = niche_to_cell_NTScore(
         dataset=dataset, rel_params=rel_params, niche_level_NTScore=niche_level_NTScore)
 

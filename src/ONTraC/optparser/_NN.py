@@ -4,35 +4,17 @@ import sys
 from optparse import OptionGroup, OptionParser, Values
 
 from ..log import *
-from ..version import __version__
 from ._IO import *
+
 
 # ------------------------------------
 # Functions
 # ------------------------------------
-def add_preprocessing_options_group(optparser: OptionParser) -> None:
-    """
-    Add preprocessing options group to optparser.
-    :param optparser: OptionParser object.
-    :return: OptionGroup object.
-    """
-    # preprocessing options group
-    group_preprocessing = OptionGroup(optparser, "Preprocessing")
-    group_preprocessing.add_option(
-        '--resolution',
-        dest='resolution',
-        type=float,
-        default=1.0,
-        help=
-        'Resolution for leiden clustering. Used for clustering cells into cell types when gene expression data is provided. Default is 1.0.'
-    )
-    optparser.add_option_group(group_preprocessing)
-
-
 def add_niche_net_constr_options_group(optparser: OptionParser) -> None:
     """
     Add niche network construction options group to optparser.
     :param optparser: OptionParser object.
+    :param nn_options: Set of niche network construction options.
     :return: OptionGroup object.
     """
     # niche network construction options group
@@ -82,8 +64,10 @@ def validate_niche_net_constr_options(optparser: OptionParser, options: Values) 
     Validate niche network construction options.
     :param optparser: OptionParser object.
     :param options: Options object.
+    :param nn_options: Set of niche network construction options.
     :return: None.
     """
+
     if options.n_cpu < 1:
         error('n_cpu must be greater than 0.')
         optparser.print_help()
@@ -99,23 +83,18 @@ def validate_niche_net_constr_options(optparser: OptionParser, options: Values) 
         optparser.print_help()
         sys.exit(1)
 
-    if options.embedding_adjust:
-        if options.embedding_input is None and options.exp_input is None and options.decomposition_expression_input is None:
-            error('Please provide an embedding file or expression data file in csv format.')
+    if options.embedding_adjust and options.embedding_input is None and options.exp_input is None and options.low_res_exp_input is None and options.deconvoluted_exp_input is None:
+        error('Please provide an embedding file or expression data file in csv format.')
+        optparser.print_help()
+        sys.exit(1)
+    
+    if options.embedding_adjust is not None:
+        if options.sigma < 0:
+            error('sigma must be greater than 0.')
             optparser.print_help()
             sys.exit(1)
 
 
-def write_preprocessing_memo(options: Values):
-    """Write preprocessing memos to stdout.
-
-    Args:
-        options: Options object.
-    """
-
-    # print parameters to stdout
-    info('      -------- preprocessing options -------      ')
-    info(f'resolution: {options.resolution}')
 
 def write_niche_net_constr_memo(options: Values) -> None:
     """Write niche network construction memos to stdout.
@@ -130,4 +109,5 @@ def write_niche_net_constr_memo(options: Values) -> None:
     info(f'n_neighbors: {options.n_neighbors}')
     info(f'n_local: {options.n_local}')
     info(f'embedding_adjust: {options.embedding_adjust}')
-    info(f'sigma: {options.sigma}')
+    if options.embedding_adjust:
+        info(f'sigma: {options.sigma}')

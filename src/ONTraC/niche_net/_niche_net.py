@@ -107,28 +107,18 @@ def calc_niche_weight_matrix(sample_name: str,
     return niche_weight_matrix_csr
 
 
-def calc_cell_type_composition(sample_name: str,
-                               sample_meta_df: pd.DataFrame,
-                               niche_weight_matrix: csr_matrix,
-                               decompsited_cell_type: Optional[np.ndarray] = None) -> np.ndarray:
+def calc_cell_type_composition(niche_weight_matrix: csr_matrix,
+                               ct_coding_matrix: Optional[np.ndarray] = None) -> np.ndarray:
     """
     Calculate cell type composition.
-    :param sample_name: str, sample name.
-    :param sample_meta_df: pd.DataFrame, sample data.
     :param niche_weight_matrix: csr_matrix, niche weight matrix.
-    :param decompsited_cell_type: Optional[np.ndarray], decompsited cell type.
+    :param ct_coding_matrix: Optional[np.ndarray], decompsited cell type.
     :return: np.ndarray, cell type composition.
     """
 
-    info(f'Calculating cell type composition for sample: {sample_name}...')
-
-    N = sample_meta_df.shape[0]
-
     # calculate cell type composition
     cell_to_niche_matrix = niche_weight_matrix / niche_weight_matrix.sum(axis=1)  # N x N, #niche x #cell
-    one_hot_matrix = np.zeros(shape=(N, sample_meta_df['Cell_Type'].cat.categories.shape[0]))  # N x #cell_type
-    one_hot_matrix[np.arange(N), sample_meta_df.Cell_Type.cat.codes.values] = 1
-    cell_type_composition = cell_to_niche_matrix @ one_hot_matrix  # N x n_cell_type
+    cell_type_composition = cell_to_niche_matrix @ ct_coding_matrix  # N x n_cell_type
 
     return cell_type_composition
 
@@ -215,10 +205,9 @@ def construct_niche_network_sample(sample_name: str,
                                                    n_local=n_local)
 
     # calculate cell type composition
-    cell_type_composition = calc_cell_type_composition(sample_meta_df=sample_meta_df,
-                                                       niche_weight_matrix=niche_weight_matrix,
-                                                       sample_name=sample_name,
-                                                       decompsited_cell_type=sample_ct_coding.values)
+    info(f'Calculating cell type composition for sample: {sample_name}...')
+    cell_type_composition = calc_cell_type_composition(niche_weight_matrix=niche_weight_matrix,
+                                                       ct_coding_matrix=sample_ct_coding.values)
 
     save_niche_network(sample_meta_df=sample_meta_df,
                        sample_name=sample_name,
@@ -285,26 +274,11 @@ def gen_samples_yaml(meta_data_df: pd.DataFrame, save_dir: Union[str, Path]) -> 
         yaml.dump(data, fhd)
 
 
-def get_embedding_columns(meta_data_df: pd.DataFrame) -> List[str]:
-    """
-    Get embedding columns from the meta data
-    :param meta_data_df: pd.DataFrame, meta data
-    :return: List[str], embedding columns
-    """
-    embedding_start_column = [x for x in meta_data_df.columns if x.startswith('Embedding_')]
-    embedding_columns = []
-    i = 0
-    while True:
-        i += 1
-        if f'Embedding_{i}' in embedding_start_column:
-            embedding_columns.append(f'Embedding_{i}')
-        else:
-            break
-
-    return embedding_columns
-
-
-def ct_coding_adjust(NN_dir: Union[str, Path], meta_data_df: pd.DataFrame, decomposition_cell_type_composition_input: Union[str, Path], sigma: float = 1.0) -> None:
+def ct_coding_adjust(NN_dir: Union[str, Path],
+                     meta_data_df: pd.DataFrame,
+                     embedding_df: pd.DataFrame,
+                     deconvoluted_exp_input: Union[str, Path],
+                     sigma: float = 1.0) -> None:
     """
     Adjust the cell type coding according to embeddings
 
@@ -320,22 +294,23 @@ def ct_coding_adjust(NN_dir: Union[str, Path], meta_data_df: pd.DataFrame, decom
     :return: None
     """
 
-    if decomposition_cell_type_composition_input is None:
+    if deconvoluted_exp_input is None:
         # check the embedding info in the original data
-        embedding_columns = get_embedding_columns(meta_data_df)
-        if len(embedding_columns) < 2:
+        if embedding_df.shape[1] < 2:
             warning('At least two (Embedding_1 and Embedding_2) should be in the original data. Skip the adjustment.')
             return
 
         # calculate embedding postion for each cell type
-        ct_embedding = meta_data_df[embedding_columns + ['Cell_Type']].groupby('Cell_Type').mean()
-        # calculate distance between each cell type
-        raw_distance = distance.cdist(ct_embedding[embedding_columns].values, ct_embedding[embedding_columns].values,
-                                      'euclidean')
+        ct_embedding = pd.concat(
+            [meta_data_df.set_index(meta_data_df.columns[0])['Cell_Type'], embedding_df.iloc[:, 1:]],  # remove Cell_ID
+            axis=1).groupby('Cell_Type').mean()
 
     else:  # spot-based data
-        ct_embedding = np.loadtxt(f'{NN_dir}/PCA_embedding.csv', delimiter=',')
-        raw_distance = distance.cdist(ct_embedding, ct_embedding, 'euclidean')
+        ct_embedding = pd.read_csv(deconvoluted_exp_input, index_col=0)  # #cell_type x #gene
+
+    # calculate distance between each cell type
+    ct_embedding.to_csv(f'{NN_dir}/ct_embedding.csv', index=False)
+    raw_distance = distance.cdist(ct_embedding.values, ct_embedding.values, 'euclidean')
 
     median_distance = np.median(raw_distance[np.triu_indices(raw_distance.shape[0], k=1)])
     info(f'Median distance between cell types: {median_distance}')

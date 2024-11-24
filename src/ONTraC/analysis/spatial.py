@@ -9,7 +9,7 @@ mpl.rcParams['ps.fonttype'] = 42
 mpl.rcParams['font.family'] = 'Arial'
 import matplotlib.pyplot as plt
 
-from ..log import warning
+from ..log import info, warning
 from .data import AnaData
 from .utils import saptial_figsize
 
@@ -162,6 +162,64 @@ def plot_cell_type_composition(
         return plot_cell_type_composition_sample_from_anadata(ana_data=ana_data)
     else:
         return plot_cell_type_composition_dataset_from_anadata(ana_data=ana_data)
+
+
+def plot_adjust_cell_type_composition_sample_from_anadata(
+        ana_data: AnaData) -> Optional[List[Tuple[plt.Figure, plt.Axes]]]:
+    """
+    Plot spatial distribution of adjusted cell type composition.
+    :param ana_data: AnaData, the data for analysis.
+    :return: None or Tuple[plt.Figure, plt.Axes].
+    """
+
+    try:
+        if ana_data.adjust_cell_type_composition is None:
+            warning("No adjusted cell type composition data found.")
+            return None
+    except FileNotFoundError as e:
+        warning(str(e))
+        return None
+
+    return plot_cell_type_composition_sample(meta_data_df=ana_data.meta_data_df,
+                                             cell_type_codes=ana_data.cell_type_codes,
+                                             cell_type_composition=ana_data.adjust_cell_type_composition,
+                                             spatial_scaling_factor=ana_data.options.scale_factor,
+                                             output_file_path=ana_data.options.output)
+
+
+def plot_adjust_cell_type_composition_dataset_from_anadata(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.Axes]]:
+    """
+    Plot spatial distribution of adjusted cell type composition.
+    :param ana_data: AnaData, the data for analysis.
+    :return: None or Tuple[plt.Figure, plt.Axes].
+    """
+
+    try:
+        if ana_data.adjust_cell_type_composition is None:
+            warning("No adjusted cell type composition data found.")
+            return None
+    except FileNotFoundError as e:
+        warning(str(e))
+        return None
+
+    return plot_cell_type_composition_dataset(meta_data_df=ana_data.meta_data_df,
+                                              cell_type_codes=ana_data.cell_type_codes,
+                                              cell_type_composition=ana_data.adjust_cell_type_composition,
+                                              output_file_path=ana_data.options.output)
+
+
+def plot_adjust_cell_type_composition(
+        ana_data: AnaData) -> Optional[Union[List[Tuple[plt.Figure, plt.Axes]], Tuple[plt.Figure, plt.Axes]]]:
+    """
+    Plot spatial distribution of adjusted cell type composition.
+    :param ana_data: AnaData, the data for analysis.
+    :return: None or Tuple[plt.Figure, plt.Axes].
+    """
+
+    if hasattr(ana_data.options, 'sample') and ana_data.options.sample:
+        return plot_adjust_cell_type_composition_sample_from_anadata(ana_data=ana_data)
+    else:
+        return plot_adjust_cell_type_composition_dataset_from_anadata(ana_data=ana_data)
 
 
 def plot_niche_NT_score_dataset(

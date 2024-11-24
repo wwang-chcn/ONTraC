@@ -5,14 +5,23 @@ import numpy as np
 import pandas as pd
 from torch_geometric.loader import DenseDataLoader
 
+from ..external.deconvolution import apply_STdeconvolve
 from ..data import SpatailOmicsDataset, load_dataset
-from ..log import info
+from ..log import info, warning
 from ..utils import get_meta_data_file
 from .data import load_meta_data, save_cell_type_code
+from .expression import perform_pca, perform_harmony, define_neighbors, perform_leiden, perform_umap
 
 
-def load_input_data(meta_input: Union[str, Path],
-                    NN_dir: Union[str, Path],) -> Dict[str, pd.DataFrame]:
+def load_input_data(
+    meta_input: Union[str, Path],
+    NN_dir: Union[str, Path],
+    exp_input: Optional[Union[str, Path]] = None,
+    embedding_input: Optional[Union[str, Path]] = None,
+    low_res_exp_input: Optional[Union[str, Path]] = None,
+    deconvoluted_ct_composition: Optional[Union[str, Path]] = None,
+    deconvoluted_exp_input: Optional[Union[str, Path]] = None,
+) -> Dict[str, pd.DataFrame]:
     """
     Load data from original inputs.
     :param meta_input: str or Path, meta data file.
@@ -22,49 +31,219 @@ def load_input_data(meta_input: Union[str, Path],
 
     output = {}
 
-    # load meta_data
-    meta_data_df = load_meta_data(save_dir=NN_dir, meta_data_file=meta_input)
-    output['meta_data'] = meta_data_df
+    # default values
+    output['embedding_data'] = None
 
-    # cell-level data, validate the meta_data
-    if 'Cell_Type' not in meta_data_df.columns:
-        raise ValueError('Cell_Type in metadata is required for cell-level data.')
-    if 'Cell_ID' not in meta_data_df.columns:
-        raise ValueError('Cell_ID in metadata is required for cell-level data.')
+    # ----- load meta_data -----
+    meta_data_df = load_meta_data(save_dir=NN_dir, meta_data_file=meta_input)
+    ids = meta_data_df.iloc[:,0].values.tolist()
+    output['meta_data'] = meta_data_df  # N x X
+
+    # cell or spot level data?
+    id_name = meta_data_df.columns[0]
+    if id_name == 'Cell_ID':
+        if exp_input is not None:
+            exp_df = pd.read_csv(exp_input, index_col=0)
+            # TODO: error message module
+            if exp_df.index.tolist() != ids:
+                raise ValueError('The first column of exp input should be same as the first column of meta_data.')
+            output['exp_data'] = exp_df  # N x #gene
+        if embedding_input is not None:
+            embedding_df = pd.read_csv(embedding_input, index_col=0)
+            # TODO: error message module
+            if embedding_df.index.tolist() != ids:
+                raise ValueError('The first column of embedding input should be same as the first column of meta_data.')
+            output['embedding_data'] = embedding_df  # N x #embedding
+    else:
+        if low_res_exp_input is not None:
+            low_res_exp_df = pd.read_csv(low_res_exp_input, index_col=0)
+            # TODO: error message module
+            if low_res_exp_df.columns.tolist() != ids:
+                raise ValueError(
+                    'The first row in low_res_exp_data should be same as the first column of meta_data.')
+            output['low_res_exp'] = low_res_exp_df  # #gene x #N
+        if deconvoluted_ct_composition is not None:
+            deconvoluted_ct_composition_df = pd.read_csv(deconvoluted_ct_composition, header=0)
+            # TODO: error message module
+            if deconvoluted_ct_composition_df.shape[0] != meta_data_df.shape[0]:
+                raise ValueError('The number of rows in meta_data and deconvoluted_ct_composition should be the same.')
+            output['deconvoluted_ct_composition'] = deconvoluted_ct_composition_df  # N x #cell_type
+        if deconvoluted_exp_input is not None and deconvoluted_ct_composition is not None:  # if deconvoluted_exp_input is provided, deconvoluted_ct_composition should also be provided
+            deconvoluted_exp_df = pd.read_csv(deconvoluted_exp_input, header=0)
+            # TODO: error message module
+            if deconvoluted_exp_df.index.tolist() != deconvoluted_ct_composition_df.columns.tolist():
+                raise ValueError(
+                    'The index of deconvoluted_exp_data should be same as the columns of deconvoluted_ct_composition.')
+            output['deconvoluted_exp_data'] = deconvoluted_exp_df  # #cell_type x #gene
 
     return output
 
 
+def perform_deconvolution(NN_dir: Union[str, Path], dc_method: str, exp_matrix: np.ndarray,
+                          dc_ct_num: int) -> np.ndarray:
+    """
+    Perform deconvolution.
+    :param NN_dir: str or Path, save directory.
+    :param dc_method: str, deconvolution method.
+    :param exp_matrix: pd.DataFrame, expression matrix.  #gene x #spot
+    :param dc_ct_num: int, number of cell types.
+    :return: np.ndarray, deconvoluted cell type matrix.  #spot x #cell_type
+    """
+
+    info(message='            -------- deconvolution -------           ')
+
+    if dc_method == 'STdeconvolve':
+        deconvoluted_ct_matrix = apply_STdeconvolve(NN_dir=NN_dir, exp_matrix=exp_matrix, ct_num=dc_ct_num)
+
+    return deconvoluted_ct_matrix
+
+
+def cal_cell_type_coding(
+    input_data: Dict[str, pd.DataFrame],
+    NN_dir: Union[str, Path],
+    resolution: Optional[float] = None,
+    dc_method: Optional[str] = None,
+    dc_ct_num: Optional[int] = None,
+) -> Dict[str, pd.DataFrame]:
+    """
+    """
+
+    meta_data_df = input_data['meta_data']
+
+    id_name = meta_data_df.columns[0]
+    if id_name == 'Cell_ID':
+        if 'Cell_Type' in meta_data_df.columns:  # option 1: cell-level data with Cell_Type info in meta_data
+            meta_data_df['Cell_Type'] = meta_data_df['Cell_Type'].astype('category')
+        else:
+            if 'embedding_data' in input_data:  # option 2: cell-level data with embedding info
+                pca_embedding = input_data['embedding_data'].values
+            elif 'exp_data' in input_data:  # option 3: cell-level data with gene expression data
+                pca_embedding = perform_pca(input_data['exp_data'])
+                if 'Batch' in meta_data_df.columns:
+                    if meta_data_df['Batch'].nunique() > 1:
+                        pca_embedding = perform_harmony(pca_embedding, meta_data_df, 'Batch')
+            else:
+                raise ValueError(
+                    'Cell_Type column, exp_data, or embedding_data should be provided for cell-level data.')
+
+            # save PCA embedding
+            input_data['embedding_data'] = pd.DataFrame(data=pca_embedding,
+                                                        columns=[f'PC{i+1}' for i in range(pca_embedding.shape[1])],
+                                                        index=meta_data_df.index)
+            np.savetxt(Path(NN_dir).joinpath('PCA_embedding.csv'), pca_embedding, delimiter=',')
+
+            if resolution is None:
+                raise ValueError(
+                    'resolution should be provided for cell-level data with gene expression or embedding data as input when Cell_Type is not provided in meta data input.'
+                )
+
+            connectivities = define_neighbors(pca_embedding)
+            leiden_result = perform_leiden(connectivities, resolution=resolution)
+            umap_embedding = perform_umap(pca_embedding)
+            np.savetxt(Path(NN_dir).joinpath('UMAP_embedding.csv'), umap_embedding, delimiter=',')
+            meta_data_df['Cell_Type'] = pd.Categorical(leiden_result)
+
+            # save meta data
+            meta_data_df.to_csv(Path(NN_dir).joinpath('meta_data.csv'), index=False)
+
+        # generate cell type coding matrix
+        ct_coding_matrix = np.zeros(shape=(meta_data_df.shape[0],
+                                           meta_data_df['Cell_Type'].cat.categories.shape[0]))  # N x #cell_type
+        ct_coding_matrix[np.arange(meta_data_df.shape[0]), meta_data_df.Cell_Type.cat.codes.values] = 1
+        ct_coding = pd.DataFrame(data=ct_coding_matrix,
+                                 columns=meta_data_df['Cell_Type'].cat.categories,
+                                 index=meta_data_df.index)
+        # save cell type code
+        save_cell_type_code(save_dir=NN_dir, cell_types=meta_data_df['Cell_Type'])
+
+    else:  # id_name == 'Spot_ID', low resolution data
+        if 'deconvoluted_ct_composition' in input_data:  # option 4: low resolution data with deconvoluted cell type composition
+            ct_coding = input_data['deconvoluted_ct_composition']  # N x #cell_type
+        elif 'low_res_exp_data' in input_data:  # option 5: low resolution data with original expression data
+            if dc_method is None or dc_ct_num is None:
+                raise ValueError('dc_method and dc_ct_num are required when you provide low_res_exp_data as input.')
+            ct_coding_matrix = perform_deconvolution(NN_dir=NN_dir,
+                                                     dc_method=dc_method,
+                                                     exp_matrix=input_data['low_res_exp'].values,
+                                                     dc_ct_num=dc_ct_num)
+            ct_coding = pd.DataFrame(data=ct_coding_matrix,
+                                     columns=np.arange(ct_coding_matrix.shape[1]),
+                                     index=input_data['low_res_exp'].columns)
+        else:
+            raise ValueError(
+                'deconvoluted_ct_composition or low_res_exp_data should be provided for low resolution data.')
+
+        # save cell type code
+        save_cell_type_code(save_dir=NN_dir, cell_types=pd.Series(ct_coding.columns))
+
+    input_data['ct_coding'] = ct_coding
+    ct_coding.to_csv(Path(NN_dir).joinpath('ct_coding.csv'), index=True)
+
+    return input_data
+
 
 def preprocessing_nn(meta_input: Union[str, Path],
-                     NN_dir: Union[str, Path]) -> Tuple[pd.DataFrame, pd.DataFrame]:
+                     NN_dir: Union[str, Path],
+                     exp_input: Optional[Union[str, Path]] = None,
+                     embedding_input: Optional[Union[str, Path]] = None,
+                     low_res_exp_input: Optional[Union[str, Path]] = None,
+                     deconvoluted_ct_composition: Optional[Union[str, Path]] = None,
+                     deconvoluted_exp_input: Optional[Union[str, Path]] = None,
+                     resolution: Optional[float] = None,
+                     dc_method: Optional[str] = None,
+                     dc_ct_num: Optional[int] = None) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
     Preprocessing for niche network.
+
+    Possible input parameters combinations:
+    # class I: without embedding ajustment
+    1. meta_input, NN_dir (cell-level data with Cell_Type info in meta_data)
+    2. meta_input, NN_dir, exp_input, resolution (cell-level data with gene expression data)
+    3. meta_input, NN_dir, embedding_input (cell-level data with embedding info)
+    4. meta_input, NN_dir, low_res_exp_input, dc_method, dc_ct_num (spot-level data with original expression data)
+    5. meta_input, NN_dir, low_res_exp_input, deconvoluted_ct_composition (spot-level data with deconvoluted cell type composition)
+    # class II: with embedding ajustment
+    1. embedding_adjust, sigma, meta_input, NN_dir, exp_input, resolution  (cell-level data with gene expression data)
+    2. embedding_adjust, sigma, meta_input, NN_dir, embedding_input (cell-level data with embedding info)
+    3. meta_input, NN_dir, low_res_exp_input, dc_method, dc_ct_num (spot-level data with original expression data)
+    4. meta_input, NN_dir, low_res_exp_input, deconvoluted_ct_composition, deconvoluted_exp_input (spot-level data with deconvoluted cell type composition)
+
+    Steps:
+    1. define cell type
+    2. cell type coding matrix
+    3. embedding adjustment (optional)
+
+
     :param meta_input: str or Path, meta data file.
     :param NN_dir: str or Path, save directory.
+    :param exp_input: str or Path, expression data file.
+    :param embedding_input: str or Path, embedding data file.
+    :param low_res_exp_input: str or Path, low resolution expression data file.
+    :param deconvoluted_ct_composition: str or Path, deconvoluted cell type composition file.
+    :param deconvoluted_exp_input: str or Path, deconvoluted expression data file.
+    :param resolution: float, resolution.
+    :param dc_method: str, deconvolution method.
+    :param dc_ct_num: int, deconvoluted cell type number.
+    :param embedding_adjust: bool, adjust embedding.
+    :param sigma: float, sigma.
     :return: Tuple[pd.DataFrame, pd.DataFrame], meta data and cell type coding matrix.
     """
 
-    input_data = load_input_data(meta_input=meta_input, NN_dir=NN_dir)
+    input_data = load_input_data(meta_input=meta_input,
+                                 NN_dir=NN_dir,
+                                 exp_input=exp_input,
+                                 embedding_input=embedding_input,
+                                 low_res_exp_input=low_res_exp_input,
+                                 deconvoluted_ct_composition=deconvoluted_ct_composition,
+                                 deconvoluted_exp_input=deconvoluted_exp_input)
 
-    if 'meta_data' not in input_data:
-        raise ValueError('meta_data is required for preprocessing.')
-    meta_data_df = input_data['meta_data']
+    input_data = cal_cell_type_coding(input_data=input_data,
+                                      NN_dir=NN_dir,
+                                      resolution=resolution,
+                                      dc_method=dc_method,
+                                      dc_ct_num=dc_ct_num)
 
-    
-    # generate cell type coding matrix
-    meta_data_df['Cell_Type'] = meta_data_df['Cell_Type'].astype('category')
-    ct_coding_matrix = np.zeros(shape=(meta_data_df.shape[0],
-                                        meta_data_df['Cell_Type'].cat.categories.shape[0]))  # N x #cell_type
-    ct_coding_matrix[np.arange(meta_data_df.shape[0]), meta_data_df.Cell_Type.cat.codes.values] = 1
-    ct_coding = pd.DataFrame(data=ct_coding_matrix,
-                                columns=meta_data_df['Cell_Type'].cat.categories,
-                                index=meta_data_df.index)
-
-    # save cell type code
-    save_cell_type_code(save_dir=NN_dir, cell_types=meta_data_df['Cell_Type'])
-
-    return meta_data_df, ct_coding
+    return input_data['meta_data'], input_data['embedding_data'], input_data['ct_coding']
 
 
 def load_data(NN_dir: Union[str, Path], batch_size: int = 0) -> Tuple[SpatailOmicsDataset, DenseDataLoader]:

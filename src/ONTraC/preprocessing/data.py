@@ -22,22 +22,26 @@ def valid_meta_data(meta_data_df: pd.DataFrame) -> pd.DataFrame:
     :param meta_data_df: pd.DataFrame, original data.
     :return: pd.DataFrame, original data.
 
-    1) check if Cell_ID, Sample, Cell_Type, x, and y columns in the original data
-    2) make the Cell_Type column categorical
-    3) return original data with Cell_ID/Spot_ID, Sample, Cell_Type, x, and y columns
+    1) check if Cell_ID/Spot_ID, Sample, x, and y columns in the original data
+    2) check if there any duplicated Cell_ID/Spot_ID in the original data
+    2) make the Cell_Type column categorical (if exists)
+    3) return original data with Cell_ID/Spot_ID, Sample, x, and y columns
     """
 
     # check if Cell_ID, Sample, Cell_Type, x, and y columns in the original data
-    if 'Cell_ID' not in meta_data_df.columns and 'Spot_ID' not in meta_data_df.columns:
-        raise ValueError('Cell_ID column is missing in the original data.')
+    id_name = meta_data_df.columns[0]
+    if id_name == 'Cell_ID':  # cell-level data
+        pass
+    elif id_name == 'Spot_ID':  # spot-level data
+        pass
+    else:
+        raise ValueError('ID name in meta-data input should be either Cell_ID or Spot_ID.')
     if 'Sample' not in meta_data_df.columns:
         raise ValueError('Sample column is missing in the original data.')
     if 'x' not in meta_data_df.columns:
         raise ValueError('x column is missing in the original data.')
     if 'y' not in meta_data_df.columns:
         raise ValueError('y column is missing in the original data.')
-
-    id_name = 'Cell_ID'  # cell-level data
 
     # check if there any duplicated Cell_ID/Spot_ID in the original data
     if meta_data_df[id_name].duplicated().any():
@@ -48,12 +52,14 @@ def valid_meta_data(meta_data_df: pd.DataFrame) -> pd.DataFrame:
     if meta_data_df[id_name].isnull().any():
         raise ValueError(f'Duplicated {id_name} within same sample found!')
 
-    
-    meta_data_df['Cell_Type'] = meta_data_df['Cell_Type'].astype('category')
-    # check if the cell type category number is less than 2
-    if len(meta_data_df['Cell_Type'].cat.categories) < 2:
-        raise ValueError('Cell_Type column found but less than 2 cell types.')
-    meta_data_df = meta_data_df.dropna(subset=[id_name, 'Sample', 'Cell_Type', 'x', 'y'])
+    if id_name == 'Cell_ID' and 'Cell_Type' in meta_data_df.columns:
+        meta_data_df['Cell_Type'] = meta_data_df['Cell_Type'].astype('category')
+        # check if the cell type category number is less than 2
+        if len(meta_data_df['Cell_Type'].cat.categories) < 2:
+            raise ValueError('Cell_Type column found but less than 2 cell types.')
+        meta_data_df = meta_data_df.dropna(subset=[id_name, 'Sample', 'Cell_Type', 'x', 'y'])
+    else:
+        meta_data_df = meta_data_df.dropna(subset=[id_name, 'Sample', 'x', 'y'])
 
     # make the Sample column string
     meta_data_df['Sample'] = meta_data_df['Sample'].astype(str)
