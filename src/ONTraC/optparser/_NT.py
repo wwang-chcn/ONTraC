@@ -19,6 +19,12 @@ def add_NT_options_group(optparser: OptionParser) -> None:
     group_NT = OptionGroup(optparser, "Options for niche trajectory")
     optparser.add_option_group(group_NT)
     group_NT.add_option(
+        '--trajectory-construct',
+        dest='trajectory_construct',
+        default='BF',
+        choices=['BF', 'TSP'],
+        help="Method to construct the niche trajectory. Default is 'BF' (brute-force). A faster alternative is 'TSP'.")
+    group_NT.add_option(
         '--equal-space',
         dest='equal_space',
         action='store_true',
@@ -26,12 +32,6 @@ def add_NT_options_group(optparser: OptionParser) -> None:
         help=
         'Whether to assign equally spaced values to for each niche cluster. Default is False, based on total loadings of each niche cluster.'
     )
-    group_NT.add_option(
-        '--trajectory-construct',
-        dest='trajectory_construct',
-        default='BF',
-        choices=['BF', 'TSP'],
-        help="Method to construct the niche trajectory. Default is 'BF' (brute-force). A faster alternative is 'TSP'.")
 
 
 def validate_NT_options(optparser: OptionParser, options: Values) -> None:

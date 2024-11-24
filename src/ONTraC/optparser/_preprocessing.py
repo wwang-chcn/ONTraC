@@ -27,7 +27,7 @@ def add_preprocessing_options_group(optparser: OptionParser) -> None:
         type=float,
         default=10.0,
         help=
-        'Resolution for leiden clustering. Used for clustering cells into cell types when gene expression data is provided. Default is 1.0.'
+        'Resolution for leiden clustering. Used for clustering cells into cell types when gene expression data is provided. Default is 10.0.'
     )
     group_preprocessing.add_option('--deconvolution-method',
                                    dest='dc_method',

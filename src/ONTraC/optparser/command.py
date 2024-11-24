@@ -25,11 +25,13 @@ def prepare_ontrac_optparser() -> OptionParser:
     io_options: Set[str] = IO_OPTIONS['ONTraC']  # type: ignore
 
     # usage and description
-    usage = f'''USAGE: %prog <--NN-dir NN_DIR> <--GNN-dir GNN_DIR> <--NT-dir NT_DIR> <--meta-input META_INPUT> 
-    [--n-cpu N_CPU] [--n-neighbors N_NEIGHBORS] [--n-local N_LOCAL] [--device DEVICE] [--epochs EPOCHS] [--patience PATIENCE]
+    usage = f'''USAGE: %prog <--NN-dir NN_DIR> <--GNN-dir GNN_DIR> <--NT-dir NT_DIR> <--meta-input META_INPUT>
+    [--exp-input EXP_INPUT] [--embedding-input EMBEDDING_INPUT] [--low-res-exp-input LOW_RES_EXP_INPUT] [--deconvoluted-ct-composition DECONVOLUTED_CT_COMPOSITION]
+    [--deconvoluted-exp-input DECONVOLUTED_EXP_INPUT] [--resolution RESOLUTION] [--deconvolution-method DC_METHOD] [--deconvolution-ct-num DC_CT_NUM]
+    [--n-cpu N_CPU] [--n-neighbors N_NEIGHBORS] [--n-local N_LOCAL] [--embedding-adjust] [--sigma SIGMA] [--device DEVICE] [--epochs EPOCHS] [--patience PATIENCE]
     [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] [-s SEED] [--lr LR] [--hidden-feats HIDDEN_FEATS]
     [--n-gcn-layers N_GCN_LAYERS] [-k K] [--modularity-loss-weight MODULARITY_LOSS_WEIGHT] [--purity-loss-weight PURITY_LOSS_WEIGHT]
-    [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA] [--trajectory-construct TRAJECTORY_CONSTRUCT]'''
+    [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA] [--trajectory-construct TRAJECTORY_CONSTRUCT] [--equal-space]'''
     description = 'All steps of ONTraC including niche network construction, GNN, and niche construction.'
 
     # option processor
@@ -106,8 +108,11 @@ def prepare_nn_optparser() -> OptionParser:
     io_options: Set[str] = IO_OPTIONS['ONTraC_NN']  # type: ignore
 
     # usage and description
-    usage = f'''USAGE: %prog <--NN-dir NN_DIR> <--meta-input META_INPUT>
-    [--n-cpu N_CPU] [--n-neighbors N_NEIGHBORS] [--n-local N_LOCAL]'''
+    usage = f'''USAGE: %prog <--NN-dir NN_DIR> <--meta-input META_INPUT> [--exp-input EXP_INPUT]
+    [--embedding-input EMBEDDING_INPUT] [--low-res-exp-input LOW_RES_EXP_INPUT]
+    [--deconvoluted-ct-composition DECONVOLUTED_CT_COMPOSITION] [--deconvoluted-exp-input DECONVOLUTED_EXP_INPUT]
+    [--resolution RESOLUTION] [--deconvolution-method DC_METHOD] [--deconvolution-ct-num DC_CT_NUM]
+    [--n-cpu N_CPU] [--n-neighbors N_NEIGHBORS] [--n-local N_LOCAL] [--embedding-adjust] [--sigma SIGMA]'''
     description = 'Create niche network and calculate features (normalized cell type composition). (Step 1 of ONTraC)'
 
     # option processor
@@ -227,7 +232,7 @@ def prepare_nt_optparser() -> OptionParser:
 
     # usage and description
     usage = f'''USAGE: %prog <--NN-dir NN_DIR> <--GNN-dir GNN_DIR> <--NT-dir NT_DIR> 
-            [--trajectory-construct TRAJECTORY_CONSTRUCT]'''
+            [--trajectory-construct TRAJECTORY_CONSTRUCT] [--equal-space]'''
     description = 'ONTraC_NT: construct niche trajectory for niche cluster and project the NT score to each cell. (Step 4 of ONTraC)'
 
     # option processor
@@ -279,7 +284,8 @@ def prepare_gt_optparser() -> OptionParser:
     [--epochs EPOCHS] [--patience PATIENCE] [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] 
     [-s SEED] [--lr LR] [--hidden-feats HIDDEN_FEATS] [--n-gcn-layers N_GCN_LAYERS] [-k K]
     [--modularity-loss-weight MODULARITY_LOSS_WEIGHT] [--purity-loss-weight PURITY_LOSS_WEIGHT] 
-    [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA] [--trajectory-construct TRAJECTORY_CONSTRUCT]'''
+    [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA] [--trajectory-construct TRAJECTORY_CONSTRUCT]
+    [--equal-space]'''
     description = 'ONTraC_GT: GNN and Niche Trajectory'
 
     # option processor
@@ -345,8 +351,9 @@ def prepare_analysis_optparser() -> OptionParser:
     io_options: Set[str] = IO_OPTIONS['ONTraC_analysis']  # type: ignore
 
     usage = f'''USAGE: %prog [--NN-dir NN_DIR] [--GNN-dir GNN_DIR] [--NT-dir NT_DIR] [-o OUTPUT]
-    [--meta-input META_INPUT] [-l LOG] [-r REVERSE] [-s SAMPLE] [--scale-factor SCALE_FACTOR]
-    [--suppress-cell-type-composition] [--suppress-niche-cluster-loadings] [--suppress-niche-trajectory]
+    [--meta-input META_INPUT] [-l LOG] [--embedding-adjust] [--sigma SIGMA] [-r REVERSE] [-s SAMPLE]
+    [--scale-factor SCALE_FACTOR] [--suppress-cell-type-composition] [--suppress-niche-cluster-loadings]
+    [--suppress-niche-trajectory]
     '''
     description = 'ONTraC_analysis: analysis of ONTraC results'
 

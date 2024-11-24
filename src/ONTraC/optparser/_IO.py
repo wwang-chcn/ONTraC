@@ -29,7 +29,7 @@ def add_IO_options_group(optparser: OptionParser, io_options: Optional[Set[str]]
         group_io.add_option('-o', '--output', dest='output', type='string', help='Directory for analysis output.')
 
     # input files
-    if 'input' in io_options:
+    if 'meta' in io_options:
         group_io.add_option(
             '--meta-input',
             dest='meta_input',
@@ -37,6 +37,7 @@ def add_IO_options_group(optparser: OptionParser, io_options: Optional[Set[str]]
             help=
             'Meta data file in csv format. Each row is a cell. The first column should be the cell name with column name Cell_ID. Coordinates (x, y) and sample should be included. Cell type is required for cell-level data.'
         )
+    if 'input' in io_options:
         group_io.add_option(
             '--exp-input',
             dest='exp_input',
