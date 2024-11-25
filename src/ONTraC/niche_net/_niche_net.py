@@ -278,7 +278,7 @@ def gen_samples_yaml(meta_data_df: pd.DataFrame, save_dir: Union[str, Path]) -> 
 def ct_coding_adjust(NN_dir: Union[str, Path],
                      meta_data_df: pd.DataFrame,
                      embedding_df: pd.DataFrame,
-                     deconvoluted_exp_input: Union[str, Path],
+                     deconvoluted_exp_input: Optional[Union[str, Path]],
                      sigma: float = 1.0) -> None:
     """
     Adjust the cell type coding according to embeddings

@@ -9,7 +9,7 @@ from ..data import SpatailOmicsDataset, load_dataset
 from ..external.deconvolution import apply_STdeconvolve
 from ..log import info, warning
 from ..utils import get_meta_data_file
-from .data import load_meta_data, save_cell_type_code
+from .data import load_meta_data, save_cell_type_code, save_meta_data
 from .expression import define_neighbors, perform_harmony, perform_leiden, perform_pca, perform_umap
 
 
@@ -42,18 +42,18 @@ def load_input_data(
     # cell or spot level data?
     id_name = meta_data_df.columns[0]
     if id_name == 'Cell_ID':
-        if exp_input is not None:
-            exp_df = pd.read_csv(exp_input, index_col=0)
-            # TODO: error message module
-            if exp_df.index.tolist() != ids:
-                raise ValueError('The first column of exp input should be same as the first column of meta_data.')
-            output['exp_data'] = exp_df  # N x #gene
         if embedding_input is not None:
             embedding_df = pd.read_csv(embedding_input, index_col=0)
             # TODO: error message module
             if embedding_df.index.tolist() != ids:
                 raise ValueError('The first column of embedding input should be same as the first column of meta_data.')
             output['embedding_data'] = embedding_df  # N x #embedding
+        elif exp_input is not None:
+            exp_df = pd.read_csv(exp_input, index_col=0)
+            # TODO: error message module
+            if exp_df.index.tolist() != ids:
+                raise ValueError('The first column of exp input should be same as the first column of meta_data.')
+            output['exp_data'] = exp_df  # N x #gene
     else:
         if low_res_exp_input is not None:
             low_res_exp_df = pd.read_csv(low_res_exp_input, index_col=0)
@@ -123,9 +123,9 @@ def cal_cell_type_coding(
         if 'Cell_Type' in meta_data_df.columns:  # option 1: cell-level data with Cell_Type info in meta_data
             meta_data_df['Cell_Type'] = meta_data_df['Cell_Type'].astype('category')
         else:
-            if 'embedding_data' in input_data:  # option 2: cell-level data with embedding info
+            if 'embedding_data' in input_data and input_data['embedding_data'] is not None:  # option 2: cell-level data with embedding info
                 pca_embedding = input_data['embedding_data'].values
-            elif 'exp_data' in input_data:  # option 3: cell-level data with gene expression data
+            elif 'exp_data' in input_data and input_data['exp_data'] is not None:  # option 3: cell-level data with gene expression data
                 pca_embedding = perform_pca(input_data['exp_data'])
                 if 'Batch' in meta_data_df.columns:
                     if meta_data_df['Batch'].nunique() > 1:
@@ -137,7 +137,7 @@ def cal_cell_type_coding(
             # save PCA embedding
             input_data['embedding_data'] = pd.DataFrame(data=pca_embedding,
                                                         columns=[f'PC{i+1}' for i in range(pca_embedding.shape[1])],
-                                                        index=meta_data_df.index)
+                                                        index=meta_data_df[id_name])
             np.savetxt(Path(NN_dir).joinpath('PCA_embedding.csv'), pca_embedding, delimiter=',')
 
             if resolution is None:
@@ -150,6 +150,8 @@ def cal_cell_type_coding(
             umap_embedding = perform_umap(pca_embedding)
             np.savetxt(Path(NN_dir).joinpath('UMAP_embedding.csv'), umap_embedding, delimiter=',')
             meta_data_df['Cell_Type'] = pd.Categorical(leiden_result)
+            input_data['meta_data'] = meta_data_df
+            save_meta_data(save_dir=NN_dir, meta_data_df=meta_data_df)
 
             # save meta data
             meta_data_df.to_csv(Path(NN_dir).joinpath('meta_data.csv'), index=False)
@@ -160,7 +162,7 @@ def cal_cell_type_coding(
         ct_coding_matrix[np.arange(meta_data_df.shape[0]), meta_data_df.Cell_Type.cat.codes.values] = 1
         ct_coding_df = pd.DataFrame(data=ct_coding_matrix,
                                     columns=meta_data_df['Cell_Type'].cat.categories,
-                                    index=meta_data_df.index)
+                                    index=meta_data_df[id_name])
         # save cell type code
         save_cell_type_code(save_dir=NN_dir, cell_types=meta_data_df['Cell_Type'])
 
@@ -184,7 +186,7 @@ def cal_cell_type_coding(
         save_cell_type_code(save_dir=NN_dir, cell_types=pd.Series(ct_coding_df.columns))
 
     input_data['ct_coding'] = ct_coding_df
-    ct_coding_df.to_csv(Path(NN_dir).joinpath('ct_coding.csv'), index=True)
+    ct_coding_df.to_csv(Path(NN_dir).joinpath('ct_coding.csv'), index=True, index_label=id_name)
 
     return input_data
 

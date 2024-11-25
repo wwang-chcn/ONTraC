@@ -5,14 +5,11 @@ from typing import Callable, Dict
 import numpy as np
 
 from ..data import load_dataset
-from ..GNN import (evaluate, predict, save_graph_pooling_results, set_seed,
-                   train)
+from ..GNN import evaluate, predict, save_graph_pooling_results, set_seed, train
 from ..log import *
 from ..model import GNN
-from ..niche_net import (construct_niche_network, ct_coding_adjust,
-                         gen_samples_yaml)
-from ..niche_trajectory import (NTScore_table, get_niche_NTScore,
-                                load_consolidate_data, niche_to_cell_NTScore)
+from ..niche_net import construct_niche_network, ct_coding_adjust, gen_samples_yaml
+from ..niche_trajectory import NTScore_table, get_niche_NTScore, load_consolidate_data, niche_to_cell_NTScore
 from ..optparser import *
 from ..preprocessing.pp_control import preprocessing_gnn, preprocessing_nn
 from ..train import GNNBatchTrain
@@ -56,6 +53,8 @@ def niche_network_construct(options: Values) -> None:
         gen_ct_embedding=options.embedding_adjust,
     )
 
+    id_name = meta_data_df.columns[0]
+
     # construct niche network
     construct_niche_network(meta_data_df=meta_data_df,
                             ct_coding_df=ct_coding_df,
@@ -66,6 +65,7 @@ def niche_network_construct(options: Values) -> None:
     # cell type coding adjust
     deconvoluted_exp_input = options.deconvoluted_exp_input if options.deconvoluted_exp_input is not None else Path(
         options.NN_dir).joinpath('celltype_x_gene_deconvolution.csv')
+    deconvoluted_exp_input = deconvoluted_exp_input if id_name == 'Spot_ID' else None
     if options.embedding_adjust:
         ct_coding_adjust(NN_dir=options.NN_dir,
                          meta_data_df=meta_data_df,
