@@ -21,7 +21,11 @@ def analysis_pipeline(options: Values) -> None:
     ONTraC analysis pipeline
     """
 
+
+    info('-------------- Analysis pipeline start -------------- ')
+
     # 0. load data class
+    info('                  ---- Load data ---                  ')
     ana_data = AnaData(options)
 
     step_index = 0
