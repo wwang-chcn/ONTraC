@@ -1,14 +1,18 @@
 from optparse import Values
+from pathlib import Path
 from typing import Callable, Dict
 
 import numpy as np
 
 from ..data import load_dataset
-from ..GNN import evaluate, predict, save_graph_pooling_results, set_seed, train
+from ..GNN import (evaluate, predict, save_graph_pooling_results, set_seed,
+                   train)
 from ..log import *
 from ..model import GNN
-from ..niche_net import construct_niche_network, ct_coding_adjust, gen_samples_yaml
-from ..niche_trajectory import NTScore_table, get_niche_NTScore, load_consolidate_data, niche_to_cell_NTScore
+from ..niche_net import (construct_niche_network, ct_coding_adjust,
+                         gen_samples_yaml)
+from ..niche_trajectory import (NTScore_table, get_niche_NTScore,
+                                load_consolidate_data, niche_to_cell_NTScore)
 from ..optparser import *
 from ..preprocessing.pp_control import preprocessing_gnn, preprocessing_nn
 from ..train import GNNBatchTrain
@@ -38,7 +42,7 @@ def niche_network_construct(options: Values) -> None:
     info('------------- Niche network construct --------------- ')
 
     # load input information
-    meta_data_df, embedding_df, ct_coding = preprocessing_nn(
+    meta_data_df, embedding_df, ct_coding_df = preprocessing_nn(
         meta_input=options.meta_input,
         NN_dir=options.NN_dir,
         exp_input=options.exp_input,
@@ -48,21 +52,25 @@ def niche_network_construct(options: Values) -> None:
         deconvoluted_exp_input=options.deconvoluted_exp_input,
         resolution=options.resolution,
         dc_method=options.dc_method,
-        dc_ct_num=options.dc_ct_num)
+        dc_ct_num=options.dc_ct_num,
+        gen_ct_embedding=options.embedding_adjust,
+    )
 
     # construct niche network
     construct_niche_network(meta_data_df=meta_data_df,
-                            ct_coding=ct_coding,
+                            ct_coding_df=ct_coding_df,
                             save_dir=options.NN_dir,
                             n_neighbors=options.n_neighbors,
                             n_local=options.n_local)
 
     # cell type coding adjust
+    deconvoluted_exp_input = options.deconvoluted_exp_input if options.deconvoluted_exp_input is not None else Path(
+        options.NN_dir).joinpath('celltype_x_gene_deconvolution.csv')
     if options.embedding_adjust:
         ct_coding_adjust(NN_dir=options.NN_dir,
                          meta_data_df=meta_data_df,
                          embedding_df=embedding_df,
-                         deconvoluted_exp_input=options.deconvoluted_exp_input,
+                         deconvoluted_exp_input=deconvoluted_exp_input,
                          sigma=options.sigma)
 
     # generate samples.yaml to indicate file paths for each sample

@@ -223,14 +223,13 @@ class AnaData:
             self.meta_data_df = pd.read_csv(get_meta_data_file(options.NN_dir))
         else:  # not NN_dir, only support for visualization of meta_input
             self.meta_data_df = pd.read_csv(self.options.meta_input)
-            self.meta_data_df = self.meta_data_df.set_index('Cell_ID')
 
         # ID name check
         if self.meta_data_df.columns[0] == 'Cell_ID':
             self.meta_data_df = self.meta_data_df.set_index('Cell_ID')
             self.options.spatial_res = 'cell'
             info(message='Cell level meta data loaded.')
-        elif self.meta_data_df.columns[1] == 'Spot_ID':
+        elif self.meta_data_df.columns[0] == 'Spot_ID':
             self.meta_data_df = self.meta_data_df.set_index('Spot_ID')
             self.options.spatial_res = 'spot'
             info(message='Spot level meta data loaded.')

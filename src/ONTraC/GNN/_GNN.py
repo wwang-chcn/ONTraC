@@ -159,6 +159,8 @@ def save_graph_pooling_results(meta_data_df: pd.DataFrame, dataset: SpatailOmics
     :return: None.
     """
 
+    id_name: str = meta_data_df.columns[0]
+
     consolidate_s_niche_df = pd.DataFrame()
     consolidate_s_cell_df = pd.DataFrame()
     for i, data in enumerate(dataset):
@@ -167,7 +169,7 @@ def save_graph_pooling_results(meta_data_df: pd.DataFrame, dataset: SpatailOmics
         consolidate_s = consolidate_s_array[slice_]  # N x C
         consolidate_s_df_ = pd.DataFrame(consolidate_s,
                                          columns=[f'NicheCluster_{i}' for i in range(consolidate_s.shape[1])])
-        consolidate_s_df_['Cell_ID'] = meta_data_df[meta_data_df['Sample'] == data.name]['Cell_ID'].values
+        consolidate_s_df_[id_name] = meta_data_df[meta_data_df['Sample'] == data.name][id_name].values
         consolidate_s_niche_df = pd.concat([consolidate_s_niche_df, consolidate_s_df_], axis=0)
 
         # niche to cell matrix
@@ -179,24 +181,24 @@ def save_graph_pooling_results(meta_data_df: pd.DataFrame, dataset: SpatailOmics
         consolidate_s_cell = niche_to_cell_matrix @ consolidate_s
         consolidate_s_cell_df_ = pd.DataFrame(consolidate_s_cell,
                                               columns=[f'NicheCluster_{i}' for i in range(consolidate_s_cell.shape[1])])
-        consolidate_s_cell_df_['Cell_ID'] = meta_data_df[meta_data_df['Sample'] == data.name]['Cell_ID'].values
+        consolidate_s_cell_df_[id_name] = meta_data_df[meta_data_df['Sample'] == data.name][id_name].values
         consolidate_s_cell_df = pd.concat([consolidate_s_cell_df, consolidate_s_cell_df_], axis=0)
 
-    consolidate_s_niche_df = consolidate_s_niche_df.set_index('Cell_ID')
-    consolidate_s_niche_df = consolidate_s_niche_df.loc[meta_data_df['Cell_ID'], :]
+    consolidate_s_niche_df = consolidate_s_niche_df.set_index(id_name)
+    consolidate_s_niche_df = consolidate_s_niche_df.loc[meta_data_df[id_name], :]
     consolidate_s_niche_df.to_csv(f'{output_dir}/niche_level_niche_cluster.csv.gz',
                                   index=True,
-                                  index_label='Cell_ID',
+                                  index_label=id_name,
                                   header=True)
     consolidate_s_niche_df['Niche_Cluster'] = consolidate_s_niche_df.values.argmax(axis=1)
     consolidate_s_niche_df['Niche_Cluster'].to_csv(f'{output_dir}/niche_level_max_niche_cluster.csv.gz',
                                                    index=True,
                                                    header=True)
-    consolidate_s_cell_df = consolidate_s_cell_df.set_index('Cell_ID')
-    consolidate_s_cell_df = consolidate_s_cell_df.loc[meta_data_df['Cell_ID'], :]
+    consolidate_s_cell_df = consolidate_s_cell_df.set_index(id_name)
+    consolidate_s_cell_df = consolidate_s_cell_df.loc[meta_data_df[id_name], :]
     consolidate_s_cell_df.to_csv(f'{output_dir}/cell_level_niche_cluster.csv.gz',
                                  index=True,
-                                 index_label='Cell_ID',
+                                 index_label=id_name,
                                  header=True)
     consolidate_s_cell_df['Niche_Cluster'] = consolidate_s_cell_df.values.argmax(axis=1)
     consolidate_s_cell_df['Niche_Cluster'].to_csv(f'{output_dir}/cell_level_max_niche_cluster.csv.gz',

@@ -9,7 +9,8 @@ args <- commandArgs(trailingOnly = TRUE)
 counts_path <- args[1]
 num_cell_type <- as.numeric(args[2])
 save_directory <- args[3]
-output_file_name <- args[4]
+spot_x_ct_name <- args[4]
+ct_x_gene_name <- args[5]
 
 counts_df <- read.csv(counts_path, row.names = 1, header = TRUE)
 counts_df[is.na(counts_df)] <- 0
@@ -31,8 +32,21 @@ ldas <- fitLDA(t(as.matrix(corpus)), Ks = c(num_cell_type))
 optLDA <- optimalModel(models = ldas, opt = "min") # nolint
 results <- getBetaTheta(optLDA, perc.filt = 0.05, betaScale = 1000)
 
+print(paste0("Saving deconvolved spot x cell type matrix to ", spot_x_ct_name))
 write.table(
     results$theta,
-    file = file.path(save_directory, output_file_name),
+    file = file.path(save_directory, spot_x_ct_name),
     sep = ","
 )
+
+if (!is.null(ct_x_gene_name)) {
+    print(paste0(
+        "Saving deconvolved cell type x gene matrix to ",
+        ct_x_gene_name
+    ))
+    write.table(
+        results$beta,
+        file = file.path(save_directory, ct_x_gene_name),
+        sep = ","
+    )
+}

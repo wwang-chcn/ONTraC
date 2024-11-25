@@ -26,31 +26,35 @@ def analysis_pipeline(options: Values) -> None:
 
     step_index = 0
     if ana_data.options.spatial_res == 'cell':
+        # part 1: clustering
         step_index += 1
         info(message=f'Analysis pipeline step {step_index}: clustering visualization.')
-        # part 1: clustering
         clustering_visualization_from_anadata(ana_data=ana_data)
 
     if ana_data.options.embedding_adjust:
+        # part 2: niche network construction
         step_index += 1
         info(message=f'Analysis pipeline step {step_index}: embedding adjust visualization.')
-        # part 2: niche network construction
         embedding_adjust_visualization_from_anadata(ana_data=ana_data)
 
-    info(message=f'Analysis pipeline step {step_index}: train loss visualization.')
     # part 3: train loss
+    step_index += 1
+    info(message=f'Analysis pipeline step {step_index}: train loss visualization.')
     train_loss_visualiztion(ana_data=ana_data)
 
-    info(message=f'Analysis pipeline step {step_index}: spatial-based visualization.')
     # part 4: spatial based output
+    step_index += 1
+    info(message=f'Analysis pipeline step {step_index}: spatial-based visualization.')
     spatial_visualization(ana_data=ana_data)
 
-    info(message=f'Analysis pipeline step {step_index}: niche cluster visualization.')
     # part 5: niche cluster
+    step_index += 1
+    info(message=f'Analysis pipeline step {step_index}: niche cluster visualization.')
     niche_cluster_visualization(ana_data=ana_data)
 
-    info(message=f'Analysis pipeline step {step_index}: cell type-based visualization.')
     # part 6: cell type based output
+    step_index += 1
+    info(message=f'Analysis pipeline step {step_index}: cell type-based visualization.')
     cell_type_visualization(ana_data=ana_data)
 
     info('--------------- Analysis pipeline end --------------- ')

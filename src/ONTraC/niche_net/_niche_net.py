@@ -140,7 +140,8 @@ def save_niche_network(sample_name: str, sample_meta_df: pd.DataFrame, indices_m
 
     # save coordinates
     # TODO: support 3D coordinates
-    coord_df = sample_meta_df[['Cell_ID', 'x', 'y']]
+    id_name = sample_meta_df.columns[0]
+    coord_df = sample_meta_df[[id_name, 'x', 'y']]
     coord_df.to_csv(f'{save_dir}/{sample_name}_Coordinates.csv', index=False)
 
     # save the kNN network
@@ -219,14 +220,14 @@ def construct_niche_network_sample(sample_name: str,
 
 
 def construct_niche_network(meta_data_df: pd.DataFrame,
-                            ct_coding: pd.DataFrame,
+                            ct_coding_df: pd.DataFrame,
                             save_dir: Union[str, Path],
                             n_neighbors: int = 50,
                             n_local: int = 20) -> None:
     """
     Construct niche network.
     :param meta_data_df: pd.DataFrame, meta data.
-    :param ct_coding: pd.DataFrame, cell type coding.
+    :param ct_coding_df: pd.DataFrame, cell type coding.
     :param save_dir: str, save directory.
     :param n_neighbors: int, number of neighbors.
     :param n_local: int, index of distance used for normalization.
@@ -234,12 +235,12 @@ def construct_niche_network(meta_data_df: pd.DataFrame,
     """
 
     # get samples
-    samples = meta_data_df['Sample'].unique()
+    samples = meta_data_df['Sample'].unique().tolist()
 
     # construct niche network for each sample
     for sample_name in samples:
         sample_meta_df = meta_data_df[meta_data_df['Sample'] == sample_name]
-        sample_ct_coding = ct_coding[meta_data_df['Sample'] == sample_name]
+        sample_ct_coding = ct_coding_df.loc[meta_data_df[meta_data_df['Sample'] == sample_name].iloc[:, 0]]
         construct_niche_network_sample(sample_name=sample_name,
                                        sample_meta_df=sample_meta_df,
                                        sample_ct_coding=sample_ct_coding,
