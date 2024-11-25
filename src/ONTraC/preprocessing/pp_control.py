@@ -62,13 +62,17 @@ def load_input_data(
                 raise ValueError('The first row in low_res_exp_data should be same as the first column of meta_data.')
             output['low_res_exp'] = low_res_exp_df  # #gene x #N
         if deconvoluted_ct_composition is not None:
-            deconvoluted_ct_composition_df = pd.read_csv(deconvoluted_ct_composition, header=0)
+            deconvoluted_ct_composition_df = pd.read_csv(deconvoluted_ct_composition, index_col=0)
+            deconvoluted_ct_composition_df.index = deconvoluted_ct_composition_df.index.astype(str)
+            deconvoluted_ct_composition_df.columns = deconvoluted_ct_composition_df.columns.astype(str)
             # TODO: error message module
             if deconvoluted_ct_composition_df.shape[0] != meta_data_df.shape[0]:
                 raise ValueError('The number of rows in meta_data and deconvoluted_ct_composition should be the same.')
             output['deconvoluted_ct_composition'] = deconvoluted_ct_composition_df  # N x #cell_type
         if deconvoluted_exp_input is not None and deconvoluted_ct_composition is not None:  # if deconvoluted_exp_input is provided, deconvoluted_ct_composition should also be provided
-            deconvoluted_exp_df = pd.read_csv(deconvoluted_exp_input, header=0)
+            deconvoluted_exp_df = pd.read_csv(deconvoluted_exp_input, index_col=0)
+            deconvoluted_exp_df.index = deconvoluted_exp_df.index.astype(str)
+            deconvoluted_exp_df.columns = deconvoluted_exp_df.columns.astype(str)
             # TODO: error message module
             if deconvoluted_exp_df.index.tolist() != deconvoluted_ct_composition_df.columns.tolist():
                 raise ValueError(
