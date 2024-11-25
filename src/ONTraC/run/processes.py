@@ -94,7 +94,11 @@ def gnn(options: Values) -> None:
     device = options.device
     # build model
     input_feats = dataset.num_features
-    model = GNN(input_feats=input_feats, hidden_feats=options.hidden_feats, k=options.k, exponent=options.beta)
+    model = GNN(input_feats=input_feats,
+                hidden_feats=options.hidden_feats,
+                k=options.k,
+                n_gcn_layers=options.n_gcn_layers,
+                exponent=options.beta)
     # train
     loss_weight_args: Dict[str, float] = {
         key: value
