@@ -38,8 +38,7 @@ def niche_network_construct(options: Values) -> None:
     info('------------- Niche network construct --------------- ')
 
     # load input information
-    meta_data_df, ct_coding = preprocessing_nn(meta_input=options.meta_input,
-                                          NN_dir=options.NN_dir)
+    meta_data_df, ct_coding = preprocessing_nn(meta_input=options.meta_input, NN_dir=options.NN_dir)
 
     # construct niche network
     construct_niche_network(meta_data_df=meta_data_df,
@@ -69,7 +68,11 @@ def gnn(options: Values) -> None:
     device = options.device
     # build model
     input_feats = dataset.num_features
-    model = GNN(input_feats=input_feats, hidden_feats=options.hidden_feats, k=options.k, exponent=options.beta)
+    model = GNN(input_feats=input_feats,
+                hidden_feats=options.hidden_feats,
+                k=options.k,
+                n_gcn_layers=options.n_gcn_layers,
+                exponent=options.beta)
     # train
     loss_weight_args: Dict[str, float] = {
         key: value
