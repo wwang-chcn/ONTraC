@@ -5,33 +5,10 @@ from ..version import __version__
 from ._IO import *
 from ._train import *
 
-# ------------------------------------
-# Constants
-# ------------------------------------
-IO_OPTIONS = ['preprocessing_dir', 'GNN_dir', 'NTScore_dir']
-
 
 # ------------------------------------
 # Functions
 # ------------------------------------
-def prepare_NT_optparser() -> OptionParser:
-    """
-    Prepare optparser object. New options will be added in thisfunction first.
-    :return: OptionParser object.
-    """
-    usage = f'''USAGE: %prog <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR> 
-            [--trajectory-construct TRAJECTORY_CONSTRUCT] [--DM-embedding-index DM_EMBEDDING_INDEX]'''
-    description = 'Niche trajectory: construct niche trajectory for niche cluster and project the NT score to each cell'
-
-    # option processor
-    optparser = OptionParser(version=f'%prog {__version__}', description=description, usage=usage, add_help_option=True)
-
-    add_IO_options_group(optparser=optparser, io_options=IO_OPTIONS)
-    add_NT_options_group(optparser=optparser)
-
-    return optparser
-
-
 def add_NT_options_group(optparser: OptionParser) -> None:
     """
     Add niche trajectory options group to optparser.
@@ -92,24 +69,3 @@ def write_NT_options_memo(options: Values) -> None:
     info(f'Niche trajectory construction method: {options.trajectory_construct}')
     if options.trajectory_construct == 'DM':
         info(f'Diffusion map embedding index: {options.DM_embedding_index}')
-
-
-def opt_NT_validate(optparser: OptionParser) -> Values:
-    """Validate options from a OptParser object.
-
-    :param optparser: OptionParser object.
-    :return: Values object.
-    """
-
-    (options, args) = optparser.parse_args()
-
-    validate_io_options(optparser, options, IO_OPTIONS)
-    validate_NT_options(optparser, options)
-
-    # print parameters to stdout
-    info('------------------ RUN params memo ------------------ ')
-    write_io_options_memo(options, IO_OPTIONS)
-    write_NT_options_memo(options)
-    info('--------------- RUN params memo end ----------------- ')
-
-    return options

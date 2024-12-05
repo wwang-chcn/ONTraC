@@ -2,10 +2,10 @@
 
 import sys
 
-from ..log import *
-from ..optparser import opt_create_ds_validate, prepare_create_ds_optparser
+from ..log import warning
+from ..optparser import opt_nn_validate, prepare_nn_optparser
 from ..run.processes import load_parameters, niche_network_construct
-from ..utils import load_original_data, write_version_info
+from ..utils import write_version_info
 
 
 # ------------------------------------
@@ -13,22 +13,20 @@ from ..utils import load_original_data, write_version_info
 # ------------------------------------
 def main() -> None:
     """
-    main function
-    Input data files information should be stored in a YAML file.
+    The main function
     """
 
     # write version information
     write_version_info()
 
-    # load parameters
-    options = load_parameters(opt_validate_func=opt_create_ds_validate,
-                              prepare_optparser_func=prepare_create_ds_optparser)
+    # deprecation warning
+    warning('createDataSet will be deprecated from v2.0. Please use ONTraC_NN instead.')
 
-    # load original data
-    ori_data_df = load_original_data(options=options)
+    # load parameters
+    options = load_parameters(opt_validate_func=opt_nn_validate, prepare_optparser_func=prepare_nn_optparser)
 
     # ----- Niche Network Construct -----
-    niche_network_construct(options=options, ori_data_df=ori_data_df)
+    niche_network_construct(options=options)
 
 
 # ------------------------------------

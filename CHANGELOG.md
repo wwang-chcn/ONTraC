@@ -6,12 +6,28 @@ Added:
 
 - `Diffusion map` as one niche trajectory construction method
 
-## [1.0.7] - 2024-XXX-XX
+## [1.1.0] - 2024-Nov-24
+
+Changed:
+
+- Make options and modules' name consistent
+  - NN/niche network
+  - GNN/graph neural network
+  - NT/niche trajectory
+  - Rename `createDataSet` to `ONTraC_NN`
+  - Rename `NicheTrajectory` to `ONTraC_NT`
+  - Rename `ONTraC_GP` to `ONTraC_GT`
+- Refine the optparser structures
+- Extract preprocessing modules
+
+## [1.0.7] - 2024-Oct-23
 
 Added:
 
 - Niche cluster connectivity visualization for each sample
+- Node colorbar for cluster connectivity visualization
 - `scale factor` controlling the size of spatial-based plots
+- `N_GCN_LAYERS` controlling the number of GCN layers in the model
 
 Changed:
 

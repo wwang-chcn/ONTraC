@@ -7,7 +7,7 @@ import pandas as pd
 from pandas import DataFrame
 
 from ..log import info
-from ..utils import get_rel_params, read_yaml_file
+from ..utils import get_meta_data_file, get_rel_params, read_yaml_file
 
 
 # ----------------------------
@@ -95,9 +95,9 @@ def load_niche_cluster_score(options: Values) -> np.ndarray:
     Returns:
         np.ndarray: the niche cluster score
     """
-    niche_cluster_score_file = f'{options.NTScore_dir}/niche_cluster_score.csv.gz'
+    niche_cluster_score_file = f'{options.NT_dir}/niche_cluster_score.csv.gz'
     if not os.path.isfile(niche_cluster_score_file):
-        niche_cluster_score_file = f'{options.NTScore_dir}/niche_cluster_score.csv'
+        niche_cluster_score_file = f'{options.NT_dir}/niche_cluster_score.csv'
     if not os.path.isfile(niche_cluster_score_file):  # skip if file not exist
         raise FileNotFoundError(f"Cannot find niche cluster score file: {niche_cluster_score_file}.")
 
@@ -190,7 +190,7 @@ class AnaData:
     This class have the following attributes:
     - options: Values, the options from optparse
     - rel_params: Dict, the relative paths for params
-    - cell_id: pd.DataFrame, the original Cell ID and Cell Type
+    - meta_data_df: pd.DataFrame, the original Cell ID and Cell Type
     - train_loss: Dict, the training loss
     - cell_type_codes: pd.DataFrame, the cell type codes
     - cell_type_composition: pd.DataFrame, the cell type composition
@@ -209,11 +209,18 @@ class AnaData:
 
         # save options
         self.options = options
-        # get real path
-        params = read_yaml_file(f'{options.preprocessing_dir}/samples.yaml')
-        self.rel_params = get_rel_params(options, params)
-        # save the original Cell ID
-        self.cell_id = pd.read_csv(options.dataset, usecols=['Cell_ID', 'Cell_Type']).set_index('Cell_ID')
+
+        if hasattr(self.options, 'NN_dir'):
+
+            # get real path
+            params = read_yaml_file(f'{options.NN_dir}/samples.yaml')
+            self.rel_params = get_rel_params(options.NN_dir, params)
+            # save the original Cell_ID
+            self.meta_data_df = pd.read_csv(get_meta_data_file(options.NN_dir))
+            self.meta_data_df = self.meta_data_df.set_index('Cell_ID')
+        else:  # not NN_dir, only support for visualization of meta_input
+            self.meta_data_df = pd.read_csv(self.options.meta_input)
+            self.meta_data_df = self.meta_data_df.set_index('Cell_ID')
 
     @property
     def train_loss(self):
@@ -224,39 +231,36 @@ class AnaData:
     @property
     def cell_type_codes(self) -> pd.DataFrame:
         if not hasattr(self, '_cell_type_codes'):
-            self._cell_type_codes = pd.read_csv(f'{self.options.preprocessing_dir}/cell_type_code.csv', index_col=0)
+            self._cell_type_codes = pd.read_csv(f'{self.options.NN_dir}/cell_type_code.csv', index_col=0)
         return self._cell_type_codes
 
-    def _load_cell_type_composition_and_NT_score(self) -> None:
+    def _load_cell_type_composition(self) -> None:
         data_df = pd.DataFrame()
         for sample in self.rel_params['Data']:
-            feature_file = f"{sample['Features'][:-27]}_Raw_CellTypeComposition.csv.gz"
+            feature_file = sample['Features']
             if not os.path.isfile(feature_file):
-                info('Raw cell type composition file not found, use the original one.')
-                feature_file = sample['Features']
-            cell_type_composition_df = pd.read_csv(sample['Features'], header=None)
+                raise FileNotFoundError(f"Cannot find cell type composition file: {feature_file}.")
+            cell_type_composition_df = pd.read_csv(feature_file, header=None)
+            cell_type_composition_df.index = self.meta_data_df[self.meta_data_df['Sample'] == sample['Name']].index
             cell_type_composition_df.columns = self.cell_type_codes.loc[np.arange(cell_type_composition_df.shape[1]),
                                                                         'Cell_Type'].tolist()  # type: ignore
-            NTScore_df = pd.read_csv(f'{self.options.NTScore_dir}/{sample["Name"]}_NTScore.csv.gz', index_col=0)
-            sample_df = pd.concat([NTScore_df.reset_index(drop=True), cell_type_composition_df], axis=1)
-            sample_df.index = NTScore_df.index
-            sample_df['sample'] = [sample["Name"]] * sample_df.shape[0]
-            data_df = pd.concat([data_df, sample_df])
+            data_df = pd.concat([data_df, cell_type_composition_df])
+        self._cell_type_composition = data_df.loc[self.meta_data_df.index]
 
-        data_df = self.cell_id.join(data_df)
-        self._cell_type_composition = data_df[self.cell_type_codes['Cell_Type'].tolist() + ['sample', 'x', 'y']]
-        self._NT_score = data_df[['sample', 'x', 'y', 'Niche_NTScore', 'Cell_NTScore']]
+    def _load_NT_score(self) -> None:
+        NTScore_df = pd.read_csv(f'{self.options.NT_dir}/NTScore.csv.gz', index_col=0)
+        self._NT_score = NTScore_df.loc[self.meta_data_df.index]
 
     @property
     def cell_type_composition(self) -> DataFrame:
         if not hasattr(self, '_cell_type_composition'):
-            self._load_cell_type_composition_and_NT_score()
+            self._load_cell_type_composition()
         return self._cell_type_composition
 
     @property
     def NT_score(self) -> DataFrame:
         if not hasattr(self, '_NT_score'):
-            self._load_cell_type_composition_and_NT_score()
+            self._load_NT_score()
         return self._NT_score
 
     @property
@@ -278,7 +282,7 @@ class AnaData:
         if not hasattr(self, '_niche_level_niche_cluster_assign'):
             self._niche_level_niche_cluster_assign = load_niche_level_niche_cluster_assign(self.options)
             try:
-                self._niche_level_niche_cluster_assign = self._niche_level_niche_cluster_assign[self.cell_id.index]
+                self._niche_level_niche_cluster_assign = self._niche_level_niche_cluster_assign.loc[self.meta_data_df.index]
             except:
                 pass
         return self._niche_level_niche_cluster_assign
@@ -288,7 +292,7 @@ class AnaData:
         if not hasattr(self, '_cell_level_niche_cluster_assign'):
             self._cell_level_niche_cluster_assign = load_cell_level_niche_cluster_assign(self.options)
             try:
-                self._cell_level_niche_cluster_assign = self._cell_level_niche_cluster_assign[self.cell_id.index]
+                self._cell_level_niche_cluster_assign = self._cell_level_niche_cluster_assign.loc[self.meta_data_df.index]
             except:
                 pass
         return self._cell_level_niche_cluster_assign
@@ -298,7 +302,7 @@ class AnaData:
         if not hasattr(self, '_niche_level_max_niche_cluster'):
             self._niche_level_max_niche_cluster = load_niche_level_max_niche_cluster(self.options)
             try:
-                self._niche_level_max_niche_cluster = self._niche_level_max_niche_cluster[self.cell_id.index]
+                self._niche_level_max_niche_cluster = self._niche_level_max_niche_cluster.loc[self.meta_data_df.index]
             except:
                 pass
         return self._niche_level_max_niche_cluster
@@ -308,7 +312,7 @@ class AnaData:
         if not hasattr(self, '_cell_level_max_niche_cluster'):
             self._cell_level_max_niche_cluster = load_cell_level_max_niche_cluster(self.options)
             try:
-                self._cell_level_max_niche_cluster = self._cell_level_max_niche_cluster[self.cell_id.index]
+                self._cell_level_max_niche_cluster = self._cell_level_max_niche_cluster.loc[self.meta_data_df.index]
             except:
                 pass
         return self._cell_level_max_niche_cluster

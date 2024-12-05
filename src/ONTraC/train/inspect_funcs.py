@@ -1,3 +1,5 @@
+from typing import Callable, Optional
+
 import numpy as np
 import torch
 from torch import Tensor
@@ -178,3 +180,11 @@ def out_adj_record(output_dir: str, epoch: int, out_adj: Tensor, data: Batch) ->
         np.savetxt(fname=f'{output_dir}/Epoch_{epoch}/{name}_out_adj.csv.gz',
                    X=out_adj[index].detach().cpu().numpy(),
                    delimiter=',')
+
+
+def get_inspect_funcs() -> Optional[list[Callable]]:
+    """
+    Inspect function list.
+    :return: list of inspect functions
+    """
+    return [loss_record]

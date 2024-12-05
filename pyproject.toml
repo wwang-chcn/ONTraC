@@ -8,6 +8,7 @@ authors = [
           {name = "Wen Wang", email = "wwang.bio@gmail.com"},
           {name = "Shiwei Zheng", email = "swzheng29@gmail.com"},
           {name = "Crystal Shin", email = "sjcshin5040@gmail.com"},
+          {name = "Joselyn C. Chávez-Fuentes", email = "joselynchavezf@gmail.com"},
           {name = "Guo-Cheng Yuan", email = "gcyuan@gmail.com"},
           ]
 description = "A niche-centered, machine learning method for constructing spatially continuous trajectories"
@@ -57,11 +58,14 @@ dev = [
 
 [project.scripts]
 ONTraC = "ONTraC.bin.ONTraC:main"
-createDataSet = "ONTraC.bin.createDataSet:main"
+ONTraC_NN = "ONTraC.bin.ONTraC_NN:main"
 ONTraC_GNN = "ONTraC.bin.ONTraC_GNN:main"
-ONTraC_GP = "ONTraC.bin.ONTraC_GP:main"
-NicheTrajectory = "ONTraC.bin.NicheTrajectory:main"
+ONTraC_GT = "ONTraC.bin.ONTraC_GT:main"
+ONTraC_NT = "ONTraC.bin.ONTraC_NT:main"
 ONTraC_analysis = "ONTraC.bin.ONTraC_analysis:main"
+createDataSet = "ONTraC.bin.createDataSet:main"
+NicheTrajectory = "ONTraC.bin.NicheTrajectory:main"
+ONTraC_GP = "ONTraC.bin.ONTraC_GP:main"
 
 [project.urls]
 Homepage = "https://github.com/gyuanlab/ONTraC"
@@ -74,3 +78,5 @@ version = {attr = "ONTraC.__version__"}
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.setuptools.package-data]
+"ONTraC.external" = ["STdeconvolve.R"]
