@@ -2,7 +2,10 @@
 
 ## Input files
 
-### Meta input
+### meta data file
+
+A example meta data file is provided in [Zenodo](https://zenodo.org/records/11186620/files/stereo_seq_dataset.csv).
+The meta data file looks like the following:
 
 An example meta file is provided [here](../examples/V2/data/merfish_meta.csv).
 The meta file looks like the following:
@@ -16,7 +19,7 @@ The meta file looks like the following:
 
 - Cell_ID
 
-  The name of each cell.
+  The name of each cell. It should be Cell_ID for cell-level data and Spot_ID for low resolution data.
   Warning: Duplicated Cell_IDs within the same sample are not permitted. In the event of duplicated Cell_IDs across samples, the sample name will be prefixed to Cell_ID.
 
 - Sample
@@ -26,6 +29,7 @@ The meta file looks like the following:
 - Cell_Type
 
   Cell type for each cell.
+  This column is not required for low resolution data.
 
 - x
   
@@ -93,7 +97,15 @@ it should be a #cell_type × #gene data frame in csv format.
 
 ## Output files
 
-### preprocessing-dir
+A example output is provided in [Zenodo](https://zenodo.org/records/11186620/files/stereo_seq_output.zip).
+
+### NN-dir
+
+Previouly named as preprocessing-dir.
+
+- meta_data.csv.gz
+
+  Processed meta data file.
 
 - samples.yaml
 
@@ -122,6 +134,11 @@ it should be a #cell_type × #gene data frame in csv format.
 - cell_type_code.csv
 
   File contains the mapping of cell type name to integer.
+
+- spotxcelltype.csv.gz
+
+  Deconvolution methods outputed cell type composition for each spot.
+  This file doesn't exist when using cell level dataset as input.
 
 ### GNN-dir
 
@@ -181,7 +198,9 @@ it should be a #cell_type × #gene data frame in csv format.
 
   File contains the intermediate parameters for model.
 
-### NTScore-dir
+### NT-dir
+
+Previouly named as NTScore-dir.
 
 - {sample name}_NTScore.csv.gz
 

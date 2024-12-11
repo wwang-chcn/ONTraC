@@ -6,15 +6,15 @@ from torch_geometric.loader import DataLoader
 
 from ONTraC.data import load_dataset
 from ONTraC.GNN._GNN import SpatailOmicsDataset
-from ONTraC.model import GraphPooling
-from ONTraC.train import GPBatchTrain
+from ONTraC.model import GNN
+from ONTraC.train import GNNBatchTrain
 
 
 @pytest.fixture
 def options() -> Values:
     # Create an options object for testing
     _options = Values()
-    _options.preprocessing_dir = 'tests/_data/preprocessing'
+    _options.NN_dir = 'tests/_data/NN'
     _options.GNN_dir = 'tests/_data/GNN'
     _options.batch_size = 5
     _options.lr = 0.03
@@ -29,7 +29,7 @@ def options() -> Values:
 
 @pytest.fixture()
 def dataset(options: Values) -> SpatailOmicsDataset:
-    return load_dataset(options=options)
+    return load_dataset(NN_dir=options.NN_dir)
 
 
 @pytest.fixture()
@@ -41,10 +41,7 @@ def sample_loader(options: Values, dataset: SpatailOmicsDataset) -> DataLoader:
 
 @pytest.fixture()
 def nn_model(options: Values, dataset: SpatailOmicsDataset) -> torch.nn.Module:
-    model = GraphPooling(input_feats=dataset.num_features,
-                         hidden_feats=options.hidden_feats,
-                         k=options.k,
-                         exponent=options.beta)
+    model = GNN(input_feats=dataset.num_features, hidden_feats=options.hidden_feats, k=options.k, exponent=options.beta)
     model.load_state_dict(torch.load(f'{options.GNN_dir}/epoch_0.pt', map_location=torch.device('cpu')))
     return model
 
@@ -57,7 +54,7 @@ def test_train(options: Values, sample_loader: DataLoader, nn_model: torch.nn.Mo
     :param nn_model: torch.nn.Module, GNN model.
     :return: None.
     """
-    batch_train = GPBatchTrain(model=nn_model, device=torch.device('cpu'), data_loader=sample_loader)
+    batch_train = GNNBatchTrain(model=nn_model, device=torch.device('cpu'), data_loader=sample_loader)
     optimizer = torch.optim.Adam(nn_model.parameters(), lr=options.lr)
     batch_train.set_train_args(optimizer=optimizer,
                                modularity_loss_weight=options.modularity_loss_weight,

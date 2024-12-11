@@ -10,7 +10,7 @@ from ONTraC.niche_net._niche_net import (build_knn_network,
                                          calc_cell_type_composition,
                                          calc_edge_index,
                                          calc_niche_weight_matrix)
-from ONTraC.utils import load_meta_data
+from ONTraC.preprocessing.data import load_meta_data
 
 from .utils import temp_dirs
 
@@ -21,7 +21,7 @@ def options() -> Values:
     _options = Values()
     _options.meta_input = 'tests/_data/test_metadata.csv'
     _options.decomposition_cell_type_composition_input = None
-    _options.preprocessing_dir = 'tests/temp/preprocessing'
+    _options.NN_dir = 'tests/_data/NN'
     _options.n_local = 2
     _options.n_neighbors = 5
     return _options
@@ -104,6 +104,11 @@ def niche_weight_matrix() -> csr_matrix:
 
 
 @pytest.fixture()
+def ct_coding_matrix() -> np.ndarray:
+    return np.array([[1., 0.], [0., 1.], [1., 0.], [0., 1.], [1., 0.], [0., 1.], [1., 0.], [0., 1.]])
+
+
+@pytest.fixture()
 def cell_type_composition() -> np.ndarray:
     return np.array([[0.61003367, 0.38996633], [0.41949784, 0.58050216], [0.58483686, 0.41516314],
                      [0.41516314, 0.58483686], [0.58483686, 0.41516314], [0.41516314, 0.58483686],
@@ -112,19 +117,19 @@ def cell_type_composition() -> np.ndarray:
 
 def test_load_meta_data(options: Values) -> None:
     """
-    Test the load_original_data module.
+    Test the load_meta_data module.
     :param options: Values, options.
     :return: None.
     """
 
     with temp_dirs(options=options):
-        # load_original_data function should:
-        # 1) read original data file (options.dataset)
+        # load_meta_data function should:
+        # 1) read original data file (options.meta_input)
         # 2) retrun original data with Cell_ID, Sample, Cell_Type, x, and y columns
         # 3) Cell_ID should be unique
         # 4) Cell_Type should be categorical
         # 5) save `cell_type_code.csv` file in the preprocessing directory
-        meta_data_df = load_meta_data(options=options)
+        meta_data_df = load_meta_data(save_dir=options.NN_dir, meta_data_file=options.meta_input)
 
         # Check the expected output data shape
         assert meta_data_df.shape[0] == 16  # Check if the DataFrame shape is unchanged
@@ -143,6 +148,13 @@ def test_load_meta_data(options: Values) -> None:
         # Check if Cell_Type is categorical
         assert meta_data_df['Cell_Type'].dtype.name == 'category'
 
+        # Check if the `cell_type_code.csv` file is saved
+        assert Path(f'{options.NN_dir}/cell_type_code.csv').exists()
+
+        # Check the content of the `cell_type_code.csv` file
+        gen_cell_type_code = pd.read_csv(f'{options.NN_dir}/cell_type_code.csv')
+        assert gen_cell_type_code.equals(pd.DataFrame({'Code': [0, 1], 'Cell_Type': ['A', 'B']}))
+
 
 def test_build_knn_network(options: Values, sample_data_df: pd.DataFrame, sample_name: str, dis_matrix: np.ndarray,
                            indices_matrix: np.ndarray) -> None:
@@ -157,9 +169,10 @@ def test_build_knn_network(options: Values, sample_data_df: pd.DataFrame, sample
     """
 
     # Call the function
-    gen_coordinates, gen_dis_matrix, gen_indices_matrix = build_knn_network(options=options,
-                                                                            sample_data_df=sample_data_df,
-                                                                            sample_name=sample_name)
+    gen_coordinates, gen_dis_matrix, gen_indices_matrix = build_knn_network(sample_name=sample_name,
+                                                                            sample_meta_df=sample_data_df,
+                                                                            n_neighbors=options.n_neighbors,
+                                                                            n_local=options.n_local)
 
     # Check the output types
     assert isinstance(gen_coordinates, np.ndarray)
@@ -194,10 +207,10 @@ def test_calc_edge_index(options: Values, sample_data_df: pd.DataFrame, sample_n
     """
 
     # Call the function
-    gen_edge_index = calc_edge_index(options=options,
-                                     sample_data_df=sample_data_df,
+    gen_edge_index = calc_edge_index(sample_name=sample_name,
+                                     sample_meta_df=sample_data_df,
                                      indices_matrix=indices_matrix,
-                                     sample_name=sample_name)
+                                     n_neighbors=options.n_neighbors)
 
     # Check the output type
     assert isinstance(gen_edge_index, np.ndarray)
@@ -222,11 +235,12 @@ def test_calc_niche_weight_matrix(options: Values, sample_data_df: pd.DataFrame,
     """
 
     # Call the function
-    gen_niche_weight_matrix = calc_niche_weight_matrix(options=options,
-                                                       sample_data_df=sample_data_df,
+    gen_niche_weight_matrix = calc_niche_weight_matrix(sample_name='sample',
+                                                       sample_meta_df=sample_data_df,
                                                        dis_matrix=dis_matrix,
                                                        indices_matrix=indices_matrix,
-                                                       sample_name='sample')
+                                                       n_neighbors=options.n_neighbors,
+                                                       n_local=options.n_local)
 
     # Check the output type
     assert isinstance(gen_niche_weight_matrix, csr_matrix)
@@ -238,7 +252,7 @@ def test_calc_niche_weight_matrix(options: Values, sample_data_df: pd.DataFrame,
     assert np.allclose(a=gen_niche_weight_matrix.toarray(), b=niche_weight_matrix.toarray(), atol=1e-7)
 
 
-def test_calc_cell_type_composition(options: Values, sample_data_df: pd.DataFrame, niche_weight_matrix: csr_matrix,
+def test_calc_cell_type_composition(niche_weight_matrix: csr_matrix, ct_coding_matrix: np.ndarray,
                                     cell_type_composition: np.ndarray) -> None:
     """
     Test the calc_cell_type_composition function.
@@ -250,9 +264,8 @@ def test_calc_cell_type_composition(options: Values, sample_data_df: pd.DataFram
     """
 
     # Call the function
-    gen_cell_type_composition = calc_cell_type_composition(options=options, sample_data_df=sample_data_df,
-                                                           niche_weight_matrix=niche_weight_matrix,
-                                                           sample_name='sample')
+    gen_cell_type_composition = calc_cell_type_composition(niche_weight_matrix=niche_weight_matrix,
+                                                           ct_coding_matrix=ct_coding_matrix)
 
     # Check the output type
     assert isinstance(gen_cell_type_composition, np.ndarray)
