@@ -90,6 +90,6 @@ def create_torch_dataset(NN_dir: Union[str, Path], params: Dict) -> SpatailOmics
     :return: None.
     """
 
-    dataset = SpatailOmicsDataset(root=options.preprocessing_dir, params=params)  # transform edge_index to adj matrix
+    dataset = SpatailOmicsDataset(root=NN_dir, params=params)  # transform edge_index to adj matrix
     dataset.process()
     return dataset

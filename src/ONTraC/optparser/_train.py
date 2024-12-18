@@ -152,8 +152,8 @@ def validate_GCN_options(optparser: OptionParser, options: Values) -> Values:
     """
 
     # check hidden_feats
-    if getattr(options, 'hidden_feats') < 2:
-        error(f'hidden_feats must be greater than 1, exit!')
+    if getattr(options, 'hidden_feats') < 1:
+        error(f'hidden_feats must be greater than 0, exit!')
         sys.exit(1)
     if getattr(options, 'n_gcn_layers') < 1:
         error(f'n_gcn_layers must be greater than 0, exit!')

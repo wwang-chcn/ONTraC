@@ -6,6 +6,7 @@ from torch_geometric.typing import OptTensor
 
 from ..log import *
 from .dmon_exp_pool import SparseDMoNPooling
+from .norm_gcn_conv import NormGCNConv
 
 
 class GraphPooling(torch.nn.Module):
@@ -89,7 +90,7 @@ class GNN(torch.nn.Module):
         super().__init__(*args, **kwargs)
         self.n_gcn_layers = n_gcn_layers
         self.gcns = nn.ModuleList(
-            [NormDenseGCNConv(input_feats if i == 0 else hidden_feats, hidden_feats) for i in range(self.n_gcn_layers)])
+            [NormGCNConv(input_feats if i == 0 else hidden_feats, hidden_feats) for i in range(self.n_gcn_layers)])
         self.activations = nn.ModuleList([torch.nn.SELU() for _ in range(self.n_gcn_layers)])
         self.pool = GraphPooling(input_feats=hidden_feats, k=k, dropout=dropout, exponent=exponent)
         self.k = k
@@ -134,18 +135,30 @@ class GNN(torch.nn.Module):
             Tensor: output feature matrix
         """
         for i in range(self.n_gcn_layers):
-            x = self.activations[i](self.gcns[i](x=x, adj=adj, mask=mask))
-        s, out, out_adj, spectral_loss, ortho_loss, cluster_loss = self.pool(x=x, adj=adj, mask=mask)
+            x = self.activations[i](self.gcns[i](x=x, edge_index=edge_index, edge_weight=edge_weight))
+        s, out, out_adj, spectral_loss, ortho_loss, cluster_loss = self.pool(x=x,
+                                                                             edge_index=edge_index,
+                                                                             edge_weight=edge_weight,
+                                                                             batch=batch,
+                                                                             ptr=ptr)
         return s, out, out_adj, spectral_loss, ortho_loss, cluster_loss
 
-    def evaluate(self,
-                 x: Tensor,
-                 adj: Tensor,
-                 mask: Optional[Tensor] = None) -> Tuple[Tensor, Tensor, Tensor, Tensor, Tensor, Tensor]:
+    def evaluate(
+        self,
+        x: Tensor,
+        edge_index: Tensor,
+        edge_weight: OptTensor = None,
+        batch: OptTensor = None,
+        ptr: OptTensor = None,
+    ) -> Tuple[Tensor, Tensor, Tensor, Tensor, Tensor, Tensor]:
 
         for i in range(self.n_gcn_layers):
-            x = self.activations[i](self.gcns[i](x=x, adj=adj, mask=mask))
-        s, out, out_adj, spectral_loss, ortho_loss, cluster_loss = self.pool(x=x, adj=adj, mask=mask)
+            x = self.activations[i](self.gcns[i](x=x, edge_index=edge_index, edge_weight=edge_weight))
+        s, out, out_adj, spectral_loss, ortho_loss, cluster_loss = self.pool(x=x,
+                                                                             edge_index=edge_index,
+                                                                             edge_weight=edge_weight,
+                                                                             batch=batch,
+                                                                             ptr=ptr)
         return s, out, out_adj, spectral_loss, ortho_loss, cluster_loss
 
     def predict(
@@ -183,13 +196,13 @@ class GNN(torch.nn.Module):
             """
 
         for i in range(self.n_gcn_layers):
-            x = self.activations[i](self.gcns[i](x=x, adj=adj, mask=mask))
-        s, out, out_adj, *_ = self.pool(x=x, adj=adj, mask=mask)
+            x = self.activations[i](self.gcns[i](x=x, edge_index=edge_index, edge_weight=edge_weight))
+        s, out, out_adj, *_ = self.pool(x=x, edge_index=edge_index, edge_weight=edge_weight, batch=batch, ptr=ptr)
         return s, out, out_adj
 
-    def predict_embed(self, x: Tensor, adj: Tensor, mask: Optional[Tensor] = None) -> Tensor:
+    def predict_embed(self, x: Tensor, edge_index: Tensor, edge_weight: OptTensor = None) -> Tensor:
         for i in range(self.n_gcn_layers):
-            x = self.activations[i](self.gcns[i](x=x, adj=adj, mask=mask))
+            x = self.activations[i](self.gcns[i](x=x, edge_index=edge_index, edge_weight=edge_weight))
         return x
 
 

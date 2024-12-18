@@ -27,7 +27,7 @@ def set_seed(seed: int) -> None:
 
 def train(nn_model: torch.nn.Module,
           BatchTrain: Type[SubBatchTrainProtocol],
-          sample_loader: DenseDataLoader,
+          sample_loader: DataLoader,
           device: torch.device,
           max_epochs: int,
           max_patience: int,

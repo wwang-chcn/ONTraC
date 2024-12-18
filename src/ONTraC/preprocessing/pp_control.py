@@ -3,7 +3,7 @@ from typing import Dict, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
-from torch_geometric.loader import DenseDataLoader
+from torch_geometric.loader import DataLoader
 
 from ..data import SpatailOmicsDataset, load_dataset
 from ..external.deconvolution import apply_STdeconvolve
@@ -262,7 +262,7 @@ def preprocessing_nn(meta_input: Union[str, Path],
     return input_data['meta_data'], input_data['embedding_data'], input_data['ct_coding']
 
 
-def load_data(NN_dir: Union[str, Path], batch_size: int = 0) -> Tuple[SpatailOmicsDataset, DenseDataLoader]:
+def load_data(NN_dir: Union[str, Path], batch_size: int = 0) -> Tuple[SpatailOmicsDataset, DataLoader]:
     """
     Load data and create sample loader.
     :param NN_dir: str or Path, save directory.
@@ -274,13 +274,13 @@ def load_data(NN_dir: Union[str, Path], batch_size: int = 0) -> Tuple[SpatailOmi
 
     dataset = load_dataset(NN_dir=NN_dir)
     batch_size = batch_size if batch_size > 0 else len(dataset)
-    sample_loader = DenseDataLoader(dataset, batch_size=batch_size)
+    sample_loader = DataLoader(dataset, batch_size=batch_size)
 
     return dataset, sample_loader
 
 
 def preprocessing_gnn(NN_dir: Union[str, Path],
-                      batch_size: int = 0) -> Tuple[SpatailOmicsDataset, DenseDataLoader, pd.DataFrame]:
+                      batch_size: int = 0) -> Tuple[SpatailOmicsDataset, DataLoader, pd.DataFrame]:
     """
     Preprocessing for GNN.
     :param NN_dir: str or Path, save directory.
