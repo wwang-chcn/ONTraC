@@ -48,15 +48,14 @@ def valid_meta_data(meta_data_df: pd.DataFrame) -> pd.DataFrame:
     if meta_data_df[id_name].isnull().any():
         raise ValueError(f'Duplicated {id_name} within same sample found!')
 
-    
-    meta_data_df['Cell_Type'] = meta_data_df['Cell_Type'].astype('category')
+    meta_data_df['Cell_Type'] = meta_data_df['Cell_Type'].astype(str).astype('category')
     # check if the cell type category number is less than 2
     if len(meta_data_df['Cell_Type'].cat.categories) < 2:
         raise ValueError('Cell_Type column found but less than 2 cell types.')
     meta_data_df = meta_data_df.dropna(subset=[id_name, 'Sample', 'Cell_Type', 'x', 'y'])
 
     # make the Sample column string
-    meta_data_df['Sample'] = meta_data_df['Sample'].astype(str)
+    meta_data_df['Sample'] = meta_data_df['Sample'].astype(str).astype('category')
 
     return meta_data_df
 

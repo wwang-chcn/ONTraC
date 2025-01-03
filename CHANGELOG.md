@@ -1,5 +1,11 @@
 # Change log
 
+## [XXXXX] - 2025-XXX-XX
+
+Fixed:
+
+- Wrong processing for sample name using int
+
 ## [1.1.0] - 2024-Nov-24
 
 Changed:
