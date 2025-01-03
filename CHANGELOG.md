@@ -24,7 +24,13 @@ Fixed:
 
 - Resolved bug in regularization loss calculation for multi-sample batches
 
-## [1.1.0] - XXXX-XXX-XX
+## [XXXXX] - 2025-XXX-XX
+
+Fixed:
+
+- Wrong processing for sample name using int
+
+## [1.1.0] - 2024-Nov-24
 
 Changed:
 

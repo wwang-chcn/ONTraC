@@ -290,6 +290,8 @@ def preprocessing_gnn(NN_dir: Union[str, Path],
 
     # meta data
     meta_data_df = pd.read_csv(get_meta_data_file(NN_dir), header=0)
+    meta_data_df['Sample'] = meta_data_df['Sample'].astype(str).astype('category')
+    meta_data_df['Cell_Type'] = meta_data_df['Cell_Type'].astype(str).astype('category')
 
     # dataset and sample loader
     dataset, sample_loader = load_data(NN_dir=NN_dir, batch_size=batch_size)
