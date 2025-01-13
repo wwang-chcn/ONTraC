@@ -3,14 +3,14 @@ import shutil
 from optparse import Values
 from typing import List, Optional
 
-import pandas as pd
+import torch
 
 from ..log import *
 from ..optparser._IO import write_io_options_memo
 from ..optparser._NN import write_niche_net_constr_memo
 from ..optparser._NT import write_NT_options_memo
 from ..optparser._train import write_GCN_options_memo, write_GP_options_memo, write_train_options_memo
-from ..run.processes import niche_trajectory_construct, gnn, niche_network_construct
+from ..run.processes import gnn, niche_network_construct, niche_trajectory_construct
 
 
 def io_opt_valid(options: Values, process='ontrac', io_options: Optional[List[str]] = None) -> Values:
@@ -44,9 +44,13 @@ def io_opt_valid(options: Values, process='ontrac', io_options: Optional[List[st
         # low resolution expression data
         if hasattr(options, 'deconvoluted_ct_composition'):
             if not os.path.isfile(options.deconvoluted_ct_composition):
-                raise ValueError(f'The The deconvoluted cell type composition file ({options.deconvoluted_ct_composition}) you given does not exist.')
+                raise ValueError(
+                    f'The The deconvoluted cell type composition file ({options.deconvoluted_ct_composition}) you given does not exist.'
+                )
             if not options.deconvoluted_ct_composition.endswith(('csv', 'csv.gz')):
-                raise ValueError(f'The deconvoluted cell type composition file ({options.deconvoluted_ct_composition}) should be in csv format.')
+                raise ValueError(
+                    f'The deconvoluted cell type composition file ({options.deconvoluted_ct_composition}) should be in csv format.'
+                )
 
     # NN_dir
     if 'NN_dir' in io_options:
@@ -156,7 +160,7 @@ def gnn_opt_valid(options: Values, process='ontrac') -> Values:
 
     # device
     if not hasattr(options, 'device'):
-        options.device = 'cpu'
+        options.device = 'cuda' if torch.cuda.is_available() else 'cpu'
     elif not isinstance(options.device, str):
         raise ValueError(f'device should be a string. You provided {options.device}.')
     else:
