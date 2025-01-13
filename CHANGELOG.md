@@ -24,7 +24,17 @@ Fixed:
 
 - Resolved bug in regularization loss calculation for multi-sample batches
 
-## [XXXXX] - 2025-XXX-XX
+## [1.1.2] - 2025-Jan-12
+
+Added:
+
+- Node size legend in niche cluster connectivities visualization
+
+Changed:
+
+- Make node color legend optional in niche cluster connectivities visualization
+
+## [1.1.1] - 2025-Jan-6
 
 Fixed:
 
