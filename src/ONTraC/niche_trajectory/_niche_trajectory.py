@@ -34,7 +34,7 @@ def load_consolidate_data(GNN_dir: Union[str, Path]) -> Tuple[ndarray, ndarray]:
 
 
 def apply_diffusion_map(niche_adj_matrix: ndarray,
-                        output_dir: Optional[str] = None,
+                        output_dir: Optional[Union[str, Path]] = None,
                         component_index: int = 1) -> List[int]:
     """
     Apply diffusion map to the niche adjacency matrix
@@ -139,6 +139,7 @@ def get_niche_NTScore(trajectory_construct_method: str,
     :param trajectory_construct_method: str, the method to construct trajectory
     :param niche_cluster_loading: ndarray, the loading of cell x niche clusters
     :param niche_adj_matrix: non-negative ndarray, raw adjacency matrix of the graph
+    :param NT_dir: Union[str, Path], the directory to save the output
     :param equal_space: bool, whether the niche clusters are equally spaced in the trajectory
     :return: Tuple[ndarray, ndarray], the niche-level niche trajectory and cell-level niche trajectory
     """

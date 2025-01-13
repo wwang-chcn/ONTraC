@@ -5,15 +5,13 @@
 ### Full parameters for ONTraC
 
 ```{text}
-Usage: ONTraC <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR>
-    <--meta-input META_INPUT> [--exp-input EXP_INPUT] [--embedding-input EMBEDDING_INPUT]
-    [--decomposition-cell-type-composition-input DECOMPOSITION_CELL_TYPE_COMPOSITION_INPUT]
-    [--decomposition-expression-input DECOMPOSITION_EXPRESSION_INPUT] [--n-cpu N_CPU] [--n-neighbors N_NEIGHBORS] [--n-local N_LOCAL]
-    [--embedding-adjust] [--sigma SIGMA] [--device DEVICE] [--epochs EPOCHS] [--patience PATIENCE]
-    [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] [-s SEED] [--seed SEED] [--lr LR]
-    [--hidden-feats HIDDEN_FEATS] [-k K_CLUSTERS] [--modularity-loss-weight MODULARITY_LOSS_WEIGHT]
-    [--purity-loss-weight PURITY_LOSS_WEIGHT] [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA]
-    [--trajectory-construct TRAJECTORY_CONSTRUCT] [--DM-embedding-index DM_EMBEDDING_INDEX] [--equal-space]
+Usage: ONTraC <--NN-dir NN_DIR> <--GNN-dir GNN_DIR> <--NT-dir NT_DIR> <--meta-input META_INPUT>
+    [--exp-input EXP_INPUT] [--embedding-input EMBEDDING_INPUT] [--low-res-exp-input LOW_RES_EXP_INPUT] [--deconvoluted-ct-composition DECONVOLUTED_CT_COMPOSITION]
+    [--deconvoluted-exp-input DECONVOLUTED_EXP_INPUT] [--resolution RESOLUTION] [--deconvolution-method DC_METHOD] [--deconvolution-ct-num DC_CT_NUM]
+    [--n-cpu N_CPU] [--n-neighbors N_NEIGHBORS] [--n-local N_LOCAL] [--embedding-adjust] [--sigma SIGMA] [--device DEVICE] [--epochs EPOCHS] [--patience PATIENCE]
+    [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] [-s SEED] [--lr LR] [--hidden-feats HIDDEN_FEATS]
+    [--n-gcn-layers N_GCN_LAYERS] [-k K] [--modularity-loss-weight MODULARITY_LOSS_WEIGHT] [--purity-loss-weight PURITY_LOSS_WEIGHT]
+    [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA] [--trajectory-construct TRAJECTORY_CONSTRUCT]  [--DM-embedding-index DM_EMBEDDING_INDEX] [--equal-space]
 
 All steps of ONTraC including niche network construction, GNN, and niche construction.
 
@@ -238,7 +236,7 @@ Options:
 Previouly named as NicheTrajectory.
 
 ```{text}
-Usage: NicheTrajectory <--preprocessing-dir PREPROCESSING_DIR> <--GNN-dir GNN_DIR> <--NTScore-dir NTSCORE_DIR> 
+Usage: ONTraC_NT <--NN-dir NN_DIR> <--GNN-dir GNN_DIR> <--NT-dir NT_DIR> 
             [--trajectory-construct TRAJECTORY_CONSTRUCT] [--DM-embedding-index DM_EMBEDDING_INDEX] [--equal-space]
 
 ONTraC_NT: construct niche trajectory for niche cluster and project the NT score to each cell. (Step 4 of
