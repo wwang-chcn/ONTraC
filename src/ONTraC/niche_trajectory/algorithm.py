@@ -24,56 +24,61 @@ def brute_force(conn_matrix: np.ndarray) -> List[int]:
 def held_karp(conn_matrix: np.ndarray) -> List[int]:
     """
     Held-Karp algorithm to find the optimal path with the highest connectivity.
+    If multiple paths have the same connectivity, the lexicographically smallest
+    path or its reverse is chosen after evaluating all possible paths.
     """
     n = conn_matrix.shape[0]
-    C = {}
+    max_connectivity = float('-inf')
+    optimal_path = []
 
     # --- Held-Karp algorithm ---
-    # Initial state
-    for k in range(1, n):
-        C[(1 << k, k)] = (conn_matrix[0][k], [0, k])
+    # Test each node as the starting node
+    for start_node in range(n):
+        C = {}
 
-    # Iterate subsets of increasing length and store the maximum path
-    for subset_size in range(2, n):
-        for subset in itertools.combinations(range(1, n), subset_size):
-            bits = 0
-            for bit in subset:
-                bits |= 1 << bit
+        # Initial state
+        for k in range(n):
+            if k != start_node:
+                C[(1 << k, k)] = (conn_matrix[start_node][k], [start_node, k])
 
-            for k in subset:
-                prev_bits = bits & ~(1 << k)
-                res = []
-                for m in subset:
-                    if m == k:
-                        continue
-                    res.append((C[(prev_bits, m)][0] + conn_matrix[m][k], C[(prev_bits, m)][1] + [k]))
-                C[(bits, k)] = max(res)
+        # Iterate subsets of increasing length and store the maximum path
+        for subset_size in range(2, n):
+            for subset in itertools.combinations(range(n), subset_size):
+                if start_node in subset:
+                    continue
+                bits = 0
+                for bit in subset:
+                    bits |= 1 << bit
 
-    # We're interested in all bits but the least significant (the start city)
-    bits = (2**n - 1) - 1
+                for k in subset:
+                    prev_bits = bits & ~(1 << k)
+                    res = []
+                    for m in subset:
+                        if m == k:
+                            continue
+                        res.append((C[(prev_bits, m)][0] + conn_matrix[m][k], C[(prev_bits, m)][1] + [k]))
+                    C[(bits, k)] = max(res)
 
-    res = []
-    for k in range(1, n):
-        res.append((C[(bits, k)][0] + conn_matrix[k][0], C[(bits, k)][1]))
+        # Find the best path that ends at any node excluding the start node
+        bits = (2**n - 1) - (1 << start_node)
+        for k in range(n):
+            if k != start_node and (bits, k) in C:
+                current_connectivity = C[(bits, k)][0]
+                current_path = C[(bits, k)][1]
 
-    _, optimal_circle = max(res)
-    optimal_circle.append(0)  # complete the cycle
+                # Check if we need to update the list of best paths
+                if current_connectivity > max_connectivity:
+                    max_connectivity = current_connectivity
+                    best_paths = [current_path]  # Reset the best_paths list
+                elif current_connectivity == max_connectivity:
+                    best_paths.append(current_path)
 
-    # --- make the circle become a path ---
-    # Cut the shortest edge out from the cycle
-    min_edge_index = 0
-    min_edge_conn = conn_matrix[optimal_circle[0]][optimal_circle[1]]
-    for (i, start_node), end_node in zip(enumerate(optimal_circle[:-1]), optimal_circle[1:]):
-        if conn := conn_matrix[start_node][end_node] < min_edge_conn:
-            min_edge_conn = conn
-            min_edge_index = i
-
-    optimal_path = optimal_circle[min_edge_index + 1:-1] + optimal_circle[:min_edge_index + 1]
-
-    # Reverse the path if the start node index is smaller than the end node index
-    # This is to make sure the path is the same as Brute force method
-    if optimal_path[0] > optimal_path[-1]:
-        optimal_path.reverse()
+    # After all paths have been evaluated, choose the lexicographically smallest one
+    if best_paths:
+        # Find the smallest path or its reverse
+        optimal_path = min(min(path, path[::-1]) for path in best_paths)
+    else:
+        optimal_path = []
 
     return optimal_path
 

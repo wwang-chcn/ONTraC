@@ -1,5 +1,5 @@
-from optparse import Values
-from typing import Dict, List
+from typing import Dict, List, Union
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -14,6 +14,9 @@ from .utils import count_lines, get_rel_params, read_yaml_file
 # Classes
 # ------------------------------------
 class SpatailOmicsDataset(InMemoryDataset):
+    """
+    SpatialOmics dataset.
+    """
 
     def __init__(self, root, params: Dict, transform=None, pre_transform=None):
         self.params = params
@@ -65,28 +68,28 @@ def max_nodes(samples: List[Dict[str, str]]) -> int:
     return max_nodes
 
 
-def load_dataset(options: Values) -> SpatailOmicsDataset:
+def load_dataset(NN_dir: Union[str, Path]) -> SpatailOmicsDataset:
     """
     Load dataset.
     :param options: Values, input options.
     :return: SpatailOmicsDataset, torch dataset.
     """
-    params = read_yaml_file(f'{options.preprocessing_dir}/samples.yaml')
-    rel_params = get_rel_params(options, params)
-    dataset = create_torch_dataset(options, rel_params)
+    params = read_yaml_file(f'{NN_dir}/samples.yaml')
+    rel_params = get_rel_params(NN_dir=NN_dir, params=params)
+    dataset = create_torch_dataset(NN_dir=NN_dir, params=rel_params)
     return dataset
 
 
 # ------------------------------------
 # Flow control functions
 # ------------------------------------
-def create_torch_dataset(options: Values, params: Dict) -> SpatailOmicsDataset:
+def create_torch_dataset(NN_dir: Union[str, Path], params: Dict) -> SpatailOmicsDataset:
     """
     Create torch dataset.
     :param params: Dict, input samples.
     :return: None.
     """
 
-    dataset = SpatailOmicsDataset(root=options.preprocessing_dir, params=params)  # transform edge_index to adj matrix
+    dataset = SpatailOmicsDataset(root=NN_dir, params=params)  # transform edge_index to adj matrix
     dataset.process()
     return dataset

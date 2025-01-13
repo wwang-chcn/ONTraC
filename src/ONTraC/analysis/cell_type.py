@@ -1,5 +1,6 @@
 from copy import deepcopy
-from typing import Optional, Tuple
+from pathlib import Path
+from typing import List, Optional, Tuple, Union
 
 import matplotlib as mpl
 import numpy as np
@@ -11,34 +12,132 @@ mpl.rcParams['font.family'] = 'Arial'
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-from ..log import warning
+from ..log import info, warning
 from .data import AnaData
+from .utils import saptial_figsize
 
 
-def plot_violin_cell_type_along_NT_score(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.Axes]]:
+def plot_spatial_cell_type_distribution_dataset(data_df: pd.DataFrame,
+                                                output_file_path: Optional[Union[str, Path]] = None,
+                                                **kwargs) -> Optional[Tuple[plt.Figure, List[plt.Axes]]]:
     """
-    Plot violinplot cell type composition along NT score.
-    :param ana_data: AnaData, the data for analysis.
+    Plot spatial cell type distribution.
+    :param data_df: pd.DataFrame, the data for visualization.
+    :param output_file_path: Optional[Union[str, Path]], the output directory.
+    :param kwargs: Optional, the additional arguments for visualization using seaborn.scatterplot.
     :return: None or Tuple[plt.Figure, plt.Axes].
     """
-    try:
-        if 'Cell_NTScore' not in ana_data.NT_score.columns:
-            warning("No NT score data found.")
-            return None
-    except FileNotFoundError as e:
-        warning(str(e))
+
+    samples = data_df['Sample'].unique()
+    N = len(samples)
+    fig, axes = plt.subplots(1, N, figsize=(4 * N, 3))
+    for i, sample in enumerate(samples):
+        sample_df = data_df.loc[data_df['Sample'] == sample]
+        ax: plt.Axes = axes[i] if N > 1 else axes  # type: ignore
+        sns.scatterplot(data=sample_df, x='x', y='y', hue='Cell_Type', s=8, ax=ax, **kwargs)
+        ax.set_xlabel('X coordinate')
+        ax.set_ylabel('Y coordinate')
+        ax.legend(loc='upper left', bbox_to_anchor=(1, 1))
+    fig.tight_layout()
+    if output_file_path is not None:
+        fig.savefig(f'{output_file_path}/spatial_cell_type_distribution.pdf', transparent=True)
+        plt.close(fig)
+        return None
+    else:
+        return fig, axes
+
+
+def plot_spatial_cell_type_distribution_dataset_from_anadata(ana_data: AnaData,
+                                                             **kwargs) -> Optional[Tuple[plt.Figure, List[plt.Axes]]]:
+    """
+    Plot spatial cell type distribution.
+    :param ana_data: AnaData, the data for analysis.
+    :param kwargs: Optional, the additional arguments for visualization using seaborn.scatterplot.
+    :return: None or Tuple[plt.Figure, plt.Axes].
+    """
+
+    if 'Cell_Type' not in ana_data.meta_data_df.columns:
+        warning("No cell type data found. Skip spatial cell type distribution visualization.")
         return None
 
-    if ana_data.cell_type_codes.shape[0] > 100:
+    return plot_spatial_cell_type_distribution_dataset(data_df=ana_data.meta_data_df,
+                                                       output_file_path=ana_data.options.output,
+                                                       **kwargs)
+
+
+def plot_spatial_cell_type_distribution_sample(data_df: pd.DataFrame,
+                                               output_file_path: Optional[Union[str, Path]] = None,
+                                               **kwargs) -> Optional[List[Tuple[plt.Figure, plt.Axes]]]:
+    """
+    Plot spatial cell type distribution.
+    :param data_df: pd.DataFrame, the data for visualization.
+    :param output_file_path: Optional[Union[str, Path]], the output directory.
+    :param kwargs: Optional, the additional arguments for visualization using seaborn.scatterplot.
+    :return: None or Tuple[plt.Figure, plt.Axes].
+    """
+
+    samples = data_df['Sample'].unique()
+    output = []
+    for sample in samples:
+        sample_df = data_df.loc[data_df['Sample'] == sample]
+        fig, ax = plt.subplots(figsize=saptial_figsize(sample_df))
+        sns.scatterplot(data=sample_df, x='x', y='y', hue='Cell_Type', s=8, ax=ax, **kwargs)
+        ax.set_xlabel('X coordinate')
+        ax.set_ylabel('Y coordinate')
+        ax.legend(loc='upper left', bbox_to_anchor=(1, 1))
+        fig.tight_layout()
+        output.append((fig, ax))
+        if output_file_path is not None:
+            fig.savefig(f'{output_file_path}/spatial_cell_type_distribution_{sample}.pdf', transparent=True)
+            plt.close(fig)
+    return output
+
+
+def plot_spatial_cell_type_distribution_sample_from_anadata(ana_data: AnaData,
+                                                            **kwargs) -> Optional[List[Tuple[plt.Figure, plt.Axes]]]:
+    """
+    Plot spatial cell type distribution.
+    :param ana_data: AnaData, the data for analysis.
+    :param kwargs: Optional, the additional arguments for visualization using seaborn.scatterplot.
+    :return: None or Tuple[plt.Figure, plt.Axes].
+    """
+
+    if 'Cell_Type' not in ana_data.meta_data_df.columns:
+        warning("No cell type data found. Skip spatial cell type distribution visualization.")
+        return None
+
+    return plot_spatial_cell_type_distribution_sample(data_df=ana_data.meta_data_df,
+                                                      output_file_path=ana_data.options.output,
+                                                      **kwargs)
+
+
+def plot_violin_cell_type_along_NT_score(data_df: pd.DataFrame,
+                                         cell_types: List[str],
+                                         cell_type_coding: np.ndarray,
+                                         output_file_path: Optional[Union[str, Path]] = None,
+                                         **kwargs) -> Optional[Tuple[plt.Figure, plt.Axes]]:
+    """
+    Plot violinplot cell type composition along NT score.
+    :param data_df: pd.DataFrame, the data for visualization.
+    :param cell_types: List[str], the cell types.
+    :param cell_type_coding: np.ndarray, the cell type coding matrix.  #cell/spots x #cell_types
+    :param output_file_path: Optional[Union[str, Path]], the output directory.
+    :param kwargs: Optional, the additional arguments for visualization using seaborn.violinplot.
+    :return: None or Tuple[plt.Figure, plt.Axes].
+    """
+
+    # TODO: support low resolution data input
+    if (n_cell_type := len(cell_types)) > 100:
         warning(
             "There are more than 100 cell types, skip violin plot to avoid long runtime. You could manually plot it according to our tutorial."
         )
         return None
 
-    data_df = ana_data.meta_data.join(ana_data.NT_score['Cell_NTScore'])
-    if ana_data.options.reverse: data_df['Cell_NTScore'] = 1 - data_df['Cell_NTScore']
+    if not np.allclose(cell_type_coding.sum(axis=1), np.ones(cell_type_coding.shape[0])):
+        info("Cell type coding matrix is not one-hot encoded (low resolution data input). Skip the violin plot.")
+        return None
 
-    fig, ax = plt.subplots(figsize=(6, ana_data.cell_type_codes.shape[0] / 2))
+    fig, ax = plt.subplots(figsize=(6, n_cell_type / 2))
     sns.violinplot(data=data_df,
                    x='Cell_NTScore',
                    y='Cell_Type',
@@ -47,24 +146,28 @@ def plot_violin_cell_type_along_NT_score(ana_data: AnaData) -> Optional[Tuple[pl
                    fill=False,
                    common_norm=True,
                    legend=False,
-                   ax=ax)
+                   ax=ax,
+                   **kwargs)
     ax.set_xlabel('Cell-level NT score')
     ax.set_ylabel('Cell Type')
     fig.tight_layout()
-    if ana_data.options.output is not None:
-        fig.savefig(f'{ana_data.options.output}/cell_type_along_NT_score_violin.pdf', transparent=True)
+    if output_file_path is not None:
+        fig.savefig(f'{output_file_path}/cell_type_along_NT_score_violin.pdf', transparent=True)
         plt.close(fig)
         return None
     else:
         return fig, ax
 
 
-def plot_kde_cell_type_along_NT_score(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.Axes]]:
+def plot_violin_cell_type_along_NT_score_from_anadata(ana_data: AnaData,
+                                                      **kwargs) -> Optional[Tuple[plt.Figure, plt.Axes]]:
     """
-    Plot kdeplot cell type composition along NT score.
+    Plot violinplot cell type composition along NT score.
     :param ana_data: AnaData, the data for analysis.
+    :param kwargs: Optional, the additional arguments for visualization using seaborn.violinplot.
     :return: None or Tuple[plt.Figure, plt.Axes].
     """
+
     try:
         if 'Cell_NTScore' not in ana_data.NT_score.columns:
             warning("No NT score data found.")
@@ -73,56 +176,125 @@ def plot_kde_cell_type_along_NT_score(ana_data: AnaData) -> Optional[Tuple[plt.F
         warning(str(e))
         return None
 
-    data_df = ana_data.meta_data.join(ana_data.NT_score['Cell_NTScore'])
+    data_df = ana_data.meta_data_df.join(ana_data.NT_score['Cell_NTScore'])
     if ana_data.options.reverse: data_df['Cell_NTScore'] = 1 - data_df['Cell_NTScore']
+
+    cell_types = ana_data.cell_type_codes['Cell_Type'].to_list()
+
+    return plot_violin_cell_type_along_NT_score(data_df=data_df,
+                                                cell_types=cell_types,
+                                                cell_type_coding=ana_data.cell_type_coding,
+                                                output_file_path=ana_data.options.output,
+                                                **kwargs)
+
+
+def plot_kde_cell_type_along_NT_score(
+        data_df: pd.DataFrame,
+        cell_type_coding: np.ndarray,
+        output_file_path: Optional[Union[str, Path]] = None) -> Optional[Tuple[plt.Figure, plt.Axes]]:
+    """
+    Plot kdeplot cell type composition along NT score.
+    :param data_df: pd.DataFrame, the data for visualization.
+    :param cell_type_coding: np.ndarray, the cell type coding matrix.  #cell/spots x #cell_types
+    :param output_file_path: Optional[Union[str, Path]], the output directory.
+    :return: None or Tuple[plt.Figure, plt.Axes].
+    """
+
+    # TODO: support low resolution data input
+    if not np.allclose(cell_type_coding.sum(axis=1), np.ones(cell_type_coding.shape[0])):
+        info("Cell type coding matrix is not one-hot encoded (low resolution data input). Skip the violin plot.")
+        return None
 
     fig, ax = plt.subplots(figsize=(8, 4))
     sns.kdeplot(data=data_df, x='Cell_NTScore', hue='Cell_Type', multiple="fill", ax=ax)
     ax.set_ylabel('Fraction of cells')
     fig.tight_layout()
-    if ana_data.options.output is not None:
-        fig.savefig(f'{ana_data.options.output}/cell_type_along_NT_score_kde.pdf', transparent=True)
+    if output_file_path is not None:
+        fig.savefig(f'{output_file_path}/cell_type_along_NT_score_kde.pdf', transparent=True)
         plt.close(fig)
         return None
     else:
         return fig, ax
 
 
-def plot_hist_cell_type_along_NT_score(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.Axes]]:
+def plot_kde_cell_type_along_NT_score_from_anadata(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.Axes]]:
     """
-    Plot histogram of cell type composition along NT score.
+    Plot kdeplot cell type composition along NT score.
     :param ana_data: AnaData, the data for analysis.
     :return: None or Tuple[plt.Figure, plt.Axes].
     """
+
     try:
         if 'Cell_NTScore' not in ana_data.NT_score.columns:
             warning("No NT score data found.")
-            return None
-        if ana_data.cell_type_codes is None:
-            warning("No cell type data found.")
             return None
     except FileNotFoundError as e:
         warning(str(e))
         return None
 
-    data_df = ana_data.meta_data.join(ana_data.NT_score['Cell_NTScore'])
+    data_df = ana_data.meta_data_df.join(ana_data.NT_score['Cell_NTScore'])
     if ana_data.options.reverse: data_df['Cell_NTScore'] = 1 - data_df['Cell_NTScore']
 
-    fig, ax = plt.subplots(figsize=(len(data_df['Cell_Type'].unique()), 4))
-    sns.histplot(data=data_df,
-                 x='Cell_NTScore',
-                 hue='Cell_Type',
-                 hue_order=ana_data.cell_type_codes['Cell_Type'],
-                 multiple="dodge",
-                 ax=ax)
+    return plot_kde_cell_type_along_NT_score(data_df=data_df,
+                                             cell_type_coding=ana_data.cell_type_coding,
+                                             output_file_path=ana_data.options.output)
+
+
+def plot_hist_cell_type_along_NT_score(
+        data_df: pd.DataFrame,
+        cell_types: List[str],
+        cell_type_coding: np.ndarray,
+        output_file_path: Optional[Union[str, Path]] = None) -> Optional[Tuple[plt.Figure, plt.Axes]]:
+    """
+    Plot histogram of cell type composition along NT score.
+    :param data_df: pd.DataFrame, the data for visualization.
+    :param cell_types: List[str], the cell types, used for hue order of histogram.
+    :param cell_type_coding: np.ndarray, the cell type coding matrix.  #cell/spots x #cell_types
+    :param output_file_path: Optional[Union[str, Path]], the output directory.
+    :return: None or Tuple[plt.Figure, plt.Axes].
+    """
+
+    # TODO: support low resolution data input
+    if not np.allclose(cell_type_coding.sum(axis=1), np.ones(cell_type_coding.shape[0])):
+        info("Cell type coding matrix is not one-hot encoded (low resolution data input). Skip the violin plot.")
+        return None
+
+    fig, ax = plt.subplots(figsize=(len(cell_types), 4))
+    sns.histplot(data=data_df, x='Cell_NTScore', hue='Cell_Type', hue_order=cell_types, multiple="dodge", ax=ax)
     ax.set_ylabel('Fraction of cells')
     fig.tight_layout()
-    if ana_data.options.output is not None:
-        fig.savefig(f'{ana_data.options.output}/cell_type_along_NT_score_hist.pdf', transparent=True)
+    if output_file_path is not None:
+        fig.savefig(f'{output_file_path}/cell_type_along_NT_score_hist.pdf', transparent=True)
         plt.close(fig)
         return None
     else:
         return fig, ax
+
+
+def plot_hist_cell_type_along_NT_score_from_anadata(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.Axes]]:
+    """
+    Plot histogram of cell type composition along NT score.
+    :param ana_data: AnaData, the data for analysis.
+    :return: None or Tuple[plt.Figure, plt.Axes].
+    """
+
+    try:
+        if 'Cell_NTScore' not in ana_data.NT_score.columns:
+            warning("No NT score data found.")
+            return None
+    except FileNotFoundError as e:
+        warning(str(e))
+        return None
+
+    data_df = ana_data.meta_data_df.join(ana_data.NT_score['Cell_NTScore'])
+    if ana_data.options.reverse: data_df['Cell_NTScore'] = 1 - data_df['Cell_NTScore']
+
+    cell_types = ana_data.cell_type_codes['Cell_Type'].to_list()
+
+    return plot_hist_cell_type_along_NT_score(data_df=data_df,
+                                              cell_types=cell_types,
+                                              cell_type_coding=ana_data.cell_type_coding,
+                                              output_file_path=ana_data.options.output)
 
 
 def plot_cell_type_along_NT_score(ana_data: AnaData) -> None:
@@ -131,21 +303,45 @@ def plot_cell_type_along_NT_score(ana_data: AnaData) -> None:
     :param ana_data: AnaData, the data for analysis.
     :return: None.
     """
-    plot_violin_cell_type_along_NT_score(ana_data=ana_data)
-    plot_kde_cell_type_along_NT_score(ana_data=ana_data)
-    plot_hist_cell_type_along_NT_score(ana_data=ana_data)
+
+    try:
+        if 'Cell_NTScore' not in ana_data.NT_score.columns:
+            warning("No NT score data found.")
+            return None
+    except FileNotFoundError as e:
+        warning(str(e))
+        return None
+
+    data_df = ana_data.meta_data_df.join(ana_data.NT_score['Cell_NTScore'])
+    if ana_data.options.reverse: data_df['Cell_NTScore'] = 1 - data_df['Cell_NTScore']
+
+    cell_types = ana_data.cell_type_codes['Cell_Type'].to_list()
+
+    if ana_data.options.spatial_res == 'cell':  # do not support low resolution data yet
+        plot_violin_cell_type_along_NT_score(data_df=data_df,
+                                             cell_types=cell_types,
+                                             cell_type_coding=ana_data.cell_type_coding,
+                                             output_file_path=ana_data.options.output)
+        plot_kde_cell_type_along_NT_score(data_df=data_df,
+                                          cell_type_coding=ana_data.cell_type_coding,
+                                          output_file_path=ana_data.options.output)
+        plot_hist_cell_type_along_NT_score(data_df=data_df,
+                                           cell_types=cell_types,
+                                           cell_type_coding=ana_data.cell_type_coding,
+                                           output_file_path=ana_data.options.output)
 
 
-def plot_cell_type_loading_in_niche_clusters(ana_data: AnaData,
-                                             cell_type_dis_df: pd.DataFrame) -> Optional[sns.FacetGrid]:
+def plot_cell_type_loading_in_niche_clusters(cell_type_dis_df: pd.DataFrame,
+                                             output_file_path: Optional[Union[str,
+                                                                              Path]] = None) -> Optional[sns.FacetGrid]:
     """
     Plot cell type loading in each niche cluster.
-    :param ana_data: AnaData, the data for analysis.
     :param cell_type_dis_df: pd.DataFrame, the cell type distribution in each niche cluster.
+    :param output_file_path: Optional[Union[str, Path]], the output directory.
     :return: None or Tuple[plt.Figure, plt.Axes].
     """
 
-    if ana_data.cell_type_codes.shape[0] > 50:
+    if cell_type_dis_df.shape[0] > 50:
         warning(
             "There are more than 50 cell types, skip cell type loading in niche clusters plot to avoid weird plot. You could manually plot it according to our tutorial."
         )
@@ -171,15 +367,59 @@ def plot_cell_type_loading_in_niche_clusters(ana_data: AnaData,
     g.add_legend()
     g.tight_layout()
     g.set_xticklabels(rotation='vertical')
-    if ana_data.options.output is not None:
-        g.savefig(f'{ana_data.options.output}/cell_type_loading_in_niche_clusters.pdf', transparent=True)
+    if output_file_path is not None:
+        g.savefig(f'{output_file_path}/cell_type_loading_in_niche_clusters.pdf', transparent=True)
         return None
     else:
         return g
 
 
-def plot_cell_type_dis_in_niche_clusters(ana_data: AnaData,
-                                         cell_type_dis_df: pd.DataFrame) -> Optional[Tuple[plt.Figure, plt.Axes]]:
+def plot_cell_type_loading_in_niche_clusters_from_anadata(ana_data: AnaData) -> Optional[sns.FacetGrid]:
+    """
+    Plot cell type loading in each niche cluster.
+    :param ana_data: AnaData, the data for analysis.
+    :return: None or Tuple[plt.Figure, plt.Axes].
+    """
+
+    try:
+        if ana_data.cell_level_niche_cluster_assign is None:
+            warning("No niche cluster assign data found.")
+            return None
+        if ana_data.cell_type_codes is None:
+            warning("No cell type data found.")
+            return None
+    except FileNotFoundError as e:
+        warning(str(e))
+        return None
+
+    # calculate cell type distribution in each niche cluster
+    data_df = ana_data.meta_data_df.join(ana_data.cell_level_niche_cluster_assign)
+    t = pd.CategoricalDtype(categories=ana_data.cell_type_codes['Cell_Type'], ordered=True)
+    cell_type_one_hot = np.zeros(shape=(data_df.shape[0], ana_data.cell_type_codes.shape[0]))
+    cell_type = data_df['Cell_Type'].astype(t)
+    cell_type_one_hot[np.arange(data_df.shape[0]), cell_type.cat.codes] = 1  # N x n_cell_type
+    cell_type_dis = np.matmul(data_df[ana_data.cell_level_niche_cluster_assign.columns].T,
+                              cell_type_one_hot)  # n_clusters x n_cell_types
+    cell_type_dis_df = pd.DataFrame(cell_type_dis)
+    cell_type_dis_df.columns = ana_data.cell_type_codes['Cell_Type']
+    if ana_data.options.output is not None:
+        cell_type_dis_df.to_csv(f'{ana_data.options.output}/cell_type_dis_in_niche_clusters.csv', index=False)
+
+    # nc_order
+    if ana_data.niche_cluster_score is None:
+        info("No niche cluster scores found. Use the original order.")
+    else:
+        nc_scores = 1 - ana_data.niche_cluster_score if ana_data.options.reverse else ana_data.niche_cluster_score
+        nc_order = [f'NicheCluster_{x}' for x in nc_scores.argsort()]
+        cell_type_dis_df = cell_type_dis_df.loc[nc_order]
+
+    return plot_cell_type_loading_in_niche_clusters(cell_type_dis_df=cell_type_dis_df,
+                                                    output_file_path=ana_data.options.output)
+
+
+def plot_cell_type_dis_in_niche_clusters(
+        cell_type_dis_df: pd.DataFrame,
+        output_file_path: Optional[Union[str, Path]] = None) -> Optional[Tuple[plt.Figure, plt.Axes]]:
     """
     Plot cell type distribution in each niche cluster.
     :param ana_data: AnaData, the data for analysis.
@@ -191,16 +431,60 @@ def plot_cell_type_dis_in_niche_clusters(ana_data: AnaData,
     ax.set_xlabel('Cell Type')
     ax.set_ylabel('Niche Cluster')
     fig.tight_layout()
-    if ana_data.options.output is not None:
-        fig.savefig(f'{ana_data.options.output}/cell_type_dis_in_niche_clusters.pdf', transparent=True)
+    if output_file_path is not None:
+        fig.savefig(f'{output_file_path}/cell_type_dis_in_niche_clusters.pdf', transparent=True)
         plt.close(fig)
         return None
     else:
         return fig, ax
 
 
-def plot_cell_type_across_niche_cluster(ana_data: AnaData,
-                                        cell_type_dis_df: pd.DataFrame) -> Optional[Tuple[plt.Figure, plt.Axes]]:
+def plot_cell_type_dis_in_niche_clusters_from_anadata(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.Axes]]:
+    """
+    Plot cell type distribution in each niche cluster.
+    :param ana_data: AnaData, the data for analysis.
+    :return: None or Tuple[plt.Figure, plt.Axes].
+    """
+
+    try:
+        if ana_data.cell_level_niche_cluster_assign is None:
+            warning("No niche cluster assign data found.")
+            return None
+        if ana_data.cell_type_codes is None:
+            warning("No cell type data found.")
+            return None
+    except FileNotFoundError as e:
+        warning(str(e))
+        return None
+
+    # calculate cell type distribution in each niche cluster
+    data_df = ana_data.meta_data_df.join(ana_data.cell_level_niche_cluster_assign)
+    t = pd.CategoricalDtype(categories=ana_data.cell_type_codes['Cell_Type'], ordered=True)
+    cell_type_one_hot = np.zeros(shape=(data_df.shape[0], ana_data.cell_type_codes.shape[0]))
+    cell_type = data_df['Cell_Type'].astype(t)
+    cell_type_one_hot[np.arange(data_df.shape[0]), cell_type.cat.codes] = 1  # N x n_cell_type
+    cell_type_dis = np.matmul(data_df[ana_data.cell_level_niche_cluster_assign.columns].T,
+                              cell_type_one_hot)  # n_clusters x n_cell_types
+    cell_type_dis_df = pd.DataFrame(cell_type_dis)
+    cell_type_dis_df.columns = ana_data.cell_type_codes['Cell_Type']
+    if ana_data.options.output is not None:
+        cell_type_dis_df.to_csv(f'{ana_data.options.output}/cell_type_dis_in_niche_clusters.csv', index=False)
+
+    # nc_order
+    if ana_data.niche_cluster_score is None:
+        info("No niche cluster scores found. Use the original order.")
+    else:
+        nc_scores = 1 - ana_data.niche_cluster_score if ana_data.options.reverse else ana_data.niche_cluster_score
+        nc_order = [f'NicheCluster_{x}' for x in nc_scores.argsort()]
+        cell_type_dis_df = cell_type_dis_df.loc[nc_order]
+
+    return plot_cell_type_dis_in_niche_clusters(cell_type_dis_df=cell_type_dis_df,
+                                                output_file_path=ana_data.options.output)
+
+
+def plot_cell_type_across_niche_cluster(
+        cell_type_dis_df: pd.DataFrame,
+        output_file_path: Optional[Union[str, Path]] = None) -> Optional[Tuple[plt.Figure, plt.Axes]]:
     """
     Plot cell type distribution across niche cluster.
     :param ana_data: AnaData, the data for analysis.
@@ -212,12 +496,55 @@ def plot_cell_type_across_niche_cluster(ana_data: AnaData,
     ax.set_xlabel('Cell Type')
     ax.set_ylabel('Niche Cluster')
     fig.tight_layout()
-    if ana_data.options.output is not None:
-        fig.savefig(f'{ana_data.options.output}/cell_type_dis_across_niche_cluster.pdf', transparent=True)
+    if output_file_path is not None:
+        fig.savefig(f'{output_file_path}/cell_type_dis_across_niche_cluster.pdf', transparent=True)
         plt.close(fig)
         return None
     else:
         return fig, ax
+
+
+def plot_cell_type_across_niche_cluster_from_anadata(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.Axes]]:
+    """
+    Plot cell type distribution across niche cluster.
+    :param ana_data: AnaData, the data for analysis.
+    :return: None or Tuple[plt.Figure, plt.Axes].
+    """
+
+    try:
+        if ana_data.cell_level_niche_cluster_assign is None:
+            warning("No niche cluster assign data found.")
+            return None
+        if ana_data.cell_type_codes is None:
+            warning("No cell type data found.")
+            return None
+    except FileNotFoundError as e:
+        warning(str(e))
+        return None
+
+    # calculate cell type distribution in each niche cluster
+    data_df = ana_data.meta_data_df.join(ana_data.cell_level_niche_cluster_assign)
+    t = pd.CategoricalDtype(categories=ana_data.cell_type_codes['Cell_Type'], ordered=True)
+    cell_type_one_hot = np.zeros(shape=(data_df.shape[0], ana_data.cell_type_codes.shape[0]))
+    cell_type = data_df['Cell_Type'].astype(t)
+    cell_type_one_hot[np.arange(data_df.shape[0]), cell_type.cat.codes] = 1  # N x n_cell_type
+    cell_type_dis = np.matmul(data_df[ana_data.cell_level_niche_cluster_assign.columns].T,
+                              cell_type_one_hot)  # n_clusters x n_cell_types
+    cell_type_dis_df = pd.DataFrame(cell_type_dis)
+    cell_type_dis_df.columns = ana_data.cell_type_codes['Cell_Type']
+    if ana_data.options.output is not None:
+        cell_type_dis_df.to_csv(f'{ana_data.options.output}/cell_type_dis_in_niche_clusters.csv', index=False)
+
+    # nc_order
+    if ana_data.niche_cluster_score is None:
+        info("No niche cluster scores found. Use the original order.")
+    else:
+        nc_scores = 1 - ana_data.niche_cluster_score if ana_data.options.reverse else ana_data.niche_cluster_score
+        nc_order = [f'NicheCluster_{x}' for x in nc_scores.argsort()]
+        cell_type_dis_df = cell_type_dis_df.loc[nc_order]
+
+    return plot_cell_type_across_niche_cluster(cell_type_dis_df=cell_type_dis_df,
+                                               output_file_path=ana_data.options.output)
 
 
 def plot_cell_type_with_niche_cluster(ana_data: AnaData) -> None:
@@ -234,36 +561,33 @@ def plot_cell_type_with_niche_cluster(ana_data: AnaData) -> None:
         if ana_data.cell_type_codes is None:
             warning("No cell type data found.")
             return None
-        if ana_data.niche_cluster_score is None:
-            warning("No niche cluster scores data found.")
+        if ana_data.cell_type_coding is None:
+            warning("No cell type coding data found.")
             return None
     except FileNotFoundError as e:
         warning(str(e))
         return None
 
     # calculate cell type distribution in each niche cluster
-    data_df = ana_data.meta_data.join(ana_data.cell_level_niche_cluster_assign)
-    t = pd.CategoricalDtype(categories=ana_data.cell_type_codes['Cell_Type'], ordered=True)
-    cell_type_one_hot = np.zeros(shape=(data_df.shape[0], ana_data.cell_type_codes.shape[0]))
-    cell_type_one_hot[np.arange(data_df.shape[0]),
-                        data_df['Cell_Type'].astype(t).cat.codes.values] = 1  # N x n_cell_type
+    data_df = ana_data.meta_data_df.join(ana_data.cell_level_niche_cluster_assign)
     cell_type_dis = np.matmul(data_df[ana_data.cell_level_niche_cluster_assign.columns].T,
-                                cell_type_one_hot)  # n_clusters x n_cell_types
-    # TODO cell type analysis for low res data
+                              ana_data.cell_type_coding)  # n_clusters x n_cell_types
     cell_type_dis_df = pd.DataFrame(cell_type_dis)
     cell_type_dis_df.columns = ana_data.cell_type_codes['Cell_Type']
     if ana_data.options.output is not None:
         cell_type_dis_df.to_csv(f'{ana_data.options.output}/cell_type_dis_in_niche_clusters.csv', index=False)
 
     # nc_order
-    nc_scores = 1 - ana_data.niche_cluster_score if ana_data.options.reverse else ana_data.niche_cluster_score
-    nc_order = [f'NicheCluster_{x}' for x in nc_scores.argsort()]
-    cell_type_dis_df = cell_type_dis_df.loc[nc_order]
+    if ana_data.niche_cluster_score is not None:
+        nc_scores = 1 - ana_data.niche_cluster_score if ana_data.options.reverse else ana_data.niche_cluster_score
+        nc_order = [f'NicheCluster_{x}' for x in nc_scores.argsort()]
+        cell_type_dis_df = cell_type_dis_df.loc[nc_order]
 
     # plot_cell_type_loading_in_niche_clusters(ana_data=ana_data, cell_type_dis_df=cell_type_dis_df, nc_order=nc_order)
-    plot_cell_type_loading_in_niche_clusters(ana_data=ana_data, cell_type_dis_df=cell_type_dis_df)
-    plot_cell_type_dis_in_niche_clusters(ana_data=ana_data, cell_type_dis_df=cell_type_dis_df)
-    plot_cell_type_across_niche_cluster(ana_data=ana_data, cell_type_dis_df=cell_type_dis_df)
+    plot_cell_type_loading_in_niche_clusters(cell_type_dis_df=cell_type_dis_df,
+                                             output_file_path=ana_data.options.output)
+    plot_cell_type_dis_in_niche_clusters(cell_type_dis_df=cell_type_dis_df, output_file_path=ana_data.options.output)
+    plot_cell_type_across_niche_cluster(cell_type_dis_df=cell_type_dis_df, output_file_path=ana_data.options.output)
 
 
 def cell_type_visualization(ana_data: AnaData) -> None:

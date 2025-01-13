@@ -1,10 +1,11 @@
-import os
-from typing import Optional, Tuple, Union
+from pathlib import Path
+from typing import List, Optional, Tuple, Union
 
 import matplotlib as mpl
 import numpy as np
 import pandas as pd
 from scipy.spatial import distance
+from seaborn.matrix import ClusterGrid
 
 mpl.rcParams['pdf.fonttype'] = 42
 mpl.rcParams['ps.fonttype'] = 42
@@ -13,27 +14,19 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 from ..log import info, warning
-from ..niche_net import get_embedding_columns
 from .data import AnaData
 
 
-def clustering_visualization(ana_data: AnaData) -> Optional[Union[Tuple, None]]:
-    """Visualization of clustering results.
-    
-    Args:
-        ana_data: AnaData object.
+def clustering_visualization(
+        data_df: pd.DataFrame,
+        output_file_path: Optional[Union[str, Path]] = None) -> Optional[Tuple[plt.Figure, plt.Axes]]:
+    """
+    Visualization of clustering results.
+    :param data_df: pd.DataFrame, data for visualization.
+    :param output_file_path: str or Path, output file path.
+    :return: None.
     """
 
-    # load data
-    umap_embedding_file = f'{ana_data.options.preprocessing_dir}/UMAP_embedding.csv'
-    if not os.path.exists(umap_embedding_file):
-        info('PCA_embedding.csv are required for clustering visualization. Skip the clustering visualization.')
-        return None
-    umap_embedding = np.loadtxt(f'{ana_data.options.preprocessing_dir}/UMAP_embedding.csv', delimiter=',')
-    data_df = pd.DataFrame(umap_embedding, columns=['Embedding_1', 'Embedding_2'])
-    data_df.index = ana_data.meta_data.index
-    data_df['Cell_Type'] = ana_data.meta_data['Cell_Type']
-    data_df['Cell_Type'] = data_df['Cell_Type'].astype('category')
     with sns.axes_style('white', rc={
             'xtick.bottom': True,
             'ytick.left': True
@@ -51,36 +44,71 @@ def clustering_visualization(ana_data: AnaData) -> Optional[Union[Tuple, None]]:
         ax.set_ylabel('UMAP_2')
         ax.legend(loc='upper left', bbox_to_anchor=(1, 1), ncol=3, markerscale=4)
         fig.tight_layout()
-        if ana_data.options.output:
-            fig.savefig(f'{ana_data.options.output}/clustering.pdf', transparent=True)
+        if output_file_path:
+            fig.savefig(f'{output_file_path}/clustering.pdf', transparent=True)
             return None
         else:
             return fig
 
 
-def embedding_adjust_visualization(ana_data: AnaData) -> Optional[Union[Tuple, None]]:
+def clustering_visualization_from_anadata(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.Axes]]:
+    """Visualization of clustering results.
+    
+    Args:
+        ana_data: AnaData object.
+    """
+
+    # check if the embedding is available
+    if ana_data.umap_embedding is None:
+        warning('UMAP embedding is not available. Skip the clustering visualization.')
+        return None
+
+    data_df = pd.DataFrame(ana_data.umap_embedding, columns=['Embedding_1', 'Embedding_2'])
+    data_df.index = ana_data.meta_data_df.index
+    data_df['Cell_Type'] = ana_data.meta_data_df['Cell_Type']
+    data_df['Cell_Type'] = data_df['Cell_Type'].astype('category')
+
+    return clustering_visualization(data_df=data_df, output_file_path=ana_data.options.output)
+
+
+def embedding_adjust_visualization(dis_df: pd.DataFrame,
+                                   output_file_name: str,
+                                   output_file_path: Optional[Union[str, Path]] = None) -> Optional[ClusterGrid]:
+    with sns.axes_style('white', rc={
+            'xtick.bottom': True,
+            'ytick.left': True
+    }), sns.plotting_context('paper',
+                             rc={
+                                 'axes.titlesize': 8,
+                                 'axes.labelsize': 8,
+                                 'xtick.labelsize': 6,
+                                 'ytick.labelsize': 6,
+                                 'legend.fontsize': 6
+                             }):
+        cluster_grid: ClusterGrid = sns.clustermap(dis_df, figsize=(dis_df.shape[0] / 6, dis_df.shape[0] / 6))
+        if output_file_path is not None:
+            cluster_grid.savefig(f'{output_file_path}/{output_file_name}', transparent=True)
+            return None
+        else:
+            return cluster_grid
+
+
+def embedding_adjust_visualization_from_anadata(ana_data: AnaData) -> List[Optional[ClusterGrid]]:
     """Visualization of embedding adjust.
 
     Args:
         ana_data: AnaData object.
     """
 
-    cell_types = ana_data.cell_type_codes['Cell_Type']
-
     if not ana_data.options.embedding_adjust:
         return None
 
-    embedding_columns = get_embedding_columns(ana_data.meta_data)
-    if len(embedding_columns) < 2:
-        warning(
-            'At least two (Embedding_1 and Embedding_2) should be in the original data. Skip the embedding adjustment visualization.'
-        )
+    if ana_data.ct_embedding is None:
+        warning('Cell type embedding is not available. Skip the embedding adjustment visualization.')
         return None
 
-    # calculate embedding postion for each cell type
-    ct_embedding = ana_data.meta_data[embedding_columns + ['Cell_Type']].groupby('Cell_Type').mean()
-    raw_distance = distance.cdist(ct_embedding[embedding_columns].values, ct_embedding[embedding_columns].values,
-                                  'euclidean')
+    cell_types = ana_data.cell_type_codes['Cell_Type'].tolist()
+    raw_distance = distance.cdist(ana_data.ct_embedding.values, ana_data.ct_embedding.values, 'euclidean')
 
     # calculate distance between each cell type
     median_distance = np.median(raw_distance[np.triu_indices(raw_distance.shape[0], k=1)])
@@ -97,23 +125,13 @@ def embedding_adjust_visualization(ana_data: AnaData) -> Optional[Union[Tuple, N
     M = np.exp(-(raw_distance / (ana_data.options.sigma * median_distance))**2)
     M_df = pd.DataFrame(M, index=cell_types, columns=cell_types)
 
-    with sns.axes_style('white', rc={
-            'xtick.bottom': True,
-            'ytick.left': True
-    }), sns.plotting_context('paper',
-                             rc={
-                                 'axes.titlesize': 8,
-                                 'axes.labelsize': 8,
-                                 'xtick.labelsize': 6,
-                                 'ytick.labelsize': 6,
-                                 'legend.fontsize': 6
-                             }):
-        dis_cluster_grid = sns.clustermap(raw_distance_df,
-                                          figsize=(raw_distance_df.shape[0] / 6, raw_distance_df.shape[0] / 6))
-        M_cluster_grid = sns.clustermap(M_df, figsize=(M_df.shape[0] / 6, M_df.shape[0] / 6), vmin=0, vmax=1)
-        if ana_data.options.output:
-            dis_cluster_grid.savefig(f'{ana_data.options.output}/raw_distance.pdf', transparent=True)
-            M_cluster_grid.savefig(f'{ana_data.options.output}/M.pdf', transparent=True)
-            return None
-        else:
-            return dis_cluster_grid, M_cluster_grid
+    output = []
+    output.append(
+        embedding_adjust_visualization(dis_df=raw_distance_df,
+                                       output_file_name='raw_distance.pdf',
+                                       output_file_path=ana_data.options.output))
+    output.append(
+        embedding_adjust_visualization(dis_df=M_df,
+                                       output_file_name='adjusted_distance.pdf',
+                                       output_file_path=ana_data.options.output))
+    return output
