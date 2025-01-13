@@ -23,15 +23,16 @@ from .utils import gini, saptial_figsize
 
 
 def plot_niche_cluster_connectivity(
-    niche_cluster_connectivity: np.ndarray,
-    niche_cluster_score: np.ndarray,
-    reverse: bool = False,
-    output_file_path: Optional[Union[str,
-                                     Path]] = None) -> Optional[Tuple[plt.Figure, Union[plt.Axes, List[plt.Axes]]]]:
+        niche_cluster_connectivity: np.ndarray,
+        niche_cluster_score: Optional[np.ndarray] = None,
+        niche_cluster_size: Optional[np.ndarray] = None,
+        reverse: bool = False,
+        output_file_path: Optional[Union[str, Path]] = None) -> Optional[Tuple[plt.Figure, List[plt.Axes]]]:
     """
     Plot niche cluster connectivity.
     :param niche_cluster_connectivity: np.ndarray, the connectivity matrix.
     :param niche_cluster_score: Optional[np.ndarray], the score of each niche cluster.
+    :param niche_cluster_size: Optional[np.ndarray], the size of each niche cluster.
     :param reverse: bool, whether to reverse the color.
     :param output_file_path: Optional[Union[str, Path]], the output file path.
     :return: None or Tuple[plt.Figure, plt.Axes].
@@ -45,40 +46,97 @@ def plot_niche_cluster_connectivity(
     edges = G.edges()
     weights = [G[u][v]['weight'] for u, v in edges]
     # node color
-    norm = Normalize(vmin=0, vmax=1)
-    sm = ScalarMappable(cmap=plt.cm.rainbow, norm=norm)  # type: ignore
-    nc_scores = 1 - niche_cluster_score if reverse else niche_cluster_score
-    niche_cluster_colors = [sm.to_rgba(nc_scores[n]) for n in G.nodes]
+    if niche_cluster_score is not None:
+        norm = Normalize(vmin=0, vmax=1)
+        sm = ScalarMappable(cmap=plt.cm.rainbow, norm=norm)  # type: ignore
+        nc_scores = 1 - niche_cluster_score if reverse else niche_cluster_score
+        niche_cluster_colors = [sm.to_rgba(nc_scores[n]) for n in G.nodes]
+    else:
+        niche_cluster_colors = ["#1f78b4"] * niche_cluster_connectivity.shape[0]
+    # node size
+    if niche_cluster_size is None:
+        node_size = 500
+    else:
+        # rescale the node with size 0 to 200, and the maximum size is 1000
+        node_size = (niche_cluster_size / niche_cluster_size.max() * 800 + 200).to_list()
 
     # Create a figure
-    fig = plt.figure(figsize=(7, 6))
+    ## figwidth
+    figwidths = [6]
+    if niche_cluster_size is not None:
+        figwidths.append(1.5)
+    if niche_cluster_score is not None:
+        figwidths.append(.5)
+    figwidths.append(.5)
+    fig = plt.figure(figsize=(sum(figwidths), 6))
 
     # Create a gridspec with 1 row and 2 columns, with widths of A and B
-    gs = gridspec.GridSpec(1, 3, width_ratios=[6, .5, .5])  # 6:.5:.5 ratio
-    graph_ax = fig.add_subplot(gs[0])
-    nodel_colorbar_ax = fig.add_subplot(gs[1])
-    edge_colorbar_ax = fig.add_subplot(gs[2])
+    axes = []
+    gs = gridspec.GridSpec(nrows=1, ncols=len(figwidths), width_ratios=figwidths)
+    ax_index = 0
+    graph_ax = fig.add_subplot(gs[ax_index])
+    axes.append(graph_ax)
+    if niche_cluster_size is not None:
+        ax_index += 1
+        node_size_ax = fig.add_subplot(gs[ax_index])
+        axes.append(node_size_ax)
+    if niche_cluster_score is not None:
+        ax_index += 1
+        node_colorbar_ax = fig.add_subplot(gs[ax_index])
+        axes.append(node_colorbar_ax)
+    ax_index += 1
+    edge_colorbar_ax = fig.add_subplot(gs[ax_index])
+    axes.append(edge_colorbar_ax)
 
     # Draw the graph
-    nx.draw_networkx_nodes(G, pos, node_color=niche_cluster_colors, node_size=500, ax=graph_ax)
+    nx.draw_networkx_nodes(G=G, pos=pos, node_color=niche_cluster_colors, node_size=node_size, ax=graph_ax)
     nx.draw_networkx_edges(
-        G,
-        pos,
+        G=G,
+        pos=pos,
         edge_color=weights,
         alpha=weights,
         width=3.0,
         edge_cmap=plt.cm.Reds,  # type: ignore
-        ax=graph_ax)
+        ax=graph_ax,
+        node_size=node_size)
     nx.draw_networkx_labels(G, pos, ax=graph_ax)
-    graph_ax.set_title('Niche cluster connectivity')
+    graph_ax.axis('off')
+
+    # Draw legend for node size
+    if niche_cluster_size is not None:
+        ## prepare
+        node_size_ax.axis('off')  # hide the
+        node_size_legend_num = 5  # TODO: make it become a parameter
+        sizes = np.linspace(start=200, stop=1000, num=node_size_legend_num)
+        max_niche_cluster_size = niche_cluster_size.values.max()
+        magnitude = 10**int(np.floor(np.log10(abs(max_niche_cluster_size))))
+        max_label = round(max_niche_cluster_size / magnitude) * magnitude
+        labels = [f'{int(x):d}' for x in np.linspace(0, max_label, node_size_legend_num)]
+        ## draw legend
+        handles = [
+            plt.Line2D([0], [0], marker='o', color='w', markerfacecolor='gray', markersize=np.sqrt(size), label=label)
+            for size, label in zip(sizes, labels)
+        ]
+        legend = node_size_ax.legend(handles=handles,
+                                     title='Niche cluster size',
+                                     loc='center',
+                                     frameon=False,
+                                     bbox_to_anchor=(0.6, 0.6))
+        ## Rotate the title and adjust the position
+        title = legend.get_title()
+        title.set_rotation(90)
+        title.set_verticalalignment('center')  # Align title vertically
+        title.set_horizontalalignment('right')  # Align title horizontally
+        title.set_position((-70, -60))  # Shift the title slightly to the right
 
     # Draw the colorbar for nodes
-    gradient = np.linspace(0, 1, 1000).reshape(-1, 1)
-    nodel_colorbar_ax.imshow(gradient, aspect='auto', cmap=plt.cm.rainbow)
-    nodel_colorbar_ax.set_xticks([])
-    nodel_colorbar_ax.set_yticks(np.linspace(0, 1000, 5))
-    nodel_colorbar_ax.set_yticklabels(f'{x:.2f}' for x in np.linspace(0, 1, 5))
-    nodel_colorbar_ax.set_ylabel('NT score (nodes)')
+    if niche_cluster_score is not None:
+        gradient = np.linspace(0, 1, 1000).reshape(-1, 1)
+        node_colorbar_ax.imshow(gradient, aspect='auto', cmap=plt.cm.rainbow)
+        node_colorbar_ax.set_xticks([])
+        node_colorbar_ax.set_yticks(np.linspace(0, 1000, 5))
+        node_colorbar_ax.set_yticklabels(f'{x:.2f}' for x in np.linspace(0, 1, 5))
+        node_colorbar_ax.set_ylabel('NT score (nodes)')
 
     # Draw the colorbar for edges
     colors = [(1, 1, 1, 0), (1, 0, 0, 1)]
@@ -90,6 +148,7 @@ def plot_niche_cluster_connectivity(
     edge_colorbar_ax.set_yticklabels(f'{x:.2f}' for x in np.linspace(0, niche_cluster_connectivity.max(), 5))
     edge_colorbar_ax.set_ylabel('Connectivity (edges)')
 
+    fig.suptitle('Niche cluster connectivity')
     fig.tight_layout()
 
     if output_file_path is not None:
@@ -97,11 +156,10 @@ def plot_niche_cluster_connectivity(
         plt.close(fig)
         return None
     else:
-        return fig, [graph_ax, nodel_colorbar_ax, edge_colorbar_ax]
+        return fig, axes
 
 
-def plot_niche_cluster_connectivity_from_anadata(
-        ana_data: AnaData) -> Optional[Tuple[plt.Figure, Union[plt.Axes, List[plt.Axes]]]]:
+def plot_niche_cluster_connectivity_from_anadata(ana_data: AnaData) -> Optional[Tuple[plt.Figure, List[plt.Axes]]]:
     """
     Plot niche cluster connectivity.
     :param ana_data: AnaData, the data for analysis.
@@ -115,11 +173,19 @@ def plot_niche_cluster_connectivity_from_anadata(
         warning(str(e))
         return None
 
+    if not hasattr(ana_data, 'cell_level_niche_cluster_assign') or ana_data.cell_level_niche_cluster_assign is None:
+        niche_cluster_size = np.ones(ana_data.cell_level_niche_cluster_assign.shape[1])
+    else:
+        niche_cluster_size = ana_data.cell_level_niche_cluster_assign.sum(axis=0)
+
     output_file_path = f'{ana_data.options.output}/niche_cluster_connectivity.pdf' if ana_data.options.output is not None else None
-    return plot_niche_cluster_connectivity(niche_cluster_connectivity=ana_data.niche_cluster_connectivity,
-                                           niche_cluster_score=ana_data.niche_cluster_score,
-                                           reverse=ana_data.options.reverse,
-                                           output_file_path=output_file_path)
+
+    return plot_niche_cluster_connectivity(
+        niche_cluster_connectivity=ana_data.niche_cluster_connectivity,
+        niche_cluster_score=ana_data.niche_cluster_score,
+        niche_cluster_size=niche_cluster_size,  # type: ignore
+        reverse=ana_data.options.reverse,
+        output_file_path=output_file_path)
 
 
 def plot_niche_cluster_connectivity_bysample_from_anadata(ana_data: AnaData) -> None:
@@ -130,10 +196,17 @@ def plot_niche_cluster_connectivity_bysample_from_anadata(ana_data: AnaData) -> 
     """
 
     for sample in ana_data.meta_data_df['Sample'].unique():
+
         niche_cluster_connectivity = np.loadtxt(f'{ana_data.options.GNN_dir}/{sample}_out_adj.csv.gz', delimiter=',')
+
+        cell_level_niche_cluster_assign = np.loadtxt(f'{ana_data.options.GNN_dir}/{sample}_s.csv.gz', delimiter=',')
+        niche_cluster_size = cell_level_niche_cluster_assign.sum(axis=0)
+
         output_file_path = f'{ana_data.options.output}/{sample}_cluster_connectivity.pdf'
+
         plot_niche_cluster_connectivity(niche_cluster_connectivity=niche_cluster_connectivity,
                                         niche_cluster_score=ana_data.niche_cluster_score,
+                                        niche_cluster_size=niche_cluster_size,
                                         reverse=ana_data.options.reverse,
                                         output_file_path=output_file_path)
 

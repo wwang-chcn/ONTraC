@@ -1,5 +1,15 @@
 # Change log
 
+## [1.1.2] - XXXX-XXX-XX
+
+Added:
+
+- Node size legend in niche cluster connectivities visualization
+
+Changed:
+
+- Make node color legend optional in niche cluster connectivities visualization
+
 ## [1.1.1] - 2025-Jan-6
 
 Fixed:
