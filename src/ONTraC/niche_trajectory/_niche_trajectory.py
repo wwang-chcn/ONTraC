@@ -1,7 +1,7 @@
 import os
 import sys
-from optparse import Values
-from typing import Dict, List, Optional, Tuple
+from pathlib import Path
+from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -32,7 +32,7 @@ def load_consolidate_data(GNN_dir: Union[str, Path]) -> Tuple[ndarray, ndarray]:
 
 
 def apply_diffusion_map(niche_adj_matrix: ndarray,
-                        output_dir: Optional[str] = None,
+                        output_dir: Optional[Union[str, Path]] = None,
                         component_index: int = 1) -> List[int]:
     """
     Apply diffusion map to the niche adjacency matrix
@@ -61,11 +61,14 @@ def apply_diffusion_map(niche_adj_matrix: ndarray,
     return niche_cluster_path
 
 
-def get_niche_trajectory_path(trajectory_construct_method: str, niche_adj_matrix: ndarray) -> List[int]:
+def get_niche_trajectory_path(trajectory_construct_method: str,
+                              niche_adj_matrix: ndarray,
+                              NT_dir: Union[str, Path],
+                              DM_embedding_index: int = 1) -> List[int]:
     """
-    Get niche trajectory path
+    Find niche level trajectory with maximum connectivity using Brute Force
     :param trajectory_construct_method: str, the method to construct trajectory
-    :param adj_matrix: non-negative ndarray, adjacency matrix of the graph
+    :param adj_matrix: ndarray, adjacency matrix of the graph
     :return: List[int], the niche trajectory
     """
 
@@ -81,10 +84,10 @@ def get_niche_trajectory_path(trajectory_construct_method: str, niche_adj_matrix
 
         niche_trajectory_path = held_karp(niche_adj_matrix)
 
-    elif options.trajectory_construct == 'DM':
+    elif trajectory_construct_method == 'DM':
         niche_trajectory_path = apply_diffusion_map(niche_adj_matrix=niche_adj_matrix,
-                                                    output_dir=options.NTScore_dir,
-                                                    component_index=options.DM_embedding_index)
+                                                    output_dir=NT_dir,
+                                                    component_index=DM_embedding_index)
 
     return niche_trajectory_path
 
@@ -122,7 +125,9 @@ def trajectory_path_to_NC_score(niche_trajectory_path: List[int],
 def get_niche_NTScore(trajectory_construct_method: str,
                       niche_cluster_loading: ndarray,
                       niche_adj_matrix: ndarray,
-                      equal_space: bool = False) -> Tuple[ndarray, ndarray]:
+                      NT_dir: Optional[Union[str, Path]] = None,
+                      equal_space: bool = False,
+                      DM_embedding_index: int = 1) -> Tuple[ndarray, ndarray]:
     """
     Get niche-level niche trajectory and cell-level niche trajectory
     :param trajectory_construct_method: str, the method to construct trajectory
@@ -135,7 +140,9 @@ def get_niche_NTScore(trajectory_construct_method: str,
     info('Calculating NTScore for each niche.')
 
     niche_trajectory_path = get_niche_trajectory_path(trajectory_construct_method=trajectory_construct_method,
-                                                      niche_adj_matrix=niche_adj_matrix)
+                                                      niche_adj_matrix=niche_adj_matrix,
+                                                      NT_dir=NT_dir,
+                                                      DM_embedding_index=DM_embedding_index)
 
     niche_clustering_sum = niche_cluster_loading.sum(axis=0)
     niche_cluster_score = trajectory_path_to_NC_score(niche_trajectory_path=niche_trajectory_path,

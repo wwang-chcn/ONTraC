@@ -149,7 +149,9 @@ def niche_trajectory_construct(options: Values) -> None:
         trajectory_construct_method=options.trajectory_construct,
         niche_cluster_loading=consolidate_s_array,
         niche_adj_matrix=consolidate_out_adj_array,
-        equal_space=options.equal_space)
+        equal_space=options.equal_space,
+        NT_dir=options.NT_dir,
+        DM_embedding_index=options.DM_embedding_index)
     cell_level_NTScore, all_niche_level_NTScore_dict, all_cell_level_NTScore_dict = niche_to_cell_NTScore(
         dataset=dataset, rel_params=rel_params, niche_level_NTScore=niche_level_NTScore)
 
