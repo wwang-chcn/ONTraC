@@ -6,6 +6,22 @@ Added:
 
 - `Diffusion map` as one niche trajectory construction method
 
+## [1.1.2] - 2025-Jan-12
+
+Added:
+
+- Node size legend in niche cluster connectivities visualization
+
+Changed:
+
+- Make node color legend optional in niche cluster connectivities visualization
+
+## [1.1.1] - 2025-Jan-6
+
+Fixed:
+
+- Wrong processing for sample name using int
+
 ## [1.1.0] - 2024-Nov-24
 
 Changed:

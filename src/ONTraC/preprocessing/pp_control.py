@@ -11,8 +11,10 @@ from ..utils import get_meta_data_file
 from .data import load_meta_data, save_cell_type_code
 
 
-def load_input_data(meta_input: Union[str, Path],
-                    NN_dir: Union[str, Path],) -> Dict[str, pd.DataFrame]:
+def load_input_data(
+    meta_input: Union[str, Path],
+    NN_dir: Union[str, Path],
+) -> Dict[str, pd.DataFrame]:
     """
     Load data from original inputs.
     :param meta_input: str or Path, meta data file.
@@ -35,9 +37,7 @@ def load_input_data(meta_input: Union[str, Path],
     return output
 
 
-
-def preprocessing_nn(meta_input: Union[str, Path],
-                     NN_dir: Union[str, Path]) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def preprocessing_nn(meta_input: Union[str, Path], NN_dir: Union[str, Path]) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
     Preprocessing for niche network.
     :param meta_input: str or Path, meta data file.
@@ -51,15 +51,14 @@ def preprocessing_nn(meta_input: Union[str, Path],
         raise ValueError('meta_data is required for preprocessing.')
     meta_data_df = input_data['meta_data']
 
-    
     # generate cell type coding matrix
     meta_data_df['Cell_Type'] = meta_data_df['Cell_Type'].astype('category')
     ct_coding_matrix = np.zeros(shape=(meta_data_df.shape[0],
-                                        meta_data_df['Cell_Type'].cat.categories.shape[0]))  # N x #cell_type
+                                       meta_data_df['Cell_Type'].cat.categories.shape[0]))  # N x #cell_type
     ct_coding_matrix[np.arange(meta_data_df.shape[0]), meta_data_df.Cell_Type.cat.codes.values] = 1
     ct_coding = pd.DataFrame(data=ct_coding_matrix,
-                                columns=meta_data_df['Cell_Type'].cat.categories,
-                                index=meta_data_df.index)
+                             columns=meta_data_df['Cell_Type'].cat.categories,
+                             index=meta_data_df.index)
 
     # save cell type code
     save_cell_type_code(save_dir=NN_dir, cell_types=meta_data_df['Cell_Type'])
@@ -95,6 +94,8 @@ def preprocessing_gnn(NN_dir: Union[str, Path],
 
     # meta data
     meta_data_df = pd.read_csv(get_meta_data_file(NN_dir), header=0)
+    meta_data_df['Sample'] = meta_data_df['Sample'].astype(str).astype('category')
+    meta_data_df['Cell_Type'] = meta_data_df['Cell_Type'].astype(str).astype('category')
 
     # dataset and sample loader
     dataset, sample_loader = load_data(NN_dir=NN_dir, batch_size=batch_size)
