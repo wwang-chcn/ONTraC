@@ -2,10 +2,7 @@
 
 import sys
 
-from ..log import *
-from ..niche_net import gen_original_data
-from ..optparser import (opt_preprocessing_validate,
-                         prepare_preprocessing_optparser)
+from ..optparser import opt_nn_validate, prepare_nn_optparser
 from ..run.processes import load_parameters, niche_network_construct
 from ..utils import write_version_info
 
@@ -15,22 +12,17 @@ from ..utils import write_version_info
 # ------------------------------------
 def main() -> None:
     """
-    main function
-    Input data files information should be stored in a YAML file.
+    The main function
     """
 
     # write version information
     write_version_info()
 
     # load parameters
-    options = load_parameters(opt_validate_func=opt_preprocessing_validate,
-                              prepare_optparser_func=prepare_preprocessing_optparser)
-
-    # load original data
-    meta_data_df = gen_original_data(options=options)
+    options = load_parameters(opt_validate_func=opt_nn_validate, prepare_optparser_func=prepare_nn_optparser)
 
     # ----- Niche Network Construct -----
-    niche_network_construct(options=options, meta_data_df=meta_data_df)
+    niche_network_construct(options=options)
 
 
 # ------------------------------------

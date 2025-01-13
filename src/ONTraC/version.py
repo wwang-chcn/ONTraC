@@ -1,1 +1,1 @@
-__version__ = "2.0rc6.dev10+20241015.4"
+__version__ = "2.0rc7.dev0+diffusion.map.20250112.0"

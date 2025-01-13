@@ -2,8 +2,8 @@
 
 import sys
 
-from ..optparser import opt_gnn_validate, prepare_gnn_optparser
-from ..run.processes import gnn, load_parameters
+from ..optparser import opt_nt_validate, prepare_nt_optparser
+from ..run.processes import niche_trajectory_construct, load_parameters
 from ..utils import write_version_info
 
 
@@ -19,10 +19,10 @@ def main() -> None:
     write_version_info()
 
     # load parameters
-    options = load_parameters(opt_validate_func=opt_gnn_validate, prepare_optparser_func=prepare_gnn_optparser)
+    options = load_parameters(opt_validate_func=opt_nt_validate, prepare_optparser_func=prepare_nt_optparser)
 
-    # ----- GNN -----
-    gnn(options=options)
+    # ----- NT score -----
+    niche_trajectory_construct(options=options)
 
 
 # ------------------------------------
