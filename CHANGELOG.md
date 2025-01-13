@@ -1,6 +1,6 @@
 # Change log
 
-## [1.1.2] - XXXX-XXX-XX
+## [1.1.2] - 2025-Jan-12
 
 Added:
 
