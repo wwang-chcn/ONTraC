@@ -7,7 +7,7 @@ from torch_geometric.loader import DenseDataLoader
 
 from ..data import SpatailOmicsDataset, load_dataset
 from ..external.deconvolution import apply_STdeconvolve
-from ..log import info, warning
+from ..log import info
 from ..utils import get_meta_data_file
 from .data import load_meta_data, save_cell_type_code, save_meta_data
 from .expression import define_neighbors, perform_harmony, perform_leiden, perform_pca, perform_umap
@@ -127,9 +127,11 @@ def cal_cell_type_coding(
         if 'Cell_Type' in meta_data_df.columns:  # option 1: cell-level data with Cell_Type info in meta_data
             meta_data_df['Cell_Type'] = meta_data_df['Cell_Type'].astype('category')
         else:
-            if 'embedding_data' in input_data and input_data['embedding_data'] is not None:  # option 2: cell-level data with embedding info
+            if 'embedding_data' in input_data and input_data[
+                    'embedding_data'] is not None:  # option 2: cell-level data with embedding info
                 pca_embedding = input_data['embedding_data'].values
-            elif 'exp_data' in input_data and input_data['exp_data'] is not None:  # option 3: cell-level data with gene expression data
+            elif 'exp_data' in input_data and input_data[
+                    'exp_data'] is not None:  # option 3: cell-level data with gene expression data
                 pca_embedding = perform_pca(input_data['exp_data'])
                 if 'Batch' in meta_data_df.columns:
                     if meta_data_df['Batch'].nunique() > 1:
@@ -291,7 +293,8 @@ def preprocessing_gnn(NN_dir: Union[str, Path],
     # meta data
     meta_data_df = pd.read_csv(get_meta_data_file(NN_dir), header=0)
     meta_data_df['Sample'] = meta_data_df['Sample'].astype(str).astype('category')
-    meta_data_df['Cell_Type'] = meta_data_df['Cell_Type'].astype(str).astype('category')
+    if 'Cell_Type' in meta_data_df.columns:
+        meta_data_df['Cell_Type'] = meta_data_df['Cell_Type'].astype(str).astype('category')
 
     # dataset and sample loader
     dataset, sample_loader = load_data(NN_dir=NN_dir, batch_size=batch_size)
