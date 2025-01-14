@@ -41,6 +41,20 @@ def apply_STdeconvolve(NN_dir: Union[str, Path],
             print("Error in running R script:", e)
             print("R script stderr:", e.stderr)
 
+    # handle deconvoluted results
+    #1) The first column name missing STdeconvolve outputed csv file
+    #2) "-" in spot_id will be converted to "."
+    ## spot_x_cell_type_file
+    spot_x_cell_type_df = pd.read_csv(Path(NN_dir).joinpath(spot_x_cell_type_file))
+    spot_x_cell_type_df.index = exp_df.columns
+    spot_x_cell_type_df.to_csv(Path(NN_dir).joinpath(spot_x_cell_type_file),
+                               index=True,
+                               header=True,
+                               index_label='Spot_ID')
+    ## ct_x_gene_file
+    ct_x_gene_df = pd.read_csv(Path(NN_dir).joinpath(ct_x_gene_file))
+    ct_x_gene_df.to_csv(Path(NN_dir).joinpath(ct_x_gene_file), index=True, header=True, index_label='Cell_Type')
+
     # load deconvoluted cell type composition data
     ct_coding_df = pd.read_csv(Path(NN_dir).joinpath(spot_x_cell_type_file), index_col=0)
 
