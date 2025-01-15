@@ -1,5 +1,11 @@
 # Change log
 
+## [XXXXX] - 2025-XXX-XX
+
+Changed:
+
+- Make niche cluster visualization no longer dependent on NT score.
+
 ## [1.1.2] - 2025-Jan-12
 
 Added:

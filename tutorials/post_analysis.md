@@ -138,9 +138,9 @@ fig.savefig('figures/Niche_cluster_proportions.png', dpi=300)
 
 ![niche_cluster_proportions_image](../docs/source/_static/images/tutorials/post_analysis/Niche_cluster_proportions.png)
 
-### Cell type distribution in each niche cluster
+### Cell type X niche cluster
 
-#### number of cells of each cell type cells in each niche cluster
+#### Number of cells of each cell type cells in each niche cluster
 
 ```{python}
 from ONTraC.analysis.cell_type import plot_cell_type_loading_in_niche_clusters_from_anadata
@@ -151,27 +151,29 @@ g.savefig('figures/cell_type_loading_in_niche_clusters.png', dpi=300)
 
 ![cell_type_loading_in_niche_clusters_image](../docs/source/_static/images/tutorials/post_analysis/cell_type_loading_in_niche_clusters.png)
 
-#### cell type proportions in each cluster normalized by total loadings of each niche cluster
+#### Cell type composition in each niche cluster
 
 ```{python}
-from ONTraC.analysis.cell_type import plot_cell_type_dis_in_niche_clusters_from_anadata
+from ONTraC.analysis.cell_type import plot_cell_type_com_in_niche_clusters_from_anadata
 
-fig, ax = plot_cell_type_dis_in_niche_clusters_from_anadata(ana_data=ana_data)
-fig.savefig('figures/cell_type_dis_in_niche_clusters.png', dpi=300)
+fig, ax = plot_cell_type_com_in_niche_clusters_from_anadata(ana_data=ana_data)
+fig.savefig('figures/cell_type_composition_in_niche_clusters.png', dpi=300)
 ```
 
 ![cell_type_dis_in_niche_clusters_image](../docs/source/_static/images/tutorials/post_analysis/cell_type_dis_in_niche_clusters.png)
+This heatmap show the cell type composition within each niche cluster. Sum of each row equals to 1.
 
-#### cell type proportions in each cluster normalized by the number of each cell type
+#### Cell type distribution across niche clusters
 
 ```{python}
-from ONTraC.analysis.cell_type import plot_cell_type_across_niche_cluster_from_anadata
+from ONTraC.analysis.cell_type import plot_cell_type_dis_across_niche_cluster_from_anadata
 
-fig, ax = plot_cell_type_across_niche_cluster_from_anadata(ana_data=ana_data)
-fig.savefig('figures/cell_type_dis_across_niche_clusters.png', dpi=300)
+fig, ax = plot_cell_type_dis_across_niche_cluster_from_anadata(ana_data=ana_data)
+fig.savefig('figures/cell_type_dis_across_niche_cluster.png', dpi=300)
 ```
 
 ![cell_type_dis_across_niche_clusters_image](../docs/source/_static/images/tutorials/post_analysis/cell_type_dis_across_niche_clusters.png)
+This heatmap show the cell type distribution across niche clusters. Sum of each column equals to 1.
 
 ### Spatial niche-level NT score distribution
 
