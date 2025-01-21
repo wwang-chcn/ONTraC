@@ -22,7 +22,13 @@ Changed:
 
 Fixed:
 
-- Resolved bug in regularization loss calculation for multi-sample batches
+- Resolved bug in regularization loss calculation for multi-sample batch
+
+## [1.1.3] - 2025-Jan-15
+
+Changed:
+
+- Make niche cluster visualization no longer dependent on NT score.
 
 ## [1.1.2] - 2025-Jan-12
 
