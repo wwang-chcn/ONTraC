@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 from pandas import DataFrame
 
-from ..log import warning
+from ..log import info, warning
 from ..utils import get_meta_data_file, get_rel_params, read_yaml_file
 
 
@@ -300,7 +300,7 @@ class AnaData:
                                                   ['Sample']].loc[self.meta_data_df.index]
         else:
             raise ValueError(
-                f"Number of niches in the cell type composition file ({data_df.shape[0]}) does not match the number of cells in the meta data ({self.meta_df.shape[0]})."
+                f"Number of niches in the cell type composition file ({data_df.shape[0]}) does not match the number of cells in the meta data ({self.meta_data_df.shape[0]})."
             )
         if self.options.embedding_adjust:
             if data_2_df.shape[0] == self.meta_data_df.shape[0]:  # number of niche consistency check
@@ -308,7 +308,7 @@ class AnaData:
                                                                ['Sample']].loc[self.meta_data_df.index]
             else:
                 raise ValueError(
-                    f"Number of niches in the adjust cell type composition file ({data_2_df.shape[0]}) does not match the number of cells in the meta data ({self.meta_df.shape[0]})."
+                    f"Number of niches in the adjust cell type composition file ({data_2_df.shape[0]}) does not match the number of cells in the meta data ({self.meta_data_df.shape[0]})."
                 )
 
     @property
