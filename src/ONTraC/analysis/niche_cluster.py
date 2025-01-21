@@ -1,3 +1,4 @@
+from calendar import c
 from pathlib import Path
 from typing import List, Optional, Tuple, Union
 
@@ -22,6 +23,75 @@ from .data import AnaData
 from .utils import gini, saptial_figsize
 
 
+# ------------------------------------
+# utility functions
+# ------------------------------------
+def cal_nc_scores(cell_level_niche_cluster_assign: pd.DataFrame,
+                  reverse: bool = False,
+                  niche_cluster_score: Optional[np.ndarray] = None) -> np.ndarray:
+    """
+    Calculate the score of each niche cluster.
+    :param cell_level_niche_cluster_assign: np.ndarray, the niche cluster assign data.
+    :param reverse: bool, whether to reverse the color.
+    :param niche_cluster_score: Optional[np.ndarray], the score of each niche cluster.
+    :return: np.ndarray.
+    """
+
+    if niche_cluster_score is not None:
+        return niche_cluster_score if not reverse else 1 - niche_cluster_score
+    else:
+        return np.linspace(0, 1, cell_level_niche_cluster_assign.shape[1])
+
+
+def cal_nc_colors(nc_scores: np.ndarray) -> List:
+    """
+    Calculate the color of each niche cluster.
+    :param nc_scores: np.ndarray, the score of each niche cluster.
+    :return: List.
+    """
+
+    norm = Normalize(vmin=0, vmax=1)
+    sm = ScalarMappable(cmap=plt.cm.rainbow, norm=norm)  # type: ignore
+    nc_colors = [sm.to_rgba(nc_scores[n]) for n in range(nc_scores.shape[0])]
+
+    return nc_colors
+
+
+def cal_nc_palette(nc_colors: List) -> dict:
+    """
+    Calculate the color palette of each niche cluster.
+    :param nc_colors: List, the color of each niche cluster.
+    :return: dict.
+    """
+
+    nc_palette = {f'niche cluster {i}': nc_colors[i] for i in range(len(nc_colors))}
+    return nc_palette
+
+
+def cal_nc_order_index(nc_scores: np.ndarray) -> np.ndarray:
+    """
+    Calculate the order index of each niche cluster.
+    :param nc_scores: np.ndarray, the score of each niche cluster.
+    :return: np.ndarray.
+    """
+
+    return nc_scores.argsort()
+
+
+def cal_nc_order(nc_order_index: np.ndarray) -> List:
+    """
+    Calculate the order of each niche cluster.
+    :param nc_order_index: np.ndarray, the order index of each niche cluster.
+    :return: List.
+    """
+
+    return [f'niche cluster {i}' for i in nc_order_index]
+
+
+
+# ------------------------------------
+# plot functions
+# ------------------------------------
 def plot_niche_cluster_connectivity(
         niche_cluster_connectivity: np.ndarray,
         niche_cluster_score: Optional[np.ndarray] = None,
@@ -47,12 +117,10 @@ def plot_niche_cluster_connectivity(
     weights = [G[u][v]['weight'] for u, v in edges]
     # node color
     if niche_cluster_score is not None:
-        norm = Normalize(vmin=0, vmax=1)
-        sm = ScalarMappable(cmap=plt.cm.rainbow, norm=norm)  # type: ignore
         nc_scores = 1 - niche_cluster_score if reverse else niche_cluster_score
-        niche_cluster_colors = [sm.to_rgba(nc_scores[n]) for n in G.nodes]
+        nc_colors = cal_nc_colors(nc_scores)
     else:
-        niche_cluster_colors = ["#1f78b4"] * niche_cluster_connectivity.shape[0]
+        nc_colors = ["#1f78b4"] * niche_cluster_connectivity.shape[0]
     # node size
     if niche_cluster_size is None:
         node_size = 500
@@ -64,10 +132,10 @@ def plot_niche_cluster_connectivity(
     ## figwidth
     figwidths = [6]
     if niche_cluster_size is not None:
-        figwidths.append(1.5)
+        figwidths.append(1.5)  # type: ignore
     if niche_cluster_score is not None:
-        figwidths.append(.5)
-    figwidths.append(.5)
+        figwidths.append(.5)  # type: ignore
+    figwidths.append(.5)  # type: ignore
     fig = plt.figure(figsize=(sum(figwidths), 6))
 
     # Create a gridspec with 1 row and 2 columns, with widths of A and B
@@ -89,11 +157,16 @@ def plot_niche_cluster_connectivity(
     axes.append(edge_colorbar_ax)
 
     # Draw the graph
-    nx.draw_networkx_nodes(G=G, pos=pos, node_color=niche_cluster_colors, node_size=node_size, ax=graph_ax)
+    nx.draw_networkx_nodes(
+        G=G,
+        pos=pos,
+        node_color=nc_colors,  # type: ignore
+        node_size=node_size,
+        ax=graph_ax)
     nx.draw_networkx_edges(
         G=G,
         pos=pos,
-        edge_color=weights,
+        edge_color=weights,  # type: ignore
         alpha=weights,
         width=3.0,
         edge_cmap=plt.cm.Reds,  # type: ignore
@@ -108,14 +181,19 @@ def plot_niche_cluster_connectivity(
         node_size_ax.axis('off')  # hide the
         node_size_legend_num = 5  # TODO: make it become a parameter
         sizes = np.linspace(start=200, stop=1000, num=node_size_legend_num)
-        max_niche_cluster_size = niche_cluster_size.values.max()
+        max_niche_cluster_size = niche_cluster_size.values.max()  # type: ignore
         magnitude = 10**int(np.floor(np.log10(abs(max_niche_cluster_size))))
         max_label = round(max_niche_cluster_size / magnitude) * magnitude
         labels = [f'{int(x):d}' for x in np.linspace(0, max_label, node_size_legend_num)]
         ## draw legend
         handles = [
-            plt.Line2D([0], [0], marker='o', color='w', markerfacecolor='gray', markersize=np.sqrt(size), label=label)
-            for size, label in zip(sizes, labels)
+            plt.Line2D(  # type: ignore
+                [0], [0],
+                marker='o',
+                color='w',
+                markerfacecolor='gray',
+                markersize=np.sqrt(size),
+                label=label) for size, label in zip(sizes, labels)
         ]
         legend = node_size_ax.legend(handles=handles,
                                      title='Niche cluster size',
@@ -132,7 +210,7 @@ def plot_niche_cluster_connectivity(
     # Draw the colorbar for nodes
     if niche_cluster_score is not None:
         gradient = np.linspace(0, 1, 1000).reshape(-1, 1)
-        node_colorbar_ax.imshow(gradient, aspect='auto', cmap=plt.cm.rainbow)
+        node_colorbar_ax.imshow(gradient, aspect='auto', cmap=plt.cm.rainbow)  # type: ignore
         node_colorbar_ax.set_xticks([])
         node_colorbar_ax.set_yticks(np.linspace(0, 1000, 5))
         node_colorbar_ax.set_yticklabels(f'{x:.2f}' for x in np.linspace(0, 1, 5))
@@ -165,16 +243,12 @@ def plot_niche_cluster_connectivity_from_anadata(ana_data: AnaData) -> Optional[
     :param ana_data: AnaData, the data for analysis.
     :return: None or Tuple[plt.Figure, plt.Axes].
     """
-    try:
-        if ana_data.niche_cluster_connectivity is None:
-            warning("No connectivity data found.")
-            return None
-    except FileNotFoundError as e:
-        warning(str(e))
+    if ana_data.niche_cluster_connectivity is None:
+        warning("No niche cluster connectivity data found.")
         return None
 
-    if not hasattr(ana_data, 'cell_level_niche_cluster_assign') or ana_data.cell_level_niche_cluster_assign is None:
-        niche_cluster_size = np.ones(ana_data.cell_level_niche_cluster_assign.shape[1])
+    if ana_data.cell_level_niche_cluster_assign is None:
+        niche_cluster_size = np.ones(ana_data.niche_cluster_connectivity.shape[0])
     else:
         niche_cluster_size = ana_data.cell_level_niche_cluster_assign.sum(axis=0)
 
@@ -212,12 +286,12 @@ def plot_niche_cluster_connectivity_bysample_from_anadata(ana_data: AnaData) -> 
 
 
 def plot_cluster_proportion(
-        niche_cluster_loading: pd.DataFrame,
+        niche_cluster_loading: pd.Series,
         niche_cluster_colors: List,
         output_file_path: Optional[Union[str, Path]] = None) -> Optional[Tuple[plt.Figure, plt.Axes]]:
     """
     Plot the proportion of each cluster.
-    :param niche_cluster_loading: pd.DataFrame, the loading of each niche cluster.
+    :param niche_cluster_loading: pd.Series, the loading of each niche cluster.
     :param niche_cluster_colors: List, the color of each niche cluster.
     :param output_file_path: Optional[Union[str, Path]], the output file path.
     :return: None or Tuple[plt.Figure, plt.Axes].
@@ -246,30 +320,20 @@ def plot_cluster_proportion_from_anadata(ana_data: AnaData) -> Optional[Tuple[pl
     :param ana_data: AnaData, the data for analysis.
     :return: None or Tuple[plt.Figure, plt.Axes].
     """
-    try:
-        if ana_data.niche_level_niche_cluster_assign is None:
-            warning("No niche cluster assignment infomation.")
-            return None
-    except FileNotFoundError as e:
-        warning(str(e))
+    if ana_data.niche_level_niche_cluster_assign is None or ana_data.cell_level_niche_cluster_assign is None:
+        warning("No cluster assignment data found.")
         return None
 
-    # colors
-    norm = Normalize(vmin=0, vmax=1)
-    sm = ScalarMappable(cmap=plt.cm.rainbow, norm=norm)  # type: ignore
-    if ana_data.niche_cluster_score is not None:
-        nc_scores = 1 - ana_data.niche_cluster_score if ana_data.options.reverse else ana_data.niche_cluster_score
-        niche_cluster_colors = [sm.to_rgba(nc_scores[n]) for n in np.arange(ana_data.niche_cluster_score.shape[0])]
-    else:
-        niche_cluster_colors = [
-            sm.to_rgba(i) for i in np.linspace(0, 1, ana_data.niche_level_niche_cluster_assign.shape[1])
-        ]
+    nc_scores = cal_nc_scores(cell_level_niche_cluster_assign=ana_data.cell_level_niche_cluster_assign,
+                              reverse=ana_data.options.reverse,
+                              niche_cluster_score=ana_data.niche_cluster_score)
+    nc_colors = cal_nc_colors(nc_scores)
 
     # loadings
     niche_cluster_loading = ana_data.niche_level_niche_cluster_assign.sum(axis=0)
 
     return plot_cluster_proportion(niche_cluster_loading=niche_cluster_loading,
-                                   niche_cluster_colors=niche_cluster_colors,
+                                   niche_cluster_colors=nc_colors,
                                    output_file_path=ana_data.options.output)
 
 
@@ -283,20 +347,21 @@ def plot_niche_cluster_loadings_dataset(
     Plot niche cluster loadings for each cell.
     :param cell_level_niche_cluster_assign: pd.DataFrame, the niche cluster assign data.
     :param meta_data_df: pd.DataFrame, the meta data.
-    :param nc_scores: np.ndarray, the score of each niche cluster.
-    :param output_file_path: Optional[Union[str, Path]], the output file path.
+    :param nc_scores: np.ndarray, the score of each niche cluster, default is None.
+    :param output_file_path: Optional[Union[str, Path]], the output file path, default is None.
     :return: None or Tuple[plt.Figure, plt.Axes].
     """
 
     samples = meta_data_df['Sample'].unique()
     n_sample = len(samples)
     n_niche_cluster = cell_level_niche_cluster_assign.shape[1]
+    nc_order_index = cal_nc_order_index(nc_scores)
 
     fig, axes = plt.subplots(n_sample, n_niche_cluster, figsize=(3.3 * n_niche_cluster, 3 * n_sample))
     for i, sample in enumerate(samples):
         sample_df = cell_level_niche_cluster_assign.loc[meta_data_df[meta_data_df['Sample'] == sample].index]
         sample_df = sample_df.join(meta_data_df[['x', 'y']])
-        for j, c_index in enumerate(nc_scores.argsort()):
+        for j, c_index in enumerate(nc_order_index):
             ax = axes[i, j] if n_sample > 1 else axes[j]
             scatter = ax.scatter(sample_df['x'],
                                  sample_df['y'],
@@ -324,19 +389,13 @@ def plot_niche_cluster_loadings_dataset_from_anadata(
     :return: None or Tuple[plt.Figure, Union[plt.Axes, List[plt.Axes]]].
     """
 
-    try:
-        if ana_data.cell_type_composition is None or ana_data.cell_level_niche_cluster_assign is None:
-            warning("No cell type composition or cluster assign information found.")
-            return None
-    except FileNotFoundError as e:
-        warning(str(e))
+    if ana_data.cell_level_niche_cluster_assign is None:
+        warning("No cluster assignment data found.")
         return None
 
-    if ana_data.niche_cluster_score is None:
-        info("No niche cluster score found. The niche cluster loadings will be plotted with default color.")
-        nc_scores = np.linspace(0, 1, ana_data.cell_level_niche_cluster_assign.shape[1])
-    else:
-        nc_scores = 1 - ana_data.niche_cluster_score if ana_data.options.reverse else ana_data.niche_cluster_score
+    nc_scores = cal_nc_scores(cell_level_niche_cluster_assign=ana_data.cell_level_niche_cluster_assign,
+                              reverse=ana_data.options.reverse,
+                              niche_cluster_score=ana_data.niche_cluster_score)
 
     return plot_niche_cluster_loadings_dataset(cell_level_niche_cluster_assign=ana_data.cell_level_niche_cluster_assign,
                                                meta_data_df=ana_data.meta_data_df,
@@ -354,21 +413,23 @@ def plot_niche_cluster_loadings_sample(
     Plot niche cluster loadings for each cell.
     :param cell_level_niche_cluster_assign: pd.DataFrame, the niche cluster assign data.
     :param meta_data_df: pd.DataFrame, the meta data.
-    :param nc_scores: np.ndarray, the score of each niche cluster.
+    :param nc_scores: np.ndarray, the score of each niche cluster, default is None.
     :param spatial_scaling_factor: float, the scale factor control the size of spatial-based plots.
-    :param output_file_path: Optional[Union[str, Path]], the output file path.
+    :param output_file_path: Optional[Union[str, Path]], the output file path, default is None.
     :return: None or List[Tuple[plt.Figure, plt.Axes]].
     """
 
     samples = meta_data_df['Sample'].unique()
+    n_niche_cluster = cell_level_niche_cluster_assign.shape[1]
+    nc_order = cal_nc_order_index(nc_scores)
 
     output = []
     for sample in samples:
         sample_df = cell_level_niche_cluster_assign.loc[meta_data_df[meta_data_df['Sample'] == sample].index]
         sample_df = sample_df.join(meta_data_df[['x', 'y']])
         fig_width, fig_height = saptial_figsize(sample_df, scaling_factor=spatial_scaling_factor)
-        fig, axes = plt.subplots(1, nc_scores.shape[0], figsize=(fig_width * nc_scores.shape[0], fig_height))
-        for j, c_index in enumerate(nc_scores.argsort()):
+        fig, axes = plt.subplots(nrows=1, ncols=n_niche_cluster, figsize=(fig_width * n_niche_cluster, fig_height))
+        for j, c_index in enumerate(nc_order):
             ax = axes[j]  #  there should more than one niche cluster
             scatter = ax.scatter(sample_df['x'],
                                  sample_df['y'],
@@ -394,19 +455,13 @@ def plot_niche_cluster_loadings_sample_from_anadata(ana_data: AnaData) -> Option
     :return: None or List[Tuple[plt.Figure, plt.Axes]].
     """
 
-    try:
-        if ana_data.niche_cluster_score is None or ana_data.cell_type_composition is None or ana_data.cell_level_niche_cluster_assign is None:
-            warning("No niche cluster score, cell type composition or cluster assign data found.")
-            return None
-    except FileNotFoundError as e:
-        warning(str(e))
+    if ana_data.cell_level_niche_cluster_assign is None:
+        warning("No cluster assign data found.")
         return None
 
-    if ana_data.niche_cluster_score is None:
-        info("No niche cluster score found. The niche cluster loadings will be plotted with default color.")
-        nc_scores = np.linspace(0, 1, ana_data.cell_level_niche_cluster_assign.shape[1])
-    else:
-        nc_scores = 1 - ana_data.niche_cluster_score if ana_data.options.reverse else ana_data.niche_cluster_score
+    nc_scores = cal_nc_scores(cell_level_niche_cluster_assign=ana_data.cell_level_niche_cluster_assign,
+                              reverse=ana_data.options.reverse,
+                              niche_cluster_score=ana_data.niche_cluster_score)
 
     return plot_niche_cluster_loadings_sample(cell_level_niche_cluster_assign=ana_data.cell_level_niche_cluster_assign,
                                               meta_data_df=ana_data.meta_data_df,
@@ -438,20 +493,17 @@ def plot_max_niche_cluster_dataset(
     Plot the maximum niche cluster for each cell.
     :param cell_level_max_niche_cluster: pd.DataFrame, the maximum niche cluster data.
     :param meta_data_df: pd.DataFrame, the meta data.
-    :param nc_scores: np.ndarray, the score of each niche cluster.
-    :param output_file_path: Optional[Union[str, Path]], the output file path.
+    :param nc_scores: Optional[np.ndarray], the score of each niche cluster, default is None.
+    :param output_file_path: Optional[Union[str, Path]], the output file path, default is None.
     :return: None or Tuple[plt.Figure, plt.Axes].
     """
 
     samples = meta_data_df['Sample'].unique()
     n_sample = len(samples)
-    n_niche_cluster = len(nc_scores)
 
     # colors
-    norm = Normalize(vmin=0, vmax=1)
-    sm = ScalarMappable(cmap=plt.cm.rainbow, norm=norm)  # type: ignore
-    niche_cluster_colors = [sm.to_rgba(nc_scores[n]) for n in np.arange(n_niche_cluster)]
-    palette = {f'niche cluster {i}': niche_cluster_colors[i] for i in range(n_niche_cluster)}
+    nc_colors = cal_nc_colors(nc_scores)
+    nc_palette = cal_nc_palette(nc_colors)
 
     fig, axes = plt.subplots(1, n_sample, figsize=(5 * n_sample, 3))
     for i, sample in enumerate(samples):
@@ -463,8 +515,8 @@ def plot_max_niche_cluster_dataset(
                         x='x',
                         y='y',
                         hue='Niche_Cluster',
-                        hue_order=[f'niche cluster {j}' for j in nc_scores.argsort()],
-                        palette=palette,
+                        hue_order=[f'niche cluster {j}' for j in cal_nc_order_index(nc_scores)],
+                        palette=nc_palette,
                         s=10,
                         ax=ax)
         ax.set_title(f'{sample}')
@@ -485,19 +537,13 @@ def plot_max_niche_cluster_dataset_from_anadata(ana_data: AnaData) -> Optional[T
     :return: None or Tuple[plt.Figure, plt.Axes].
     """
 
-    try:
-        if ana_data.cell_type_composition is None or ana_data.cell_level_max_niche_cluster is None:
-            warning("No cell type composition or max niche cluster data found.")
-            return None
-    except FileNotFoundError as e:
-        warning(str(e))
+    if ana_data.cell_level_max_niche_cluster is None or ana_data.cell_level_niche_cluster_assign is None:
+        warning("No cluster assignment data found.")
         return None
 
-    if ana_data.niche_cluster_score is None:
-        info("No niche cluster score found. The niche cluster loadings will be plotted with default color.")
-        nc_scores = np.linspace(0, 1, ana_data.cell_level_niche_cluster_assign.shape[1])
-    else:
-        nc_scores = 1 - ana_data.niche_cluster_score if ana_data.options.reverse else ana_data.niche_cluster_score
+    nc_scores = cal_nc_scores(cell_level_niche_cluster_assign=ana_data.cell_level_niche_cluster_assign,
+                              reverse=ana_data.options.reverse,
+                              niche_cluster_score=ana_data.niche_cluster_score)
 
     return plot_max_niche_cluster_dataset(cell_level_max_niche_cluster=ana_data.cell_level_max_niche_cluster,
                                           meta_data_df=ana_data.meta_data_df,
@@ -523,10 +569,8 @@ def plot_max_niche_cluster_sample(
     n_niche_cluster = len(nc_scores)
 
     # colors
-    norm = Normalize(vmin=0, vmax=1)
-    sm = ScalarMappable(cmap=plt.cm.rainbow, norm=norm)  # type: ignore
-    niche_cluster_colors = [sm.to_rgba(nc_scores[n]) for n in np.arange(n_niche_cluster)]
-    palette = {f'niche cluster {i}': niche_cluster_colors[i] for i in range(n_niche_cluster)}
+    nc_colors = cal_nc_colors(nc_scores)
+    nc_palette = cal_nc_palette(nc_colors)
 
     output = []
     for sample in samples:
@@ -539,8 +583,8 @@ def plot_max_niche_cluster_sample(
                         x='x',
                         y='y',
                         hue='Niche_Cluster',
-                        hue_order=[f'niche cluster {j}' for j in nc_scores.argsort()],
-                        palette=palette,
+                        hue_order=[f'niche cluster {j}' for j in cal_nc_order_index(nc_scores)],
+                        palette=nc_palette,
                         s=10,
                         ax=ax)
         ax.set_title(f'{sample}')
@@ -561,19 +605,13 @@ def plot_max_niche_cluster_sample_from_anadata(ana_data: AnaData) -> Optional[Li
     :return: None or List[Tuple[plt.Figure, plt.Axes]].
     """
 
-    try:
-        if ana_data.cell_type_composition is None or ana_data.cell_level_max_niche_cluster is None:
-            warning("No cell type composition or max niche cluster data found.")
-            return None
-    except FileNotFoundError as e:
-        warning(str(e))
+    if ana_data.cell_level_max_niche_cluster is None or ana_data.cell_level_niche_cluster_assign is None:
+        warning("No cluster assignment data found.")
         return None
 
-    if ana_data.niche_cluster_score is None:
-        info("No niche cluster score found. The niche cluster loadings will be plotted with default color.")
-        nc_scores = np.linspace(0, 1, ana_data.cell_level_niche_cluster_assign.shape[1])
-    else:
-        nc_scores = 1 - ana_data.niche_cluster_score if ana_data.options.reverse else ana_data.niche_cluster_score
+    nc_scores = cal_nc_scores(cell_level_niche_cluster_assign=ana_data.cell_level_niche_cluster_assign,
+                              reverse=ana_data.options.reverse,
+                              niche_cluster_score=ana_data.niche_cluster_score)
 
     return plot_max_niche_cluster_sample(cell_level_max_niche_cluster=ana_data.cell_level_max_niche_cluster,
                                          meta_data_df=ana_data.meta_data_df,
@@ -624,13 +662,10 @@ def plot_niche_cluster_gini_from_anadata(ana_data: AnaData) -> Optional[Tuple[pl
     :param ana_data: AnaData, the data for analysis.
     :return: None or Tuple[plt.Figure, plt.Axes].
     """
-    try:
-        if ana_data.cell_level_niche_cluster_assign is None:
-            warning("No niche cluster assign data found.")
-            return None
-    except FileNotFoundError as e:
-        warning(str(e))
+    if ana_data.cell_level_niche_cluster_assign is None:
+        warning("No niche cluster assign data found.")
         return None
+
     intra_cluster_gini = ana_data.cell_level_niche_cluster_assign.apply(gini, axis=0).values
     intra_cluster_gini_df = pd.DataFrame(data={
         'gini': intra_cluster_gini,
