@@ -40,14 +40,19 @@ dependencies = [
 dynamic = ["version"]
 
 [project.optional-dependencies]
-analysis = ["seaborn"]
-test = ["seaborn",
+analysis = [
+    "matplotlib<3.9",
+    "seaborn"]
+test = [
+    "matplotlib<3.9",
+    "seaborn",
     "pytest",
     "black",
     "flake8",
     "isort",
     "mypy",]
 dev = [
+    "matplotlib<3.9",
     "seaborn",
     "pytest",
     "black",

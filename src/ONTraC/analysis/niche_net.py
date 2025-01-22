@@ -93,7 +93,7 @@ def embedding_adjust_visualization(dis_df: pd.DataFrame,
             return cluster_grid
 
 
-def embedding_adjust_visualization_from_anadata(ana_data: AnaData) -> List[Optional[ClusterGrid]]:
+def embedding_adjust_visualization_from_anadata(ana_data: AnaData) -> Optional[List[ClusterGrid]]:
     """Visualization of embedding adjust.
 
     Args:
