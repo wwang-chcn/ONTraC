@@ -19,8 +19,8 @@ def load_loss_record_data(options) -> Optional[Dict]:
     Args:
         options: Values, the options from optparse
     Returns:
-        Dict: {'loss_df': pd.DataFrame, 'loss_dict': Dict} or None
-        loss_df is the training loss dataframe
+        Dict: {'loss_df': DataFrame, 'loss_dict': Dict} or None
+        loss_df is the training loss DataFrame
         loss_dict is the final loss dictionary
 
     loss record example:
@@ -106,13 +106,13 @@ def load_niche_cluster_score(options: Values) -> Optional[np.ndarray]:
     return np.loadtxt(f'{niche_cluster_score_file}', delimiter=',')
 
 
-def load_niche_level_niche_cluster_assign(options: Values) -> Optional[pd.DataFrame]:
+def load_niche_level_niche_cluster_assign(options: Values) -> Optional[DataFrame]:
     """
     Load the niche cluster assignment for each niche level.
     Args:
         options: Values, the options from optparse
     Returns:
-        Optional[pd.DataFrame]: the niche cluster assignment for each niche level
+        Optional[DataFrame]: the niche cluster assignment for each niche level
     """
 
     niche_level_niche_cluster_assign_file = f'{options.GNN_dir}/niche_level_niche_cluster.csv.gz'
@@ -125,13 +125,13 @@ def load_niche_level_niche_cluster_assign(options: Values) -> Optional[pd.DataFr
     return pd.read_csv(niche_level_niche_cluster_assign_file, index_col=0)
 
 
-def load_cell_level_niche_cluster_assign(options: Values) -> Optional[pd.DataFrame]:
+def load_cell_level_niche_cluster_assign(options: Values) -> Optional[DataFrame]:
     """
     Load the niche cluster assignment for each cell level.
     Args:
         options: Values, the options from optparse
     Returns:
-        Optional[pd.DataFrame]: the niche cluster assignment for each cell level
+        Optional[DataFrame]: the niche cluster assignment for each cell level
     """
 
     cell_level_niche_cluster_assign_file = f'{options.GNN_dir}/cell_level_niche_cluster.csv.gz'
@@ -144,13 +144,13 @@ def load_cell_level_niche_cluster_assign(options: Values) -> Optional[pd.DataFra
     return pd.read_csv(cell_level_niche_cluster_assign_file, index_col=0)
 
 
-def load_niche_level_max_niche_cluster(options: Values) -> Optional[pd.DataFrame]:
+def load_niche_level_max_niche_cluster(options: Values) -> Optional[DataFrame]:
     """
     Load the max niche cluster assignment for each niche level.
     Args:
         options: Values, the options from optparse
     Returns:
-        Optional[pd.DataFrame]: the max niche cluster assignment for each niche level
+        Optional[DataFrame]: the max niche cluster assignment for each niche level
     """
 
     niche_level_max_niche_cluster_file = f'{options.GNN_dir}/niche_level_max_niche_cluster.csv.gz'
@@ -163,13 +163,13 @@ def load_niche_level_max_niche_cluster(options: Values) -> Optional[pd.DataFrame
     return pd.read_csv(niche_level_max_niche_cluster_file, index_col=0)
 
 
-def load_cell_level_max_niche_cluster(options: Values) -> Optional[pd.DataFrame]:
+def load_cell_level_max_niche_cluster(options: Values) -> Optional[DataFrame]:
     """
     Load the max niche cluster assignment for each cell level.
     Args:
         options: Values, the options from optparse
     Returns:
-        Optional[pd.DataFrame]: the max niche cluster assignment for each cell level
+        Optional[DataFrame]: the max niche cluster assignment for each cell level
     """
 
     cell_level_max_niche_cluster_file = f'{options.GNN_dir}/cell_level_max_niche_cluster.csv.gz'
@@ -193,19 +193,19 @@ class AnaData:
     This class have the following attributes:
     - options: Values, the options from optparse
     - rel_params: Dict, the relative paths for params
-    - meta_data_df: pd.DataFrame, the original Cell ID and Cell Type
+    - meta_data_df: DataFrame, the original Cell ID and Cell Type
     - train_loss: Dict, the training loss
-    - cell_type_codes: pd.DataFrame, the cell type codes
+    - cell_type_codes: DataFrame, the cell type codes
     - cell_type_coding: np.ndarray, #N X #cell_type, the cell type coding matrix
-    - cell_type_composition: pd.DataFrame, the cell type composition
-    - ct_embedding: pd.DataFrame, #cell_type X #gene, the cell type embedding
+    - cell_type_composition: DataFrame, the cell type composition
+    - ct_embedding: DataFrame, #cell_type X #gene, the cell type embedding
     - niche_cluster_connectivity: np.ndarray, the niche cluster connectivity
-    - niche_level_niche_cluster_assign: pd.DataFrame, the niche cluster assignment for each niche level
-    - cell_level_niche_cluster_assign: pd.DataFrame, the niche cluster assignment for each cell level
-    - niche_level_max_niche_cluster: pd.DataFrame, the max niche cluster assignment for each niche level
-    - cell_level_max_niche_cluster: pd.DataFrame, the max niche cluster assignment for each cell level
+    - niche_level_niche_cluster_assign: DataFrame, the niche cluster assignment for each niche level
+    - cell_level_niche_cluster_assign: DataFrame, the niche cluster assignment for each cell level
+    - niche_level_max_niche_cluster: DataFrame, the max niche cluster assignment for each niche level
+    - cell_level_max_niche_cluster: DataFrame, the max niche cluster assignment for each cell level
     - train_loss: Dict, the training loss
-    - NT_score: pd.DataFrame, the NT score
+    - NT_score: DataFrame, the NT score
     - niche_cluster_score: np.ndarray, the niche cluster score
     """
 
@@ -256,7 +256,7 @@ class AnaData:
         return self._umap_embedding
 
     @property
-    def cell_type_codes(self) -> pd.DataFrame:
+    def cell_type_codes(self) -> DataFrame:
         if not hasattr(self, '_cell_type_codes') or self._cell_type_codes is None:  # type: ignore
             self._cell_type_codes = pd.read_csv(f'{self.options.NN_dir}/cell_type_code.csv', index_col=0)
         return self._cell_type_codes
@@ -270,7 +270,7 @@ class AnaData:
     def _load_cell_type_composition(self) -> None:
         data_df, data_2_df = pd.DataFrame(), pd.DataFrame()  # cell type composition, raw cell type composition
         for sample in self.rel_params['Data']:
-            # raw cell type composition
+            # cell type composition
             cell_type_composition_df = pd.read_csv(sample['Features'], header=None)
             cell_type_composition_df.columns = self.cell_type_codes.loc[np.arange(cell_type_composition_df.shape[1]),
                                                                         'Cell_Type'].tolist()
@@ -281,7 +281,7 @@ class AnaData:
             sample_df['Sample'] = [sample["Name"]] * sample_df.shape[0]
             data_df = pd.concat([data_df, sample_df])
 
-            # adjust cell type composition
+            # raw cell type composition
             if not self.options.embedding_adjust:
                 continue
             feature_file = f"{sample['Features'][:-27]}_Raw_CellTypeComposition.csv.gz"
@@ -296,20 +296,22 @@ class AnaData:
             data_2_df = pd.concat([data_2_df, sample_df])
 
         if data_df.shape[0] == self.meta_data_df.shape[0]:  # number of niche consistency check
-            self._cell_type_composition = data_df[self.cell_type_codes['Cell_Type'].tolist() +
+            if self.options.embedding_adjust:  # adjust cell type composition
+                if data_2_df.shape[0] == self.meta_data_df.shape[0]:  # number of niche consistency check
+                    self._adjust_cell_type_composition = data_df[self.cell_type_codes['Cell_Type'].tolist() +
+                                                                ['Sample']].loc[self.meta_data_df.index]
+                    self._cell_type_composition = data_2_df[self.cell_type_codes['Cell_Type'].tolist() +
+                                                  ['Sample']].loc[self.meta_data_df.index]
+                else:
+                    raise ValueError(
+                        f"Number of niches in the adjust cell type composition file ({data_2_df.shape[0]}) does not match the number of cells in the meta data ({self.meta_data_df.shape[0]}).")
+            else:  # no adjust cell type composition
+                self._cell_type_composition = data_df[self.cell_type_codes['Cell_Type'].tolist() +
                                                   ['Sample']].loc[self.meta_data_df.index]
         else:
             raise ValueError(
                 f"Number of niches in the cell type composition file ({data_df.shape[0]}) does not match the number of cells in the meta data ({self.meta_data_df.shape[0]})."
             )
-        if self.options.embedding_adjust:
-            if data_2_df.shape[0] == self.meta_data_df.shape[0]:  # number of niche consistency check
-                self._adjust_cell_type_composition = data_2_df[self.cell_type_codes['Cell_Type'].tolist() +
-                                                               ['Sample']].loc[self.meta_data_df.index]
-            else:
-                raise ValueError(
-                    f"Number of niches in the adjust cell type composition file ({data_2_df.shape[0]}) does not match the number of cells in the meta data ({self.meta_data_df.shape[0]})."
-                )
 
     @property
     def cell_type_composition(self) -> DataFrame:
@@ -333,7 +335,7 @@ class AnaData:
         return self._adjust_cell_type_composition
 
     @property
-    def ct_embedding(self) -> Optional[pd.DataFrame]:
+    def ct_embedding(self) -> Optional[DataFrame]:
         if hasattr(self, '_ct_embedding'):
             pass
         if os.path.isfile(f'{self.options.NN_dir}/ct_embedding.csv'):
@@ -362,7 +364,7 @@ class AnaData:
         return self._niche_cluster_score
 
     @property
-    def niche_level_niche_cluster_assign(self) -> Optional[pd.DataFrame]:
+    def niche_level_niche_cluster_assign(self) -> Optional[DataFrame]:
         if not hasattr(
                 self,
                 '_niche_level_niche_cluster_assign') or self._niche_level_niche_cluster_assign is None:  # type: ignore
@@ -377,7 +379,7 @@ class AnaData:
         return self._niche_level_niche_cluster_assign
 
     @property
-    def cell_level_niche_cluster_assign(self) -> Optional[pd.DataFrame]:
+    def cell_level_niche_cluster_assign(self) -> Optional[DataFrame]:
         if not hasattr(
                 self,
                 '_cell_level_niche_cluster_assign') or self._cell_level_niche_cluster_assign is None:  # type: ignore
@@ -392,7 +394,7 @@ class AnaData:
         return self._cell_level_niche_cluster_assign
 
     @property
-    def niche_level_max_niche_cluster(self) -> Optional[pd.DataFrame]:
+    def niche_level_max_niche_cluster(self) -> Optional[DataFrame]:
         if not hasattr(self,
                        '_niche_level_max_niche_cluster') or self._niche_level_max_niche_cluster is None:  # type: ignore
             self._niche_level_max_niche_cluster = load_niche_level_max_niche_cluster(self.options)
@@ -405,7 +407,7 @@ class AnaData:
         return self._niche_level_max_niche_cluster
 
     @property
-    def cell_level_max_niche_cluster(self) -> Optional[pd.DataFrame]:
+    def cell_level_max_niche_cluster(self) -> Optional[DataFrame]:
         if not hasattr(self,
                        '_cell_level_max_niche_cluster') or self._cell_level_max_niche_cluster is None:  # type: ignore
             self._cell_level_max_niche_cluster = load_cell_level_max_niche_cluster(self.options)

@@ -126,7 +126,7 @@ def plot_niche_cluster_connectivity(
         node_size = 500
     else:
         # rescale the node with size 0 to 200, and the maximum size is 1000
-        node_size = (niche_cluster_size / niche_cluster_size.max() * 800 + 200).to_list()
+        node_size = (niche_cluster_size / niche_cluster_size.max() * 800 + 200).tolist()
 
     # Create a figure
     ## figwidth
@@ -181,7 +181,7 @@ def plot_niche_cluster_connectivity(
         node_size_ax.axis('off')  # hide the
         node_size_legend_num = 5  # TODO: make it become a parameter
         sizes = np.linspace(start=200, stop=1000, num=node_size_legend_num)
-        max_niche_cluster_size = niche_cluster_size.values.max()  # type: ignore
+        max_niche_cluster_size = niche_cluster_size.max()  # type: ignore
         magnitude = 10**int(np.floor(np.log10(abs(max_niche_cluster_size))))
         max_label = round(max_niche_cluster_size / magnitude) * magnitude
         labels = [f'{int(x):d}' for x in np.linspace(0, max_label, node_size_legend_num)]
