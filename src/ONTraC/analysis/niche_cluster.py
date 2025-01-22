@@ -126,7 +126,7 @@ def plot_niche_cluster_connectivity(
         node_size = 500
     else:
         # rescale the node with size 0 to 200, and the maximum size is 1000
-        node_size = (niche_cluster_size / niche_cluster_size.max() * 800 + 200).to_list()
+        node_size = (niche_cluster_size / niche_cluster_size.max() * 800 + 200).tolist()
 
     # Create a figure
     ## figwidth
