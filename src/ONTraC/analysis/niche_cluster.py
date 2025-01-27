@@ -308,8 +308,8 @@ def plot_niche_cluster_connectivity_bysample_from_anadata(ana_data: AnaData) -> 
         if ana_data.cell_level_niche_cluster_assign is None:
             niche_cluster_size = np.ones(ana_data.niche_cluster_connectivity.shape[0])
         else:
-            ana_data.cell_level_niche_cluster_assign.loc[ana_data.meta_data_df[ana_data.meta_data_df['Sample'] ==
-                                                                               sample].index].sum(axis=0)
+            niche_cluster_size = ana_data.cell_level_niche_cluster_assign.loc[ana_data.meta_data_df[
+                ana_data.meta_data_df['Sample'] == sample].index].sum(axis=0)
 
         output_file_path = f'{ana_data.options.output}/{sample}_cluster_connectivity.pdf'
 
@@ -532,7 +532,7 @@ def plot_graph_niche_cluster_feat_similarity_bysample_from_anadata(ana_data: Ana
         if ana_data.cell_level_niche_cluster_assign is None:
             niche_cluster_size = np.ones(niche_cluster_feat_similarity.shape[0])
         else:
-            ana_data.cell_level_niche_cluster_assign.loc[ana_data.meta_data_df[ana_data.meta_data_df['Sample'] ==
+            niche_cluster_size = ana_data.cell_level_niche_cluster_assign.loc[ana_data.meta_data_df[ana_data.meta_data_df['Sample'] ==
                                                                                sample].index].sum(axis=0)
 
         output_file_path = f'{ana_data.options.output}/{sample}_niche_cluster_feature_similarity.pdf'
