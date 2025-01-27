@@ -24,6 +24,12 @@ Fixed:
 
 - Resolved bug in regularization loss calculation for multi-sample batch
 
+## [XXXXX] - 2025-XXX-XX
+
+Added:
+
+- Niche cluster similarity visualization
+
 ## [1.1.3] - 2025-Jan-15
 
 Changed:
