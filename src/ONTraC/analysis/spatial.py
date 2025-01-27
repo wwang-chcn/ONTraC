@@ -18,12 +18,14 @@ def plot_cell_type_composition_dataset(
         meta_data_df: pd.DataFrame,
         cell_type_codes: pd.DataFrame,
         cell_type_composition: pd.DataFrame,
+        adjust: bool = False,
         output_file_path: Optional[Union[str, Path]] = None) -> Optional[Tuple[plt.Figure, plt.Axes]]:
     """
     Plot spatial distribution of cell type composition.
     :param meta_data_df: pd.DataFrame, the meta data.
     :param cell_type_codes: pd.DataFrame, the cell type codes.
     :param cell_type_composition: pd.DataFrame, the cell type composition data.
+    :param adjust: bool, cell type composition is adjusted or not.
     :param output_file_path: Optional[Union[str, Path]], the output file path.
     :return: None or Tuple[plt.Figure, plt.Axes].
     """
@@ -52,7 +54,10 @@ def plot_cell_type_composition_dataset(
 
     fig.tight_layout()
     if output_file_path is not None:
-        fig.savefig(f'{output_file_path}/cell_type_composition.pdf', transparent=True)
+        if adjust:
+            fig.savefig(f'{output_file_path}/adjust_cell_type_composition.pdf', transparent=True)
+        else:
+            fig.savefig(f'{output_file_path}/cell_type_composition.pdf', transparent=True)
         plt.close(fig)
         return None
     else:
@@ -85,6 +90,7 @@ def plot_cell_type_composition_sample(
         cell_type_codes: pd.DataFrame,
         cell_type_composition: pd.DataFrame,
         spatial_scaling_factor: float = 1.0,
+        adjust: bool = False,
         output_file_path: Optional[Union[str, Path]] = None) -> Optional[List[Tuple[plt.Figure, plt.Axes]]]:
     """
     Plot spatial distribution of cell type composition.
@@ -92,6 +98,7 @@ def plot_cell_type_composition_sample(
     :param cell_type_codes: pd.DataFrame, the cell type codes.
     :param cell_type_composition: pd.DataFrame, the cell type composition data.
     :param spatial_scaling_factor: float, the scale factor control the size of spatial-based plots.
+    :param adjust: bool, cell type composition is adjusted or not.
     :param output_file_path: Optional[Union[str, Path]], the output file path.
     :return: None.
     """
@@ -121,7 +128,10 @@ def plot_cell_type_composition_sample(
             ax.set_title(f"{sample} {cell_type}")
         fig.tight_layout()
         if output_file_path is not None:
-            fig.savefig(f'{output_file_path}/{sample}_cell_type_composition.pdf', transparent=True)
+            if adjust:
+                fig.savefig(f'{output_file_path}/{sample}_adjust_cell_type_composition.pdf', transparent=True)
+            else:
+                fig.savefig(f'{output_file_path}/{sample}_cell_type_composition.pdf', transparent=True)
             plt.close(fig)
         else:
             output.append((fig, axes))
