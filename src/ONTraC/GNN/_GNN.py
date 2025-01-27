@@ -112,14 +112,14 @@ def predict(output_dir: str, batch_train: SubBatchTrainProtocol,
         if not consolidate_flag and ('s' in predict_result and 'out' in predict_result and 'out_adj' in predict_result):
             consolidate_flag = True
         if consolidate_flag:
-            s = predict_result['s']
-            out = predict_result['out']
-            s = s.squeeze(0)
+            s = predict_result['s']  # 1 x N x C
+            out = predict_result['out']  # 1 x N x D
+            s = s.squeeze(0)  # N x C
             consolidate_s_list.append(s)
-            out_adj_ = torch.matmul(torch.matmul(s.T, data.adj.squeeze(0)), s)
+            out_adj_ = torch.matmul(torch.matmul(s.T, data.adj.squeeze(0)), s)  # C x C
             consolidate_out_adj: Tensor = out_adj_ if consolidate_out_adj is None else consolidate_out_adj + out_adj_
             consolidate_out: Tensor = out.squeeze(
-                0) * data.mask.sum() if consolidate_out is None else consolidate_out + out.squeeze(0) * data.mask.sum()
+                0) * data.mask.sum() if consolidate_out is None else consolidate_out + out.squeeze(0) * data.mask.sum()  # N x D
 
     consolidate_s_array, consolidate_out_adj_array = None, None
     if consolidate_flag:
