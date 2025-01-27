@@ -116,8 +116,8 @@ def predict(output_dir: str, batch_train: SubBatchTrainProtocol,
         if not consolidate_flag and ('s' in predict_result and 'out' in predict_result and 'out_adj' in predict_result):
             consolidate_flag = True
         if consolidate_flag:
-            s = predict_result['s']
-            out = predict_result['out']
+            s = predict_result['s']  # N x C
+            out = predict_result['out']  # C x F
             if out.dim() == 3:
                 out = out.squeeze(0)
             consolidate_s_list.append(s)
