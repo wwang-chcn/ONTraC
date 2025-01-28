@@ -1059,6 +1059,11 @@ def niche_cluster_visualization(ana_data: AnaData) -> None:
     if hasattr(ana_data.options, 'sample') and ana_data.options.sample:
         plot_graph_niche_cluster_feat_similarity_bysample_from_anadata(ana_data=ana_data)
 
+    plot_heatmap_niche_cluster_feat_similarity_from_anadata(ana_data=ana_data)
+
+    if hasattr(ana_data.options, 'sample') and ana_data.options.sample:
+        plot_heatmap_niche_cluster_feat_similarity_by_sample_from_anadata(ana_data=ana_data)
+
     # 3. share of each cluster
     plot_cluster_proportion_from_anadata(ana_data=ana_data)
 
