@@ -1,10 +1,13 @@
-from typing import Union, Tuple
+from typing import Union, Tuple, List, Dict
 
 import numpy as np
 import pandas as pd
 
+import matplotlib as mpl
+import matplotlib.cm as cm
 
-def saptial_figsize(sample_df, scaling_factor: Union[int, float]=1) -> Tuple[int, int]:
+
+def saptial_figsize(sample_df, scaling_factor: Union[int, float] = 1) -> Tuple[int, int]:
     """
     Calculate the figure size for spatial-based plot according to the points and the span of x and y.
     :param sample_df: pd.DataFrame, the sample data.
@@ -60,3 +63,68 @@ def gini(array: Union[np.ndarray, pd.Series]) -> float:
     index = np.arange(1, n + 1)  # type: ignore
     # Gini coefficient:
     return ((np.sum((2 * index - n - 1) * array)) / (n * np.sum(array)))  # type: ignore
+
+
+def get_n_colors(n: int) -> List[str]:
+    """Get n colors.
+    
+    Parameters
+    ----------
+    n : int
+        The number of colors.
+
+    Returns
+    -------
+    list
+        The list of colors.
+
+    Examples
+    --------
+    >>> get_n_colors(10)
+    ['C0', 'C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C9']
+    >>> get_n_colors(20)
+    ['#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c', '#98df8a', '#d62728', '#ff9896', '#9467bd', '#c5b0d5',
+    '#8c564b', '#c49c94', '#e377c2', '#f7b6d2', '#7f7f7f', '#c7c7c7', '#bcbd22', '#dbdb8d', '#17becf', '#9edae5']
+    >>> get_n_colors(30)
+    ['#30123b', '#392a73', '#4143a7', '#455ccf', '#4773eb', '#458afc', '#3d9efe', '#2eb4f2', '#1fc9dd', '#18dbc5',
+    '#1fe9af', '#35f394', '#52fa7a', '#75fe5c', '#96fe44', '#affa37', '#c6f034', '#dbe236', '#ebd339', '#f7c13a',
+    '#fdac34', '#fe932a', '#f9781e', '#f15d13', '#e7490c', '#d83706', '#c52603', '#af1801', '#950d01', '#7a0403']
+    """
+
+    if n <= 10:  # use default colormaps to generate colors
+        return [f'C{i}' for i in range(n)]
+    elif n <= 20:  # use tab20 colormaps to generate colors
+        tab20_cmap = cm.get_cmap('tab20')
+        return [mpl.colors.to_hex(c=x) for x in tab20_cmap(np.arange(n))]
+    else:  # use turbo colormaps to generate colors
+        turbo_cmap = cm.get_cmap('turbo')
+        return [mpl.colors.to_hex(c=x) for x in turbo_cmap(np.linspace(start=0, stop=1, num=n))]
+
+
+def get_palette_for_cell_types(cell_types: List[str]) -> Dict[str, str]:
+    """
+    Get the color palette for cell types.
+
+    Parameters
+    ----------
+    cell_types : list
+        The list of cell types.
+
+    Returns
+    -------
+    list
+        The list of colors.
+
+    Examples
+    --------
+    >>> get_palette_for_cell_types(['A', 'B', 'C'])
+    {'A': 'C0', 'B': 'C1', 'C': 'C2'}
+    >>> get_palette_for_cell_types(['ct1', 'ct2', 'ct3', 'ct4', 'ct5', 'ct6', 'ct7', 'ct8', 'ct9', 'ct10', 'ct11',
+    'ct12', 'ct13', 'ct14', 'ct15', 'ct16', 'ct17', 'ct18', 'ct19', 'ct20'])
+    {'ct1': '#1f77b4', 'ct2': '#aec7e8', 'ct3': '#ff7f0e', 'ct4': '#ffbb78', 'ct5': '#2ca02c', 'ct6': '#98df8a',
+    'ct7': '#d62728', 'ct8': '#ff9896', 'ct9': '#9467bd', 'ct10': '#c5b0d5', 'ct11': '#8c564b', 'ct12': '#c49c94',
+    'ct13': '#e377c2', 'ct14': '#f7b6d2', 'ct15': '#7f7f7f', 'ct16': '#c7c7c7', 'ct17': '#bcbd22', 'ct18': '#dbdb8d',
+    'ct19': '#17becf', 'ct20': '#9edae5'}
+    """
+
+    return dict(zip(cell_types, get_n_colors(len(cell_types))))

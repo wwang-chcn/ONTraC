@@ -1,6 +1,6 @@
 from copy import deepcopy
 from pathlib import Path
-from typing import List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 import matplotlib as mpl
 import numpy as np
@@ -15,7 +15,7 @@ import seaborn as sns
 from ..log import warning
 from .data import AnaData
 from .niche_cluster import cal_nc_order, cal_nc_order_index, cal_nc_scores
-from .utils import saptial_figsize
+from .utils import get_palette_for_cell_types, saptial_figsize
 
 
 def plot_spatial_cell_type_distribution_dataset(data_df: pd.DataFrame,
@@ -29,8 +29,38 @@ def plot_spatial_cell_type_distribution_dataset(data_df: pd.DataFrame,
     :return: None or Tuple[plt.Figure, plt.Axes].
     """
 
+    # Check parameters for palette
+    cell_types = data_df['Cell_Type'].unique().tolist()
+    n_cell_type = cell_types
+
+    if 'palette' in kwargs:
+        palette = kwargs['palette']
+
+        if isinstance(palette, str):
+            warning("Palette should be list, dict, or matplotlib.colors.Colormap, not str. Use default palette.")
+            kwargs.pop('palette')
+        elif isinstance(palette, List):
+            if len(palette) < n_cell_type:
+                warning("The given palette is not enough for all cell types. Use default palette.")
+                kwargs['palette'] = get_palette_for_cell_types(cell_types)
+            else:
+                kwargs['palette'] = {
+                    cell_type: color
+                    for cell_type, color in zip(data_df['Cell_Type'].unique(), palette)
+                }
+        elif isinstance(palette, Dict):
+            for cell_type in data_df['Cell_Type'].unique():
+                if cell_type not in palette:
+                    warning(f"The given palette does not contain color for {cell_type}. Use default palette.")
+                    kwargs['palette'] = get_palette_for_cell_types(cell_types)
+                    break
+    else:
+        kwargs['palette'] = get_palette_for_cell_types(cell_types)
+
+
     samples = data_df['Sample'].unique()
     N = len(samples)
+
     fig, axes = plt.subplots(1, N, figsize=(4 * N, 3))
     for i, sample in enumerate(samples):
         sample_df = data_df.loc[data_df['Sample'] == sample]
@@ -77,8 +107,37 @@ def plot_spatial_cell_type_distribution_sample(data_df: pd.DataFrame,
     :return: None or Tuple[plt.Figure, plt.Axes].
     """
 
+    # Check parameters for palette
+    cell_types = data_df['Cell_Type'].unique().tolist()
+    n_cell_type = cell_types
+
+    if 'palette' in kwargs:
+        palette = kwargs['palette']
+
+        if isinstance(palette, str):
+            warning("Palette should be list, dict, or matplotlib.colors.Colormap, not str. Use default palette.")
+            kwargs.pop('palette')
+        elif isinstance(palette, List):
+            if len(palette) < n_cell_type:
+                warning("The given palette is not enough for all cell types. Use default palette.")
+                kwargs['palette'] = get_palette_for_cell_types(cell_types)
+            else:
+                kwargs['palette'] = {
+                    cell_type: color
+                    for cell_type, color in zip(data_df['Cell_Type'].unique(), palette)
+                }
+        elif isinstance(palette, Dict):
+            for cell_type in data_df['Cell_Type'].unique():
+                if cell_type not in palette:
+                    warning(f"The given palette does not contain color for {cell_type}. Use default palette.")
+                    kwargs['palette'] = get_palette_for_cell_types(cell_types)
+                    break
+    else:
+        kwargs['palette'] = get_palette_for_cell_types(cell_types)
+
     samples = data_df['Sample'].unique()
     output = []
+    
     for sample in samples:
         sample_df = data_df.loc[data_df['Sample'] == sample]
         fig, ax = plt.subplots(figsize=saptial_figsize(sample_df))
@@ -477,7 +536,7 @@ def plot_cell_type_dis_across_niche_cluster_from_anadata(ana_data: AnaData) -> O
     cell_type_dis_df = cell_type_dis_df.loc[nc_order]
 
     return plot_cell_type_dis_across_niche_cluster(cell_type_dis_df=cell_type_dis_df,
-                                               output_file_path=ana_data.options.output)
+                                                   output_file_path=ana_data.options.output)
 
 
 def plot_cell_type_with_niche_cluster(ana_data: AnaData) -> None:
