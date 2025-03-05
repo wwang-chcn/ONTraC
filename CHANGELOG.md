@@ -4,8 +4,10 @@
 
 Changed:
 
-- Update badges description in README
 - Update dependencies
+- Refactor the I/O options module
+- Refactor the I/O options validation in integrate to be based on optparser
+- Uniform default colors of cell types for different cell type related visulization
 
 Fixed:
 

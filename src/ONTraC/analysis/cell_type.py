@@ -1,6 +1,6 @@
 from copy import deepcopy
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Union
+from typing import List, Optional, Tuple, Union
 
 import matplotlib as mpl
 import numpy as np
@@ -15,7 +15,7 @@ import seaborn as sns
 from ..log import warning
 from .data import AnaData
 from .niche_cluster import cal_nc_order, cal_nc_order_index, cal_nc_scores
-from .utils import get_palette_for_cell_types, saptial_figsize
+from .utils import validate_cell_type_palette, saptial_figsize
 
 
 def plot_spatial_cell_type_distribution_dataset(data_df: pd.DataFrame,
@@ -29,34 +29,27 @@ def plot_spatial_cell_type_distribution_dataset(data_df: pd.DataFrame,
     :return: None or Tuple[plt.Figure, plt.Axes].
     """
 
+    # data_df should have 'x', 'y', 'Cell_Type', and 'Sample' columns
+    if 'Cell_Type' not in data_df.columns:
+        warning("No `Cell_Type` column found. Skip spatial cell type distribution visualization.")
+        return None
+    if 'Sample' not in data_df.columns:
+        warning("No `Sample` column found. Skip spatial cell type distribution visualization.")
+        return None
+    if 'x' not in data_df.columns:
+        warning("No `x` column found. Skip spatial cell type distribution visualization.")
+        return None
+    if 'y' not in data_df.columns:
+        warning("No `y` column found. Skip spatial cell type distribution visualization.")
+        return None
+    
+    # Cell_Type column should be categorical
+    data_df['Cell_Type'] = data_df['Cell_Type'].astype('category')
+
     # Check parameters for palette
-    cell_types = data_df['Cell_Type'].unique().tolist()
-    n_cell_type = cell_types
-
-    if 'palette' in kwargs:
-        palette = kwargs['palette']
-
-        if isinstance(palette, str):
-            warning("Palette should be list, dict, or matplotlib.colors.Colormap, not str. Use default palette.")
-            kwargs.pop('palette')
-        elif isinstance(palette, List):
-            if len(palette) < n_cell_type:
-                warning("The given palette is not enough for all cell types. Use default palette.")
-                kwargs['palette'] = get_palette_for_cell_types(cell_types)
-            else:
-                kwargs['palette'] = {
-                    cell_type: color
-                    for cell_type, color in zip(data_df['Cell_Type'].unique(), palette)
-                }
-        elif isinstance(palette, Dict):
-            for cell_type in data_df['Cell_Type'].unique():
-                if cell_type not in palette:
-                    warning(f"The given palette does not contain color for {cell_type}. Use default palette.")
-                    kwargs['palette'] = get_palette_for_cell_types(cell_types)
-                    break
-    else:
-        kwargs['palette'] = get_palette_for_cell_types(cell_types)
-
+    cell_types = data_df['Cell_Type'].cat.categories.tolist()
+    palette = kwargs.get('palette', None)
+    kwargs['palette'] = validate_cell_type_palette(cell_types=cell_types, palette=palette)
 
     samples = data_df['Sample'].unique()
     N = len(samples)
@@ -107,33 +100,27 @@ def plot_spatial_cell_type_distribution_sample(data_df: pd.DataFrame,
     :return: None or Tuple[plt.Figure, plt.Axes].
     """
 
+    # data_df should have 'x', 'y', 'Cell_Type', and 'Sample' columns
+    if 'Cell_Type' not in data_df.columns:
+        warning("No `Cell_Type` column found. Skip spatial cell type distribution visualization.")
+        return None
+    if 'Sample' not in data_df.columns:
+        warning("No `Sample` column found. Skip spatial cell type distribution visualization.")
+        return None
+    if 'x' not in data_df.columns:
+        warning("No `x` column found. Skip spatial cell type distribution visualization.")
+        return None
+    if 'y' not in data_df.columns:
+        warning("No `y` column found. Skip spatial cell type distribution visualization.")
+        return None
+    
+    # Cell_Type column should be categorical
+    data_df['Cell_Type'] = data_df['Cell_Type'].astype('category')
+
     # Check parameters for palette
-    cell_types = data_df['Cell_Type'].unique().tolist()
-    n_cell_type = cell_types
-
-    if 'palette' in kwargs:
-        palette = kwargs['palette']
-
-        if isinstance(palette, str):
-            warning("Palette should be list, dict, or matplotlib.colors.Colormap, not str. Use default palette.")
-            kwargs.pop('palette')
-        elif isinstance(palette, List):
-            if len(palette) < n_cell_type:
-                warning("The given palette is not enough for all cell types. Use default palette.")
-                kwargs['palette'] = get_palette_for_cell_types(cell_types)
-            else:
-                kwargs['palette'] = {
-                    cell_type: color
-                    for cell_type, color in zip(data_df['Cell_Type'].unique(), palette)
-                }
-        elif isinstance(palette, Dict):
-            for cell_type in data_df['Cell_Type'].unique():
-                if cell_type not in palette:
-                    warning(f"The given palette does not contain color for {cell_type}. Use default palette.")
-                    kwargs['palette'] = get_palette_for_cell_types(cell_types)
-                    break
-    else:
-        kwargs['palette'] = get_palette_for_cell_types(cell_types)
+    cell_types = data_df['Cell_Type'].cat.categories.tolist()
+    palette = kwargs.get('palette', None)
+    kwargs['palette'] = validate_cell_type_palette(cell_types=cell_types, palette=palette)
 
     samples = data_df['Sample'].unique()
     output = []
@@ -184,11 +171,24 @@ def plot_violin_cell_type_along_NT_score(data_df: pd.DataFrame,
     :return: None or Tuple[plt.Figure, plt.Axes].
     """
 
+    # Cell_NTScore, Cell_Type columns should be in data_df
+    if 'Cell_NTScore' not in data_df.columns:
+        warning("No `Cell_NTScore` column found. Skip violin plot to avoid long runtime.")
+        return None
+    if 'Cell_Type' not in data_df.columns:
+        warning("No `Cell_Type` column found. Skip violin plot to avoid long runtime.")
+        return None
+    
+    # Check number of cell types
     if (n_cell_type := len(cell_types)) > 100:
         warning(
             "There are more than 100 cell types, skip violin plot to avoid long runtime. You could manually plot it according to our tutorial."
         )
         return None
+    
+    # Check parameters for palette
+    palette = kwargs.get('palette', None)
+    kwargs['palette'] = validate_cell_type_palette(cell_types=cell_types, palette=palette)
 
     fig, ax = plt.subplots(figsize=(6, n_cell_type / 2))
     sns.violinplot(data=data_df,
@@ -228,7 +228,7 @@ def plot_violin_cell_type_along_NT_score_from_anadata(ana_data: AnaData,
     data_df = ana_data.meta_data_df.join(ana_data.NT_score['Cell_NTScore'])
     if ana_data.options.reverse: data_df['Cell_NTScore'] = 1 - data_df['Cell_NTScore']
 
-    cell_types = ana_data.cell_type_codes['Cell_Type'].to_list()
+    cell_types = ana_data.meta_data_df['Cell_Type'].cat.categories.to_list()
 
     return plot_violin_cell_type_along_NT_score(data_df=data_df,
                                                 cell_types=cell_types,
@@ -238,16 +238,33 @@ def plot_violin_cell_type_along_NT_score_from_anadata(ana_data: AnaData,
 
 def plot_kde_cell_type_along_NT_score(
         data_df: pd.DataFrame,
-        output_file_path: Optional[Union[str, Path]] = None) -> Optional[Tuple[plt.Figure, plt.Axes]]:
+        output_file_path: Optional[Union[str, Path]] = None,
+        **kwargs) -> Optional[Tuple[plt.Figure, plt.Axes]]:
     """
     Plot kdeplot cell type composition along NT score.
     :param data_df: pd.DataFrame, the data for visualization.
     :param output_file_path: Optional[Union[str, Path]], the output directory.
+    :param kwargs: Optional, the additional arguments for visualization using seaborn.kdeplot.
     :return: None or Tuple[plt.Figure, plt.Axes].
     """
 
+    # Cell_NTScore, Cell_Type columns should be in data_df
+    if 'Cell_NTScore' not in data_df.columns:
+        warning("No `Cell_NTScore` column found. Skip kdeplot to avoid long runtime.")
+        return None
+    if 'Cell_Type' not in data_df.columns:
+        warning("No `Cell_Type` column found. Skip kdeplot to avoid long runtime.")
+        return None
+    
+    # Cell_Type column should be categorical
+    data_df['Cell_Type'] = data_df['Cell_Type'].astype('category')
+
+    # Check parameters for palette
+    cell_types = data_df['Cell_Type'].cat.categories.tolist()
+    palette = kwargs.get('palette', None)
+    kwargs['palette'] = validate_cell_type_palette(cell_types=cell_types, palette=palette)
     fig, ax = plt.subplots(figsize=(8, 4))
-    sns.kdeplot(data=data_df, x='Cell_NTScore', hue='Cell_Type', multiple="fill", ax=ax)
+    sns.kdeplot(data=data_df, x='Cell_NTScore', hue='Cell_Type', multiple="fill", ax=ax, **kwargs)
     ax.set_ylabel('Fraction of cells')
     fig.tight_layout()
     if output_file_path is not None:
@@ -258,10 +275,11 @@ def plot_kde_cell_type_along_NT_score(
         return fig, ax
 
 
-def plot_kde_cell_type_along_NT_score_from_anadata(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.Axes]]:
+def plot_kde_cell_type_along_NT_score_from_anadata(ana_data: AnaData, **kwargs) -> Optional[Tuple[plt.Figure, plt.Axes]]:
     """
     Plot kdeplot cell type composition along NT score.
     :param ana_data: AnaData, the data for analysis.
+    :param kwargs: Optional, the additional arguments for visualization using seaborn.kdeplot.
     :return: None or Tuple[plt.Figure, plt.Axes].
     """
 
@@ -272,20 +290,34 @@ def plot_kde_cell_type_along_NT_score_from_anadata(ana_data: AnaData) -> Optiona
     data_df = ana_data.meta_data_df.join(ana_data.NT_score['Cell_NTScore'])
     if ana_data.options.reverse: data_df['Cell_NTScore'] = 1 - data_df['Cell_NTScore']
 
-    return plot_kde_cell_type_along_NT_score(data_df=data_df, output_file_path=ana_data.options.output)
+    return plot_kde_cell_type_along_NT_score(data_df=data_df, output_file_path=ana_data.options.output, **kwargs)
 
 
 def plot_hist_cell_type_along_NT_score(
         data_df: pd.DataFrame,
         cell_types: List[str],
-        output_file_path: Optional[Union[str, Path]] = None) -> Optional[Tuple[plt.Figure, plt.Axes]]:
+        output_file_path: Optional[Union[str, Path]] = None,
+        **kwargs) -> Optional[Tuple[plt.Figure, plt.Axes]]:
     """
     Plot histogram of cell type composition along NT score.
     :param data_df: pd.DataFrame, the data for visualization.
     :param cell_types: List[str], the cell types, used for hue order of histogram.
     :param output_file_path: Optional[Union[str, Path]], the output directory.
+    :param kwargs: Optional, the additional arguments for visualization using seaborn.histplot.
     :return: None or Tuple[plt.Figure, plt.Axes].
     """
+
+    # Cell_NTScore, Cell_Type columns should be in data_df
+    if 'Cell_NTScore' not in data_df.columns:
+        warning("No `Cell_NTScore` column found. Skip histogram to avoid long runtime.")
+        return None
+    if 'Cell_Type' not in data_df.columns:
+        warning("No `Cell_Type` column found. Skip histogram to avoid long runtime.")
+        return None
+
+    # Check parameters for palette
+    palette = kwargs.get('palette', None)
+    kwargs['palette'] = validate_cell_type_palette(cell_types=cell_types, palette=palette)
 
     fig, ax = plt.subplots(figsize=(len(cell_types), 4))
     sns.histplot(data=data_df, x='Cell_NTScore', hue='Cell_Type', hue_order=cell_types, multiple="dodge", ax=ax)
@@ -299,10 +331,11 @@ def plot_hist_cell_type_along_NT_score(
         return fig, ax
 
 
-def plot_hist_cell_type_along_NT_score_from_anadata(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.Axes]]:
+def plot_hist_cell_type_along_NT_score_from_anadata(ana_data: AnaData, **kwargs) -> Optional[Tuple[plt.Figure, plt.Axes]]:
     """
     Plot histogram of cell type composition along NT score.
     :param ana_data: AnaData, the data for analysis.
+    :param kwargs: Optional, the additional arguments for visualization using seaborn.histplot.
     :return: None or Tuple[plt.Figure, plt.Axes].
     """
 
@@ -313,11 +346,12 @@ def plot_hist_cell_type_along_NT_score_from_anadata(ana_data: AnaData) -> Option
     data_df = ana_data.meta_data_df.join(ana_data.NT_score['Cell_NTScore'])
     if ana_data.options.reverse: data_df['Cell_NTScore'] = 1 - data_df['Cell_NTScore']
 
-    cell_types = ana_data.cell_type_codes['Cell_Type'].to_list()
+    cell_types = ana_data.meta_data_df['Cell_Type'].cat.categories.to_list()
 
     return plot_hist_cell_type_along_NT_score(data_df=data_df,
                                               cell_types=cell_types,
-                                              output_file_path=ana_data.options.output)
+                                              output_file_path=ana_data.options.output,
+                                              **kwargs)
 
 
 def plot_cell_type_along_NT_score(ana_data: AnaData) -> None:
@@ -334,7 +368,7 @@ def plot_cell_type_along_NT_score(ana_data: AnaData) -> None:
     data_df = ana_data.meta_data_df.join(ana_data.NT_score['Cell_NTScore'])
     if ana_data.options.reverse: data_df['Cell_NTScore'] = 1 - data_df['Cell_NTScore']
 
-    cell_types = ana_data.cell_type_codes['Cell_Type'].to_list()
+    cell_types = ana_data.meta_data_df['Cell_Type'].cat.categories.to_list()
 
     plot_violin_cell_type_along_NT_score(data_df=data_df,
                                          cell_types=cell_types,

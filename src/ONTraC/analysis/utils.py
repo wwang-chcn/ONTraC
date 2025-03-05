@@ -6,6 +6,8 @@ import pandas as pd
 import matplotlib as mpl
 import matplotlib.cm as cm
 
+from ONTraC.log import warning
+
 
 def saptial_figsize(sample_df, scaling_factor: Union[int, float] = 1) -> Tuple[int, int]:
     """
@@ -128,3 +130,48 @@ def get_palette_for_cell_types(cell_types: List[str]) -> Dict[str, str]:
     """
 
     return dict(zip(cell_types, get_n_colors(len(cell_types))))
+
+
+def validate_cell_type_palette(cell_types: List[str], palette: Union[List[str], Dict[str, str], None]=None) -> Dict[str, str]:
+    """
+    Validate given cell type palette.
+
+    Parameters
+    ----------
+    cell_types : list
+        The list of cell types.
+    palette : list or dict or None
+        The given palette. Should cover all cell types.
+
+    Returns
+    -------
+    dict
+        The validated palette.
+
+    Examples
+    --------
+    >>> validate_cell_type_palette(['A', 'B', 'C'], ['C0', 'C1', 'C2'])
+    {'A': 'C0', 'B': 'C1', 'C': 'C2'}
+    >>> validate_cell_type_palette(['ct1', 'ct2', 'ct3'], {'ct1': '#1f77b4', 'ct2': '#aec7e8', 'ct3': '#ff7f0e'})
+    {'ct1': '#1f77b4', 'ct2': '#aec7e8', 'ct3': '#ff7f0e'}
+    >>> validate_cell_type_palette(['ct1', 'ct2', 'ct3'], None)
+    {'ct1': 'C0', 'ct2': 'C1', 'ct3': 'C2'}
+    """
+
+    if palette is None:
+        return get_palette_for_cell_types(cell_types)
+    elif isinstance(palette, list):
+        if len(palette) < len(cell_types):
+            warning('The given palette is not enough for all cell types. Use default palette instead.')
+            return get_palette_for_cell_types(cell_types)
+        return dict(zip(cell_types, palette))
+    elif isinstance(palette, dict):
+        for cell_type in cell_types:
+            if cell_type not in palette:
+                warning(f'There are no colors for cell type: {cell_type}. Use default palette instead.')
+                return get_palette_for_cell_types(cell_types)
+        else:
+            return palette
+    else:
+        warning("The given palette's type is not supported. Use default palette instead.")
+        return get_palette_for_cell_types(cell_types)

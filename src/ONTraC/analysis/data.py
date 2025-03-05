@@ -213,6 +213,7 @@ class AnaData:
         # save options
         self.options = options
 
+        # meta_data_df
         if hasattr(self.options, 'NN_dir'):
 
             # get real path
@@ -224,6 +225,10 @@ class AnaData:
         else:  # not NN_dir, only support for visualization of meta_input
             self.meta_data_df = pd.read_csv(self.options.meta_input)
             self.meta_data_df = self.meta_data_df.set_index('Cell_ID')
+        
+        # make the Cell_Type column categorical
+        # the order of categories is the same as the order of appearance in the cell_type_codes
+        self.meta_data_df['Cell_Type'] = self.meta_data_df['Cell_Type'].astype('category')
 
     @property
     def train_loss(self):
@@ -235,6 +240,9 @@ class AnaData:
     def cell_type_codes(self) -> pd.DataFrame:
         if not hasattr(self, '_cell_type_codes') or self._cell_type_codes is None:  # type: ignore
             self._cell_type_codes = pd.read_csv(f'{self.options.NN_dir}/cell_type_code.csv', index_col=0)
+            # order the cell type in meta_data_df
+            self.meta_data_df['Cell_Type'] = pd.Categorical(self.meta_data_df['Cell_Type'],
+                                                            categories=self._cell_type_codes['Cell_Type'].tolist())
         return self._cell_type_codes
 
     def _load_cell_type_composition(self) -> None:

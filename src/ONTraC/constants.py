@@ -1,10 +1,39 @@
 from typing import Dict, List
 
-IO_OPTIONS: Dict[str, List[str]] = {
-    'ONTraC': ['NN_dir', 'GNN_dir', 'NT_dir', 'input'],
-    'ONTraC_NN': ['NN_dir', 'input'],  # niche network
-    'ONTraC_GNN': ['NN_dir', 'GNN_dir'],  # graph neural network
-    'ONTraC_NT': ['NN_dir', 'GNN_dir', 'NT_dir'],  # niche trajectory
-    'ONTraC_GT': ['NN_dir', 'GNN_dir', 'NT_dir'],  # GNN & niche trajectory
-    'ONTraC_analysis': ['NN_dir', 'GNN_dir', 'NT_dir', 'input', 'output', 'log'],  # analysis
+# I/O options for different ONTraC modules
+# I/O options belongs to different categories, such as optional, required, overwrite, etc.
+# The options are defined in the following dictionary.
+# The keys are the module names and the values are the dict of I/O options belong to different categories.
+
+IO_OPTIONS: Dict[str, Dict[str, List[str]]] = {
+    'ONTraC': {
+        'required': ['input'],
+        'optional': [],
+        'overwrite': ['NN_dir', 'GNN_dir', 'NT_dir'],
+    },
+    'ONTraC_NN': {
+        'required': ['input'],
+        'optional': [],
+        'overwrite': ['NN_dir'],
+    },
+    'ONTraC_GNN': {
+        'required': ['NN_dir'],
+        'optional': [],
+        'overwrite': ['GNN_dir'],
+    },
+    'ONTraC_NT': {
+        'required': ['NN_dir', 'GNN_dir'],
+        'optional': [],
+        'overwrite': ['NT_dir'],
+    },
+    'ONTraC_GT': {
+        'required': ['NN_dir'],
+        'optional': [],
+        'overwrite': ['GNN_dir', 'NT_dir'],
+    },
+    'ONTraC_analysis': {
+        'required': [],
+        'optional': ['output', 'log'],
+        'overwrite': ['NN_dir', 'GNN_dir', 'NT_dir'],
+    },
 }

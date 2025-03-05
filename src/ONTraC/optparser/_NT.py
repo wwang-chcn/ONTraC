@@ -1,4 +1,6 @@
-from optparse import OptionParser, Values
+import sys
+from optparse import OptionGroup, OptionParser, Values
+from typing import Optional
 
 from ..log import *
 from ..version import __version__
@@ -26,17 +28,30 @@ def add_NT_options_group(optparser: OptionParser) -> None:
         help="Method to construct the niche trajectory. Default is 'BF' (brute-force). A faster alternative is 'TSP'.")
 
 
-def validate_NT_options(optparser: OptionParser, options: Values) -> None:
+def validate_NT_options(options: Values, optparser: Optional[OptionParser] = None) -> None:
     """
     Validate niche trajectory options.
-    Placehold and do nothing.
 
-    :param optparser: OptionParser object.
-    :param options: Options object.
-    :return: None.
+    Parameters
+    ----------
+    options : Values
+        Options object.
+    optparser : Optional[OptionParser], optional
+        OptionParser object. The default is None.
+
+    Returns
+    -------
+    None
     """
 
-    pass
+    # trajectory_construct
+    if getattr(options, 'trajectory_construct', None) is None:
+        info('trajectory_construct is not set. Using default value BF.')
+        options.trajectory_construct = 'BF'
+    elif options.trajectory_construct not in ['BF', 'TSP']:
+        error('trajectory_construct must be either BF or TSP.')
+        if optparser is not None: optparser.print_help()
+        sys.exit(1)
 
 
 def write_NT_options_memo(options: Values) -> None:

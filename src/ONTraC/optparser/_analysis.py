@@ -48,28 +48,98 @@ def add_suppress_group(optparser: OptionParser) -> None:
     optparser.add_option_group(group)
 
 
-def validate_visualization_options(options: Values) -> None:
+def validate_visualization_options(options: Values, optparser: Optional[OptionParser] = None) -> None:
     """
     Validate visualization options.
-    Placeholder and do nothing.
 
-    :param options: Values object.
-    :return: None.
+    Parameters
+    ----------
+    options : Values
+        Options object.
+    optparser : Optional[OptionParser], optional
+        OptionParser object. The default is None.
+
+    Returns
+    -------
+    None
     """
 
-    pass
+    # reverse
+    if getattr(options, 'reverse', None) is None:
+        info('reverse is not set. Using default value False.')
+        options.reverse = False
+    elif not isinstance(options.reverse, bool):
+        error(f'reverse must be a boolean, exit!')
+        if optparser is not None: optparser.print_help()
+        sys.exit(1)
+
+    # sample
+    if getattr(options, 'sample', None) is None:
+        info('sample is not set. Using default value False.')
+        options.sample = False
+    elif not isinstance(options.sample, bool):
+        error(f'sample must be a boolean, exit!')
+        if optparser is not None: optparser.print_help()
+        sys.exit(1)
+
+    # scale_factor
+    if getattr(options, 'scale_factor', None) is None:
+        info('scale_factor is not set. Using default value 1.0.')
+        options.scale_factor = 1.0
+    elif not isinstance(options.scale_factor, float):
+        error(f'scale_factor must be a float, exit!')
+        if optparser is not None: optparser.print_help()
+        sys.exit(1)
+    elif options.scale_factor <= 0:
+        error(f'scale_factor must be greater than 0, exit!')
+        if optparser is not None: optparser.print_help()
+        sys.exit(1)
+    elif options.scale_factor > 10:
+        warning(f'scale_factor is too large, it may cause the plot to be too large.')
 
 
-def validate_suppress_options(options: Values) -> None:
+def validate_suppress_options(options: Values, optparser: Optional[OptionParser] = None) -> None:
     """
     Validate suppress options.
-    Placeholder and do nothing.
+    
+    Parameters
+    ----------
+    options : Values
+        Options object.
+    optparser : Optional[OptionParser], optional
+        OptionParser object. The default is None.
 
-    :param options: Values object.
-    :return: None.
+    Returns
+    -------
+    None
     """
 
-    pass
+    # suppress_cell_type_composition
+    if getattr(options, 'suppress_cell_type_composition', None) is None:
+        info('suppress_cell_type_composition is not set. Using default value False.')
+        options.suppress_cell_type_composition = False
+    elif not isinstance(options.suppress_cell_type_composition, bool):
+        error(f'suppress_cell_type_composition must be a boolean, exit!')
+        if optparser is not None: optparser.print_help()
+        sys.exit(1)
+    
+    # suppress_niche_cluster_loadings
+    if getattr(options, 'suppress_niche_cluster_loadings', None) is None:
+        info('suppress_niche_cluster_loadings is not set. Using default value False.')
+        options.suppress_niche_cluster_loadings = False
+    elif not isinstance(options.suppress_niche_cluster_loadings, bool):
+        error(f'suppress_niche_cluster_loadings must be a boolean, exit!')
+        if optparser is not None: optparser.print_help()
+        sys.exit(1)
+
+    # suppress_niche_trajectory
+    if getattr(options, 'suppress_niche_trajectory', None) is None:
+        info('suppress_niche_trajectory is not set. Using default value False.')
+        options.suppress_niche_trajectory = False
+    elif not isinstance(options.suppress_niche_trajectory, bool):
+        error(f'suppress_niche_trajectory must be a boolean, exit!')
+        if optparser is not None: optparser.print_help()
+        sys.exit(1)
 
 
 def write_visualization_options_memo(options: Values) -> None:
