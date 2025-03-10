@@ -4,7 +4,6 @@ import numpy as np
 import pandas as pd
 
 import matplotlib as mpl
-import matplotlib.cm as cm
 
 from ONTraC.log import warning
 
@@ -96,10 +95,10 @@ def get_n_colors(n: int) -> List[str]:
     if n <= 10:  # use default colormaps to generate colors
         return [f'C{i}' for i in range(n)]
     elif n <= 20:  # use tab20 colormaps to generate colors
-        tab20_cmap = cm.get_cmap('tab20')
+        tab20_cmap = mpl.colormaps.get_cmap('tab20') # type: ignore
         return [mpl.colors.to_hex(c=x) for x in tab20_cmap(np.arange(n))]
     else:  # use turbo colormaps to generate colors
-        turbo_cmap = cm.get_cmap('turbo')
+        turbo_cmap = mpl.colormaps.get_cmap('turbo') # type: ignore
         return [mpl.colors.to_hex(c=x) for x in turbo_cmap(np.linspace(start=0, stop=1, num=n))]
 
 
