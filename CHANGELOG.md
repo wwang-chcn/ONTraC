@@ -24,11 +24,25 @@ Fixed:
 
 - Resolved bug in regularization loss calculation for multi-sample batch
 
+## [1.1.4] - 2025-Mar-5
+
+Changed:
+
+- Update dependencies
+- Refactor the I/O options module
+- Refactor the I/O options validation in integrate to be based on optparser
+- Uniform default colors of cell types for different cell type related visulization
+
+Fixed:
+
+- Niche cluster size calculation in `plot_niche_cluster_connectivity_bysample_from_anadata`
+- Different color palette in `plot_spatial_cell_type_distribution_dataset` with multiple samples
+
 ## [1.1.3] - 2025-Jan-15
 
 Changed:
 
-- Make niche cluster visualization no longer dependent on NT score.
+- Make niche cluster visualization no longer dependent on NT score
 
 ## [1.1.2] - 2025-Jan-12
 

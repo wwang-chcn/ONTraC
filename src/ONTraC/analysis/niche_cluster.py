@@ -273,8 +273,11 @@ def plot_niche_cluster_connectivity_bysample_from_anadata(ana_data: AnaData) -> 
 
         niche_cluster_connectivity = np.loadtxt(f'{ana_data.options.GNN_dir}/{sample}_out_adj.csv.gz', delimiter=',')
 
-        cell_level_niche_cluster_assign = np.loadtxt(f'{ana_data.options.GNN_dir}/{sample}_s.csv.gz', delimiter=',')
-        niche_cluster_size = cell_level_niche_cluster_assign.sum(axis=0)
+        if ana_data.cell_level_niche_cluster_assign is None:
+            niche_cluster_size = np.ones(ana_data.niche_cluster_connectivity.shape[0])
+        else:
+            niche_cluster_size = ana_data.cell_level_niche_cluster_assign.loc[ana_data.meta_data_df[
+                ana_data.meta_data_df['Sample'] == sample].index].sum(axis=0)
 
         output_file_path = f'{ana_data.options.output}/{sample}_cluster_connectivity.pdf'
 

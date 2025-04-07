@@ -30,7 +30,7 @@ def load_loss_record_data(options) -> Optional[Dict]:
     if options.log is None:
         return None
     with open(options.log, 'r') as fhd:
-        for line in fhd: # type: ignore
+        for line in fhd:  # type: ignore
             # train loss record
             if 'INFO' in line and 'epoch' in line and 'loss' in line:
                 loss_ = []
@@ -216,6 +216,7 @@ class AnaData:
         # save options
         self.options = options
 
+        # meta_data_df
         if hasattr(self.options, 'NN_dir'):
 
             # get real path
@@ -231,12 +232,20 @@ class AnaData:
             self.meta_data_df = self.meta_data_df.set_index('Cell_ID')
             self.options.spatial_res = 'cell'
             info(message='Cell level meta data loaded.')
+            if 'Cell_Type' in self.meta_data_df.columns:
+                # make the Cell_Type column categorical
+                # the order of categories is the same as the order of appearance in the cell_type_codes
+                self.meta_data_df['Cell_Type'] = self.meta_data_df['Cell_Type'].astype('category')
         elif self.meta_data_df.columns[0] == 'Spot_ID':
             self.meta_data_df = self.meta_data_df.set_index('Spot_ID')
             self.options.spatial_res = 'spot'
             info(message='Spot level meta data loaded.')
         else:
             raise ValueError('ID name in meta-data input should be either Cell_ID or Spot_ID.')
+
+        # make the Cell_Type column categorical
+        # the order of categories is the same as the order of appearance in the cell_type_codes
+        self.meta_data_df['Cell_Type'] = self.meta_data_df['Cell_Type'].astype('category')
 
     @property
     def train_loss(self):
@@ -259,6 +268,9 @@ class AnaData:
     def cell_type_codes(self) -> DataFrame:
         if not hasattr(self, '_cell_type_codes') or self._cell_type_codes is None:  # type: ignore
             self._cell_type_codes = pd.read_csv(f'{self.options.NN_dir}/cell_type_code.csv', index_col=0)
+            # order the cell type in meta_data_df
+            self.meta_data_df['Cell_Type'] = pd.Categorical(self.meta_data_df['Cell_Type'],
+                                                            categories=self._cell_type_codes['Cell_Type'].tolist())
         return self._cell_type_codes
 
     @property
@@ -299,15 +311,16 @@ class AnaData:
             if self.options.embedding_adjust:  # adjust cell type composition
                 if data_2_df.shape[0] == self.meta_data_df.shape[0]:  # number of niche consistency check
                     self._adjust_cell_type_composition = data_df[self.cell_type_codes['Cell_Type'].tolist() +
-                                                                ['Sample']].loc[self.meta_data_df.index]
+                                                                 ['Sample']].loc[self.meta_data_df.index]
                     self._cell_type_composition = data_2_df[self.cell_type_codes['Cell_Type'].tolist() +
-                                                  ['Sample']].loc[self.meta_data_df.index]
+                                                            ['Sample']].loc[self.meta_data_df.index]
                 else:
                     raise ValueError(
-                        f"Number of niches in the adjust cell type composition file ({data_2_df.shape[0]}) does not match the number of cells in the meta data ({self.meta_data_df.shape[0]}).")
+                        f"Number of niches in the adjust cell type composition file ({data_2_df.shape[0]}) does not match the number of cells in the meta data ({self.meta_data_df.shape[0]})."
+                    )
             else:  # no adjust cell type composition
                 self._cell_type_composition = data_df[self.cell_type_codes['Cell_Type'].tolist() +
-                                                  ['Sample']].loc[self.meta_data_df.index]
+                                                      ['Sample']].loc[self.meta_data_df.index]
         else:
             raise ValueError(
                 f"Number of niches in the cell type composition file ({data_df.shape[0]}) does not match the number of cells in the meta data ({self.meta_data_df.shape[0]})."
@@ -347,7 +360,7 @@ class AnaData:
 
     @property
     def NT_score(self) -> Optional[DataFrame]:
-        if not hasattr(self, '_NT_score') or self._NT_score is None: # type: ignore
+        if not hasattr(self, '_NT_score') or self._NT_score is None:  # type: ignore
             self._NT_score = self._load_NT_score()
         return self._NT_score
 

@@ -78,7 +78,7 @@ Options:
     --patience=PATIENCE
                         Number of epochs wait for better result. Default is 100.
     --min-delta=MIN_DELTA
-                        Minimum delta for better result. Default is 0.001
+                        Minimum delta for better result. Should be in (0, 1). Default is 0.001
     --min-epochs=MIN_EPOCHS
                         Minimum number of epochs for training. Default is 50. Set to 0 to disable.
     --batch-size=BATCH_SIZE
@@ -202,7 +202,7 @@ Options:
     --patience=PATIENCE
                         Number of epochs wait for better result. Default is 100.
     --min-delta=MIN_DELTA
-                        Minimum delta for better result. Default is 0.001
+                        Minimum delta for better result. Should be in (0, 1). Default is 0.001
     --min-epochs=MIN_EPOCHS
                         Minimum number of epochs for training. Default is 50. Set to 0 to disable.
     --batch-size=BATCH_SIZE
@@ -343,7 +343,7 @@ Options:
     --patience=PATIENCE
                         Number of epochs wait for better result. Default is 100.
     --min-delta=MIN_DELTA
-                        Minimum delta for better result. Default is 0.001
+                        Minimum delta for better result. Should be in (0, 1). Default is 0.001
     --min-epochs=MIN_EPOCHS
                         Minimum number of epochs for training. Default is 50. Set to 0 to disable.
     --batch-size=BATCH_SIZE
