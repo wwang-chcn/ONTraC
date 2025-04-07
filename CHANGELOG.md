@@ -1,6 +1,6 @@
 # Change log
 
-## [1.1.4] - 2025-XXX-XX
+## [1.1.4] - 2025-Mar-5
 
 Changed:
 
