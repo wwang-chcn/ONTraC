@@ -37,6 +37,3 @@ IO_OPTIONS: Dict[str, Dict[str, List[str]]] = {
         'overwrite': ['NN_dir', 'GNN_dir', 'NT_dir'],
     },
 }
-IO_OPTIONS['ONTraC'] = IO_OPTIONS['ONTraC_NN'] | IO_OPTIONS['ONTraC_GNN'] | IO_OPTIONS['ONTraC_NT']
-IO_OPTIONS['ONTraC_GT'] = IO_OPTIONS['ONTraC_GNN'] | IO_OPTIONS['ONTraC_NT']
-
