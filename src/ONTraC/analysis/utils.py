@@ -1,10 +1,8 @@
-from typing import Union, Tuple, List, Dict
-
-import numpy as np
-import pandas as pd
+from typing import Dict, List, Tuple, Union
 
 import matplotlib as mpl
-import matplotlib.cm as cm
+import numpy as np
+import pandas as pd
 
 from ONTraC.log import warning
 
@@ -96,10 +94,10 @@ def get_n_colors(n: int) -> List[str]:
     if n <= 10:  # use default colormaps to generate colors
         return [f'C{i}' for i in range(n)]
     elif n <= 20:  # use tab20 colormaps to generate colors
-        tab20_cmap = cm.get_cmap('tab20')
+        tab20_cmap = mpl.colormaps.get_cmap('tab20')  # type: ignore
         return [mpl.colors.to_hex(c=x) for x in tab20_cmap(np.arange(n))]
     else:  # use turbo colormaps to generate colors
-        turbo_cmap = cm.get_cmap('turbo')
+        turbo_cmap = mpl.colormaps.get_cmap('turbo')  # type: ignore
         return [mpl.colors.to_hex(c=x) for x in turbo_cmap(np.linspace(start=0, stop=1, num=n))]
 
 
@@ -132,7 +130,8 @@ def get_palette_for_cell_types(cell_types: List[str]) -> Dict[str, str]:
     return dict(zip(cell_types, get_n_colors(len(cell_types))))
 
 
-def validate_cell_type_palette(cell_types: List[str], palette: Union[List[str], Dict[str, str], None]=None) -> Dict[str, str]:
+def validate_cell_type_palette(cell_types: List[str],
+                               palette: Union[List[str], Dict[str, str], None] = None) -> Dict[str, str]:
     """
     Validate given cell type palette.
 

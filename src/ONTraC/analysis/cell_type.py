@@ -177,10 +177,10 @@ def plot_violin_cell_type_along_NT_score(data_df: pd.DataFrame,
 
     # Cell_NTScore, Cell_Type columns should be in data_df
     if 'Cell_NTScore' not in data_df.columns:
-        warning("No `Cell_NTScore` column found. Skip violin plot to avoid long runtime.")
+        warning("No `Cell_NTScore` column found. Skip violin plot.")
         return None
     if 'Cell_Type' not in data_df.columns:
-        warning("No `Cell_Type` column found. Skip violin plot to avoid long runtime.")
+        warning("No `Cell_Type` column found. Skip violin plot.")
         return None
 
     # Check number of cell types
@@ -230,7 +230,7 @@ def plot_violin_cell_type_along_NT_score_from_anadata(ana_data: AnaData,
     """
 
     if ana_data.NT_score is None:
-        warning("No NT score data found.")
+        warning("No NT score data found. Skip cell type along NT score violin plot.")
         return None
 
     data_df = ana_data.meta_data_df.join(ana_data.NT_score['Cell_NTScore'])
@@ -265,10 +265,10 @@ def plot_kde_cell_type_along_NT_score(data_df: pd.DataFrame,
 
     # Cell_NTScore, Cell_Type columns should be in data_df
     if 'Cell_NTScore' not in data_df.columns:
-        warning("No `Cell_NTScore` column found. Skip kdeplot to avoid long runtime.")
+        warning("No `Cell_NTScore` column found. Skip kdeplot.")
         return None
     if 'Cell_Type' not in data_df.columns:
-        warning("No `Cell_Type` column found. Skip kdeplot to avoid long runtime.")
+        warning("No `Cell_Type` column found. Skip kdeplot.")
         return None
 
     # Cell_Type column should be categorical
@@ -300,7 +300,7 @@ def plot_kde_cell_type_along_NT_score_from_anadata(ana_data: AnaData,
     """
 
     if ana_data.NT_score is None:
-        warning("No NT score data found.")
+        warning("No NT score data found. Skip cell type along NT score kde plot.")
         return None
 
     data_df = ana_data.meta_data_df.join(ana_data.NT_score['Cell_NTScore'])
@@ -334,10 +334,10 @@ def plot_hist_cell_type_along_NT_score(data_df: pd.DataFrame,
 
     # Cell_NTScore, Cell_Type columns should be in data_df
     if 'Cell_NTScore' not in data_df.columns:
-        warning("No `Cell_NTScore` column found. Skip histogram to avoid long runtime.")
+        warning("No `Cell_NTScore` column found. Skip histogram.")
         return None
     if 'Cell_Type' not in data_df.columns:
-        warning("No `Cell_Type` column found. Skip histogram to avoid long runtime.")
+        warning("No `Cell_Type` column found. Skip histogram.")
         return None
 
     # Check parameters for palette
@@ -366,7 +366,7 @@ def plot_hist_cell_type_along_NT_score_from_anadata(ana_data: AnaData,
     """
 
     if ana_data.NT_score is None:
-        warning("No NT score data found.")
+        warning("No NT score data found. Skip cell type along NT score histogram.")
         return None
 
     data_df = ana_data.meta_data_df.join(ana_data.NT_score['Cell_NTScore'])
@@ -389,7 +389,7 @@ def plot_cell_type_along_NT_score(ana_data: AnaData) -> None:
     """
 
     if ana_data.NT_score is None:
-        warning("No NT score data found.")
+        warning("No NT score data found. Skip cell type along NT score visualization.")
         return None
 
     data_df = ana_data.meta_data_df.join(ana_data.NT_score['Cell_NTScore'])
@@ -462,10 +462,10 @@ def plot_cell_type_loading_in_niche_clusters_from_anadata(ana_data: AnaData) -> 
     """
 
     if ana_data.cell_level_niche_cluster_assign is None:
-        warning("No niche cluster assign data found.")
+        warning("No niche cluster assign data found. Skip cell type loading in niche clusters.")
         return None
     if ana_data.cell_type_codes is None:
-        warning("No cell type data found.")
+        warning("No cell type codes found. Skip cell type loading in niche clusters.")
         return None
 
     # calculate cell type distribution in each niche cluster
@@ -523,10 +523,10 @@ def plot_cell_type_com_in_niche_clusters_from_anadata(ana_data: AnaData) -> Opti
     """
 
     if ana_data.cell_level_niche_cluster_assign is None:
-        warning("No niche cluster assign data found.")
+        warning("No niche cluster assign data found. Skip cell type composition in niche clusters visualization.")
         return None
     if ana_data.cell_type_codes is None:
-        warning("No cell type data found.")
+        warning("No cell type codes found. Skip cell type composition in niche clusters visualization.")
         return None
 
     # calculate cell type distribution in each niche cluster
@@ -585,10 +585,10 @@ def plot_cell_type_dis_across_niche_cluster_from_anadata(ana_data: AnaData) -> O
     """
 
     if ana_data.cell_level_niche_cluster_assign is None:
-        warning("No niche cluster assign data found.")
+        warning("No niche cluster assign data found. Skip cell type distribution across niche cluster.")
         return None
     if ana_data.cell_type_codes is None:
-        warning("No cell type data found.")
+        warning("No cell type codes found. Skip cell type distribution across niche cluster.")
         return None
 
     # calculate cell type distribution in each niche cluster
@@ -624,13 +624,10 @@ def plot_cell_type_with_niche_cluster(ana_data: AnaData) -> None:
     """
 
     if ana_data.cell_level_niche_cluster_assign is None:
-        warning("No niche cluster assign data found.")
+        warning("No niche cluster assign data found. Skip cell type with niche cluster visualization.")
         return None
     if ana_data.cell_type_codes is None:
-        warning("No cell type data found.")
-        return None
-    if ana_data.niche_cluster_score is None:
-        warning("No niche cluster scores data found.")
+        warning("No cell type codes found. Skip cell type with niche cluster visualization.")
         return None
 
     # calculate cell type distribution in each niche cluster

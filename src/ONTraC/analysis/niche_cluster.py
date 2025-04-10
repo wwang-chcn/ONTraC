@@ -1,4 +1,3 @@
-from calendar import c
 from pathlib import Path
 from typing import List, Optional, Tuple, Union
 
@@ -243,8 +242,9 @@ def plot_niche_cluster_connectivity_from_anadata(ana_data: AnaData) -> Optional[
     :param ana_data: AnaData, the data for analysis.
     :return: None or Tuple[plt.Figure, plt.Axes].
     """
+
     if ana_data.niche_cluster_connectivity is None:
-        warning("No niche cluster connectivity data found.")
+        warning("No niche cluster connectivity data found. Skip niche cluster connectivity plot.")
         return None
 
     if ana_data.cell_level_niche_cluster_assign is None:
@@ -268,6 +268,10 @@ def plot_niche_cluster_connectivity_bysample_from_anadata(ana_data: AnaData) -> 
     :param ana_data: AnaData, the data for analysis.
     :return: None.
     """
+    
+    if ana_data.niche_cluster_connectivity is None:
+        warning("No niche cluster connectivity data found. Skip niche cluster connectivity plot.")
+        return None
 
     for sample in ana_data.meta_data_df['Sample'].unique():
 
@@ -324,7 +328,7 @@ def plot_cluster_proportion_from_anadata(ana_data: AnaData) -> Optional[Tuple[pl
     :return: None or Tuple[plt.Figure, plt.Axes].
     """
     if ana_data.niche_level_niche_cluster_assign is None or ana_data.cell_level_niche_cluster_assign is None:
-        warning("No cluster assignment data found.")
+        warning("No cluster assignment data found. Skip niche cluster proportion plot.")
         return None
 
     nc_scores = cal_nc_scores(cell_level_niche_cluster_assign=ana_data.cell_level_niche_cluster_assign,
@@ -393,7 +397,7 @@ def plot_niche_cluster_loadings_dataset_from_anadata(
     """
 
     if ana_data.cell_level_niche_cluster_assign is None:
-        warning("No cluster assignment data found.")
+        warning("No cluster assignment data found. Skip niche cluster loadings plot.")
         return None
 
     nc_scores = cal_nc_scores(cell_level_niche_cluster_assign=ana_data.cell_level_niche_cluster_assign,
@@ -459,7 +463,7 @@ def plot_niche_cluster_loadings_sample_from_anadata(ana_data: AnaData) -> Option
     """
 
     if ana_data.cell_level_niche_cluster_assign is None:
-        warning("No cluster assign data found.")
+        warning("No cluster assign data found. Skip niche cluster loadings plot.")
         return None
 
     nc_scores = cal_nc_scores(cell_level_niche_cluster_assign=ana_data.cell_level_niche_cluster_assign,
@@ -541,7 +545,7 @@ def plot_max_niche_cluster_dataset_from_anadata(ana_data: AnaData) -> Optional[T
     """
 
     if ana_data.cell_level_max_niche_cluster is None or ana_data.cell_level_niche_cluster_assign is None:
-        warning("No cluster assignment data found.")
+        warning("No cluster assignment data found. Skip max niche cluster plot.")
         return None
 
     nc_scores = cal_nc_scores(cell_level_niche_cluster_assign=ana_data.cell_level_niche_cluster_assign,
@@ -609,7 +613,7 @@ def plot_max_niche_cluster_sample_from_anadata(ana_data: AnaData) -> Optional[Li
     """
 
     if ana_data.cell_level_max_niche_cluster is None or ana_data.cell_level_niche_cluster_assign is None:
-        warning("No cluster assignment data found.")
+        warning("No cluster assignment data found. Skip max niche cluster plot.")
         return None
 
     nc_scores = cal_nc_scores(cell_level_niche_cluster_assign=ana_data.cell_level_niche_cluster_assign,
@@ -666,7 +670,7 @@ def plot_niche_cluster_gini_from_anadata(ana_data: AnaData) -> Optional[Tuple[pl
     :return: None or Tuple[plt.Figure, plt.Axes].
     """
     if ana_data.cell_level_niche_cluster_assign is None:
-        warning("No niche cluster assign data found.")
+        warning("No niche cluster assign data found. Skip niche cluster Gini plot.")
         return None
 
     intra_cluster_gini = ana_data.cell_level_niche_cluster_assign.apply(gini, axis=0).values

@@ -47,7 +47,7 @@ def load_loss_record_data(options) -> Optional[Dict]:
                 loss_.insert(0, int(line[init_index - 3].strip(',')))  # epoch index
                 loss.append(loss_)
             # eval loss record
-            elif 'INFO' in line and 'Evaluate loss' in line:
+            elif 'INFO' in line and ('Evaluation loss' in line or 'Evaluate loss' in line):
                 line = line.strip().split(', ', 1)  # type: ignore
                 final_loss_dict: Dict[str, float] = eval(line[1])
 
@@ -78,6 +78,10 @@ def load_niche_cluster_connectivity(options: Values) -> Optional[np.ndarray]:
     Returns:
         Optional[np.ndarray]: the niche cluster connectivity
     """
+
+    if options.GNN_dir is None:
+        return None
+
     niche_cluster_conn_file = f'{options.GNN_dir}/consolidate_out_adj.csv.gz'
     if not os.path.isfile(niche_cluster_conn_file):
         niche_cluster_conn_file = f'{options.GNN_dir}/consolidate_out_adj.csv'
@@ -96,6 +100,10 @@ def load_niche_cluster_score(options: Values) -> Optional[np.ndarray]:
     Returns:
         Optional[np.ndarray]: the niche cluster score
     """
+
+    if options.NT_dir is None:
+        return None
+
     niche_cluster_score_file = f'{options.NT_dir}/niche_cluster_score.csv.gz'
     if not os.path.isfile(niche_cluster_score_file):
         niche_cluster_score_file = f'{options.NT_dir}/niche_cluster_score.csv'
@@ -114,6 +122,9 @@ def load_niche_level_niche_cluster_assign(options: Values) -> Optional[DataFrame
     Returns:
         Optional[DataFrame]: the niche cluster assignment for each niche level
     """
+
+    if options.GNN_dir is None:
+        return None
 
     niche_level_niche_cluster_assign_file = f'{options.GNN_dir}/niche_level_niche_cluster.csv.gz'
     if not os.path.isfile(niche_level_niche_cluster_assign_file):
@@ -134,6 +145,9 @@ def load_cell_level_niche_cluster_assign(options: Values) -> Optional[DataFrame]
         Optional[DataFrame]: the niche cluster assignment for each cell level
     """
 
+    if options.GNN_dir is None:
+        return None
+
     cell_level_niche_cluster_assign_file = f'{options.GNN_dir}/cell_level_niche_cluster.csv.gz'
     if not os.path.isfile(cell_level_niche_cluster_assign_file):
         cell_level_niche_cluster_assign_file = f'{options.GNN_dir}/cell_level_niche_cluster.csv'
@@ -152,6 +166,9 @@ def load_niche_level_max_niche_cluster(options: Values) -> Optional[DataFrame]:
     Returns:
         Optional[DataFrame]: the max niche cluster assignment for each niche level
     """
+
+    if options.GNN_dir is None:
+        return None
 
     niche_level_max_niche_cluster_file = f'{options.GNN_dir}/niche_level_max_niche_cluster.csv.gz'
     if not os.path.isfile(niche_level_max_niche_cluster_file):
@@ -172,6 +189,9 @@ def load_cell_level_max_niche_cluster(options: Values) -> Optional[DataFrame]:
         Optional[DataFrame]: the max niche cluster assignment for each cell level
     """
 
+    if options.GNN_dir is None:
+        return None
+
     cell_level_max_niche_cluster_file = f'{options.GNN_dir}/cell_level_max_niche_cluster.csv.gz'
     if not os.path.isfile(cell_level_max_niche_cluster_file):
         cell_level_max_niche_cluster_file = f'{options.GNN_dir}/cell_level_max_niche_cluster.csv'
@@ -180,6 +200,28 @@ def load_cell_level_max_niche_cluster(options: Values) -> Optional[DataFrame]:
         return None
 
     return pd.read_csv(cell_level_max_niche_cluster_file, index_col=0)
+
+
+def load_niche_hidden_features(options: Values) -> Optional[np.ndarray]:
+    """
+    Load the niche hidden features.
+    Args:
+        options: Values, the options from optparse
+    Returns:
+        Optional[np.ndarray]: the niche hidden features
+    """
+
+    if options.NT_dir is None:
+        return None
+
+    niche_hidden_features_file = f'{options.NT_dir}/niche_hidden_features.csv.gz'
+    if not os.path.isfile(niche_hidden_features_file):
+        niche_hidden_features_file = f'{options.NT_dir}/niche_hidden_features.csv'
+    if not os.path.isfile(niche_hidden_features_file):  # skip if file not exist
+        warning(f"Cannot find niche hidden features file: {niche_hidden_features_file}.")
+        return None
+
+    return np.loadtxt(f'{niche_hidden_features_file}', delimiter=',')
 
 
 # ----------------------------
@@ -207,6 +249,11 @@ class AnaData:
     - train_loss: Dict, the training loss
     - NT_score: DataFrame, the NT score
     - niche_cluster_score: np.ndarray, the niche cluster score
+    - niche_level_niche_cluster_assign: pd.DataFrame, the niche cluster assignment for each niche level
+    - cell_level_niche_cluster_assign: pd.DataFrame, the niche cluster assignment for each cell level
+    - niche_level_max_niche_cluster: pd.DataFrame, the max niche cluster assignment for each niche level
+    - cell_level_max_niche_cluster: pd.DataFrame, the max niche cluster assignment for each cell level
+    - niche_hidden_features: np.ndarray, the hidden features for each niche level
     """
 
     def __init__(self, options: Values) -> None:
@@ -333,6 +380,8 @@ class AnaData:
         return self._cell_type_composition
 
     def _load_NT_score(self) -> Optional[DataFrame]:
+        if self.options.NT_dir is None:
+            return None
         if not os.path.isfile(f'{self.options.NT_dir}/NTScore.csv.gz'):
             warning(f"Cannot find NT score file: {self.options.NT_dir}/NTScore.csv.gz.")
             return None
@@ -431,3 +480,15 @@ class AnaData:
             except:
                 pass
         return self._cell_level_max_niche_cluster
+
+    @property
+    def niche_hidden_features(self) -> Optional[np.ndarray]:
+        if not hasattr(self, '_niche_hidden_features') or self._niche_hidden_features is None:  # type: ignore
+            self._niche_hidden_features = load_niche_hidden_features(self.options)
+            if self._niche_hidden_features is None:
+                return None
+            try:
+                self._niche_hidden_features = self._niche_hidden_features[self.meta_data_df.index]
+            except:
+                pass
+        return self._niche_hidden_features
