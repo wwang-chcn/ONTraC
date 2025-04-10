@@ -80,7 +80,7 @@ def evaluate(batch_train: SubBatchTrainProtocol) -> None:
     """
     info(message=f'Evaluating process start.')
     loss_dict: Dict[str, np.floating] = batch_train.evaluate()  # type: ignore
-    info(message=f'Evaluate loss, {repr(loss_dict)}')
+    info(message=f'Evaluation loss, {repr(loss_dict)}')
     info(message=f'Evaluating process end.')
 
 

@@ -173,10 +173,10 @@ def plot_violin_cell_type_along_NT_score(data_df: pd.DataFrame,
 
     # Cell_NTScore, Cell_Type columns should be in data_df
     if 'Cell_NTScore' not in data_df.columns:
-        warning("No `Cell_NTScore` column found. Skip violin plot to avoid long runtime.")
+        warning("No `Cell_NTScore` column found. Skip violin plot.")
         return None
     if 'Cell_Type' not in data_df.columns:
-        warning("No `Cell_Type` column found. Skip violin plot to avoid long runtime.")
+        warning("No `Cell_Type` column found. Skip violin plot.")
         return None
     
     # Check number of cell types
@@ -250,10 +250,10 @@ def plot_kde_cell_type_along_NT_score(
 
     # Cell_NTScore, Cell_Type columns should be in data_df
     if 'Cell_NTScore' not in data_df.columns:
-        warning("No `Cell_NTScore` column found. Skip kdeplot to avoid long runtime.")
+        warning("No `Cell_NTScore` column found. Skip kdeplot.")
         return None
     if 'Cell_Type' not in data_df.columns:
-        warning("No `Cell_Type` column found. Skip kdeplot to avoid long runtime.")
+        warning("No `Cell_Type` column found. Skip kdeplot.")
         return None
     
     # Cell_Type column should be categorical
@@ -309,10 +309,10 @@ def plot_hist_cell_type_along_NT_score(
 
     # Cell_NTScore, Cell_Type columns should be in data_df
     if 'Cell_NTScore' not in data_df.columns:
-        warning("No `Cell_NTScore` column found. Skip histogram to avoid long runtime.")
+        warning("No `Cell_NTScore` column found. Skip histogram.")
         return None
     if 'Cell_Type' not in data_df.columns:
-        warning("No `Cell_Type` column found. Skip histogram to avoid long runtime.")
+        warning("No `Cell_Type` column found. Skip histogram.")
         return None
 
     # Check parameters for palette

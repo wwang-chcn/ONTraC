@@ -47,7 +47,7 @@ def load_loss_record_data(options) -> Optional[Dict]:
                 loss_.insert(0, int(line[init_index - 3].strip(',')))  # epoch index
                 loss.append(loss_)
             # eval loss record
-            elif 'INFO' in line and 'Evaluate loss' in line:
+            elif 'INFO' in line and ('Evaluation loss' in line or 'Evaluate loss' in line):
                 line = line.strip().split(', ', 1)  # type: ignore
                 final_loss_dict: Dict[str, float] = eval(line[1])
 
