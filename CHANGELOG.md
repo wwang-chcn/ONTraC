@@ -5,6 +5,7 @@
 Added:
 
 - output file `niche_hidden_features.csv.gz` in `GNN_dir`, which is also available as the `niche_hidden_features` attribute in the `AnaData` class.
+- tests for IO options preparation
 
 Removed:
 
