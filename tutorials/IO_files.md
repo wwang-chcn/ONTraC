@@ -85,19 +85,23 @@ Previouly named as preprocessing-dir.
 
 - cell_level_niche_cluster.csv.gz
 
-  Files conatains the probabilistic assignment of a cell to niche cluster.
+  File contains the probabilistic assignment of a cell to niche cluster.
 
 - cell_level_max_niche_cluster.csv.gz
 
-  Files conatains the niche cluster with maximum probability to each cell.
+  File contains the niche cluster with maximum probability to each cell.
 
 - niche_level_niche_cluster.csv.gz
 
-  Files conatains the probabilistic assignment of a niche to niche cluster.
+  File contains the probabilistic assignment of a niche to niche cluster.
 
 - niche_level_max_niche_cluster.csv.gz
 
-  Files conatains the niche cluster with maximum probability to each niche.
+  File contains the niche cluster with maximum probability to each niche.
+
+- niche_hidden_features.csv.gz
+
+  File contains the tranined embeddings of each niche.
 
 - {sample name}_out.csv.gz
 
@@ -122,10 +126,6 @@ Previouly named as preprocessing-dir.
 - consolidate_out_adj.csv.gz
 
   File contains the adjancy information between niche clusters.
-
-- consolidate_s.csv.gz
-
-  File contains the projection probabilities from niche to niche clusters.
 
 - model_state_dict.pt
 

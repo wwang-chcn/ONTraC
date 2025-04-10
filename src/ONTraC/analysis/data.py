@@ -30,7 +30,7 @@ def load_loss_record_data(options) -> Optional[Dict]:
     if options.log is None:
         return None
     with open(options.log, 'r') as fhd:
-        for line in fhd: # type: ignore
+        for line in fhd:  # type: ignore
             # train loss record
             if 'INFO' in line and 'epoch' in line and 'loss' in line:
                 loss_ = []
@@ -182,6 +182,25 @@ def load_cell_level_max_niche_cluster(options: Values) -> Optional[pd.DataFrame]
     return pd.read_csv(cell_level_max_niche_cluster_file, index_col=0)
 
 
+def load_niche_hidden_features(options: Values) -> Optional[np.ndarray]:
+    """
+    Load the niche hidden features.
+    Args:
+        options: Values, the options from optparse
+    Returns:
+        Optional[np.ndarray]: the niche hidden features
+    """
+
+    niche_hidden_features_file = f'{options.NT_dir}/niche_hidden_features.csv.gz'
+    if not os.path.isfile(niche_hidden_features_file):
+        niche_hidden_features_file = f'{options.NT_dir}/niche_hidden_features.csv'
+    if not os.path.isfile(niche_hidden_features_file):  # skip if file not exist
+        warning(f"Cannot find niche hidden features file: {niche_hidden_features_file}.")
+        return None
+
+    return np.loadtxt(f'{niche_hidden_features_file}', delimiter=',')
+
+
 # ----------------------------
 # Classes
 # ----------------------------
@@ -204,6 +223,7 @@ class AnaData:
     - cell_level_niche_cluster_assign: pd.DataFrame, the niche cluster assignment for each cell level
     - niche_level_max_niche_cluster: pd.DataFrame, the max niche cluster assignment for each niche level
     - cell_level_max_niche_cluster: pd.DataFrame, the max niche cluster assignment for each cell level
+    - niche_hidden_features: np.ndarray, the hidden features for each niche level
     """
 
     def __init__(self, options: Values) -> None:
@@ -225,7 +245,7 @@ class AnaData:
         else:  # not NN_dir, only support for visualization of meta_input
             self.meta_data_df = pd.read_csv(self.options.meta_input)
             self.meta_data_df = self.meta_data_df.set_index('Cell_ID')
-        
+
         # make the Cell_Type column categorical
         # the order of categories is the same as the order of appearance in the cell_type_codes
         self.meta_data_df['Cell_Type'] = self.meta_data_df['Cell_Type'].astype('category')
@@ -273,7 +293,7 @@ class AnaData:
 
     @property
     def NT_score(self) -> Optional[DataFrame]:
-        if not hasattr(self, '_NT_score') or self._NT_score is None: # type: ignore
+        if not hasattr(self, '_NT_score') or self._NT_score is None:  # type: ignore
             self._NT_score = self._load_NT_score()
         return self._NT_score
 
@@ -344,3 +364,15 @@ class AnaData:
             except:
                 pass
         return self._cell_level_max_niche_cluster
+
+    @property
+    def niche_hidden_features(self) -> Optional[np.ndarray]:
+        if not hasattr(self, '_niche_hidden_features') or self._niche_hidden_features is None:  # type: ignore
+            self._niche_hidden_features = load_niche_hidden_features(self.options)
+            if self._niche_hidden_features is None:
+                return None
+            try:
+                self._niche_hidden_features = self._niche_hidden_features[self.meta_data_df.index]
+            except:
+                pass
+        return self._niche_hidden_features
