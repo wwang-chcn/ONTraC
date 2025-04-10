@@ -20,20 +20,34 @@ def analysis_pipeline(options: Values) -> None:
     ONTraC analysis pipeline
     """
 
+    info('-------------- Analysis pipeline start -------------- ')
+    step_index = 0
+
     # 0. load data class
+    info(message=f'Analysis pipeline step {step_index}: load data.')
     ana_data = AnaData(options)
+    step_index += 1
 
     # part 1: train loss
+    info(message=f'Analysis pipeline step {step_index}: train loss visualization.')
     train_loss_visualiztion(ana_data=ana_data)
+    step_index += 1
 
     # part 2: spatial based output
+    info(message=f'Analysis pipeline step {step_index}: spatial-based visualization.')
     spatial_visualization(ana_data=ana_data)
+    step_index += 1
 
     # part 3: niche cluster
+    info(message=f'Analysis pipeline step {step_index}: niche cluster visualization.')
     niche_cluster_visualization(ana_data=ana_data)
+    step_index += 1
 
     # part 4: cell type based output
+    info(message=f'Analysis pipeline step {step_index}: cell type-based visualization.')
     cell_type_visualization(ana_data=ana_data)
+    step_index += 1
+    info('--------------- Analysis pipeline end --------------- ')
 
 
 def main():
