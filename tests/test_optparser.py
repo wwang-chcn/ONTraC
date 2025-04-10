@@ -104,13 +104,13 @@ def test_ontrac_analysis_ioc() -> None:
     ioc = io_dicts_to_io_options_collection(IO_OPTIONS['ONTraC_analysis'])
     assert isinstance(ioc, IOOptionsCollection)
     assert ioc.has_io_option('NN_dir')
-    assert ioc.get_io_option_attr('NN_dir') == 'overwrite'
+    assert ioc.get_io_option_attr('NN_dir') == 'required'
     assert ioc.has_io_option('GNN_dir')
-    assert ioc.get_io_option_attr('GNN_dir') == 'overwrite'
+    assert ioc.get_io_option_attr('GNN_dir') == 'optional'
     assert ioc.has_io_option('NT_dir')
-    assert ioc.get_io_option_attr('NT_dir') == 'overwrite'
+    assert ioc.get_io_option_attr('NT_dir') == 'optional'
     assert ioc.has_io_option('output')
-    assert ioc.get_io_option_attr('output') == 'optional'
+    assert ioc.get_io_option_attr('output') == 'optional-overwrite'
     assert ioc.has_io_option('log')
     assert ioc.get_io_option_attr('log') == 'optional'
     # wrong options

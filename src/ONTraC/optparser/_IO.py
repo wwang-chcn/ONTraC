@@ -255,7 +255,7 @@ def validate_io_options(options: Values,
                 warning(f'The directory ({options.GNN_dir}) you given is empty.')
                 options.GNN_dir = None
         # create directory
-        else:
+        elif hasattr(options, 'GNN_dir') and options.GNN_dir is not None:
             os.makedirs(options.GNN_dir, exist_ok=True)
 
     if ioc.has_io_option('NT_dir'):
@@ -284,11 +284,12 @@ def validate_io_options(options: Values,
                 warning(f'The directory ({options.NT_dir}) you given is empty.')
                 options.NT_dir = None
         # create directory
-        else:
+        elif hasattr(options, 'NT_dir') and options.NT_dir is not None:
             os.makedirs(options.NT_dir, exist_ok=True)
 
     if ioc.has_io_option('input'):
-        if hasattr(options, 'dataset') and options.dataset is not None and (not hasattr(options, 'meta_input') or options.meta_input is None):
+        if hasattr(options, 'dataset') and options.dataset is not None and (not hasattr(options, 'meta_input')
+                                                                            or options.meta_input is None):
             warning('The --dataset option will be deprecated from v3.0. Please use --meta-input instead.')
             options.meta_input = options.dataset
         if not hasattr(options, 'meta_input') or options.meta_input is None:
@@ -304,10 +305,10 @@ def validate_io_options(options: Values,
             if optparser is not None: optparser.print_help()
             sys.exit(1)
 
-    if ioc.has_io_option('output'):  # this is a optional option (ONTraC_analysis only)
+    if ioc.has_io_option('output'):  # this is a optional-overwrite option (ONTraC_analysis only)
         if not hasattr(options, 'output') or options.output is None:
             pass
-        elif os.path.isdir(options.output):
+        elif os.path.isdir(options.output):  # overwrite warning
             warning(f'The directory ({options.output}) you given already exists. It will be overwritten.')
         else:
             info(f'Creating directory: {options.output}')
@@ -345,7 +346,7 @@ def write_io_options_memo(options: Values, io_options: Optional[Dict[str, List[s
         info(f'GNN output directory:  {options.GNN_dir}')
     if ioc.has_io_option('NT_dir') and hasattr(options, 'NT_dir') and options.NT_dir is not None:
         info(f'Niche trajectory output directory:  {options.NT_dir}')
-    if ioc.has_io_option('output'):  # this is a overwrite option (ONTraC_analysis only)
+    if ioc.has_io_option('output'):  # this is a optional-overwrite option (ONTraC_analysis only)
         info(f'Output directory:  {options.output}')
     if 'input' in io_options:  # this is a required option
         info(f'Meta data file:  {options.meta_input}')
