@@ -78,6 +78,10 @@ def load_niche_cluster_connectivity(options: Values) -> Optional[np.ndarray]:
     Returns:
         Optional[np.ndarray]: the niche cluster connectivity
     """
+
+    if options.GNN_dir is None:
+        return None
+
     niche_cluster_conn_file = f'{options.GNN_dir}/consolidate_out_adj.csv.gz'
     if not os.path.isfile(niche_cluster_conn_file):
         niche_cluster_conn_file = f'{options.GNN_dir}/consolidate_out_adj.csv'
@@ -96,6 +100,10 @@ def load_niche_cluster_score(options: Values) -> Optional[np.ndarray]:
     Returns:
         Optional[np.ndarray]: the niche cluster score
     """
+
+    if options.NT_dir is None:
+        return None
+
     niche_cluster_score_file = f'{options.NT_dir}/niche_cluster_score.csv.gz'
     if not os.path.isfile(niche_cluster_score_file):
         niche_cluster_score_file = f'{options.NT_dir}/niche_cluster_score.csv'
@@ -114,6 +122,9 @@ def load_niche_level_niche_cluster_assign(options: Values) -> Optional[pd.DataFr
     Returns:
         Optional[pd.DataFrame]: the niche cluster assignment for each niche level
     """
+
+    if options.GNN_dir is None:
+        return None
 
     niche_level_niche_cluster_assign_file = f'{options.GNN_dir}/niche_level_niche_cluster.csv.gz'
     if not os.path.isfile(niche_level_niche_cluster_assign_file):
@@ -134,6 +145,9 @@ def load_cell_level_niche_cluster_assign(options: Values) -> Optional[pd.DataFra
         Optional[pd.DataFrame]: the niche cluster assignment for each cell level
     """
 
+    if options.GNN_dir is None:
+        return None
+
     cell_level_niche_cluster_assign_file = f'{options.GNN_dir}/cell_level_niche_cluster.csv.gz'
     if not os.path.isfile(cell_level_niche_cluster_assign_file):
         cell_level_niche_cluster_assign_file = f'{options.GNN_dir}/cell_level_niche_cluster.csv'
@@ -152,6 +166,9 @@ def load_niche_level_max_niche_cluster(options: Values) -> Optional[pd.DataFrame
     Returns:
         Optional[pd.DataFrame]: the max niche cluster assignment for each niche level
     """
+
+    if options.GNN_dir is None:
+        return None
 
     niche_level_max_niche_cluster_file = f'{options.GNN_dir}/niche_level_max_niche_cluster.csv.gz'
     if not os.path.isfile(niche_level_max_niche_cluster_file):
@@ -172,6 +189,9 @@ def load_cell_level_max_niche_cluster(options: Values) -> Optional[pd.DataFrame]
         Optional[pd.DataFrame]: the max niche cluster assignment for each cell level
     """
 
+    if options.GNN_dir is None:
+        return None
+
     cell_level_max_niche_cluster_file = f'{options.GNN_dir}/cell_level_max_niche_cluster.csv.gz'
     if not os.path.isfile(cell_level_max_niche_cluster_file):
         cell_level_max_niche_cluster_file = f'{options.GNN_dir}/cell_level_max_niche_cluster.csv'
@@ -190,6 +210,9 @@ def load_niche_hidden_features(options: Values) -> Optional[np.ndarray]:
     Returns:
         Optional[np.ndarray]: the niche hidden features
     """
+
+    if options.NT_dir is None:
+        return None
 
     niche_hidden_features_file = f'{options.NT_dir}/niche_hidden_features.csv.gz'
     if not os.path.isfile(niche_hidden_features_file):
@@ -285,6 +308,8 @@ class AnaData:
         return self._cell_type_composition
 
     def _load_NT_score(self) -> Optional[DataFrame]:
+        if self.options.NT_dir is None:
+            return None
         if not os.path.isfile(f'{self.options.NT_dir}/NTScore.csv.gz'):
             warning(f"Cannot find NT score file: {self.options.NT_dir}/NTScore.csv.gz.")
             return None
