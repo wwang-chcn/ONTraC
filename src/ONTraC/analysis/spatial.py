@@ -67,8 +67,11 @@ def plot_cell_type_composition_dataset_from_anadata(ana_data: AnaData) -> Option
     """
 
     try:
-        if ana_data.cell_type_composition is None or ana_data.cell_type_codes is None:
-            warning("No cell type composition data found.")
+        if ana_data.cell_type_composition is None:
+            warning("No cell type composition data found. Skip spatial cell type composition visualization.")
+            return None
+        if ana_data.cell_type_codes is None:
+            warning("No cell type codes found. Skip spatial cell type composition visualization.")
             return None
     except FileNotFoundError as e:
         warning(str(e))
@@ -136,8 +139,11 @@ def plot_cell_type_composition_sample_from_anadata(ana_data: AnaData) -> Optiona
     """
 
     try:
-        if ana_data.cell_type_composition is None or ana_data.cell_type_codes is None:
-            warning("No cell type composition data found.")
+        if ana_data.cell_type_composition is None:
+            warning("No cell type composition data found. Skip spatial cell type composition visualization.")
+            return None
+        if ana_data.cell_type_codes is None:
+            warning("No cell type codes found. Skip spatial cell type composition visualization.")
             return None
     except FileNotFoundError as e:
         warning(str(e))
@@ -209,8 +215,11 @@ def plot_niche_NT_score_dataset_from_anadata(ana_data: AnaData) -> Optional[Tupl
     """
 
     try:
+        if ana_data.NT_score is None:
+            warning("No NT score data found. Skip spatial niche-level NT score visualization.")
+            return None
         if 'Niche_NTScore' not in ana_data.NT_score.columns:
-            warning("Niche_NTScore not found in the NT score data.")
+            warning("Niche_NTScore not found in the NT score data. Skip spatial niche-level NT score visualization.")
             return None
     except FileNotFoundError as e:
         warning(str(e))
@@ -269,8 +278,11 @@ def plot_niche_NT_score_sample_from_anadata(ana_data: AnaData) -> Optional[List[
     """
 
     try:
+        if ana_data.NT_score is None:
+            warning("No NT score data found. Skip spatial niche-level NT score visualization.")
+            return None
         if 'Niche_NTScore' not in ana_data.NT_score.columns:
-            warning("Niche_NTScore not found in the NT score data.")
+            warning("Niche_NTScore not found in the NT score data. Skip spatial niche-level NT score visualization.")
             return None
     except FileNotFoundError as e:
         warning(str(e))
@@ -342,8 +354,11 @@ def plot_cell_NT_score_dataset_from_anadata(ana_data: AnaData) -> Optional[Tuple
     """
 
     try:
+        if ana_data.NT_score is None:
+            warning("No NT score data found. Skip spatial cell-level NT score visualization.")
+            return None
         if 'Cell_NTScore' not in ana_data.NT_score.columns:
-            warning("Cell_NTScore not found in the NT score data.")
+            warning("Cell_NTScore not found in the NT score data. Skip spatial cell-level NT score visualization.")
             return None
     except FileNotFoundError as e:
         warning(str(e))
@@ -402,8 +417,11 @@ def plot_cell_NT_score_sample_from_anadata(ana_data: AnaData) -> Optional[List[T
     """
 
     try:
+        if ana_data.NT_score is None:
+            warning("No NT score data found. Skip spatial cell-level NT score visualization.")
+            return None
         if 'Cell_NTScore' not in ana_data.NT_score.columns:
-            warning("Cell_NTScore not found in the NT score data.")
+            warning("Cell_NTScore not found in the NT score data. Skip spatial cell-level NT score visualization.")
             return None
     except FileNotFoundError as e:
         warning(str(e))

@@ -1,7 +1,6 @@
-import os
 import sys
 from optparse import OptionGroup, OptionParser, Values
-from typing import List, Optional
+from typing import Optional
 
 from ..log import *
 
@@ -9,11 +8,11 @@ from ..log import *
 def add_visualization_group(optparser: OptionParser) -> None:
     group = OptionGroup(optparser, 'Visualization options')
     group.add_option('-r',
-                         '--reverse',
-                         dest='reverse',
-                         action='store_true',
-                         default=False,
-                         help='Reverse the NT score during visualization.')
+                     '--reverse',
+                     dest='reverse',
+                     action='store_true',
+                     default=False,
+                     help='Reverse the NT score during visualization.')
     group.add_option('-s',
                      '--sample',
                      dest='sample',
@@ -30,16 +29,20 @@ def add_visualization_group(optparser: OptionParser) -> None:
 
 def add_suppress_group(optparser: OptionParser) -> None:
     group = OptionGroup(optparser, 'Suppress options')
-    group.add_option('--suppress-cell-type-composition',
-                     dest='suppress_cell_type_composition',
-                     action='store_true',
-                     default=False,
-                     help='Skip the cell type composition visualization. It would be useful when the number of cell types is large.')
-    group.add_option('--suppress-niche-cluster-loadings',
-                     dest='suppress_niche_cluster_loadings',
-                     action='store_true',
-                     default=False,
-                     help='Skip the niche cluster loadings visualization. It would be useful when the number of clusters or sample size is large.')
+    group.add_option(
+        '--suppress-cell-type-composition',
+        dest='suppress_cell_type_composition',
+        action='store_true',
+        default=False,
+        help='Skip the cell type composition visualization. It would be useful when the number of cell types is large.')
+    group.add_option(
+        '--suppress-niche-cluster-loadings',
+        dest='suppress_niche_cluster_loadings',
+        action='store_true',
+        default=False,
+        help=
+        'Skip the niche cluster loadings visualization. It would be useful when the number of clusters or sample size is large.'
+    )
     group.add_option('--suppress-niche-trajectory',
                      dest='suppress_niche_trajectory',
                      action='store_true',
@@ -122,7 +125,7 @@ def validate_suppress_options(options: Values, optparser: Optional[OptionParser]
         error(f'suppress_cell_type_composition must be a boolean, exit!')
         if optparser is not None: optparser.print_help()
         sys.exit(1)
-    
+
     # suppress_niche_cluster_loadings
     if getattr(options, 'suppress_niche_cluster_loadings', None) is None:
         info('suppress_niche_cluster_loadings is not set. Using default value False.')
