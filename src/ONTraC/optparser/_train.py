@@ -1,6 +1,8 @@
+from math import inf
 import sys
 from optparse import OptionGroup, OptionParser, Values
 from random import randint
+from typing import Optional
 
 import torch
 
@@ -34,7 +36,7 @@ def add_train_options_group(optparser: OptionParser) -> OptionGroup:
                            dest='min_delta',
                            type='float',
                            default=0.001,
-                           help='Minimum delta for better result. Default is 0.001')
+                           help='Minimum delta for better result. Should be in (0, 1). Default is 0.001.')
     group_train.add_option('--min-epochs',
                            dest='min_epochs',
                            type='int',
@@ -110,16 +112,24 @@ def add_GP_options_group(group_train: OptionGroup) -> None:
                            help='Beta value control niche cluster assignment matrix. Default is 0.3.')
 
 
-def validate_train_options(optparser: OptionParser, options: Values) -> Values:
+def validate_train_options(options: Values, optparser: Optional[OptionParser] = None) -> None:
     """
     Validate train options.
-    :param optparser: OptionParser object.
-    :param options: Options object.
-    :return: Validated options object.
+    
+    Parameters
+    ----------
+    options : Values
+        Options object.
+    optparser : Optional[OptionParser], optional
+        OptionParser object. The default is None.
+
+    Returns
+    -------
+    None
     """
 
     # device
-    if options.device is None:
+    if getattr(options, 'device', None) is None:
         info('Device not specified, choose automatically.')
     elif options.device.startswith(('cuda', 'cpu')):
         if options.device.startswith('cuda') and not torch.cuda.is_available():
@@ -128,54 +138,213 @@ def validate_train_options(optparser: OptionParser, options: Values) -> Values:
     else:
         warning(f'Invalid device {options.device}! Choose automatically.')
         options.device = None
-    if options.device is None:
+    if getattr(options, 'device', None) is None:
         if torch.cuda.is_available():
             options.device = 'cuda'
-        # elif torch.backends.mps.is_available():  # TODO: MPS compatibility with torch_geometric.data.InMemoryDataset
+        # elif torch.backends.mps.is_available():  # TODO: torch_geometric do not support MPS now
         #     options.device = 'mps'
         else:
             options.device = 'cpu'
 
-    # determin random seed
-    if getattr(options, 'seed') is None:
+    # epochs
+    if getattr(options, 'epochs', None) is None:
+        info('epochs is not set. Using default value 1000.')
+        options.epochs = 1000
+    elif not isinstance(options.epochs, int):
+        error(f'epochs must be an integer, exit!')
+        if optparser is not None: optparser.print_help()
+        sys.exit(1)
+    elif options.epochs < 1:
+        error(f'epochs must be greater than 0, exit!')
+        if optparser is not None: optparser.print_help()
+        sys.exit(1)
+
+    # patience
+    if getattr(options, 'patience', None) is None:
+        info('patience is not set. Using default value 100.')
+        options.patience = 100
+    elif not isinstance(options.patience, int):
+        error(f'patience must be an integer, exit!')
+        if optparser is not None: optparser.print_help()
+        sys.exit(1)
+    elif options.patience < 1:
+        error(f'patience must be greater than 0, exit!')
+        if optparser is not None: optparser.print_help()
+        sys.exit(1)
+    
+    # min_delta
+    if getattr(options, 'min_delta', None) is None:
+        info('min_delta is not set. Using default value 0.001.')
+        options.min_delta = 0.001
+    elif not isinstance(options.min_delta, float):
+        error(f'min_delta must be a float, exit!')
+        if optparser is not None: optparser.print_help()
+        sys.exit(1)
+    elif not 0 < options.min_delta < 1:
+        error(f'min_delta must be in (0, 1), exit!')
+        if optparser is not None: optparser.print_help()
+        sys.exit(1)
+
+    # min_epochs
+    if getattr(options, 'min_epochs', None) is None:
+        info('min_epochs is not set. Using default value 50.')
+        options.min_epochs = 50
+    elif not isinstance(options.min_epochs, int):
+        error(f'min_epochs must be an integer, exit!')
+        if optparser is not None: optparser.print_help()
+        sys.exit(1)
+    elif options.min_epochs < 0:
+        error(f'min_epochs must be greater than or equal to 0, exit!')
+        if optparser is not None: optparser.print_help()
+        sys.exit(1)
+
+    # batch_size
+    if getattr(options, 'batch_size', None) is None:
+        info('batch_size is not set. Using default value 0.')
+        options.batch_size = 0
+    elif not isinstance(options.batch_size, int):
+        error(f'batch_size must be an integer, exit!')
+        if optparser is not None: optparser.print_help()
+        sys.exit(1)
+    elif options.batch_size < 0:
+        error(f'batch_size must be greater than or equal to 0, exit!')
+        if optparser is not None: optparser.print_help()
+        sys.exit(1)
+
+    # seed
+    if getattr(options, 'seed', None) is None:
         options.seed = randint(0, 10000)
+    
+    # lr
+    if getattr(options, 'lr', None) is None:
+        info('lr is not set. Using default value 0.03.')
+        options.lr = 0.03
+    elif not isinstance(options.lr, float):
+        error(f'lr must be a float, exit!')
+        if optparser is not None: optparser.print_help()
+        sys.exit(1)
+    elif options.lr <= 0:
+        error(f'lr must be greater than 0, exit!')
+        if optparser is not None: optparser.print_help()
+        sys.exit(1)
 
-    return options
 
-
-def validate_GCN_options(optparser: OptionParser, options: Values) -> Values:
+def validate_GCN_options(options: Values, optparser: Optional[OptionParser] = None) -> None:
     """
     Validate GCN options.
-    :param optparser: OptionParser object.
-    :param options: Options object.
-    :return: Validated options object.
+    
+    Parameters
+    ----------
+    options : Values
+        Options object.
+    optparser : Optional[OptionParser], optional
+        Option
+
+    Returns
+    -------
+    None
     """
 
     # check hidden_feats
-    if getattr(options, 'hidden_feats') < 1:
-        error(f'hidden_feats must be greater than 0, exit!')
+    if getattr(options, 'hidden_feats', None) is None:
+        info('hidden_feats is not set. Using default value 4.')
+        options.hidden_feats = 4
+    elif getattr(options, 'hidden_feats') < 2:
+        error(f'hidden_feats must be greater than 1, exit!')
+        if optparser is not None: optparser.print_help()
         sys.exit(1)
-    if getattr(options, 'n_gcn_layers') < 1:
+    
+    # check n_gcn_layers
+    if getattr(options, 'n_gcn_layers', None) is None:
+        info('n_gcn_layers is not set. Using default value 2.')
+        options.n_gcn_layers = 2
+    elif getattr(options, 'n_gcn_layers') < 1:
         error(f'n_gcn_layers must be greater than 0, exit!')
+        if optparser is not None: optparser.print_help()
         sys.exit(1)
 
-    return options
 
-
-def validate_GP_options(optparser: OptionParser, options: Values) -> Values:
+def validate_GP_options(options: Values, optparser: Optional[OptionParser] = None) -> None:
     """
     Validate Graph Pooling options.
-    :param optparser: OptionParser object.
-    :param options: Options object.
-    :return: Validated options object.
+    
+    
+    Parameters
+    ----------
+    options : Values
+        Options object.
+    optparser : Optional[OptionParser], optional
+        OptionParser object. The default is None.
+
+    Returns
+    -------
+    None
     """
 
     # check k
-    if getattr(options, 'k') < 2:
+    if getattr(options, 'k', None) is None:
+        info('k is not set. Using default value 6.')
+        options.k = 6
+    elif not isinstance(options.k, int):
+        error(f'k must be an integer, exit!')
+        if optparser is not None: optparser.print_help()
+        sys.exit(1)
+    elif getattr(options, 'k') < 2:
         error(f'k must be greater than 1, exit!')
+        if optparser is not None: optparser.print_help()
         sys.exit(1)
 
-    return options
+    # check modularity_loss_weight
+    if getattr(options, 'modularity_loss_weight', None) is None:
+        info('modularity_loss_weight is not set. Using default value 0.3.')
+        options.modularity_loss_weight = 0.3
+    elif not isinstance(options.modularity_loss_weight, (float, int)):
+        error(f'modularity_loss_weight must be a number, exit!')
+        if optparser is not None: optparser.print_help()
+        sys.exit(1)
+    elif options.modularity_loss_weight < 0:
+        error(f'modularity_loss_weight must be greater than or equal to 0, exit!')
+        if optparser is not None: optparser.print_help()
+        sys.exit(1)
+
+    # check purity_loss_weight
+    if getattr(options, 'purity_loss_weight', None) is None:
+        info('purity_loss_weight is not set. Using default value 300.')
+        options.purity_loss_weight = 300
+    elif not isinstance(options.purity_loss_weight, (float, int)):
+        error(f'purity_loss_weight must be a number, exit!')
+        if optparser is not None: optparser.print_help()
+        sys.exit(1)
+    elif options.purity_loss_weight < 0:
+        error(f'purity_loss_weight must be greater than or equal to 0, exit!')
+        if optparser is not None: optparser.print_help()
+        sys.exit(1)
+
+    # check regularization_loss_weight
+    if getattr(options, 'regularization_loss_weight', None) is None:
+        info('regularization_loss_weight is not set. Using default value 0.1.')
+        options.regularization_loss_weight = 0.1
+    elif not isinstance(options.regularization_loss_weight, (float, int)):
+        error(f'regularization_loss_weight must be a number, exit!')
+        if optparser is not None: optparser.print_help()
+        sys.exit(1)
+    elif options.regularization_loss_weight < 0:
+        error(f'regularization_loss_weight must be greater than or equal to 0, exit!')
+        if optparser is not None: optparser.print_help()
+        sys.exit(1)
+
+    # check beta
+    if getattr(options, 'beta', None) is None:
+        info('beta is not set. Using default value 0.03.')
+        options.beta = 0.03
+    elif not isinstance(options.beta, (float, int)):
+        error(f'beta must be a number, exit!')
+        if optparser is not None: optparser.print_help()
+        sys.exit(1)
+    elif options.beta < 0:
+        error(f'beta must be greater than or equal to 0, exit!')
+        if optparser is not None: optparser.print_help()
+        sys.exit(1)
 
 
 def write_train_options_memo(options: Values) -> None:

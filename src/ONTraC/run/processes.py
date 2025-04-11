@@ -119,13 +119,14 @@ def gnn(options: Values) -> None:
     # evaluate
     evaluate(batch_train=batch_train)
     # predict
-    consolidate_s_array, _ = predict(output_dir=options.GNN_dir, batch_train=batch_train, dataset=dataset)
+    consolidate_z_array, consolidate_s_array, _ = predict(output_dir=options.GNN_dir, batch_train=batch_train, dataset=dataset)
     # save results
-    if consolidate_s_array is not None:
+    if consolidate_z_array is not None and consolidate_s_array is not None:
         save_graph_pooling_results(meta_data_df=meta_data_df,
                                    dataset=dataset,
                                    rel_params=get_rel_params(NN_dir=options.NN_dir,
                                                              params=read_yaml_file(f'{options.NN_dir}/samples.yaml')),
+                                   consolidate_z_array=consolidate_z_array,
                                    consolidate_s_array=consolidate_s_array,
                                    output_dir=options.GNN_dir)
     info('--------------------- GNN end ---------------------- ')

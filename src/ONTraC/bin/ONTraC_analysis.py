@@ -21,46 +21,46 @@ def analysis_pipeline(options: Values) -> None:
     ONTraC analysis pipeline
     """
 
-
     info('-------------- Analysis pipeline start -------------- ')
+    step_index = 0
 
     # 0. load data class
-    info('                  ---- Load data ---                  ')
+    info(message=f'Analysis pipeline step {step_index}: load data.')
     ana_data = AnaData(options)
+    step_index += 1
 
     step_index = 0
     if ana_data.options.spatial_res == 'cell':
         # part 1: clustering
-        step_index += 1
         info(message=f'Analysis pipeline step {step_index}: clustering visualization.')
         clustering_visualization_from_anadata(ana_data=ana_data)
+        step_index += 1
 
     if ana_data.options.embedding_adjust:
         # part 2: niche network construction
-        step_index += 1
         info(message=f'Analysis pipeline step {step_index}: embedding adjust visualization.')
         embedding_adjust_visualization_from_anadata(ana_data=ana_data)
+        step_index += 1
 
     # part 3: train loss
-    step_index += 1
     info(message=f'Analysis pipeline step {step_index}: train loss visualization.')
     train_loss_visualiztion(ana_data=ana_data)
+    step_index += 1
 
     # part 4: spatial based output
-    step_index += 1
     info(message=f'Analysis pipeline step {step_index}: spatial-based visualization.')
     spatial_visualization(ana_data=ana_data)
+    step_index += 1
 
     # part 5: niche cluster
-    step_index += 1
     info(message=f'Analysis pipeline step {step_index}: niche cluster visualization.')
     niche_cluster_visualization(ana_data=ana_data)
+    step_index += 1
 
     # part 6: cell type based output
-    step_index += 1
     info(message=f'Analysis pipeline step {step_index}: cell type-based visualization.')
     cell_type_visualization(ana_data=ana_data)
-
+    step_index += 1
     info('--------------- Analysis pipeline end --------------- ')
 
 
