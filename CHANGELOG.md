@@ -10,6 +10,7 @@ Added:
 Changed:
 
 - dir options for `ONTraC_analysis` become optional
+- automatically set suppression options in ONTraC_analysis when GNN_dir or NT_dir is not specified
 
 Removed:
 

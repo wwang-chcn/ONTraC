@@ -127,6 +127,11 @@ def validate_suppress_options(options: Values, optparser: Optional[OptionParser]
         sys.exit(1)
 
     # suppress_niche_cluster_loadings
+    if getattr(options, 'GNN_dir', None) is None:
+        info(
+            'GNN_dir is not set. Setting suppress_niche_cluster_loadings to True to skip the niche cluster loadings visualization.'
+        )
+        options.suppress_niche_cluster_loadings = True
     if getattr(options, 'suppress_niche_cluster_loadings', None) is None:
         info('suppress_niche_cluster_loadings is not set. Using default value False.')
         options.suppress_niche_cluster_loadings = False
@@ -136,6 +141,11 @@ def validate_suppress_options(options: Values, optparser: Optional[OptionParser]
         sys.exit(1)
 
     # suppress_niche_trajectory
+    if getattr(options, 'NT_dir', None) is None:
+        info(
+            'NT_dir is not set. Setting suppress_niche_trajectory to True to skip the niche trajectory related visualization.'
+        )
+        options.suppress_niche_trajectory = True
     if getattr(options, 'suppress_niche_trajectory', None) is None:
         info('suppress_niche_trajectory is not set. Using default value False.')
         options.suppress_niche_trajectory = False
