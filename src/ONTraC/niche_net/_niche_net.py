@@ -9,6 +9,7 @@ from scipy.linalg import cholesky, eigh
 from scipy.sparse import csr_matrix, save_npz
 from scipy.spatial import cKDTree, distance
 
+from ..preprocessing.data import get_coord_names
 from ..log import *
 
 
@@ -27,8 +28,11 @@ def build_knn_network(sample_name: str,
 
     info(f'Building KNN network for sample: {sample_name}...')
 
+    # prepare
+    coord_names = get_coord_names(meta_data_df=sample_meta_df)
+
     # build KDTree
-    coordinates = sample_meta_df[['x', 'y']].values
+    coordinates = sample_meta_df[coord_names].values
     kdtree = cKDTree(data=coordinates)
     dis_matrix, indices_matrix = kdtree.query(x=coordinates, k=np.max([n_neighbors, n_local]) + 1)  # include self
 
