@@ -313,7 +313,7 @@ def prepare_nt_optparser() -> OptionParser:
 
 def _opt_nt_validate(options: Values,
                      io_options: Dict[str, List[str]],
-                     optparser: Optional[OptionParser] = None) -> Values:
+                     optparser: OptionParser) -> Values:
     """Validate options from a OptParser object.
 
     Parameters
@@ -322,8 +322,8 @@ def _opt_nt_validate(options: Values,
         Options object.
     io_options : Dict[str, List[str]]
         I/O options.
-    optparser : Optional[OptionParser], optional
-        OptionParser object, by default None
+    optparser : OptionParser,
+        OptionParser object.
 
     Returns
     -------
@@ -401,7 +401,7 @@ def prepare_gt_optparser() -> OptionParser:
 
 def _opt_gt_validate(options: Values,
                      io_options: Dict[str, List[str]],
-                     optparser: Optional[OptionParser] = None) -> Values:
+                     optparser: OptionParser) -> Values:
     """Validate options from a OptParser object.
 
     Parameters
@@ -410,8 +410,8 @@ def _opt_gt_validate(options: Values,
         Options object.
     io_options : Dict[str, List[str]]
         I/O options.
-    optparser : Optional[OptionParser], optional
-        OptionParser object, by default None
+    optparser : OptionParser
+        OptionParser object.
 
     Returns
     -------
