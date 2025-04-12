@@ -80,12 +80,12 @@ def evaluate(batch_train: SubBatchTrainProtocol) -> None:
     """
     info(message=f'Evaluating process start.')
     loss_dict: Dict[str, np.floating] = batch_train.evaluate()  # type: ignore
-    info(message=f'Evaluate loss, {repr(loss_dict)}')
+    info(message=f'Evaluation loss, {repr(loss_dict)}')
     info(message=f'Evaluating process end.')
 
 
 def predict(output_dir: str, batch_train: SubBatchTrainProtocol,
-            dataset: SpatailOmicsDataset) -> Tuple[Optional[np.ndarray], Optional[np.ndarray]]:
+            dataset: SpatailOmicsDataset) -> Tuple[Optional[np.ndarray], Optional[np.ndarray], Optional[np.ndarray]]:
     """
     Predict the results of ONTraC model on data.
     :param output_dir: str, output directory.
@@ -96,6 +96,7 @@ def predict(output_dir: str, batch_train: SubBatchTrainProtocol,
     info(f'Predicting process start.')
     each_sample_loader = DataLoader(dataset, batch_size=1)
     consolidate_flag = False
+    consolidate_z_list = []  # N x Z
     consolidate_s_list = []  # N x C
     consolidate_out_list = []  # C x F
     consolidate_out_adj = None  # C x C
@@ -117,10 +118,12 @@ def predict(output_dir: str, batch_train: SubBatchTrainProtocol,
         if not consolidate_flag and ('s' in predict_result and 'out' in predict_result and 'out_adj' in predict_result):
             consolidate_flag = True
         if consolidate_flag:
-            s = predict_result['s']
-            out = predict_result['out']
-            if out.dim() == 3:
-                out = out.squeeze(0)
+            z = predict_result['z']  # (sample's N) x Z
+            s = predict_result['s']  # (sample's N) x C
+            out = predict_result['out']  # C x F
+            if out.dim() == 2:
+                out = out.unsqueeze(0)  # 1 x C x F
+            consolidate_z_list.append(z)
             consolidate_s_list.append(s)
             consolidate_out_list.append(out)
             edge_weight = torch.ones(data.edge_index.shape[1],
@@ -129,14 +132,19 @@ def predict(output_dir: str, batch_train: SubBatchTrainProtocol,
             out_adj_ = torch.sparse.mm(s.t(), adj_).mm(s)
             consolidate_out_adj = out_adj_ if consolidate_out_adj is None else consolidate_out_adj + out_adj_
 
-    consolidate_s_array, consolidate_out_adj_array = None, None
+    consolidate_z_array, consolidate_s_array, consolidate_out_adj_array = None, None, None
     if consolidate_flag:
+        # consolidate z
+        consolidate_z = torch.cat(consolidate_z_list, dim=0)
+        consolidate_z_array = consolidate_z.detach().cpu().numpy()
+        # np.savetxt(fname=f'{output_dir}/consolidate_z.csv.gz', X=consolidate_z_array, delimiter=',')
         # consolidate s
         consolidate_s = torch.cat(consolidate_s_list, dim=0)
         consolidate_s_array = consolidate_s.detach().cpu().numpy()
-        np.savetxt(fname=f'{output_dir}/consolidate_s.csv.gz', X=consolidate_s_array, delimiter=',')
+        # np.savetxt(fname=f'{output_dir}/consolidate_s.csv.gz', X=consolidate_s_array, delimiter=',')
         # consolidate out
-        consolidate_out = torch.cat(consolidate_out_list, dim=0)
+        consolidate_out = torch.cat(consolidate_out_list, dim=0) # #sample x C x F
+        consolidate_out = consolidate_out.mean(dim=0)  # C x F
         consolidate_out_array = consolidate_out.detach().cpu().numpy()
         np.savetxt(fname=f'{output_dir}/consolidate_out.csv.gz', X=consolidate_out_array, delimiter=',')
         # consolidate out_adj
@@ -146,16 +154,18 @@ def predict(output_dir: str, batch_train: SubBatchTrainProtocol,
         np.savetxt(fname=f'{output_dir}/consolidate_out_adj.csv.gz', X=consolidate_out_adj_array, delimiter=',')  # type: ignore
 
     info(f'Predicting process end.')
-    return consolidate_s_array, consolidate_out_adj_array
+    return consolidate_z_array, consolidate_s_array, consolidate_out_adj_array
 
 
 def save_graph_pooling_results(meta_data_df: pd.DataFrame, dataset: SpatailOmicsDataset, rel_params: Dict,
-                               consolidate_s_array: np.ndarray, output_dir: str) -> None:
+                               consolidate_z_array: np.ndarray, consolidate_s_array: np.ndarray,
+                               output_dir: str) -> None:
     """
     Save graph pooling results as the Niche cluster (max probability for each niche & cell).
     :param meta_data_df: pd.DataFrame, original data. Sample and Cell_ID columns are used.
     :param dataset: SpatailOmicsDataset, dataset.
     :param rel_params: dict, relative parameters.
+    :param consolidate_z_array: np.ndarray, consolidate z array.
     :param consolidate_s_array: np.ndarray, consolidate s array.
     :param output_dir: str, output directory.
     :return: None.
@@ -163,6 +173,7 @@ def save_graph_pooling_results(meta_data_df: pd.DataFrame, dataset: SpatailOmics
 
     id_name: str = meta_data_df.columns[0]
 
+    consolidate_z_niche_df = pd.DataFrame()
     consolidate_s_niche_df = pd.DataFrame()
     consolidate_s_cell_df = pd.DataFrame()
     s = 0
@@ -171,6 +182,13 @@ def save_graph_pooling_results(meta_data_df: pd.DataFrame, dataset: SpatailOmics
         slice_ = slice(s, s + data.x.shape[0])
         s += data.x.shape[0]
         consolidate_s = consolidate_s_array[slice_]  # N x C
+        consolidate_z = consolidate_z_array[slice_]  # N x Z
+
+        # niche to niche matrix
+        consolidate_z_df_ = pd.DataFrame(consolidate_z,
+                                         columns=[f'HiddenFeat_{i}' for i in range(consolidate_z.shape[1])])
+        consolidate_z_df_[id_name] = meta_data_df[meta_data_df['Sample'] == data.name][id_name].values
+        consolidate_z_niche_df = pd.concat([consolidate_z_niche_df, consolidate_z_df_], axis=0)
         consolidate_s_df_ = pd.DataFrame(consolidate_s,
                                          columns=[f'NicheCluster_{i}' for i in range(consolidate_s.shape[1])])
         consolidate_s_df_[id_name] = meta_data_df[meta_data_df['Sample'] == data.name][id_name].values
@@ -188,6 +206,15 @@ def save_graph_pooling_results(meta_data_df: pd.DataFrame, dataset: SpatailOmics
         consolidate_s_cell_df_[id_name] = meta_data_df[meta_data_df['Sample'] == data.name][id_name].values
         consolidate_s_cell_df = pd.concat([consolidate_s_cell_df, consolidate_s_cell_df_], axis=0)
 
+    # save results
+    ## consolidate_z niche
+    consolidate_z_niche_df = consolidate_z_niche_df.set_index(id_name)
+    consolidate_z_niche_df = consolidate_z_niche_df.loc[meta_data_df[id_name], :]
+    consolidate_z_niche_df.to_csv(f'{output_dir}/niche_hidden_features.csv.gz',
+                                  index=True,
+                                  index_label=id_name,
+                                  header=True)
+    ## consolidate_s niche
     consolidate_s_niche_df = consolidate_s_niche_df.set_index(id_name)
     consolidate_s_niche_df = consolidate_s_niche_df.loc[meta_data_df[id_name], :]
     consolidate_s_niche_df.to_csv(f'{output_dir}/niche_level_niche_cluster.csv.gz',

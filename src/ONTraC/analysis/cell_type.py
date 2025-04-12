@@ -15,7 +15,7 @@ import seaborn as sns
 from ..log import info, warning
 from .data import AnaData
 from .niche_cluster import cal_nc_order, cal_nc_order_index, cal_nc_scores
-from .utils import saptial_figsize
+from .utils import saptial_figsize, validate_cell_type_palette
 
 
 def plot_spatial_cell_type_distribution_dataset(data_df: pd.DataFrame,
@@ -29,8 +29,31 @@ def plot_spatial_cell_type_distribution_dataset(data_df: pd.DataFrame,
     :return: None or Tuple[plt.Figure, plt.Axes].
     """
 
+    # data_df should have 'x', 'y', 'Cell_Type', and 'Sample' columns
+    if 'Cell_Type' not in data_df.columns:
+        warning("No `Cell_Type` column found. Skip spatial cell type distribution visualization.")
+        return None
+    if 'Sample' not in data_df.columns:
+        warning("No `Sample` column found. Skip spatial cell type distribution visualization.")
+        return None
+    if 'x' not in data_df.columns:
+        warning("No `x` column found. Skip spatial cell type distribution visualization.")
+        return None
+    if 'y' not in data_df.columns:
+        warning("No `y` column found. Skip spatial cell type distribution visualization.")
+        return None
+
+    # Cell_Type column should be categorical
+    data_df['Cell_Type'] = data_df['Cell_Type'].astype('category')
+
+    # Check parameters for palette
+    cell_types = data_df['Cell_Type'].cat.categories.tolist()
+    palette = kwargs.get('palette', None)
+    kwargs['palette'] = validate_cell_type_palette(cell_types=cell_types, palette=palette)
+
     samples = data_df['Sample'].unique()
     N = len(samples)
+
     fig, axes = plt.subplots(1, N, figsize=(4 * N, 3))
     for i, sample in enumerate(samples):
         sample_df = data_df.loc[data_df['Sample'] == sample]
@@ -77,8 +100,31 @@ def plot_spatial_cell_type_distribution_sample(data_df: pd.DataFrame,
     :return: None or Tuple[plt.Figure, plt.Axes].
     """
 
+    # data_df should have 'x', 'y', 'Cell_Type', and 'Sample' columns
+    if 'Cell_Type' not in data_df.columns:
+        warning("No `Cell_Type` column found. Skip spatial cell type distribution visualization.")
+        return None
+    if 'Sample' not in data_df.columns:
+        warning("No `Sample` column found. Skip spatial cell type distribution visualization.")
+        return None
+    if 'x' not in data_df.columns:
+        warning("No `x` column found. Skip spatial cell type distribution visualization.")
+        return None
+    if 'y' not in data_df.columns:
+        warning("No `y` column found. Skip spatial cell type distribution visualization.")
+        return None
+
+    # Cell_Type column should be categorical
+    data_df['Cell_Type'] = data_df['Cell_Type'].astype('category')
+
+    # Check parameters for palette
+    cell_types = data_df['Cell_Type'].cat.categories.tolist()
+    palette = kwargs.get('palette', None)
+    kwargs['palette'] = validate_cell_type_palette(cell_types=cell_types, palette=palette)
+
     samples = data_df['Sample'].unique()
     output = []
+
     for sample in samples:
         sample_df = data_df.loc[data_df['Sample'] == sample]
         fig, ax = plt.subplots(figsize=saptial_figsize(sample_df))
@@ -128,11 +174,25 @@ def plot_violin_cell_type_along_NT_score(data_df: pd.DataFrame,
     """
 
     # TODO: support low resolution data input
+
+    # Cell_NTScore, Cell_Type columns should be in data_df
+    if 'Cell_NTScore' not in data_df.columns:
+        warning("No `Cell_NTScore` column found. Skip violin plot.")
+        return None
+    if 'Cell_Type' not in data_df.columns:
+        warning("No `Cell_Type` column found. Skip violin plot.")
+        return None
+
+    # Check number of cell types
     if (n_cell_type := len(cell_types)) > 100:
         warning(
             "There are more than 100 cell types, skip violin plot to avoid long runtime. You could manually plot it according to our tutorial."
         )
         return None
+
+    # Check parameters for palette
+    palette = kwargs.get('palette', None)
+    kwargs['palette'] = validate_cell_type_palette(cell_types=cell_types, palette=palette)
 
     if not np.allclose(cell_type_coding.sum(axis=1), np.ones(cell_type_coding.shape[0])):
         info("Cell type coding matrix is not one-hot encoded (low resolution data input). Skip the violin plot.")
@@ -170,13 +230,13 @@ def plot_violin_cell_type_along_NT_score_from_anadata(ana_data: AnaData,
     """
 
     if ana_data.NT_score is None:
-        warning("No NT score data found.")
+        warning("No NT score data found. Skip cell type along NT score violin plot.")
         return None
 
     data_df = ana_data.meta_data_df.join(ana_data.NT_score['Cell_NTScore'])
     if ana_data.options.reverse: data_df['Cell_NTScore'] = 1 - data_df['Cell_NTScore']
 
-    cell_types = ana_data.cell_type_codes['Cell_Type'].to_list()
+    cell_types = ana_data.meta_data_df['Cell_Type'].cat.categories.to_list()
 
     return plot_violin_cell_type_along_NT_score(data_df=data_df,
                                                 cell_types=cell_types,
@@ -185,15 +245,16 @@ def plot_violin_cell_type_along_NT_score_from_anadata(ana_data: AnaData,
                                                 **kwargs)
 
 
-def plot_kde_cell_type_along_NT_score(
-        data_df: pd.DataFrame,
-        cell_type_coding: np.ndarray,
-        output_file_path: Optional[Union[str, Path]] = None) -> Optional[Tuple[plt.Figure, plt.Axes]]:
+def plot_kde_cell_type_along_NT_score(data_df: pd.DataFrame,
+                                      cell_type_coding: np.ndarray,
+                                      output_file_path: Optional[Union[str, Path]] = None,
+                                      **kwargs) -> Optional[Tuple[plt.Figure, plt.Axes]]:
     """
     Plot kdeplot cell type composition along NT score.
     :param data_df: pd.DataFrame, the data for visualization.
     :param cell_type_coding: np.ndarray, the cell type coding matrix.  #cell/spots x #cell_types
     :param output_file_path: Optional[Union[str, Path]], the output directory.
+    :param kwargs: Optional, the additional arguments for visualization using seaborn.kdeplot.
     :return: None or Tuple[plt.Figure, plt.Axes].
     """
 
@@ -202,8 +263,23 @@ def plot_kde_cell_type_along_NT_score(
         info("Cell type coding matrix is not one-hot encoded (low resolution data input). Skip the violin plot.")
         return None
 
+    # Cell_NTScore, Cell_Type columns should be in data_df
+    if 'Cell_NTScore' not in data_df.columns:
+        warning("No `Cell_NTScore` column found. Skip kdeplot.")
+        return None
+    if 'Cell_Type' not in data_df.columns:
+        warning("No `Cell_Type` column found. Skip kdeplot.")
+        return None
+
+    # Cell_Type column should be categorical
+    data_df['Cell_Type'] = data_df['Cell_Type'].astype('category')
+
+    # Check parameters for palette
+    cell_types = data_df['Cell_Type'].cat.categories.tolist()
+    palette = kwargs.get('palette', None)
+    kwargs['palette'] = validate_cell_type_palette(cell_types=cell_types, palette=palette)
     fig, ax = plt.subplots(figsize=(8, 4))
-    sns.kdeplot(data=data_df, x='Cell_NTScore', hue='Cell_Type', multiple="fill", ax=ax)
+    sns.kdeplot(data=data_df, x='Cell_NTScore', hue='Cell_Type', multiple="fill", ax=ax, **kwargs)
     ax.set_ylabel('Fraction of cells')
     fig.tight_layout()
     if output_file_path is not None:
@@ -214,15 +290,17 @@ def plot_kde_cell_type_along_NT_score(
         return fig, ax
 
 
-def plot_kde_cell_type_along_NT_score_from_anadata(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.Axes]]:
+def plot_kde_cell_type_along_NT_score_from_anadata(ana_data: AnaData,
+                                                   **kwargs) -> Optional[Tuple[plt.Figure, plt.Axes]]:
     """
     Plot kdeplot cell type composition along NT score.
     :param ana_data: AnaData, the data for analysis.
+    :param kwargs: Optional, the additional arguments for visualization using seaborn.kdeplot.
     :return: None or Tuple[plt.Figure, plt.Axes].
     """
 
     if ana_data.NT_score is None:
-        warning("No NT score data found.")
+        warning("No NT score data found. Skip cell type along NT score kde plot.")
         return None
 
     data_df = ana_data.meta_data_df.join(ana_data.NT_score['Cell_NTScore'])
@@ -230,20 +308,22 @@ def plot_kde_cell_type_along_NT_score_from_anadata(ana_data: AnaData) -> Optiona
 
     return plot_kde_cell_type_along_NT_score(data_df=data_df,
                                              cell_type_coding=ana_data.cell_type_coding,
-                                             output_file_path=ana_data.options.output)
+                                             output_file_path=ana_data.options.output,
+                                             **kwargs)
 
 
-def plot_hist_cell_type_along_NT_score(
-        data_df: pd.DataFrame,
-        cell_types: List[str],
-        cell_type_coding: np.ndarray,
-        output_file_path: Optional[Union[str, Path]] = None) -> Optional[Tuple[plt.Figure, plt.Axes]]:
+def plot_hist_cell_type_along_NT_score(data_df: pd.DataFrame,
+                                       cell_types: List[str],
+                                       cell_type_coding: np.ndarray,
+                                       output_file_path: Optional[Union[str, Path]] = None,
+                                       **kwargs) -> Optional[Tuple[plt.Figure, plt.Axes]]:
     """
     Plot histogram of cell type composition along NT score.
     :param data_df: pd.DataFrame, the data for visualization.
     :param cell_types: List[str], the cell types, used for hue order of histogram.
     :param cell_type_coding: np.ndarray, the cell type coding matrix.  #cell/spots x #cell_types
     :param output_file_path: Optional[Union[str, Path]], the output directory.
+    :param kwargs: Optional, the additional arguments for visualization using seaborn.histplot.
     :return: None or Tuple[plt.Figure, plt.Axes].
     """
 
@@ -251,6 +331,18 @@ def plot_hist_cell_type_along_NT_score(
     if not np.allclose(cell_type_coding.sum(axis=1), np.ones(cell_type_coding.shape[0])):
         info("Cell type coding matrix is not one-hot encoded (low resolution data input). Skip the violin plot.")
         return None
+
+    # Cell_NTScore, Cell_Type columns should be in data_df
+    if 'Cell_NTScore' not in data_df.columns:
+        warning("No `Cell_NTScore` column found. Skip histogram.")
+        return None
+    if 'Cell_Type' not in data_df.columns:
+        warning("No `Cell_Type` column found. Skip histogram.")
+        return None
+
+    # Check parameters for palette
+    palette = kwargs.get('palette', None)
+    kwargs['palette'] = validate_cell_type_palette(cell_types=cell_types, palette=palette)
 
     fig, ax = plt.subplots(figsize=(len(cell_types), 4))
     sns.histplot(data=data_df, x='Cell_NTScore', hue='Cell_Type', hue_order=cell_types, multiple="dodge", ax=ax)
@@ -264,26 +356,29 @@ def plot_hist_cell_type_along_NT_score(
         return fig, ax
 
 
-def plot_hist_cell_type_along_NT_score_from_anadata(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.Axes]]:
+def plot_hist_cell_type_along_NT_score_from_anadata(ana_data: AnaData,
+                                                    **kwargs) -> Optional[Tuple[plt.Figure, plt.Axes]]:
     """
     Plot histogram of cell type composition along NT score.
     :param ana_data: AnaData, the data for analysis.
+    :param kwargs: Optional, the additional arguments for visualization using seaborn.histplot.
     :return: None or Tuple[plt.Figure, plt.Axes].
     """
 
     if ana_data.NT_score is None:
-        warning("No NT score data found.")
+        warning("No NT score data found. Skip cell type along NT score histogram.")
         return None
 
     data_df = ana_data.meta_data_df.join(ana_data.NT_score['Cell_NTScore'])
     if ana_data.options.reverse: data_df['Cell_NTScore'] = 1 - data_df['Cell_NTScore']
 
-    cell_types = ana_data.cell_type_codes['Cell_Type'].to_list()
+    cell_types = ana_data.meta_data_df['Cell_Type'].cat.categories.to_list()
 
     return plot_hist_cell_type_along_NT_score(data_df=data_df,
                                               cell_types=cell_types,
                                               cell_type_coding=ana_data.cell_type_coding,
-                                              output_file_path=ana_data.options.output)
+                                              output_file_path=ana_data.options.output,
+                                              **kwargs)
 
 
 def plot_cell_type_along_NT_score(ana_data: AnaData) -> None:
@@ -294,13 +389,13 @@ def plot_cell_type_along_NT_score(ana_data: AnaData) -> None:
     """
 
     if ana_data.NT_score is None:
-        warning("No NT score data found.")
+        warning("No NT score data found. Skip cell type along NT score visualization.")
         return None
 
     data_df = ana_data.meta_data_df.join(ana_data.NT_score['Cell_NTScore'])
     if ana_data.options.reverse: data_df['Cell_NTScore'] = 1 - data_df['Cell_NTScore']
 
-    cell_types = ana_data.cell_type_codes['Cell_Type'].to_list()
+    cell_types = ana_data.meta_data_df['Cell_Type'].cat.categories.to_list()
 
     if ana_data.options.spatial_res == 'cell':  # do not support low resolution data yet
         plot_violin_cell_type_along_NT_score(data_df=data_df,
@@ -367,10 +462,10 @@ def plot_cell_type_loading_in_niche_clusters_from_anadata(ana_data: AnaData) -> 
     """
 
     if ana_data.cell_level_niche_cluster_assign is None:
-        warning("No niche cluster assign data found.")
+        warning("No niche cluster assign data found. Skip cell type loading in niche clusters.")
         return None
     if ana_data.cell_type_codes is None:
-        warning("No cell type data found.")
+        warning("No cell type codes found. Skip cell type loading in niche clusters.")
         return None
 
     # calculate cell type distribution in each niche cluster
@@ -428,10 +523,10 @@ def plot_cell_type_com_in_niche_clusters_from_anadata(ana_data: AnaData) -> Opti
     """
 
     if ana_data.cell_level_niche_cluster_assign is None:
-        warning("No niche cluster assign data found.")
+        warning("No niche cluster assign data found. Skip cell type composition in niche clusters visualization.")
         return None
     if ana_data.cell_type_codes is None:
-        warning("No cell type data found.")
+        warning("No cell type codes found. Skip cell type composition in niche clusters visualization.")
         return None
 
     # calculate cell type distribution in each niche cluster
@@ -490,10 +585,10 @@ def plot_cell_type_dis_across_niche_cluster_from_anadata(ana_data: AnaData) -> O
     """
 
     if ana_data.cell_level_niche_cluster_assign is None:
-        warning("No niche cluster assign data found.")
+        warning("No niche cluster assign data found. Skip cell type distribution across niche cluster.")
         return None
     if ana_data.cell_type_codes is None:
-        warning("No cell type data found.")
+        warning("No cell type codes found. Skip cell type distribution across niche cluster.")
         return None
 
     # calculate cell type distribution in each niche cluster
@@ -518,7 +613,7 @@ def plot_cell_type_dis_across_niche_cluster_from_anadata(ana_data: AnaData) -> O
     cell_type_dis_df = cell_type_dis_df.loc[nc_order]
 
     return plot_cell_type_dis_across_niche_cluster(cell_type_dis_df=cell_type_dis_df,
-                                               output_file_path=ana_data.options.output)
+                                                   output_file_path=ana_data.options.output)
 
 
 def plot_cell_type_with_niche_cluster(ana_data: AnaData) -> None:
@@ -529,13 +624,10 @@ def plot_cell_type_with_niche_cluster(ana_data: AnaData) -> None:
     """
 
     if ana_data.cell_level_niche_cluster_assign is None:
-        warning("No niche cluster assign data found.")
+        warning("No niche cluster assign data found. Skip cell type with niche cluster visualization.")
         return None
     if ana_data.cell_type_codes is None:
-        warning("No cell type data found.")
-        return None
-    if ana_data.niche_cluster_score is None:
-        warning("No niche cluster scores data found.")
+        warning("No cell type codes found. Skip cell type with niche cluster visualization.")
         return None
 
     # calculate cell type distribution in each niche cluster

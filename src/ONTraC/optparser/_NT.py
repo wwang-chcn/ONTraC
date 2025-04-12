@@ -1,4 +1,5 @@
-from optparse import OptionParser, Values
+import sys
+from optparse import OptionGroup, OptionParser, Values
 
 from ..log import *
 from ..version import __version__
@@ -44,26 +45,47 @@ def add_NT_options_group(optparser: OptionParser) -> None:
     )
 
 
-def validate_NT_options(optparser: OptionParser, options: Values) -> None:
+def validate_NT_options(options: Values, optparser: OptionParser) -> None:
     """
-    Validate niche trajectory options from a OptParser object.
-    :param optparser: OptionParser object.
-    :param options: Options object.
-    :return: None.
+    Validate niche trajectory options.
+
+    Parameters
+    ----------
+    options : Values
+        Options object.
+    optparser : Optional[OptionParser], optional
+        OptionParser object. The default is None.
+
+    Returns
+    -------
+    None
     """
 
-    if options.trajectory_construct != 'DM' and options.DM_embedding_index is not None:
+    # trajectory_construct
+    if getattr(options, 'trajectory_construct', None) is None:
+        info('trajectory_construct is not set. Using default value BF.')
+        options.trajectory_construct = 'BF'
+    elif options.trajectory_construct not in ['BF', 'TSP', 'DM']:
+        error('trajectory_construct must be either BF, TSP or DM.')
+        if optparser is not None: optparser.print_help()
+        sys.exit(1)
+
+    # DM_embedding_index
+    if options.trajectory_construct != 'DM' and getattr(options, 'DM_embedding_index', None) is not None:
         options.DM_embedding_index = None
-
-    if options.trajectory_construct == 'DM' and options.DM_embedding_index < 1:
-        error('The embedding index should be greater than or equal to 1.')
-        optparser.print_help()
-        sys.exit(1)
-
-    if options.trajectory_construct == 'DM' and not isinstance(options.DM_embedding_index, int):
-        error('The embedding index should be an integer.')
-        optparser.print_help()
-        sys.exit(1)
+    
+    if options.trajectory_construct == 'DM':
+        if getattr(options, 'DM_embedding_index', None) is None:
+            info('DM_embedding_index is not set. Using default value 1.')
+            options.DM_embedding_index = 1
+        elif not isinstance(options.DM_embedding_index, int):
+            error('The embedding index should be an integer.')
+            optparser.print_help()
+            sys.exit(1)
+        elif options.DM_embedding_index < 1:
+            error('The embedding index should be greater than or equal to 1.')
+            optparser.print_help()
+            sys.exit(1)
 
 
 def write_NT_options_memo(options: Values) -> None:

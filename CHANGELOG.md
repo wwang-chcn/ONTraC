@@ -1,5 +1,11 @@
 # Change log
 
+## [3.0.0] - XXXX-XXX-XX
+
+Changed:
+
+- Switch to sparse GCN and Graph Pooling layers, which can save a lot of memory and reduce run time.
+
 ## [2.0.0] - XXXX-XXX-XX
 
 Added:
@@ -24,11 +30,41 @@ Fixed:
 
 - Resolved bug in regularization loss calculation for multi-sample batch
 
+## [XXXXX] - 2025-XXX-XX
+
+Added:
+
+- output file `niche_hidden_features.csv.gz` in `GNN_dir`, which is also available as the `niche_hidden_features` attribute in the `AnaData` class.
+- tests for IO options preparation
+
+Changed:
+
+- dir options for `ONTraC_analysis` become optional
+- automatically set suppression options in ONTraC_analysis when GNN_dir or NT_dir is not specified
+
+Removed:
+
+- output named `consolidate_s.csv.gz` in `GNN_dir` to avoid ambiguity. Please use `niche_level_niche_cluster.csv.gz` instead.
+
+## [1.1.4] - 2025-Mar-5
+
+Changed:
+
+- Update dependencies
+- Refactor the I/O options module
+- Refactor the I/O options validation in integrate to be based on optparser
+- Uniform default colors of cell types for different cell type related visulization
+
+Fixed:
+
+- Niche cluster size calculation in `plot_niche_cluster_connectivity_bysample_from_anadata`
+- Different color palette in `plot_spatial_cell_type_distribution_dataset` with multiple samples
+
 ## [1.1.3] - 2025-Jan-15
 
 Changed:
 
-- Make niche cluster visualization no longer dependent on NT score.
+- Make niche cluster visualization no longer dependent on NT score
 
 ## [XXXXX] - XXXX-XXX-XX
 

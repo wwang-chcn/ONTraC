@@ -1,5 +1,5 @@
-# niche network construction options
 from optparse import OptionGroup, OptionParser, Values
+from typing import Dict, List
 
 from ..constants import IO_OPTIONS  # type: ignore
 from ..log import *
@@ -22,7 +22,7 @@ def prepare_ontrac_optparser() -> OptionParser:
     """
 
     # args
-    io_options: Set[str] = IO_OPTIONS['ONTraC']  # type: ignore
+    io_options: Dict[str, List[str]] = IO_OPTIONS['ONTraC']  # type: ignore
 
     # usage and description
     usage = f'''USAGE: %prog <--NN-dir NN_DIR> <--GNN-dir GNN_DIR> <--NT-dir NT_DIR> <--meta-input META_INPUT>
@@ -57,29 +57,27 @@ def prepare_ontrac_optparser() -> OptionParser:
     return optparser
 
 
-def opt_ontrac_validate(optparser) -> Values:
+def _opt_ontrac_validate(options: Values, io_options: Dict[str, List[str]], optparser: OptionParser) -> Values:
     """Validate options from a OptParser object.
 
+    :param options: Options object.
+    :param io_options: I/O options.
     :param optparser: OptionParser object.
     :return: Values object.
     """
 
-    # args
-    io_options: Set[str] = IO_OPTIONS['ONTraC']  # type: ignore
-    (options, args) = optparser.parse_args()
-
     # IO
-    validate_io_options(optparser=optparser, options=options, io_options=io_options)
+    validate_io_options(options=options, io_options=io_options, optparser=optparser)
     # preprocessing
     validate_preprocessing_options(optparser=optparser, options=options)
     # niche network construction
-    validate_niche_net_constr_options(optparser=optparser, options=options)
+    validate_niche_net_constr_options(options=options, optparser=optparser)
     # training
-    validate_train_options(optparser=optparser, options=options)
-    validate_GP_options(optparser=optparser, options=options)
-    validate_GCN_options(optparser=optparser, options=options)
+    validate_train_options(options=options, optparser=optparser)
+    validate_GCN_options(options=options, optparser=optparser)
+    validate_GP_options(options=options, optparser=optparser)
     # niche trajectory
-    validate_NT_options(optparser=optparser, options=options)
+    validate_NT_options(options=options, optparser=optparser)
 
     # print parameters to stdout
     info(message='------------------ RUN params memo ------------------ ')
@@ -95,6 +93,23 @@ def opt_ontrac_validate(optparser) -> Values:
     return options
 
 
+def opt_ontrac_validate(optparser) -> Values:
+    """Validate options from a OptParser object.
+
+    :param optparser: OptionParser object.
+    :return: Values object.
+    """
+
+    # args
+    io_options: Dict[str, List[str]] = IO_OPTIONS['ONTraC']  # type: ignore
+
+    (options, args) = optparser.parse_args()
+
+    options = _opt_ontrac_validate(options=options, io_options=io_options, optparser=optparser)
+
+    return options
+
+
 # ------------------------------------
 # ONTraC_NN functions
 # ------------------------------------
@@ -105,7 +120,7 @@ def prepare_nn_optparser() -> OptionParser:
     """
 
     # args
-    io_options: Set[str] = IO_OPTIONS['ONTraC_NN']  # type: ignore
+    io_options: Dict[str, List[str]] = IO_OPTIONS['ONTraC_NN']  # type: ignore
 
     # usage and description
     usage = f'''USAGE: %prog <--NN-dir NN_DIR> <--meta-input META_INPUT> [--exp-input EXP_INPUT]
@@ -130,6 +145,40 @@ def prepare_nn_optparser() -> OptionParser:
     return optparser
 
 
+def _opt_nn_validate(options: Values,
+                     io_options: Dict[str, List[str]],
+                     optparser: Optional[OptionParser] = None) -> Values:
+    """Validate options from a OptParser object.
+
+    Parameters
+    ----------
+    options : Values
+        Options object.
+    io_options : Dict[str, List[str]]
+        I/O options.
+    optparser : Optional[OptionParser], optional
+        OptionParser object, by default None
+
+    Returns
+    -------
+    Values
+        Values object.
+    """
+
+    # IO
+    validate_io_options(options=options, io_options=io_options, optparser=optparser)
+    # niche network construction
+    validate_niche_net_constr_options(options=options, optparser=optparser)
+
+    # print parameters to stdout
+    info(message='------------------ RUN params memo ------------------ ')
+    write_io_options_memo(options=options, io_options=io_options)
+    write_niche_net_constr_memo(options=options)
+    info(message='--------------- RUN params memo end ----------------- ')
+
+    return options
+
+
 def opt_nn_validate(optparser) -> Values:
     """Validate options from a OptParser object.
 
@@ -138,20 +187,11 @@ def opt_nn_validate(optparser) -> Values:
     """
 
     # args
-    io_options: Set[str] = IO_OPTIONS['ONTraC_NN']  # type: ignore
+    io_options: Dict[str, List[str]] = IO_OPTIONS['ONTraC_NN']  # type: ignore
 
     (options, args) = optparser.parse_args()
 
-    validate_io_options(optparser=optparser, options=options, io_options=io_options)
-    validate_preprocessing_options(optparser=optparser, options=options)
-    validate_niche_net_constr_options(optparser=optparser, options=options)
-
-    # print parameters to stdout
-    info(message='------------------ RUN params memo ------------------ ')
-    write_io_options_memo(options=options, io_options=io_options)
-    write_preprocessing_memo(options=options)
-    write_niche_net_constr_memo(options=options)
-    info(message='--------------- RUN params memo end ----------------- ')
+    options = _opt_nn_validate(options=options, io_options=io_options, optparser=optparser)
 
     return options
 
@@ -166,7 +206,7 @@ def prepare_gnn_optparser() -> OptionParser:
     """
 
     # args
-    io_options: Set[str] = IO_OPTIONS['ONTraC_GNN']  # type: ignore
+    io_options: Dict[str, List[str]] = IO_OPTIONS['ONTraC_GNN']  # type: ignore
 
     # usage and description
     usage = f'''USAGE: %prog <--NN-dir NN_DIR> <--GNN-dir GNN_DIR> [--device DEVICE]
@@ -190,6 +230,44 @@ def prepare_gnn_optparser() -> OptionParser:
     return optparser
 
 
+def _opt_gnn_validate(options: Values,
+                      io_options: Dict[str, List[str]],
+                      optparser: Optional[OptionParser] = None) -> Values:
+    """Validate options from a OptParser object.
+
+    Parameters
+    ----------
+    options : Values
+        Options object.
+    io_options : Dict[str, List[str]]
+        I/O options.
+    optparser : Optional[OptionParser], optional
+        OptionParser object, by default None
+
+    Returns
+    -------
+    Values
+        Values object.
+    """
+
+    # IO
+    validate_io_options(options=options, io_options=io_options, optparser=optparser)
+    # training
+    validate_train_options(options=options, optparser=optparser)
+    validate_GCN_options(options=options, optparser=optparser)
+    validate_GP_options(options=options, optparser=optparser)
+
+    # print parameters to stdout
+    info(message='------------------ RUN params memo ------------------ ')
+    write_io_options_memo(options=options, io_options=io_options)
+    write_train_options_memo(options=options)
+    write_GCN_options_memo(options=options)
+    write_GP_options_memo(options=options)
+    info(message='--------------- RUN params memo end ----------------- ')
+
+    return options
+
+
 def opt_gnn_validate(optparser: OptionParser) -> Values:
     """Validate options from a OptParser object.
 
@@ -198,22 +276,11 @@ def opt_gnn_validate(optparser: OptionParser) -> Values:
     """
 
     # args
-    io_options: Set[str] = IO_OPTIONS['ONTraC_GNN']  # type: ignore
+    io_options: Dict[str, List[str]] = IO_OPTIONS['ONTraC_GNN']  # type: ignore
 
     (options, args) = optparser.parse_args()
 
-    validate_io_options(optparser=optparser, options=options, io_options=io_options)
-    validate_train_options(optparser=optparser, options=options)
-    validate_GCN_options(optparser=optparser, options=options)
-    validate_GP_options(optparser=optparser, options=options)
-
-    info(message='------------------ RUN params memo ------------------ ')
-    # print parameters to stdout
-    write_io_options_memo(options=options, io_options=io_options)
-    write_train_options_memo(options=options)
-    write_GCN_options_memo(options=options)
-    write_GP_options_memo(options=options)
-    info(message='--------------- RUN params memo end ----------------- ')
+    options = _opt_gnn_validate(options=options, io_options=io_options, optparser=optparser)
 
     return options
 
@@ -228,7 +295,7 @@ def prepare_nt_optparser() -> OptionParser:
     """
 
     # args
-    io_options: Set[str] = IO_OPTIONS['ONTraC_NT']  # type: ignore
+    io_options: Dict[str, List[str]] = IO_OPTIONS['ONTraC_NT']  # type: ignore
 
     # usage and description
     usage = f'''USAGE: %prog <--NN-dir NN_DIR> <--GNN-dir GNN_DIR> <--NT-dir NT_DIR> 
@@ -244,6 +311,40 @@ def prepare_nt_optparser() -> OptionParser:
     return optparser
 
 
+def _opt_nt_validate(options: Values,
+                     io_options: Dict[str, List[str]],
+                     optparser: Optional[OptionParser] = None) -> Values:
+    """Validate options from a OptParser object.
+
+    Parameters
+    ----------
+    options : Values
+        Options object.
+    io_options : Dict[str, List[str]]
+        I/O options.
+    optparser : Optional[OptionParser], optional
+        OptionParser object, by default None
+
+    Returns
+    -------
+    Values
+        Values object.
+    """
+
+    # IO
+    validate_io_options(options=options, io_options=io_options, optparser=optparser)
+    # niche trajectory
+    validate_NT_options(options=options, optparser=optparser)
+
+    # print parameters to stdout
+    info(message='------------------ RUN params memo ------------------ ')
+    write_io_options_memo(options=options, io_options=io_options)
+    write_NT_options_memo(options=options)
+    info(message='--------------- RUN params memo end ----------------- ')
+
+    return options
+
+
 def opt_nt_validate(optparser: OptionParser) -> Values:
     """Validate options from a OptParser object.
 
@@ -252,18 +353,11 @@ def opt_nt_validate(optparser: OptionParser) -> Values:
     """
 
     # args
-    io_options: Set[str] = IO_OPTIONS['ONTraC_NT']  # type: ignore
+    io_options: Dict[str, List[str]] = IO_OPTIONS['ONTraC_NT']  # type: ignore
 
     (options, args) = optparser.parse_args()
 
-    validate_io_options(optparser=optparser, options=options, io_options=io_options)
-    validate_NT_options(optparser=optparser, options=options)
-
-    # print parameters to stdout
-    info(message='------------------ RUN params memo ------------------ ')
-    write_io_options_memo(options=options, io_options=io_options)
-    write_NT_options_memo(options=options)
-    info(message='--------------- RUN params memo end ----------------- ')
+    options = _opt_nt_validate(options=options, io_options=io_options, optparser=optparser)
 
     return options
 
@@ -278,7 +372,7 @@ def prepare_gt_optparser() -> OptionParser:
     """
 
     # args
-    io_options: Set[str] = IO_OPTIONS['ONTraC_GT']  # type: ignore
+    io_options: Dict[str, List[str]] = IO_OPTIONS['ONTraC_GT']  # type: ignore
 
     usage = f'''USAGE: %prog <--NN-dir NN_DIR> <--GNN-dir GNN_DIR> <--NT-dir NT_DIR> [--device DEVICE]
     [--epochs EPOCHS] [--patience PATIENCE] [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] 
@@ -305,6 +399,47 @@ def prepare_gt_optparser() -> OptionParser:
     return optparser
 
 
+def _opt_gt_validate(options: Values,
+                     io_options: Dict[str, List[str]],
+                     optparser: Optional[OptionParser] = None) -> Values:
+    """Validate options from a OptParser object.
+
+    Parameters
+    ----------
+    options : Values
+        Options object.
+    io_options : Dict[str, List[str]]
+        I/O options.
+    optparser : Optional[OptionParser], optional
+        OptionParser object, by default None
+
+    Returns
+    -------
+    Values
+        Values object.
+    """
+
+    # IO
+    validate_io_options(options=options, io_options=io_options, optparser=optparser)
+    # training
+    validate_train_options(options=options, optparser=optparser)
+    validate_GCN_options(options=options, optparser=optparser)
+    validate_GP_options(options=options, optparser=optparser)
+    # niche trajectory
+    validate_NT_options(options=options, optparser=optparser)
+
+    # print parameters to stdout
+    info(message='------------------ RUN params memo ------------------ ')
+    write_io_options_memo(options, io_options)
+    write_train_options_memo(options)
+    write_GCN_options_memo(options)
+    write_GP_options_memo(options)
+    write_NT_options_memo(options)
+    info(message='--------------- RUN params memo end ----------------- ')
+
+    return options
+
+
 def opt_gt_validate(optparser: OptionParser) -> Values:
     """Validate options from a OptParser object.
 
@@ -313,27 +448,11 @@ def opt_gt_validate(optparser: OptionParser) -> Values:
     """
 
     # args
-    io_options: Set[str] = IO_OPTIONS['ONTraC_GT']  # type: ignore
+    io_options: Dict[str, List[str]] = IO_OPTIONS['ONTraC_GT']  # type: ignore
 
     (options, args) = optparser.parse_args()
 
-    # IO
-    validate_io_options(optparser=optparser, options=options, io_options=io_options)
-    # training
-    validate_train_options(optparser=optparser, options=options)
-    validate_GCN_options(optparser=optparser, options=options)
-    validate_GP_options(optparser=optparser, options=options)
-    # niche trajectory
-    validate_NT_options(optparser=optparser, options=options)
-
-    info('------------------ RUN params memo ------------------ ')
-    # print parameters to stdout
-    write_io_options_memo(options, io_options)
-    write_train_options_memo(options)
-    write_GCN_options_memo(options)
-    write_GP_options_memo(options)
-    write_NT_options_memo(options)
-    info(message='--------------- RUN params memo end ----------------- ')
+    options = _opt_gt_validate(options=options, io_options=io_options, optparser=optparser)
 
     return options
 
@@ -348,7 +467,7 @@ def prepare_analysis_optparser() -> OptionParser:
     """
 
     # args
-    io_options: Set[str] = IO_OPTIONS['ONTraC_analysis']  # type: ignore
+    io_options: Dict[str, List[str]] = IO_OPTIONS['ONTraC_analysis']  # type: ignore
 
     usage = f'''USAGE: %prog [--NN-dir NN_DIR] [--GNN-dir GNN_DIR] [--NT-dir NT_DIR] [-o OUTPUT]
     [--meta-input META_INPUT] [-l LOG] [--embedding-adjust] [--sigma SIGMA] [-r REVERSE] [-s SAMPLE]
@@ -367,6 +486,42 @@ def prepare_analysis_optparser() -> OptionParser:
     return optparser
 
 
+def _opt_analysis_validate(options: Values,
+                           io_options: Dict[str, List[str]],
+                           optparser: Optional[OptionParser] = None) -> Values:
+    """Validate options from a OptParser object.
+
+    Parameters
+    ----------
+    options : Values
+        Options object.
+    io_options : Dict[str, List[str]]
+        I/O options.
+    optparser : Optional[OptionParser], optional
+        OptionParser object, by default None
+
+    Returns
+    -------
+    Values
+        Values object.
+    """
+
+    # IO
+    validate_io_options(options=options, io_options=io_options, optparser=optparser)
+    # visualization
+    validate_visualization_options(options, optparser=optparser)
+    validate_suppress_options(options, optparser=optparser)
+
+    # print parameters to stdout
+    info(message='------------------ RUN params memo ------------------ ')
+    write_io_options_memo(options, io_options)
+    write_visualization_options_memo(options)
+    write_suppress_options_memo(options)
+    info(message='--------------- RUN params memo end ----------------- ')
+
+    return options
+
+
 def opt_analysis_validate(optparser: OptionParser) -> Values:
     """Validate options from a OptParser object.
 
@@ -375,24 +530,11 @@ def opt_analysis_validate(optparser: OptionParser) -> Values:
     """
 
     # args
-    io_options: Set[str] = IO_OPTIONS['ONTraC_analysis']  # type: ignore
+    io_options: Dict[str, List[str]] = IO_OPTIONS['ONTraC_analysis']  # type: ignore
 
     (options, args) = optparser.parse_args()
 
-    validate_io_options(optparser=optparser,
-                        options=options,
-                        io_options=io_options,
-                        required=False,
-                        overwrite_validation=False)
-    validate_visualization_options(options)
-    validate_suppress_options(options)
-
-    info('------------------ RUN params memo ------------------ ')
-    # print parameters to stdout
-    write_io_options_memo(options, io_options)
-    write_visualization_options_memo(options)
-    write_suppress_options_memo(options)
-    info(message='--------------- RUN params memo end ----------------- ')
+    options = _opt_analysis_validate(options=options, io_options=io_options, optparser=optparser)
 
     return options
 
