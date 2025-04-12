@@ -120,8 +120,8 @@ def predict(output_dir: str, batch_train: SubBatchTrainProtocol,
             z = predict_result['z']  # (sample's N) x Z
             s = predict_result['s']  # (sample's N) x C
             out = predict_result['out']  # C x F
-            if out.dim() == 3:
-                out = out.squeeze(0)
+            if out.dim() == 2:
+                out = out.unsqueeze(0)  # 1 x C x F
             consolidate_z_list.append(z)
             consolidate_s_list.append(s)
             consolidate_out_list.append(out)
@@ -139,9 +139,9 @@ def predict(output_dir: str, batch_train: SubBatchTrainProtocol,
         # consolidate s
         consolidate_s = torch.cat(consolidate_s_list, dim=0)
         consolidate_s_array = consolidate_s.detach().cpu().numpy()
-        np.savetxt(fname=f'{output_dir}/consolidate_s.csv.gz', X=consolidate_s_array, delimiter=',')
         # consolidate out
-        consolidate_out = torch.cat(consolidate_out_list, dim=0)
+        consolidate_out = torch.cat(consolidate_out_list, dim=0) # #sample x C x F
+        consolidate_out = consolidate_out.mean(dim=0)  # C x F
         consolidate_out_array = consolidate_out.detach().cpu().numpy()
         np.savetxt(fname=f'{output_dir}/consolidate_out.csv.gz', X=consolidate_out_array, delimiter=',')
         # consolidate out_adj
