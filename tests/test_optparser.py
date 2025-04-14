@@ -109,12 +109,12 @@ def test_ontrac_analysis_ioc() -> None:
     assert ioc.get_io_option_attr('GNN_dir') == 'optional'
     assert ioc.has_io_option('NT_dir')
     assert ioc.get_io_option_attr('NT_dir') == 'optional'
+    assert ioc.has_io_option('input')
+    assert ioc.get_io_option_attr('input') == 'deprecated'
     assert ioc.has_io_option('output')
     assert ioc.get_io_option_attr('output') == 'optional-overwrite'
     assert ioc.has_io_option('log')
     assert ioc.get_io_option_attr('log') == 'optional'
-    # wrong options
-    assert not ioc.has_io_option('input')
 
 
 def test_io_options():
