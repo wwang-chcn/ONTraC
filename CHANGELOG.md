@@ -6,6 +6,8 @@ Added:
 
 - Output file `niche_hidden_features.csv.gz` in `GNN_dir`, which is also available as the `niche_hidden_features` attribute in the `AnaData` class.
 - Tests for IO options preparation
+- Niche cluster similarity visualization
+- `figscale` to control graph-based plots
 
 Changed:
 
