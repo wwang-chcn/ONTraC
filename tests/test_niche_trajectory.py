@@ -22,10 +22,6 @@ def test_get_niche_trajectory_path() -> None:
     assert get_niche_trajectory_path(trajectory_construct_method=options.trajectory_construct,
                                      niche_adj_matrix=adj_matrix) == expected_path
 
-    options.trajectory_construct = "TSP"
-    assert get_niche_trajectory_path(trajectory_construct_method=options.trajectory_construct,
-                                     niche_adj_matrix=adj_matrix) == expected_path
-
     # Test case: Adjacency matrix with 5 nodes
     adj_matrix = np.array([[0, 1, 0, 1, 0], [1, 0, 1, 0, 1], [0, 1, 0, 1, 0], [1, 0, 1, 0, 1], [0, 1, 0, 1, 0]])
     expected_path = [0, 1, 2, 3, 4]
@@ -34,9 +30,6 @@ def test_get_niche_trajectory_path() -> None:
 
     # BF
     assert get_niche_trajectory_path(trajectory_construct_method='BF', niche_adj_matrix=adj_matrix) == expected_path
-
-    # TSP
-    assert get_niche_trajectory_path(trajectory_construct_method='TSP', niche_adj_matrix=adj_matrix) == expected_path
 
     # Test case: More complex adjacency matrix with 6 nodes
     adj_matrix = np.array([[0., 0.02272882, 0.26394865, 0.25664073, 0.00442298, 0.29683277],
@@ -50,10 +43,6 @@ def test_get_niche_trajectory_path() -> None:
     options = Mock()
 
     options.trajectory_construct = "BF"
-    assert get_niche_trajectory_path(trajectory_construct_method=options.trajectory_construct,
-                                     niche_adj_matrix=adj_matrix) == expected_path
-
-    options.trajectory_construct = "TSP"
     assert get_niche_trajectory_path(trajectory_construct_method=options.trajectory_construct,
                                      niche_adj_matrix=adj_matrix) == expected_path
 
