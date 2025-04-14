@@ -10,12 +10,12 @@ The meta data file looks like the following:
 An example meta file is provided [here](../examples/V2/data/merfish_meta.csv).
 The meta file looks like the following:
 
-| Cell_ID                                 | Sample          | Cell_Type | x                  | y                   |
-| --------------------------------------- | --------------- | --------- | ------------------ | ------------------- |
-| 100029194729477472162047791686277547250 | mouse1_slice221 | L2/3 IT   | 140.9419965147972  | -2678.142903059721  |
-| 100141638384685944504186567613653468492 | mouse1_slice221 | L4/5 IT   | 490.1479862928391  | -3128.267906665802  |
-| ...                                     | ...             | ...       | ...                | ...                 |
-| 99747739584919120436167521663441290055  | mouse1_slice221 | L2/3 IT   | -787.2270166575909 | -2622.3839544013144 |
+| Cell_ID                                 | Sample          | Cell_Type | x                  | y                   | z     |
+| --------------------------------------- | --------------- | --------- | ------------------ | ------------------- | ----- |
+| 100029194729477472162047791686277547250 | mouse1_slice221 | L2/3 IT   | 140.9419965147972  | -2678.142903059721  | 0.0   |
+| 100141638384685944504186567613653468492 | mouse1_slice221 | L4/5 IT   | 490.1479862928391  | -3128.267906665802  | 0.0   |
+| ...                                     | ...             | ...       | ...                | ...                 | ...   |
+| 99747739584919120436167521663441290055  | mouse1_slice221 | L2/3 IT   | -787.2270166575909 | -2622.3839544013144 | 0.0   |
 
 - Cell_ID
 
@@ -38,6 +38,10 @@ The meta file looks like the following:
 - y
   
   Y coordinate for each cell.
+
+- z (optional)
+
+  Z coordinate for each cell.
 
 ### Expression input
 
@@ -213,13 +217,3 @@ Previouly named as NTScore-dir.
 - niche_cluster_score.csv.gz
 
   File contains NT score for each niche cluster.
-
-- cell_NTScore.csv.gz
-
-  File contains cell-level NT score for all samples.
-  Warning: the number of rows were expanded to same for paralle processing using pytorch. Do not use this file directly.
-
-- niche_NTScore.csv.gz
-
-  File contains niche-level NT score for all samples.
-  Warning: the number of rows were expanded to same for paralle processing using pytorch. Do not use this file directly.

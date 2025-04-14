@@ -1,9 +1,9 @@
 from unittest.mock import Mock
 
 import numpy as np
+import pandas as pd
 
-from ONTraC.niche_trajectory._niche_trajectory import (
-    get_niche_NTScore, get_niche_trajectory_path, trajectory_path_to_NC_score)
+from ONTraC.niche_trajectory._niche_trajectory import get_niche_NTScore, get_niche_trajectory_path, trajectory_path_to_NC_score
 
 
 def test_get_niche_trajectory_path() -> None:
@@ -86,7 +86,8 @@ def test_get_niche_NTScore():
     """
 
     # Test case: Niche cluster loading with 3 clusters and adjacency matrix with 3 nodes
-    niche_cluster_loading = np.array([[0.1, 0.2, 0.7], [0.4, 0.5, 0.1], [0.6, 0.1, 0.3]])  # #niche x #niche_cluster
+    niche_level_niche_cluster_assign_df = pd.DataFrame(np.array([[0.1, 0.2, 0.7], [0.4, 0.5, 0.1],
+                                                                 [0.6, 0.1, 0.3]]))  # #niche x #niche_cluster
     niche_adj_matrix = np.array([[0, 1, 0], [1, 0, 1], [0, 1, 0]])
     expected_niche_cluster_score = np.array([0, 0.5, 1])
     expected_niche_level_NTScore = np.array([0.8, 0.35, 0.35])
@@ -95,11 +96,11 @@ def test_get_niche_NTScore():
     options.trajectory_construct = "BF"
     options.equal_space = True
 
-    niche_cluster_score, niche_level_NTScore = get_niche_NTScore(
+    niche_cluster_score, niche_level_NTScore_df = get_niche_NTScore(
         trajectory_construct_method=options.trajectory_construct,
-        niche_cluster_loading=niche_cluster_loading,
+        niche_level_niche_cluster_assign_df=niche_level_niche_cluster_assign_df,
         niche_adj_matrix=niche_adj_matrix,
         equal_space=options.equal_space)
 
     assert np.allclose(niche_cluster_score, expected_niche_cluster_score)
-    assert np.allclose(niche_level_NTScore, expected_niche_level_NTScore)
+    assert np.allclose(niche_level_NTScore_df.values.reshape(-1), expected_niche_level_NTScore)

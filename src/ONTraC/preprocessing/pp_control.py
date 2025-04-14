@@ -1,13 +1,16 @@
+import os
 from pathlib import Path
 from typing import Dict, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
+from numpy import ndarray
+from pandas import DataFrame
 from torch_geometric.loader import DataLoader
 
 from ..data import SpatailOmicsDataset, load_dataset
 from ..external.deconvolution import apply_STdeconvolve
-from ..log import info
+from ..log import error, info
 from ..utils import get_meta_data_file
 from .data import load_meta_data, save_cell_type_code, save_meta_data
 from .expression import define_neighbors, perform_harmony, perform_leiden, perform_pca, perform_umap
@@ -300,3 +303,32 @@ def preprocessing_gnn(NN_dir: Union[str, Path],
     dataset, sample_loader = load_data(NN_dir=NN_dir, batch_size=batch_size)
 
     return dataset, sample_loader, meta_data_df
+
+
+def preprocessing_nt(NN_dir: Union[str, Path], GNN_dir: Union[str, Path]) -> Tuple[DataFrame, DataFrame, ndarray]:
+    """
+    Preprocessing for niche trajectory.
+    :param NN_dir: str or Path, save directory.
+    :param GNN_dir: str or Path, save directory.
+    :return: Tuple[DataFrame, DataFrame, ndarray], meta data, niche-level niche cluster assign, and consolidate out_adj.
+    """
+
+    # params
+    niche_level_niche_cluster_file = Path(f'{GNN_dir}/niche_level_niche_cluster.csv.gz')
+    consolidate_out_adj_file = Path(f'{GNN_dir}/consolidate_out_adj.csv.gz')
+
+    # load meta data
+    meta_data_df = pd.read_csv(get_meta_data_file(NN_dir), header=0)
+    meta_data_df['Sample'] = meta_data_df['Sample'].astype(str).astype('category')
+    meta_data_df['Cell_Type'] = meta_data_df['Cell_Type'].astype(str).astype('category')
+
+    # load niche-level niche cluster assign
+    if not os.path.exists(niche_level_niche_cluster_file) or not os.path.exists(consolidate_out_adj_file):
+        error(f'niche_level_niche_cluster.csv.gz or consolidate_out_adj.csv.gz does not exist in {GNN_dir} directory.')
+
+    niche_level_niche_cluster_assign_df = pd.read_csv(niche_level_niche_cluster_file, header=0, index_col=0)
+
+    # load consolidate out_adj
+    consolidate_out_adj_array = np.loadtxt(consolidate_out_adj_file, delimiter=',')
+
+    return meta_data_df, niche_level_niche_cluster_assign_df, consolidate_out_adj_array
