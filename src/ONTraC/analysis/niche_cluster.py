@@ -18,7 +18,7 @@ from matplotlib.cm import ScalarMappable
 from matplotlib.colors import LinearSegmentedColormap, Normalize
 from scipy.spatial import distance
 
-from ..log import warning
+from ..log import warning, info
 from .data import AnaData
 from .utils import gini, saptial_figsize
 
@@ -1085,6 +1085,8 @@ def niche_cluster_visualization(ana_data: AnaData) -> None:
     if not hasattr(ana_data.options,
                    'suppress_niche_cluster_loadings') or not ana_data.options.suppress_niche_cluster_loadings:
         plot_niche_cluster_loadings(ana_data=ana_data)
+    else:
+        info("Skip niche cluster loadings plot according to `suppress_niche_cluster_loadings` option.")
 
     # 5. maximum niche cluster for each cell
     plot_max_niche_cluster(ana_data=ana_data)

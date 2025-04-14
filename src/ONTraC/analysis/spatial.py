@@ -9,7 +9,7 @@ mpl.rcParams['ps.fonttype'] = 42
 mpl.rcParams['font.family'] = 'Arial'
 import matplotlib.pyplot as plt
 
-from ..log import warning
+from ..log import warning, info
 from .data import AnaData
 from .utils import saptial_figsize
 
@@ -459,8 +459,12 @@ def spatial_visualization(ana_data: AnaData) -> None:
     if not hasattr(ana_data.options,
                    'suppress_cell_type_composition') or not ana_data.options.suppress_cell_type_composition:
         plot_cell_type_composition(ana_data=ana_data)
+    else:
+        info("Skip spatial cell type composition visualization according to `suppress_cell_type_composition` option.")
 
     # 2. NT score
     if not hasattr(ana_data.options, 'suppress_niche_trajectory') or not ana_data.options.suppress_niche_trajectory:
         plot_niche_NT_score(ana_data=ana_data)
         plot_cell_NT_score(ana_data=ana_data)
+    else:
+        info("Skip spatial NT score visualization according to `suppress_niche_trajectory` option.")
