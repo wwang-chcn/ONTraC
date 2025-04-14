@@ -150,13 +150,22 @@ def add_IO_options_group(optparser: OptionParser, io_options: Optional[Dict[str,
 
     # input files
     if ioc.has_io_option('input'):
-        group_io.add_option(
-            '--meta-input',
-            dest='meta_input',
-            type='string',
-            help=
-            'Meta data file in csv format. Each row is a cell. The first column should be the cell name with column name Cell_ID. Coordinates (x, y) and sample should be included. Cell type is required for cell-level data.'
-        )
+        if ioc.get_io_option_attr('input') == 'required':
+            group_io.add_option(
+                '--meta-input',
+                dest='meta_input',
+                type='string',
+                help=
+                'Meta data file in csv format. Each row is a cell. The first column should be the cell name with column name Cell_ID. Coordinates (x, y) and sample should be included. Cell type is required for cell-level data.'
+            )
+        elif ioc.get_io_option_attr('input') == 'deprecated':
+            group_io.add_option(
+                '--meta-input',
+                dest='meta_input',
+                type='string',
+                help=
+                'Meta data file are no longer required for ONTraC analysis. This options will be deprecated from v2.0'
+            )
     if ioc.has_io_option('log'):
         group_io.add_option('-l', '--log', dest='log', type='string', help='Log file.')
 
@@ -171,7 +180,7 @@ def add_IO_options_group(optparser: OptionParser, io_options: Optional[Dict[str,
                             dest='NTScore_dir',
                             type='string',
                             help='This options will be deprecated from v3.0. Please use --NT-dir instead.')
-    if ioc.has_io_option('input'):
+    if ioc.has_io_option('input') and ioc.get_io_option_attr('input') != 'deprecated':
         group_io.add_option('-d',
                             '--dataset',
                             dest='dataset',
@@ -287,7 +296,7 @@ def validate_io_options(options: Values,
         elif hasattr(options, 'NT_dir') and options.NT_dir is not None:
             os.makedirs(options.NT_dir, exist_ok=True)
 
-    if ioc.has_io_option('input'):
+    if ioc.has_io_option('input') and ioc.get_io_option_attr('input') != 'deprecated':
         if hasattr(options, 'dataset') and options.dataset is not None and (not hasattr(options, 'meta_input')
                                                                             or options.meta_input is None):
             warning('The --dataset option will be deprecated from v3.0. Please use --meta-input instead.')
@@ -348,7 +357,7 @@ def write_io_options_memo(options: Values, io_options: Optional[Dict[str, List[s
         info(f'Niche trajectory output directory:  {options.NT_dir}')
     if ioc.has_io_option('output'):  # this is a optional-overwrite option (ONTraC_analysis only)
         info(f'Output directory:  {options.output}')
-    if ioc.has_io_option(name='input'):  # this is a required option
+    if ioc.has_io_option(name='input') and ioc.get_io_option_attr('input') != 'deprecated':
         info(f'Meta data file:  {options.meta_input}')
     if ioc.has_io_option(name='log') and hasattr(
             options, 'log') and options.log is not None:  # this is a optional option (ONTraC_analysis only)
