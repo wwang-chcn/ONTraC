@@ -164,7 +164,7 @@ def add_IO_options_group(optparser: OptionParser, io_options: Optional[Dict[str,
                 dest='meta_input',
                 type='string',
                 help=
-                'Meta data file are no longer required for ONTraC analysis. This options will be deprecated from v2.0'
+                'Meta data file are no longer required for ONTraC analysis. This options will be deprecated from v2.0.'
             )
     if ioc.has_io_option('log'):
         group_io.add_option('-l', '--log', dest='log', type='string', help='Log file.')
@@ -296,23 +296,27 @@ def validate_io_options(options: Values,
         elif hasattr(options, 'NT_dir') and options.NT_dir is not None:
             os.makedirs(options.NT_dir, exist_ok=True)
 
-    if ioc.has_io_option('input') and ioc.get_io_option_attr('input') != 'deprecated':
-        if hasattr(options, 'dataset') and options.dataset is not None and (not hasattr(options, 'meta_input')
-                                                                            or options.meta_input is None):
-            warning('The --dataset option will be deprecated from v3.0. Please use --meta-input instead.')
-            options.meta_input = options.dataset
-        if not hasattr(options, 'meta_input') or options.meta_input is None:
-            error('Please provide a meta data file in csv format.')
-            if optparser is not None: optparser.print_help()
-            sys.exit(1)
-        if not os.path.isfile(options.meta_input):
-            error(f'The input file ({options.meta_input}) you given does not exist.')
-            if optparser is not None: optparser.print_help()
-            sys.exit(1)
-        if not options.meta_input.endswith(('csv', 'csv.gz')):
-            error(f'The input file ({options.meta_input}) should be in csv format.')
-            if optparser is not None: optparser.print_help()
-            sys.exit(1)
+    if ioc.has_io_option('input'):
+        if ioc.get_io_option_attr('input') != 'deprecated':
+            if hasattr(options, 'dataset') and options.dataset is not None and (not hasattr(options, 'meta_input')
+                                                                                or options.meta_input is None):
+                warning('The --dataset option will be deprecated from v3.0. Please use --meta-input instead.')
+                options.meta_input = options.dataset
+            if not hasattr(options, 'meta_input') or options.meta_input is None:
+                error('Please provide a meta data file in csv format.')
+                if optparser is not None: optparser.print_help()
+                sys.exit(1)
+            if not os.path.isfile(options.meta_input):
+                error(f'The input file ({options.meta_input}) you given does not exist.')
+                if optparser is not None: optparser.print_help()
+                sys.exit(1)
+            if not options.meta_input.endswith(('csv', 'csv.gz')):
+                error(f'The input file ({options.meta_input}) should be in csv format.')
+                if optparser is not None: optparser.print_help()
+                sys.exit(1)
+        else:
+            warning('The --meta-input option is no longer required for ONTraC analysis. This options will be deprecated from v2.0.')
+            options.meta_input = None
 
     if ioc.has_io_option('output'):  # this is a optional-overwrite option (ONTraC_analysis only)
         if not hasattr(options, 'output') or options.output is None:

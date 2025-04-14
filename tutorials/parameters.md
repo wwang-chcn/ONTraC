@@ -204,8 +204,7 @@ Options:
     -o OUTPUT, --output=OUTPUT
                         Directory for analysis output.
     --meta-input=META_INPUT
-                        Meta data file in csv format. Each row is a cell. The first column should be the cell name with column name
-                        Cell_ID. Coordinates (x, y) and sample should be included. Cell type is required for cell-level data.
+                        Meta data file are no longer required for ONTraC analysis. This options will be deprecated from v2.0.
     -l LOG, --log=LOG   Log file.
     --preprocessing-dir=PREPROCESSING_DIR
                         This options will be deprecated from v3.0. Please use --NN-dir instead.
