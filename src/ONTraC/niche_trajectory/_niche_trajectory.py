@@ -8,7 +8,7 @@ from pandas import DataFrame
 from scipy.sparse import load_npz
 
 from ..log import info
-from .algorithm import brute_force, held_karp
+from .algorithm import brute_force
 
 
 def get_niche_trajectory_path(trajectory_construct_method: str, niche_adj_matrix: ndarray) -> List[int]:
@@ -25,11 +25,6 @@ def get_niche_trajectory_path(trajectory_construct_method: str, niche_adj_matrix
         info('Finding niche trajectory with maximum connectivity using Brute Force.')
 
         niche_trajectory_path = brute_force(niche_adj_matrix)
-
-    elif trajectory_construct_method == 'TSP':
-        info('Finding niche trajectory with maximum connectivity using TSP.')
-
-        niche_trajectory_path = held_karp(niche_adj_matrix)
 
     return niche_trajectory_path
 
