@@ -515,7 +515,7 @@ def spatial_visualization(ana_data: AnaData) -> None:
 
     # 1. cell type composition
     if hasattr(ana_data.options, 'suppress_cell_type_composition') and ana_data.options.suppress_cell_type_composition:
-        info('Skip the cell type composition visualization due to suppression setting.')
+        info("Skip spatial cell type composition visualization according to `suppress_cell_type_composition` option.")
     else:
         plot_cell_type_composition(ana_data=ana_data)
         if hasattr(ana_data.options, 'embedding_adjust') and ana_data.options.embedding_adjust:
@@ -525,7 +525,7 @@ def spatial_visualization(ana_data: AnaData) -> None:
 
     # 2. NT score
     if hasattr(ana_data.options, 'suppress_niche_trajectory') and ana_data.options.suppress_niche_trajectory:
-        info('Skip the spatial niche trajectory related visualization due to suppression setting.')
+        info("Skip spatial NT score visualization according to `suppress_niche_trajectory` option.")
     else:
         plot_niche_NT_score(ana_data=ana_data)
         plot_cell_NT_score(ana_data=ana_data)

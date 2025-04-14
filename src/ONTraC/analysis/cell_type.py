@@ -663,6 +663,8 @@ def cell_type_visualization(ana_data: AnaData) -> None:
     # 1. cell type along NT score
     if not hasattr(ana_data.options, 'suppress_niche_trajectory') or not ana_data.options.suppress_niche_trajectory:
         plot_cell_type_along_NT_score(ana_data=ana_data)
+    else:
+        warning("Skip cell type along NT score visualization due to `suppress_niche_trajectory` option.")
 
     # 2. cell type X niche cluster
     plot_cell_type_with_niche_cluster(ana_data=ana_data)
