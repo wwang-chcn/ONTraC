@@ -1,5 +1,11 @@
 # Change log
 
+## [1.1.4.post1] - 2025-Apr-13
+
+Fixed:
+
+- Missing meta input file info in log
+
 ## [1.1.4] - 2025-Mar-5
 
 Changed:
