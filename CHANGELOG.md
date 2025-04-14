@@ -30,7 +30,7 @@ Fixed:
 
 - Resolved bug in regularization loss calculation for multi-sample batch
 
-## [XXXXX] - 2025-XXX-XX
+## [1.1.5] - 2025-Apr-14
 
 Added:
 
@@ -43,6 +43,7 @@ Changed:
 
 - Dir options for `ONTraC_analysis` become optional
 - Automatically set suppression options in ONTraC_analysis when GNN_dir or NT_dir is not specified
+- Limit k (niche cluster number) no more than 8.
 
 Removed:
 

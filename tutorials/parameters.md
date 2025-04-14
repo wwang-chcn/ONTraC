@@ -91,7 +91,7 @@ Options:
     --n-gcn-layers=N_GCN_LAYERS
                         Number of GCN layers. Default is 2.
     -k K, --k-clusters=K
-                        Number of niche clusters. Default is 6.
+                        Number of niche clusters. Default is 6. No more than 8.
     --modularity-loss-weight=MODULARITY_LOSS_WEIGHT
                         Weight for modularity loss. Default is 1.
     --purity-loss-weight=PURITY_LOSS_WEIGHT
@@ -102,8 +102,7 @@ Options:
 
   Options for niche trajectory:
     --trajectory-construct=TRAJECTORY_CONSTRUCT
-                        Method to construct the niche trajectory. Default is 'BF' (brute-force). A faster
-                        alternative is 'TSP'.
+                       Method to construct the niche trajectory. Default is 'BF' (brute-force).
     --equal-space       Whether to assign equally spaced values to for each niche cluster. Default is False,
                         based on total loadings of each niche cluster.
 ```
@@ -215,7 +214,7 @@ Options:
     --n-gcn-layers=N_GCN_LAYERS
                         Number of GCN layers. Default is 2.
     -k K, --k-clusters=K
-                        Number of niche clusters. Default is 6.
+                        Number of niche clusters. Default is 6. No more than 8.
     --modularity-loss-weight=MODULARITY_LOSS_WEIGHT
                         Weight for modularity loss. Default is 1.
     --purity-loss-weight=PURITY_LOSS_WEIGHT
@@ -251,8 +250,7 @@ Options:
 
   Options for niche trajectory:
     --trajectory-construct=TRAJECTORY_CONSTRUCT
-                        Method to construct the niche trajectory. Default is 'BF' (brute-force). A faster
-                        alternative is 'TSP'.
+                        Method to construct the niche trajectory. Default is 'BF' (brute-force).
     --equal-space       Whether to assign equally spaced values to for each niche cluster. Default is False,
                         based on total loadings of each niche cluster.
 ```
@@ -278,10 +276,7 @@ Options:
     --NT-dir=NT_DIR     Directory for the niche trajectory output.
     -o OUTPUT, --output=OUTPUT
                         Directory for analysis output.
-    --meta-input=META_INPUT
-                        Meta data file in csv format. Each row is a cell. The first column should be the cell
-                        name with column name Cell_ID. Coordinates (x, y) and sample should be included. Cell
-                        type is required for cell-level data.
+>>>>>>> V1
     -l LOG, --log=LOG   Log file.
     --preprocessing-dir=PREPROCESSING_DIR
                         This options will be deprecated from v3.0. Please use --NN-dir instead.
@@ -356,7 +351,7 @@ Options:
     --n-gcn-layers=N_GCN_LAYERS
                         Number of GCN layers. Default is 2.
     -k K, --k-clusters=K
-                        Number of niche clusters. Default is 6.
+                        Number of niche clusters. Default is 6. No more than 8.
     --modularity-loss-weight=MODULARITY_LOSS_WEIGHT
                         Weight for modularity loss. Default is 1.
     --purity-loss-weight=PURITY_LOSS_WEIGHT
@@ -367,8 +362,7 @@ Options:
 
   Options for niche trajectory:
     --trajectory-construct=TRAJECTORY_CONSTRUCT
-                        Method to construct the niche trajectory. Default is 'BF' (brute-force). A faster
-                        alternative is 'TSP'.
+                        Method to construct the niche trajectory. Default is 'BF' (brute-force).
     --equal-space       Whether to assign equally spaced values to for each niche cluster. Default is False,
                         based on total loadings of each niche cluster.
 ```

@@ -89,7 +89,7 @@ def add_GP_options_group(group_train: OptionGroup) -> None:
                            dest='k',
                            type='int',
                            default=6,
-                           help='Number of niche clusters. Default is 6.')
+                           help='Number of niche clusters. Default is 6. No more than 8.')
     group_train.add_option('--modularity-loss-weight',
                            dest='modularity_loss_weight',
                            type='float',
@@ -291,6 +291,10 @@ def validate_GP_options(options: Values, optparser: Optional[OptionParser] = Non
         sys.exit(1)
     elif getattr(options, 'k') < 2:
         error(f'k must be greater than 1, exit!')
+        if optparser is not None: optparser.print_help()
+        sys.exit(1)
+    elif getattr(options, 'k') > 8:
+        warning(f'We recommend k to be no more than 8. You can set k to a larger value, but it may cause wired results and extra time cost in niche trajectory construction.')
         if optparser is not None: optparser.print_help()
         sys.exit(1)
 
