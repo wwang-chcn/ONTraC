@@ -24,7 +24,7 @@ pip install seaborn
 You can get all the output figures with this command and check the results in `analysis_output` directory.
 
 ```{sh}
-ONTraC_analysis -o analysis_output/stereo_seq -l log/stereo_seq.log --meta-input data/stereo_seq_brain/original_data.csv --NN-dir output/stereo_seq_NN --GNN-dir output/stereo_seq_GNN --NT-dir output/stereo_seq_NT -r
+ONTraC_analysis -o analysis_output/stereo_seq -l log/stereo_seq.log --NN-dir output/stereo_seq_NN --GNN-dir output/stereo_seq_GNN --NT-dir output/stereo_seq_NT -r
 ```
 
 ## Step-by-step analysis
