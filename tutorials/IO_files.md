@@ -7,12 +7,12 @@
 A example meta data file is provided in [Zenodo](https://zenodo.org/records/11186620/files/stereo_seq_dataset.csv).
 The meta data file looks like the following:
 
-| Cell_ID         | Sample   | Cell_Type | x       | y     |
-| --------------- | -------- | --------- | ------- | ----- |
-| E12_E1S3_100034 | E12_E1S3 | Fibro     | 15940   | 18584 |
-| E12_E1S3_100035 | E12_E1S3 | Fibro     | 15942   | 18623 |
-| ...             | ...      | ...       | ...     | ...   |
-| E16_E2S7_326412 | E16_E2S7 | Fibro     | 32990.5 | 14475 |
+| Cell_ID         | Sample   | Cell_Type | x       | y     | z     |
+| --------------- | -------- | --------- | ------- | ----- | ----- |
+| E12_E1S3_100034 | E12_E1S3 | Fibro     | 15940   | 18584 | 0.0   |
+| E12_E1S3_100035 | E12_E1S3 | Fibro     | 15942   | 18623 | 0.0   |
+| ...             | ...      | ...       | ...     | ...   | ...   |
+| E16_E2S7_326412 | E16_E2S7 | Fibro     | 32990.5 | 14475 | 0.0   |
 
 - Cell_ID
 
@@ -35,6 +35,10 @@ The meta data file looks like the following:
 - y
   
   Y coordinate for each cell.
+
+- z (optional)
+
+  Z coordinate for each cell.
 
 ## Output files
 
