@@ -119,7 +119,7 @@ def preprocessing_nt(NN_dir: Union[str, Path], GNN_dir: Union[str, Path]) -> Tup
     consolidate_out_adj_file = Path(f'{GNN_dir}/consolidate_out_adj.csv.gz')
 
     # load meta data
-    meta_data_df = pd.read_csv(get_meta_data_file(NN_dir), header=0, index_col=0)
+    meta_data_df = pd.read_csv(get_meta_data_file(NN_dir), header=0)
     meta_data_df['Sample'] = meta_data_df['Sample'].astype(str).astype('category')
     meta_data_df['Cell_Type'] = meta_data_df['Cell_Type'].astype(str).astype('category')
 

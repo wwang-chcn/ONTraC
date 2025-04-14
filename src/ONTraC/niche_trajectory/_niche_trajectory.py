@@ -86,6 +86,7 @@ def niche_to_cell_NTScore(meta_data_df: DataFrame, niche_level_NTScore_df: DataF
     info('Projecting NTScore from niche-level to cell-level.')
 
     # prepare
+    id_name: str = meta_data_df.columns[0]
     samples = meta_data_df['Sample'].cat.categories
     sample_files_by_name_dict = {
         sample_files_dict['Name']: sample_files_dict
@@ -94,7 +95,7 @@ def niche_to_cell_NTScore(meta_data_df: DataFrame, niche_level_NTScore_df: DataF
     sample_cell_level_NTScore_list = []
 
     for sample in samples:
-        sample_niche_level_NTScore_df = niche_level_NTScore_df.loc[meta_data_df[meta_data_df['Sample'] == sample].index]
+        sample_niche_level_NTScore_df = niche_level_NTScore_df.loc[meta_data_df[meta_data_df['Sample'] == sample][id_name].values]
         niche_weight_matrix = load_npz(sample_files_by_name_dict[sample]['NicheWeightMatrix'])
         if niche_weight_matrix.shape[0] != sample_niche_level_NTScore_df.shape[0]:
             raise ValueError(f'Inconsistent number of niches in {sample} sample. '
@@ -113,7 +114,7 @@ def niche_to_cell_NTScore(meta_data_df: DataFrame, niche_level_NTScore_df: DataF
                          index=sample_niche_level_NTScore_df.index,
                          columns=['Cell_NTScore']))
 
-    cell_level_NTScore_df = pd.concat(sample_cell_level_NTScore_list).loc[meta_data_df.index]
+    cell_level_NTScore_df = pd.concat(sample_cell_level_NTScore_list).loc[meta_data_df[id_name]]
 
     return cell_level_NTScore_df
 
@@ -133,6 +134,7 @@ def NTScore_table(save_dir: Union[str, Path], meta_data_df: DataFrame, niche_lev
     info('Output NTScore tables.')
 
     # prepare
+    id_name: str = meta_data_df.columns[0]
     samples = meta_data_df['Sample'].cat.categories
     sample_files_by_name_dict = {
         sample_files_dict['Name']: sample_files_dict
@@ -142,10 +144,10 @@ def NTScore_table(save_dir: Union[str, Path], meta_data_df: DataFrame, niche_lev
 
     for sample in samples:
         coordinates_df = pd.read_csv(sample_files_by_name_dict[sample]['Coordinates'], index_col=0)
-        sample_niche_level_NTScore_df = niche_level_NTScore_df.loc[meta_data_df[meta_data_df['Sample'] == sample].index]
-        sample_cell_level_NTScore_df = cell_level_NTScore_df.loc[meta_data_df[meta_data_df['Sample'] == sample].index]
+        sample_niche_level_NTScore_df = niche_level_NTScore_df.loc[meta_data_df[meta_data_df['Sample'] == sample][id_name].values]
+        sample_cell_level_NTScore_df = cell_level_NTScore_df.loc[meta_data_df[meta_data_df['Sample'] == sample][id_name].values]
         coordinates_df = coordinates_df.join(sample_niche_level_NTScore_df).join(sample_cell_level_NTScore_df)
         coordinates_df.to_csv(f'{save_dir}/{sample}_NTScore.csv.gz')
         NTScore_table = pd.concat([NTScore_table, coordinates_df])
 
-    NTScore_table.loc[meta_data_df.index].to_csv(f'{save_dir}/NTScore.csv.gz')
+    NTScore_table.loc[meta_data_df[id_name]].to_csv(f'{save_dir}/NTScore.csv.gz')
