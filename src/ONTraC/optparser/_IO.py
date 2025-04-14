@@ -348,9 +348,9 @@ def write_io_options_memo(options: Values, io_options: Optional[Dict[str, List[s
         info(f'Niche trajectory output directory:  {options.NT_dir}')
     if ioc.has_io_option('output'):  # this is a optional-overwrite option (ONTraC_analysis only)
         info(f'Output directory:  {options.output}')
-    if 'input' in io_options:  # this is a required option
+    if ioc.has_io_option(name='input'):  # this is a required option
         info(f'Meta data file:  {options.meta_input}')
-    if 'log' in io_options and hasattr(
+    if ioc.has_io_option(name='log') and hasattr(
             options, 'log') and options.log is not None:  # this is a optional option (ONTraC_analysis only)
         info(f'Log file:  {options.log}')
 

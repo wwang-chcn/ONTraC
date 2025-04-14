@@ -4,18 +4,18 @@
 
 Added:
 
-- output file `niche_hidden_features.csv.gz` in `GNN_dir`, which is also available as the `niche_hidden_features` attribute in the `AnaData` class.
-- tests for IO options preparation
+- Output file `niche_hidden_features.csv.gz` in `GNN_dir`, which is also available as the `niche_hidden_features` attribute in the `AnaData` class.
+- Tests for IO options preparation
 
 Changed:
 
-- dir options for `ONTraC_analysis` become optional
-- automatically set suppression options in ONTraC_analysis when GNN_dir or NT_dir is not specified
+- Dir options for `ONTraC_analysis` become optional
+- Automatically set suppression options in ONTraC_analysis when GNN_dir or NT_dir is not specified
 
 Removed:
 
-- output named `consolidate_s.csv.gz` in `GNN_dir` to avoid ambiguity. Please use `niche_level_niche_cluster.csv.gz` instead.
-- output named `cell_NTScore.csv.gz` and `niche_NTScore.csv.gz` in `NT_dir` to avoid ambiguity. Please use `NTScore.csv.gz` instead.
+- Output named `consolidate_s.csv.gz` in `GNN_dir` to avoid ambiguity. Please use `niche_level_niche_cluster.csv.gz` instead.
+- Output named `cell_NTScore.csv.gz` and `niche_NTScore.csv.gz` in `NT_dir` to avoid ambiguity. Please use `NTScore.csv.gz` instead.
 
 ## [1.1.4] - 2025-Mar-5
 
