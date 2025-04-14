@@ -1,4 +1,3 @@
-import os
 import sys
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Union
@@ -6,31 +5,12 @@ from typing import Dict, List, Optional, Tuple, Union
 import numpy as np
 import pandas as pd
 from numpy import ndarray
+from pandas import DataFrame
 from scipy.sparse import load_npz
 
-from ..data import SpatailOmicsDataset
 from ..log import error, info
 from ..utils import consolidate_out_adj_norm
 from .algorithm import brute_force, diffusion_map, held_karp
-
-
-def load_consolidate_data(GNN_dir: Union[str, Path]) -> Tuple[ndarray, ndarray]:
-    """
-    Load consolidate s_array and out_adj_array
-    :param GNN_dir: Union[str, Path], the directory of GNN
-    :return: Tuple[ndarray, ndarray], the consolidate s_array and out_adj_array
-    """
-
-    info('Loading consolidate s_array and out_adj_array...')
-
-    if not os.path.exists(f'{GNN_dir}/consolidate_s.csv.gz'):
-        error(f'consolidate_s.csv.gz does not exist in {GNN_dir} directory.')
-    if not os.path.exists(f'{GNN_dir}/consolidate_out_adj_raw.csv.gz'):
-        error(f'consolidate_out_adj.csv.gz does not exist in {GNN_dir} directory.')
-    consolidate_s_array = np.loadtxt(fname=f'{GNN_dir}/consolidate_s.csv.gz', delimiter=',')
-    consolidate_out_adj_raw_array = np.loadtxt(fname=f'{GNN_dir}/consolidate_out_adj_raw.csv.gz', delimiter=',')
-
-    return consolidate_s_array, consolidate_out_adj_raw_array
 
 
 def apply_diffusion_map(niche_adj_matrix: ndarray,
@@ -129,19 +109,19 @@ def trajectory_path_to_NC_score(niche_trajectory_path: List[int],
 
 
 def get_niche_NTScore(trajectory_construct_method: str,
-                      niche_cluster_loading: ndarray,
+                      niche_level_niche_cluster_assign_df: DataFrame,
                       niche_adj_matrix: ndarray,
                       NT_dir: Optional[Union[str, Path]] = None,
                       DM_embedding_index: int = 1,
-                      equal_space: bool = False) -> Tuple[ndarray, ndarray]:
+                      equal_space: bool = False) -> Tuple[ndarray, DataFrame]:
     """
     Get niche-level niche trajectory and cell-level niche trajectory
     :param trajectory_construct_method: str, the method to construct trajectory
-    :param niche_cluster_loading: ndarray, the loading of cell x niche clusters
+    :param niche_level_niche_cluster_assign_df: DataFrame, the niche-level niche cluster assignment. #niche x #niche_cluster
     :param niche_adj_matrix: non-negative ndarray, raw adjacency matrix of the graph
     :param NT_dir: Union[str, Path], the directory to save the output
     :param equal_space: bool, whether the niche clusters are equally spaced in the trajectory
-    :return: Tuple[ndarray, ndarray], the niche-level niche trajectory and cell-level niche trajectory
+    :return: Tuple[ndarray, DataFrame], the niche-level niche trajectory and cell-level niche trajectory
     """
 
     info('Calculating NTScore for each niche.')
@@ -151,75 +131,93 @@ def get_niche_NTScore(trajectory_construct_method: str,
                                                       NT_dir=NT_dir,
                                                       DM_embedding_index=DM_embedding_index)
 
-    niche_clustering_sum = niche_cluster_loading.sum(axis=0)
+    niche_clustering_sum = niche_level_niche_cluster_assign_df.values.sum(axis=0)
     niche_cluster_score = trajectory_path_to_NC_score(niche_trajectory_path=niche_trajectory_path,
                                                       niche_clustering_sum=niche_clustering_sum,
                                                       equal_space=equal_space)
-    niche_level_NTScore = niche_cluster_loading @ niche_cluster_score
+    niche_level_NTScore_df = pd.DataFrame(niche_level_niche_cluster_assign_df.values @ niche_cluster_score,
+                                          index=niche_level_niche_cluster_assign_df.index,
+                                          columns=['Niche_NTScore'])
+    return niche_cluster_score, niche_level_NTScore_df
 
-    return niche_cluster_score, niche_level_NTScore
 
-
-def niche_to_cell_NTScore(dataset: SpatailOmicsDataset, rel_params: Dict,
-                          niche_level_NTScore: ndarray) -> Tuple[ndarray, Dict[str, ndarray], Dict[str, ndarray]]:
+def niche_to_cell_NTScore(meta_data_df: DataFrame, niche_level_NTScore_df: DataFrame, rel_params: Dict) -> DataFrame:
     """
     get cell-level NTScore
-    :param dataset: SpatailOmicsDataset, dataset
+    :param meta_data_df: DataFrame, the meta data
+    :param niche_level_NTScore_df: DataFrame, the niche-level NTScore
     :param rel_params: Dict, relative paths
-    :param niche_level_NTScore: ndarray, niche-level NTScore
-    :return: Tuple[ndarray, Dict[str, ndarray], Dict[str, ndarray]], the cell-level NTScore, all niche-level NTScore dict,
-    and all cell-level NTScore dict
+    :return: DataFrame, cell-level NTScore
     """
 
     info('Projecting NTScore from niche-level to cell-level.')
 
-    cell_level_NTScore = np.zeros(niche_level_NTScore.shape[0])
+    # prepare
+    id_name: str = meta_data_df.columns[0]
+    samples = meta_data_df['Sample'].cat.categories
+    sample_files_by_name_dict = {
+        sample_files_dict['Name']: sample_files_dict
+        for sample_files_dict in rel_params['Data']
+    }
+    sample_cell_level_NTScore_list = []
 
-    all_niche_level_NTScore_dict: Dict[str, ndarray] = {}
-    all_cell_level_NTScore_dict: Dict[str, ndarray] = {}
-
-    s = 0
-    for i, data in enumerate(dataset):
-        # the slice of data in each sample
-        slice_ = slice(s, s + data.x.shape[0])
-        s += data.x.shape[0]
-
-        # niche to cell matrix
-        niche_weight_matrix = load_npz(rel_params['Data'][i]['NicheWeightMatrix'])
-        niche_to_cell_matrix = (
-            niche_weight_matrix /
-            niche_weight_matrix.sum(axis=0)).T  # normalize by the all niches associated with each cell, N x N
+    for sample in samples:
+        sample_niche_level_NTScore_df = niche_level_NTScore_df.loc[meta_data_df[meta_data_df['Sample'] == sample]
+                                                                   [id_name].values]
+        niche_weight_matrix = load_npz(sample_files_by_name_dict[sample]['NicheWeightMatrix'])
+        if niche_weight_matrix.shape[0] != sample_niche_level_NTScore_df.shape[0]:
+            raise ValueError(f'Inconsistent number of niches in {sample} sample. '
+                             f'Please check the niche weight matrix and the niche-level NTScore.')
+        if niche_weight_matrix.shape[1] != sample_niche_level_NTScore_df.shape[0]:
+            raise ValueError(f'Inconsistent number of cells in {sample} sample. '
+                             f'Please check the niche weight matrix and the niche-level NTScore.')
+        niche_to_cell_matrix = (niche_weight_matrix / niche_weight_matrix.sum(axis=0)
+                                ).T  # normalize by the all niches associated with each cell, N (#cell) x N (#niche)
 
         # cell-level NTScore
-        niche_level_NTScore_ = niche_level_NTScore[slice_].reshape(-1, 1)  # N x 1
+        niche_level_NTScore_ = sample_niche_level_NTScore_df.values.reshape(-1, 1)  # N x 1
         cell_level_NTScore_ = niche_to_cell_matrix @ niche_level_NTScore_
-        cell_level_NTScore[slice_] = cell_level_NTScore_.reshape(-1)
+        sample_cell_level_NTScore_list.append(
+            pd.DataFrame(cell_level_NTScore_.reshape(-1),
+                         index=sample_niche_level_NTScore_df.index,
+                         columns=['Cell_NTScore']))
 
-        all_niche_level_NTScore_dict[data.name] = niche_level_NTScore_
-        all_cell_level_NTScore_dict[data.name] = cell_level_NTScore_
+    cell_level_NTScore_df = pd.concat(sample_cell_level_NTScore_list).loc[meta_data_df[id_name]]
 
-    return cell_level_NTScore, all_niche_level_NTScore_dict, all_cell_level_NTScore_dict
+    return cell_level_NTScore_df
 
 
-def NTScore_table(save_dir: Union[str, Path], rel_params: Dict, all_niche_level_NTScore_dict: Dict[str, ndarray],
-                  all_cell_level_NTScore_dict: Dict[str, ndarray]) -> None:
+def NTScore_table(save_dir: Union[str, Path], meta_data_df: DataFrame, niche_level_NTScore_df: DataFrame,
+                  cell_level_NTScore_df: DataFrame, rel_params: Dict) -> None:
     """
     Generate NTScore table and save it
     :param save_dir: Union[str, Path], the directory to save NTScore table
+    :param meta_data_df: DataFrame, the meta data
+    :param niche_level_NTScore_df: DataFrame, the niche-level NTScore
+    :param cell_level_NTScore_df: DataFrame, the cell-level NTScore
     :param rel_params: Dict, relative paths
-    :param all_niche_level_NTScore_dict: Dict[str, ndarray], all niche-level NTScore dict
-    :param all_cell_level_NTScore_dict: Dict[str, ndarray], all cell-level NTScore dict
     :return: None
     """
 
     info('Output NTScore tables.')
 
+    # prepare
+    id_name: str = meta_data_df.columns[0]
+    samples = meta_data_df['Sample'].cat.categories
+    sample_files_by_name_dict = {
+        sample_files_dict['Name']: sample_files_dict
+        for sample_files_dict in rel_params['Data']
+    }
     NTScore_table = pd.DataFrame()
-    for sample in rel_params['Data']:
-        coordinates_df = pd.read_csv(sample['Coordinates'], index_col=0)
-        coordinates_df['Niche_NTScore'] = all_niche_level_NTScore_dict[sample['Name']]
-        coordinates_df['Cell_NTScore'] = all_cell_level_NTScore_dict[sample['Name']]
-        coordinates_df.to_csv(f'{save_dir}/{sample["Name"]}_NTScore.csv.gz')
+
+    for sample in samples:
+        coordinates_df = pd.read_csv(sample_files_by_name_dict[sample]['Coordinates'], index_col=0)
+        sample_niche_level_NTScore_df = niche_level_NTScore_df.loc[meta_data_df[meta_data_df['Sample'] == sample]
+                                                                   [id_name].values]
+        sample_cell_level_NTScore_df = cell_level_NTScore_df.loc[meta_data_df[meta_data_df['Sample'] == sample]
+                                                                 [id_name].values]
+        coordinates_df = coordinates_df.join(sample_niche_level_NTScore_df).join(sample_cell_level_NTScore_df)
+        coordinates_df.to_csv(f'{save_dir}/{sample}_NTScore.csv.gz')
         NTScore_table = pd.concat([NTScore_table, coordinates_df])
 
-    NTScore_table.to_csv(f'{save_dir}/NTScore.csv.gz')
+    NTScore_table.loc[meta_data_df[id_name]].to_csv(f'{save_dir}/NTScore.csv.gz')
