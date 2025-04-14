@@ -15,6 +15,7 @@ Changed:
 Removed:
 
 - output named `consolidate_s.csv.gz` in `GNN_dir` to avoid ambiguity. Please use `niche_level_niche_cluster.csv.gz` instead.
+- output named `cell_NTScore.csv.gz` and `niche_NTScore.csv.gz` in `NT_dir` to avoid ambiguity. Please use `NTScore.csv.gz` instead.
 
 ## [1.1.4] - 2025-Mar-5
 

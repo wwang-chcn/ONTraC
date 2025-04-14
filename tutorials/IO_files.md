@@ -154,13 +154,3 @@ Previouly named as NTScore-dir.
 - niche_cluster_score.csv.gz
 
   File contains NT score for each niche cluster.
-
-- cell_NTScore.csv.gz
-
-  File contains cell-level NT score for all samples.
-  Warning: the number of rows were expanded to same for paralle processing using pytorch. Do not use this file directly.
-
-- niche_NTScore.csv.gz
-
-  File contains niche-level NT score for all samples.
-  Warning: the number of rows were expanded to same for paralle processing using pytorch. Do not use this file directly.
