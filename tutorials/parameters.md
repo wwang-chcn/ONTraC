@@ -58,7 +58,7 @@ Options:
     --n-gcn-layers=N_GCN_LAYERS
                         Number of GCN layers. Default is 2.
     -k K, --k-clusters=K
-                        Number of niche clusters. Default is 6.
+                        Number of niche clusters. Default is 6. No more than 8.
     --modularity-loss-weight=MODULARITY_LOSS_WEIGHT
                         Weight for modularity loss. Default is 0.3.
     --purity-loss-weight=PURITY_LOSS_WEIGHT
@@ -69,7 +69,7 @@ Options:
 
   Options for niche trajectory:
     --trajectory-construct=TRAJECTORY_CONSTRUCT
-                        Method to construct the niche trajectory. Default is 'BF' (brute-force). A faster alternative is 'TSP'.
+                        Method to construct the niche trajectory. Default is 'BF' (brute-force).
 ```
 
 ### Full parameters for ONTraC_NN
@@ -145,7 +145,7 @@ Options:
     --n-gcn-layers=N_GCN_LAYERS
                         Number of GCN layers. Default is 2.
     -k K, --k-clusters=K
-                        Number of niche clusters. Default is 6.
+                        Number of niche clusters. Default is 6. No more than 8.
     --modularity-loss-weight=MODULARITY_LOSS_WEIGHT
                         Weight for modularity loss. Default is 0.3.
     --purity-loss-weight=PURITY_LOSS_WEIGHT
@@ -180,7 +180,7 @@ Options:
 
   Options for niche trajectory:
     --trajectory-construct=TRAJECTORY_CONSTRUCT
-                        Method to construct the niche trajectory. Default is 'BF' (brute-force). A faster alternative is 'TSP'.
+                        Method to construct the niche trajectory. Default is 'BF' (brute-force).
 ```
 
 ### Full parameters for ONTraC_analysis
@@ -275,7 +275,7 @@ Options:
     --n-gcn-layers=N_GCN_LAYERS
                         Number of GCN layers. Default is 2.
     -k K, --k-clusters=K
-                        Number of niche clusters. Default is 6.
+                        Number of niche clusters. Default is 6. No more than 8.
     --modularity-loss-weight=MODULARITY_LOSS_WEIGHT
                         Weight for modularity loss. Default is 0.3.
     --purity-loss-weight=PURITY_LOSS_WEIGHT
@@ -286,7 +286,7 @@ Options:
 
   Options for niche trajectory:
     --trajectory-construct=TRAJECTORY_CONSTRUCT
-                        Method to construct the niche trajectory. Default is 'BF' (brute-force). A faster alternative is 'TSP'.
+                        Method to construct the niche trajectory. Default is 'BF' (brute-force).
 ```
 
 ## Detailed explanation

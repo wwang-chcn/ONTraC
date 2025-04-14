@@ -24,8 +24,8 @@ def add_NT_options_group(optparser: OptionParser) -> None:
         '--trajectory-construct',
         dest='trajectory_construct',
         default='BF',
-        choices=['BF', 'TSP'],
-        help="Method to construct the niche trajectory. Default is 'BF' (brute-force). A faster alternative is 'TSP'.")
+        choices=['BF'],
+        help="Method to construct the niche trajectory. Default is 'BF' (brute-force)")
 
 
 def validate_NT_options(options: Values, optparser: Optional[OptionParser] = None) -> None:
@@ -48,8 +48,8 @@ def validate_NT_options(options: Values, optparser: Optional[OptionParser] = Non
     if getattr(options, 'trajectory_construct', None) is None:
         info('trajectory_construct is not set. Using default value BF.')
         options.trajectory_construct = 'BF'
-    elif options.trajectory_construct not in ['BF', 'TSP']:
-        error('trajectory_construct must be either BF or TSP.')
+    elif options.trajectory_construct not in ['BF']:
+        error('trajectory_construct must be BF')
         if optparser is not None: optparser.print_help()
         sys.exit(1)
 
