@@ -2,6 +2,10 @@
 
 ## [3.0.0] - XXXX-XXX-XX
 
+Added:
+
+- support for 3D coordinate data
+
 Changed:
 
 - Switch to sparse GCN and Graph Pooling layers, which can save a lot of memory and reduce run time.
