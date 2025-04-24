@@ -33,6 +33,8 @@ For details and alternative approches, please see the [installation tutorial](tu
 
 ## Tutorial
 
+Please see [ONTraC website](https://ontrac-website.readthedocs.io/en/latest/) for details.
+
 ### Input File
 
 A example input file is provided in `examples/stereo_seq_brain/meta_data.csv`.
@@ -80,3 +82,8 @@ ONTraC has been incorporated with [Giotto Suite](https://drieslab.github.io/Giot
 ## Citation
 
 **Wang, W.\*, Zheng, S.\*, Shin, C. S. & [Yuan, G. C.](https://labs.icahn.mssm.edu/yuanlab/)$**. [Characterizing Spatially Continuous Variations in Tissue Microenvironment through Niche Trajectory Analysis](https://www.biorxiv.org/content/10.1101/2024.04.23.590827v1). *bioRxiv*, 2024.
+
+## Other Resources
+
+[Reproducible codes](https://github.com/gyuanlab/ONTraC_paper)
+[Dataset used in our paper](https://doi.org/10.5281/zenodo.11186619)
