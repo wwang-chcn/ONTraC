@@ -13,7 +13,7 @@ Changed:
 
 - Dir options for `ONTraC_analysis` become optional
 - Automatically set suppression options in ONTraC_analysis when GNN_dir or NT_dir is not specified
-- Limit k (niche cluster number) no more than 8.
+- Limit k (niche cluster number) no more than 10.
 
 Removed:
 

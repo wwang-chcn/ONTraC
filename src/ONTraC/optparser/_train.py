@@ -295,8 +295,10 @@ def validate_GP_options(options: Values, optparser: Optional[OptionParser] = Non
         sys.exit(1)
     elif getattr(options, 'k') > 8:
         warning(f'We recommend k to be no more than 8. You can set k to a larger value, but it may cause wired results and extra time cost in niche trajectory construction.')
-        if optparser is not None: optparser.print_help()
-        sys.exit(1)
+        if getattr(options, 'k') > 10:
+            error(f'k must be no more than 10, exit!')
+            if optparser is not None: optparser.print_help()
+            sys.exit(1)
 
     # check modularity_loss_weight
     if getattr(options, 'modularity_loss_weight', None) is None:
