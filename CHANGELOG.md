@@ -1,5 +1,15 @@
 # Change log
 
+## [1.1.4.post2] - 2025-May-6
+
+Fixed:
+
+- Security issue caused by pytorch
+
+Removed:
+
+- Conda build workflow due to torch do not support it any more
+
 ## [1.1.4.post1] - 2025-Apr-13
 
 Fixed:
