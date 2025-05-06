@@ -43,12 +43,17 @@ Changed:
 
 - Dir options for `ONTraC_analysis` become optional
 - Automatically set suppression options in ONTraC_analysis when GNN_dir or NT_dir is not specified
-- Limit k (niche cluster number) no more than 8.
+- Limit k (niche cluster number) no more than 10.
+
+Fixed:
+
+- Security issue caused by pytorch
 
 Removed:
 
 - Output named `consolidate_s.csv.gz` in `GNN_dir` to avoid ambiguity. Please use `niche_level_niche_cluster.csv.gz` instead.
 - Output named `cell_NTScore.csv.gz` and `niche_NTScore.csv.gz` in `NT_dir` to avoid ambiguity. Please use `NTScore.csv.gz` instead.
+- Conda build workflow due to torch do not support it any more
 
 ## [1.1.4] - 2025-Mar-5
 
