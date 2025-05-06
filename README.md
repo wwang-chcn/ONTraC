@@ -4,8 +4,6 @@
 [![Python Versions](https://img.shields.io/pypi/pyversions/ONTraC.svg)](https://pypi.org/project/ONTraC/)
 [![Downloads](https://static.pepy.tech/badge/ONTraC)](https://pepy.tech/project/ONTraC)
 [![PyPI Downloads](https://img.shields.io/pypi/dm/ONTraC.svg?label=PyPI%20downloads)](https://pypistats.org/packages/ontrac)
-[![Anaconda-Server Version](https://anaconda.org/gyuanlab/ontrac/badges/version.svg)](https://anaconda.org/gyuanlab/ontrac)
-[![Anaconda-Server Platforms](https://anaconda.org/gyuanlab/ontrac/badges/platforms.svg)](https://anaconda.org/gyuanlab/ontrac)
 [![GitHub Stars](https://badgen.net/github/stars/gyuanlab/ONTraC)](https://github.com/gyuanlab/ONTraC)
 [![GitHub Issues](https://img.shields.io/github/issues/gyuanlab/ONTraC.svg)](https://github.com/gyuanlab/ONTraC/issues)
 [![GitHub License](https://img.shields.io/github/license/gyuanlab/ONTraC.svg)](https://github.com/gyuanlab/ONTraC/blob/master/LICENSE)
@@ -32,6 +30,8 @@ pip install ONTraC
 For details and alternative approches, please see the [installation tutorial](tutorials/installation.md)
 
 ## Tutorial
+
+Please see [ONTraC website](https://ontrac-website.readthedocs.io/en/latest/) for details.
 
 ### Input File
 
@@ -80,3 +80,8 @@ ONTraC has been incorporated with [Giotto Suite](https://drieslab.github.io/Giot
 ## Citation
 
 **Wang, W.\*, Zheng, S.\*, Shin, C. S. & [Yuan, G. C.](https://labs.icahn.mssm.edu/yuanlab/)$**. [Characterizing Spatially Continuous Variations in Tissue Microenvironment through Niche Trajectory Analysis](https://www.biorxiv.org/content/10.1101/2024.04.23.590827v1). *bioRxiv*, 2024.
+
+## Other Resources
+
+[Reproducible codes](https://github.com/gyuanlab/ONTraC_paper)
+[Dataset used in our paper](https://doi.org/10.5281/zenodo.11186619)

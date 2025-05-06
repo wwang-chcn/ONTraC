@@ -9,9 +9,11 @@ on:
       - main
       - V1
       - V2
+      - V3
       - v1.0
       - v1.1
       - v2.0
+      - v3.0
   pull_request:
   workflow_dispatch:
 
@@ -61,5 +63,5 @@ jobs:
     - name: Collect test coverage
       run: |
         pip install coverage
-        coverage run -m pytest
+        coverage run --source=. -m pytest
         coverage report

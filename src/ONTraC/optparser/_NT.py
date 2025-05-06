@@ -26,6 +26,12 @@ def add_NT_options_group(optparser: OptionParser) -> None:
         default='BF',
         choices=['BF'],
         help="Method to construct the niche trajectory. Default is 'BF' (brute-force)")
+    group_NT.add_option(
+        '--equal-space',
+        dest='equal_space',
+        default=True,
+        action='store_true',
+        help="Whether the niche clusters are equally spaced in the trajectory. Default is True.")
 
 
 def validate_NT_options(options: Values, optparser: Optional[OptionParser] = None) -> None:
