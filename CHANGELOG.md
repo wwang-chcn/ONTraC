@@ -6,6 +6,10 @@ Fixed:
 
 - Security issue caused by pytorch
 
+Removed:
+
+- Conda build workflow due to torch do not support it any more
+
 ## [1.1.2] - 2025-Jan-12
 
 Added:
