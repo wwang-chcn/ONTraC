@@ -1,5 +1,11 @@
 # Change log
 
+## [1.1.2.post1] - 2025-May-6
+
+Fixed:
+
+- Security issue caused by pytorch
+
 ## [1.1.2] - 2025-Jan-12
 
 Added:
