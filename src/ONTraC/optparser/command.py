@@ -57,7 +57,7 @@ def prepare_ontrac_optparser() -> OptionParser:
     return optparser
 
 
-def _opt_ontrac_validate(options: Values, io_options: Dict[str, List[str]], optparser: OptionParser) -> Values:
+def _opt_ontrac_validate(options: Values, io_options: Dict[str, List[str]], optparser: Optional[OptionParser] = None) -> Values:
     """Validate options from a OptParser object.
 
     :param options: Options object.
