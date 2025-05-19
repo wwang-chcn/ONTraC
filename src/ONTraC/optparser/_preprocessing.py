@@ -2,6 +2,7 @@
 
 import sys
 from optparse import OptionGroup, OptionParser, Values
+from typing import Optional
 
 from ..log import *
 from ..version import __version__
@@ -42,13 +43,12 @@ def add_preprocessing_options_group(optparser: OptionParser) -> None:
     optparser.add_option_group(group_preprocessing)
 
 
-def validate_preprocessing_options(optparser: OptionParser, options: Values) -> None:
+def validate_preprocessing_options(options: Values, optparser: Optional[OptionParser] = None) -> None:
     """
     Validate preprocessing options.
-    :param optparser: OptionParser object.
     :param options: Options object.
-    :param preprocessing_options: Set of preprocessing options.
-    :return: None.
+    :param optparser: OptionParser object.
+    :return: None
     """
 
     if options.exp_input is None and options.embedding_input is None:  # no cell-level expression data or embedding data
@@ -59,7 +59,7 @@ def validate_preprocessing_options(optparser: OptionParser, options: Values) -> 
         options.resolution = None
     elif options.resolution < 0:
         error('resolution must be greater than 0.')
-        optparser.print_help()
+        if optparser is not None: optparser.print_help()
         sys.exit(1)
 
     if options.low_res_exp_input is None:  # low resolution data is not provided
@@ -68,7 +68,7 @@ def validate_preprocessing_options(optparser: OptionParser, options: Values) -> 
     else:  # low resolution data is provided
         if options.dc_ct_num < 2:
             error('deconvolution_cell_type_number must be greater than 2.')
-            optparser.print_help()
+            if optparser is not None: optparser.print_help()
             sys.exit(1)
         if options.dc_ct_num < 4:
             warning('deconvolution_cell_type_number is less than 4. The result may not be reliable.')
