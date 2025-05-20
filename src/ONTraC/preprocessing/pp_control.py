@@ -129,16 +129,28 @@ def cal_cell_type_coding(
     if id_name == 'Cell_ID':
         if 'Cell_Type' in meta_data_df.columns:  # option 1: cell-level data with Cell_Type info in meta_data
             meta_data_df['Cell_Type'] = meta_data_df['Cell_Type'].astype('category')
-        else:
-            if 'embedding_data' in input_data and input_data[
-                    'embedding_data'] is not None:  # option 2: cell-level data with embedding info
-                pca_embedding = input_data['embedding_data'].values
-            elif 'exp_data' in input_data and input_data[
-                    'exp_data'] is not None:  # option 3: cell-level data with gene expression data
-                pca_embedding = perform_pca(input_data['exp_data'])
-                if 'Batch' in meta_data_df.columns:
-                    if meta_data_df['Batch'].nunique() > 1:
+            if gen_ct_embedding and input_data.get('embedding_data', None) is None:  # generate cell type embedding
+                if input_data.get('exp_data', None) is None:
+                    raise ValueError(
+                        'exp_data or embedding_data should be provided for cell-level data when generating cell type embedding.'
+                    )
+                else:
+                    pca_embedding = perform_pca(input_data['exp_data'])
+                    if 'Batch' in meta_data_df.columns and meta_data_df['Batch'].nunique() > 1:
                         pca_embedding = perform_harmony(pca_embedding, meta_data_df, 'Batch')
+                # save PCA embedding
+                input_data['embedding_data'] = pd.DataFrame(data=pca_embedding,
+                                                            columns=[f'PC{i+1}' for i in range(pca_embedding.shape[1])],
+                                                            index=meta_data_df[id_name])
+                np.savetxt(Path(NN_dir).joinpath('PCA_embedding.csv'), pca_embedding, delimiter=',')
+
+        else:
+            if input_data.get('embedding_data', None) is not None:  # option 2: cell-level data with embedding info
+                pca_embedding = input_data['embedding_data'].values
+            elif input_data.get('exp_data', None) is not None:  # option 3: cell-level data with gene expression data
+                pca_embedding = perform_pca(input_data['exp_data'])
+                if 'Batch' in meta_data_df.columns and meta_data_df['Batch'].nunique() > 1:
+                    pca_embedding = perform_harmony(pca_embedding, meta_data_df, 'Batch')
             else:
                 raise ValueError(
                     'Cell_Type column, exp_data, or embedding_data should be provided for cell-level data.')

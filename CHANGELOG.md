@@ -10,7 +10,7 @@ Changed:
 
 Added:
 
-- Flexible cell type coding moduel
+- Flexible cell type coding module
   - gene expression, embeddings, low resolution expression, and deconvoluted cell_type X gene
 - Support to low resolution dataset
 - Support to deconvoluted results as input
