@@ -9,12 +9,13 @@ Added:
 Changed:
 
 - Switch to sparse GCN and Graph Pooling layers, which can save a lot of memory and reduce run time.
+- Remove the limitation of niche cluster number
 
 ## [2.0.0] - XXXX-XXX-XX
 
 Added:
 
-- Flexible cell type coding moduel
+- Flexible cell type coding module
   - gene expression, embeddings, low resolution expression, and deconvoluted cell_type X gene
 - Support to low resolution dataset
 - Support to deconvoluted results as input
