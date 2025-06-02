@@ -273,6 +273,9 @@ class AnaData:
         # the order of categories is the same as the order of appearance in the cell_type_codes
         self.meta_data_df['Cell_Type'] = self.meta_data_df['Cell_Type'].astype('category')
 
+        # make the Sample column categorical
+        self.meta_data_df['Sample'] = self.meta_data_df['Sample'].astype('str').astype('category')
+
     @property
     def train_loss(self):
         if not hasattr(self, '_train_loss') or self._train_loss is None:

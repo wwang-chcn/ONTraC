@@ -1,5 +1,14 @@
 # Change log
 
+## [1.2.0] - 2025-XXX-XX
+
+Added:
+
+- Trajectory based plots
+  - Cell type composition dynamic along niche trajectory
+  - Gene expression (or other features) dynamic along niche trajectory
+- Calculation of cell type counts within each niche
+
 ## [1.1.5.post2] - 2025-May-6
 
 Fixed:
