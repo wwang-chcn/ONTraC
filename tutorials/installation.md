@@ -1,5 +1,12 @@
 # Installation
 
+## Step 0 Clean cache (recommend)
+
+```sh
+pip cache purge
+conda clean -a -y
+```
+
 ## Step 1 Create and enter conda env (recommend)
 
 ```sh
