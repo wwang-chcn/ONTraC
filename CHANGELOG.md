@@ -1,6 +1,12 @@
 # Change log
 
-## [1.2.0] - 2025-XXX-XX
+## [1.2.1] - 2025-XXX-XX
+
+Added:
+
+- Calculation of correlations between features and trajectory
+
+## [1.2.0] - 2025-Jun-3
 
 Added:
 

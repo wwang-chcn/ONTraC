@@ -57,6 +57,66 @@ def construct_meta_cell_along_trajectory(meta_data_df: pd.DataFrame,
     return rolling_mean
 
 
+def cal_features_correlation_along_trajectory(data_df: pd.DataFrame,
+                                              trajectory: str,
+                                              features: Optional[List[str]] = None,
+                                              top_n: Optional[int] = None,
+                                              rho_threshold: Optional[float] = None,
+                                              p_val_threshold: Optional[float] = None) -> pd.DataFrame:
+    """
+    Calculate the correlation between features and a trajectory in a DataFrame.
+
+    Parameters
+    ----------
+    data_df : pd.DataFrame
+        DataFrame containing features for each (meta-)cell.
+        Rows are meta-cells and columns are features and trajectory.
+        All columns should be continuous values.
+        All columns except the trajectory column should be features.
+    trajectory : str
+        Column name in data_df that contains the trajectory values.
+    features : Optional[List[str]]
+        Optional; if provided, only consider these features for correlation.
+        If None, consider all features except the trajectory column.
+    top_n : Optional[int]
+        Optional; if provided, return only the top N features with highest absolute correlation to the trajectory.
+        If None, return all features that meet the correlation and p-value thresholds.
+    rho_threshold : Optional[float]
+        Optional; minimum absolute correlation coefficient to consider a feature. If None, no threshold is applied.
+    p_val_threshold : Optional[float]
+        Optional; maximum p-value to consider a feature. If None, no threshold is applied.
+
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame containing top correlated features.
+    """
+
+    if trajectory not in data_df.columns:
+        raise ValueError(f"Trajectory column '{trajectory}' not found in metacell_data_df.")
+
+    feature_list: List[str] = data_df.columns.difference(
+        [trajectory]).tolist() if features is None else features
+    correlations = []
+    for feat in feature_list:
+        rho, p_val = pearsonr(data_df[trajectory], data_df[feat])
+        correlations.append((feat, rho, p_val))
+    correlations_df = pd.DataFrame(correlations, columns=['Feature', 'PCC', 'P_Value'])
+    correlations_df = correlations_df.dropna()
+    correlations_df = correlations_df.sort_values(by='PCC', ascending=False)
+    if rho_threshold is not None:
+        correlations_df = correlations_df[abs(correlations_df['PCC']) >= rho_threshold]
+    if p_val_threshold is not None:
+        correlations_df = correlations_df[correlations_df['P_Value'] <= p_val_threshold]
+    if top_n is not None:
+        top_n_df = correlations_df.head(top_n)
+        top_n_df = top_n_df[top_n_df['PCC']>0]
+        bottom_n_df = correlations_df.tail(top_n)
+        bottom_n_df = bottom_n_df[bottom_n_df['PCC']<0]
+        correlations_df = pd.concat([correlations_df.head(top_n), correlations_df.tail(top_n)], ignore_index=True)
+    return correlations_df.set_index('Feature')
+
+
 def plot_scatter_feat_along_trajectory(data_df: pd.DataFrame,
                                        trajectory: str,
                                        feature: str,
@@ -262,8 +322,8 @@ def plot_cell_type_composition_along_trajectory(
 
         for cell_type in cell_types:
             ax.plot(rolling_mean[trajectory], rolling_mean[cell_type], label=cell_type, color=palette[cell_type])
-        
-        ax.set_ylim(0,1)
+
+        ax.set_ylim(0, 1)
         ax.legend(title='Cell Types', bbox_to_anchor=(1.05, 1), loc='upper left', ncol=2)
         ax.set_xlabel(trajectory)
         ax.set_ylabel('Normalized Cell Type Composition')
@@ -323,7 +383,8 @@ def plot_cell_type_composition_along_trajectory_from_anadata(
     if ana_data.cell_type_codes is None:
         warning("Cell type codes are not set in AnaData object. Skipping cell type composition along trajectory plot.")
     if ana_data.cell_type_composition is None:
-        warning("Cell type composition is not set in AnaData object. Skipping cell type composition along trajectory plot.")
+        warning(
+            "Cell type composition is not set in AnaData object. Skipping cell type composition along trajectory plot.")
 
     # data_df
     data_df = ana_data.meta_data_df.copy()
@@ -348,10 +409,11 @@ def plot_cell_type_composition_along_trajectory_from_anadata(
         if not output_file_path.suffix:
             output_file_path = output_file_path.with_suffix('.pdf')
 
-    return plot_cell_type_composition_along_trajectory(data_df=data_df,
-                                                       trajectory='Cell_NTScore',
-                                                       cell_types=cell_types, # type: ignore
-                                                       agg_cell_num=agg_cell_num,
-                                                       figsize=figsize,
-                                                       palette=palette,
-                                                       output_file_path=output_file_path)
+    return plot_cell_type_composition_along_trajectory(
+        data_df=data_df,
+        trajectory='Cell_NTScore',
+        cell_types=cell_types,  # type: ignore
+        agg_cell_num=agg_cell_num,
+        figsize=figsize,
+        palette=palette,
+        output_file_path=output_file_path)
