@@ -1,5 +1,15 @@
 # Change log
 
+## [1.2.2] - 2025-June-10
+
+Changed:
+
+- Tutorials to website
+
+Fixed:
+
+- Security issue caused by pytorch
+
 ## [1.2.1] - 2025-June-8
 
 Added:
