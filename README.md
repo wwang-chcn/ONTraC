@@ -62,7 +62,7 @@ For detailed description about all parameters, please see the [Parameters explan
 ONTraC --meta-input simulated_dataset.csv --NN-dir simulation_NN --GNN-dir simulation_GNN --NT-dir simulation_NT --hidden-feats 4 -k 6 --modularity-loss-weight 0.3 --purity-loss-weight 300 --regularization-loss-weight 0.1 --beta 0.03 2>&1 | tee simulation.log
 ```
 
-The input dataset and output files could be downloaded from the [Zenodo Dataset Repository](https://zenodo.org/records/15571644).
+The input dataset and output files could be downloaded from the [Zenodo Dataset Repository](https://doi.org/10.5281/zenodo.11186619).
 
 We recommand running `ONTraC` on GPU, it may take much more time on your own laptop with CPU only.
 
@@ -84,5 +84,5 @@ ONTraC has been incorporated with [Giotto Suite](https://drieslab.github.io/Giot
 
 ## Other Resources
 
-[Reproducible codes](https://github.com/gyuanlab/ONTraC_paper)
-[Dataset used in our paper](https://doi.org/10.5281/zenodo.11186619)
+- [Reproducible codes for our paper](https://github.com/gyuanlab/ONTraC_paper)
+- [Dataset/output used in our paper](https://doi.org/10.5281/zenodo.11186619)
