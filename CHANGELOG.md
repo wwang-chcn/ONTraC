@@ -20,6 +20,23 @@ Changed:
 - Default value of `PURITY_LOSS_WEIGHT` changed to 30
 - Default value of `BETA` changed to 0.3
 
+## [1.2.1] - 2025-June-8
+
+Added:
+
+- Calculation of correlations between features and trajectory
+
+## [1.2.0] - 2025-June-3
+
+Added:
+
+- Trajectory based plots
+  - Cell type composition dynamic along niche trajectory
+  - Gene expression (or other features) dynamic along niche trajectory
+- Calculation of cell type counts within each niche
+
+## [1.1.5.post2] - 2025-May-6
+
 Fixed:
 
 - Resolved bug in regularization loss calculation for multi-sample batch

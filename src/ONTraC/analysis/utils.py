@@ -4,7 +4,8 @@ import matplotlib as mpl
 import numpy as np
 import pandas as pd
 
-from ONTraC.log import warning
+from ..log import warning
+from .data import AnaData
 
 
 def saptial_figsize(sample_df, scaling_factor: Union[int, float] = 1) -> Tuple[int, int]:
@@ -174,3 +175,51 @@ def validate_cell_type_palette(cell_types: List[str],
     else:
         warning("The given palette's type is not supported. Use default palette instead.")
         return get_palette_for_cell_types(cell_types)
+
+
+def cal_niche_level_raw_cell_type_counts_from_anadata(ana_data: AnaData) -> pd.DataFrame:
+    """
+    Calculate the raw cell type counts for each niche level from AnaData.
+
+    Parameters
+    ----------
+    ana_data : AnaData
+        The AnaData object containing the data.
+
+    Returns
+    -------
+    pd.DataFrame
+        A DataFrame with niche levels as index and cell types as columns, containing raw cell type counts.
+    """
+
+    # if cell type codes not None, they Cell_Type column in meta_data_df should already be converted to Categorical
+    if ana_data.cell_type_codes is None:
+        raise AttributeError('Cell type codes are not found in AnaData.')
+
+    if 'Cell_Type' not in ana_data.meta_data_df.columns:
+        raise AttributeError('Cell_Type column is not found in meta_data_df of AnaData.')
+    if not hasattr(ana_data.options, 'NN_dir') or ana_data.options.NN_dir is None:
+        raise AttributeError('NN_dir is not found in AnaData options.')
+
+    cell_type = ana_data.meta_data_df['Cell_Type'].cat.codes
+    cell_label_one_hot = np.zeros(shape=(ana_data.meta_data_df.shape[0],
+                                         len(ana_data.meta_data_df['Cell_Type'].cat.categories)))
+    cell_label_one_hot[np.arange(ana_data.meta_data_df.shape[0]), cell_type] = 1  # N(#cells) x F(#cell_types)
+    cell_label_one_hot_df = pd.DataFrame(data=cell_label_one_hot,
+                                         index=ana_data.meta_data_df.index,
+                                         columns=ana_data.meta_data_df['Cell_Type'].cat.categories)
+
+    sample_niche_ctc_df_list = []
+    for sample in ana_data.meta_data_df['Sample'].unique():
+        sample_data_df = ana_data.meta_data_df[ana_data.meta_data_df['Sample'] == sample]
+        neighborIndices_matrix = np.loadtxt(f'{ana_data.options.NN_dir}/{sample}_NeighborIndicesMatrix.csv.gz',
+                                            delimiter=',').astype(int)
+        adj = np.zeros((sample_data_df.shape[0], sample_data_df.shape[0]))
+        for i in range(neighborIndices_matrix.shape[0]):
+            adj[i, neighborIndices_matrix[i]] = 1
+
+        sample_niche_ctc_df_list.append(
+            pd.DataFrame(adj, index=sample_data_df.index, columns=sample_data_df.index)
+            @ cell_label_one_hot_df.loc[sample_data_df.index])
+
+    return pd.concat(sample_niche_ctc_df_list).loc[ana_data.meta_data_df.index]

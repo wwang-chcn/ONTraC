@@ -28,7 +28,7 @@ responses from all the cells in association with continuous tissue microenvironm
 pip install ONTraC
 ```
 
-For details and alternative approches, please see the [installation tutorial](tutorials/installation.md)
+For details and alternative approches, please see the [installation tutorial](https://ontrac-website.readthedocs.io/en/latest/installation.html)
 
 ## Tutorial
 
@@ -46,7 +46,7 @@ This file contains all input formation with five columns: Cell_ID, Sample, Cell_
 | ...             | ...      | ...       | ...     | ...   |
 | E16_E2S7_326412 | E16_E2S7 | Fibro     | 32990.5 | 14475 |
 
-For detailed information about input and output file, please see [IO files explanation](tutorials/IO_files.md#input-files).
+For detailed information about input and output file, please see the [IO files explanation](https://ontrac-website.readthedocs.io/en/latest/tutorials/IO_files.html).
 
 ### Running ONTraC
 
@@ -56,23 +56,23 @@ The required options for running ONTraC are the paths to the input file and the 
 - **GNN-dir:** This directory stores output from he GNN algorithm.
 - **NT-dir:** This directory stores NT output.
 
-For detailed description about all parameters, please see [Parameters explanation](tutorials/parameters.md).
+For detailed description about all parameters, please see the [Parameters explanation](https://ontrac-website.readthedocs.io/en/latest/tutorials/parameters.html).
 
 ```{sh}
 ONTraC --meta-input simulated_dataset.csv --NN-dir simulation_NN --GNN-dir simulation_GNN --NT-dir simulation_NT --hidden-feats 4 -k 6 --modularity-loss-weight 0.3 --purity-loss-weight 300 --regularization-loss-weight 0.1 --beta 0.03 2>&1 | tee simulation.log
 ```
 
-The input dataset and output files could be downloaded from [Zenodo](https://zenodo.org/records/11186620).
+The input dataset and output files could be downloaded from the [Zenodo Dataset Repository](https://doi.org/10.5281/zenodo.11186619).
 
 We recommand running `ONTraC` on GPU, it may take much more time on your own laptop with CPU only.
 
 ### Output
 
-The intermediate and final results are located in `NN-dir`, `GNN-dir`, and `NT-dir` directories. Please see [IO files explanation](tutorials/IO_files.md#output-files) for detailed infromation.
+The intermediate and final results are located in `NN-dir`, `GNN-dir`, and `NT-dir` directories. Please see [IO files explanation](https://ontrac-website.readthedocs.io/en/latest/tutorials/IO_files.html#output-files) for detailed infromation.
 
 ### Visualization
 
-Please see [post analysis tutorial](tutorials/post_analysis.md).
+Please see the [Visualization Tutorial](https://ontrac-website.readthedocs.io/en/latest/tutorials/visualization.html).
 
 ### Interoperability
 
@@ -80,9 +80,9 @@ ONTraC has been incorporated with [Giotto Suite](https://drieslab.github.io/Giot
 
 ## Citation
 
-**Wang, W.\*, Zheng, S.\*, Shin, C. S., Chávez-Fuentes J. C.  & [Yuan, G. C.](https://labs.icahn.mssm.edu/yuanlab/)$**. [ONTraC characterizes spatially continuous variations of tissue microenvironment through niche trajectory analysi](https://doi.org/10.1186/s13059-025-03588-5). *Genome Biol*, 2025.
+**Wang, W.\*, Zheng, S.\*, Shin, C. S., Chávez-Fuentes J. C.  & [Yuan, G. C.](https://labs.icahn.mssm.edu/yuanlab/)$**. [ONTraC characterizes spatially continuous variations of tissue microenvironment through niche trajectory analysis](https://doi.org/10.1186/s13059-025-03588-5). *Genome Biol*, 2025.
 
 ## Other Resources
 
-[Reproducible codes](https://github.com/gyuanlab/ONTraC_paper)
-[Dataset used in our paper](https://doi.org/10.5281/zenodo.11186619)
+- [Reproducible codes for our paper](https://github.com/gyuanlab/ONTraC_paper)
+- [Dataset/output used in our paper](https://doi.org/10.5281/zenodo.11186619)
