@@ -20,6 +20,16 @@ Changed:
 - Default value of `PURITY_LOSS_WEIGHT` changed to 30
 - Default value of `BETA` changed to 0.3
 
+## [1.2.2] - 2025-June-10
+
+Changed:
+
+- Tutorials to website
+
+Fixed:
+
+- Security issue caused by pytorch
+
 ## [1.2.1] - 2025-June-8
 
 Added:
