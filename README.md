@@ -36,7 +36,7 @@ Please see [ONTraC website](https://ontrac-website.readthedocs.io/en/latest/) fo
 
 ### Input File
 
-A example input file is provided in `examples/stereo_seq_brain/meta_data.csv`.
+An [example input file](./examples/code_for_paper_reproduce/stereo_input.csv) is provided.
 This file contains all input formation with five columns: Cell_ID, Sample, Cell_Type, x, and y.
 
 | Cell_ID         | Sample   | Cell_Type | x       | y     |
@@ -68,6 +68,7 @@ We recommand running `ONTraC` on GPU, it may take much more time on your own lap
 
 ### Output
 
+The example ouputs could be found in the [Zenodo Dataset Repository](https://zenodo.org/records/15571644/files/Stereo_seq_data.zip).
 The intermediate and final results are located in `NN-dir`, `GNN-dir`, and `NT-dir` directories. Please see [IO files explanation](https://ontrac-website.readthedocs.io/en/latest/tutorials/IO_files.html#output-files) for detailed infromation.
 
 ### Visualization
