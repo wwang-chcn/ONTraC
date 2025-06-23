@@ -34,10 +34,12 @@ For details and alternative approches, please see the [installation tutorial](ht
 
 Please see [ONTraC website](https://ontrac-website.readthedocs.io/en/latest/) for details.
 
-### Input File
+### Run ONTraC with original cell type
 
-An [example input file](./examples/code_for_paper_reproduce/stereo_input.csv) is provided.
-This file contains all input formation with five columns: Cell_ID, Sample, Cell_Type, x, and y.
+#### Input File
+
+An [example metadata input file](./examples/code_for_paper_reproduce/stereo_input.csv) is provided.
+This file contains formation with five columns: Cell_ID, Sample, Cell_Type, x, and y.
 
 | Cell_ID         | Sample   | Cell_Type | x       | y     |
 | --------------- | -------- | --------- | ------- | ----- |
@@ -48,7 +50,7 @@ This file contains all input formation with five columns: Cell_ID, Sample, Cell_
 
 For detailed information about input and output file, please see the [IO files explanation](https://ontrac-website.readthedocs.io/en/latest/tutorials/IO_files.html).
 
-### Running ONTraC
+#### Run ONTraC
 
 The required options for running ONTraC are the paths to the input file and the three output directories:
 
@@ -65,6 +67,26 @@ ONTraC --meta-input simulated_dataset.csv --NN-dir simulation_NN --GNN-dir simul
 The input dataset and output files could be downloaded from the [Zenodo Dataset Repository](https://doi.org/10.5281/zenodo.11186619).
 
 We recommand running `ONTraC` on GPU, it may take much more time on your own laptop with CPU only.
+
+### Run ONTraC with kernel-based cell type adjustment
+
+#### Input Files
+
+- Metadata file
+
+An [example metadata input file](./examples/V2/data/merfish_meta.csv) is provided.
+
+- Embeddings file
+
+An [example embeddings input file](./examples/V2/data/merfish_embedding.csv) is provided.
+
+For detailed information about input and output file, please see the [IO files explanation](https://ontrac-website.readthedocs.io/en/latest/tutorials/IO_files.html).
+
+#### Run ONTraC
+
+```{sh}
+ONTraC --meta-input ./examples/V2/data/merfish_meta.csv --embedding-input ./examples/V2/data/merfish_embedding.csv --NN-dir ./examples/V2_example_embedding_NN --GNN-dir ./examples/V2_example_embedding_GNN --NTScore-dir ./examples/V2_example_embedding_NT  --embedding-adjust -s 42 --equal-space 2>&1 | tee log/V2_example_embedding_input.log
+```
 
 ### Output
 
