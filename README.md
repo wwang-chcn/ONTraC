@@ -103,9 +103,12 @@ ONTraC has been incorporated with [Giotto Suite](https://drieslab.github.io/Giot
 
 ## Citation
 
-**Wang, W.\*, Zheng, S.\*, Shin, C. S., Chávez-Fuentes J. C.  & [Yuan, G. C.](https://labs.icahn.mssm.edu/yuanlab/)$**. [ONTraC characterizes spatially continuous variations of tissue microenvironment through niche trajectory analysis](https://doi.org/10.1186/s13059-025-03588-5). *Genome Biol*, 2025.
+**Wang, W.\*, Zheng, S.\*, Shin, C. S., Chávez-Fuentes J. C.  & [Yuan, G.-C.](https://labs.icahn.mssm.edu/yuanlab/)$**. [ONTraC characterizes spatially continuous variations of tissue microenvironment through niche trajectory analysis](https://doi.org/10.1186/s13059-025-03588-5). *Genome Biol*, 2025.
+
+If you are using kernel-based cell type adjustment or working on low-resolution data, please also cite: **Wang, W., Shin, C. S., Chávez-Fuentes J. C.  & [Yuan, G.-C.](https://labs.icahn.mssm.edu/yuanlab/)$**. [A Robust Kernel-Based Workflow for Niche Trajectory Analysis](https://onlinelibrary.wiley.com/doi/10.1002/smtd.202401199). *Genome Biol*, 2025.
 
 ## Other Resources
 
-- [Reproducible codes for our paper](https://github.com/gyuanlab/ONTraC_paper)
-- [Dataset/output used in our paper](https://doi.org/10.5281/zenodo.11186619)
+- [Reproducible codes for our ***Genome Biology*** paper](https://github.com/gyuanlab/ONTraC_paper)
+- [Dataset/output used in our ***Genome Biology*** paper](https://doi.org/10.5281/zenodo.11186619)
+- [Reproducible codes for our ***Small Methods*** paper](https://github.com/gyuanlab/ONTraC_v2_paper)
