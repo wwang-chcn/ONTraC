@@ -1,5 +1,11 @@
 # Change log
 
+## [2.0.1] - 2025-June-24
+
+Removed:
+
+- `equal_space` option
+
 ## [2.0.0] - 2025-June-24
 
 Added:

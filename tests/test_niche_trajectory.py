@@ -55,15 +55,13 @@ def test_trajectory_path_to_NC_score():
     """
 
     options = Mock()
-    options.equal_space = True
 
     # Test case: Niche trajectory path with 6 clusters
     niche_trajectory_path = [1, 2, 3, 4, 5, 0]
     expected_NT_score = np.array([1., 0., 0.2, 0.4, 0.6, 0.8])
     gen_NT_score = trajectory_path_to_NC_score(niche_trajectory_path=niche_trajectory_path,
                                                niche_clustering_sum=np.array(
-                                                   [132.15, 481.15, 458.1, 35.94, 785.2, 53.157]),
-                                               equal_space=options.equal_space)
+                                                   [132.15, 481.15, 458.1, 35.94, 785.2, 53.157]))
     assert np.allclose(gen_NT_score, expected_NT_score)
 
 
@@ -83,13 +81,11 @@ def test_get_niche_NTScore():
 
     options = Mock()
     options.trajectory_construct = "BF"
-    options.equal_space = True
 
     niche_cluster_score, niche_level_NTScore_df = get_niche_NTScore(
         trajectory_construct_method=options.trajectory_construct,
         niche_level_niche_cluster_assign_df=niche_level_niche_cluster_assign_df,
-        niche_adj_matrix=niche_adj_matrix,
-        equal_space=options.equal_space)
+        niche_adj_matrix=niche_adj_matrix)
 
     assert np.allclose(niche_cluster_score, expected_niche_cluster_score)
     assert np.allclose(niche_level_NTScore_df.values.reshape(-1), expected_niche_level_NTScore)

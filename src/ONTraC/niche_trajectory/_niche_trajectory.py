@@ -30,8 +30,7 @@ def get_niche_trajectory_path(trajectory_construct_method: str, niche_adj_matrix
 
 
 def trajectory_path_to_NC_score(niche_trajectory_path: List[int],
-                                niche_clustering_sum: ndarray,
-                                equal_space: bool = True) -> ndarray:
+                                niche_clustering_sum: ndarray) -> ndarray:
     """
     Convert niche cluster trajectory path to NTScore
     :param niche_trajectory_path: List[int], the niche trajectory path
@@ -43,32 +42,22 @@ def trajectory_path_to_NC_score(niche_trajectory_path: List[int],
     info('Calculating NTScore for each niche cluster based on the trajectory path.')
 
     niche_NT_score = np.zeros(len(niche_trajectory_path))
-    if equal_space:
-        values = np.linspace(0, 1, len(niche_trajectory_path))
-        for i, index in enumerate(niche_trajectory_path):
-            # debug(f'i: {i}, index: {index}')
-            niche_NT_score[index] = values[i]
-        return niche_NT_score
-    else:
-        sum = 0
-        for i, index in enumerate(niche_trajectory_path):
-            sum += niche_clustering_sum[index]
-            niche_NT_score[index] = sum
-        niche_NT_score -= niche_NT_score.min()
-        niche_NT_score /= niche_NT_score.max()
-        return niche_NT_score
+    
+    values = np.linspace(0, 1, len(niche_trajectory_path))
+    for i, index in enumerate(niche_trajectory_path):
+        # debug(f'i: {i}, index: {index}')
+        niche_NT_score[index] = values[i]
+    return niche_NT_score
 
 
 def get_niche_NTScore(trajectory_construct_method: str,
                       niche_level_niche_cluster_assign_df: DataFrame,
-                      niche_adj_matrix: ndarray,
-                      equal_space: bool = False) -> Tuple[ndarray, DataFrame]:
+                      niche_adj_matrix: ndarray) -> Tuple[ndarray, DataFrame]:
     """
     Get niche-level niche trajectory and cell-level niche trajectory
     :param trajectory_construct_method: str, the method to construct trajectory
     :param niche_level_niche_cluster_assign_df: DataFrame, the niche-level niche cluster assignment. #niche x #niche_cluster
     :param adj_matrix: ndarray, the adjacency matrix of the graph
-    :param equal_space: bool, whether the niche clusters are equally spaced in the trajectory
     :return: Tuple[ndarray, DataFrame], the niche-level niche trajectory and cell-level niche trajectory
     """
 
@@ -79,8 +68,7 @@ def get_niche_NTScore(trajectory_construct_method: str,
 
     niche_clustering_sum = niche_level_niche_cluster_assign_df.values.sum(axis=0)
     niche_cluster_score = trajectory_path_to_NC_score(niche_trajectory_path=niche_trajectory_path,
-                                                      niche_clustering_sum=niche_clustering_sum,
-                                                      equal_space=equal_space)
+                                                      niche_clustering_sum=niche_clustering_sum)
     niche_level_NTScore_df = pd.DataFrame(niche_level_niche_cluster_assign_df.values @ niche_cluster_score,
                                           index=niche_level_niche_cluster_assign_df.index,
                                           columns=['Niche_NTScore'])

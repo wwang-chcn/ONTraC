@@ -2,6 +2,8 @@ import sys
 from optparse import OptionGroup, OptionParser, Values
 from typing import Optional
 
+from matplotlib.artist import get
+
 from ..log import *
 from ..version import __version__
 from ._IO import *
@@ -31,7 +33,7 @@ def add_NT_options_group(optparser: OptionParser) -> None:
         dest='equal_space',
         default=True,
         action='store_true',
-        help="Whether the niche clusters are equally spaced in the trajectory. Default is True.")
+        help="This options will be deprecated from v3.0. Always set to True.")
 
 
 def validate_NT_options(options: Values, optparser: Optional[OptionParser] = None) -> None:
@@ -58,6 +60,18 @@ def validate_NT_options(options: Values, optparser: Optional[OptionParser] = Non
         error('trajectory_construct must be BF')
         if optparser is not None: optparser.print_help()
         sys.exit(1)
+
+    # equal_space
+    if getattr(options, 'equal_space', None) is None:
+        info('equal_space is not set. Using default value True.')
+        options.equal_space = True
+    elif not isinstance(options.equal_space, bool):
+        error('equal_space must be a boolean value')
+        if optparser is not None: optparser.print_help()
+        sys.exit(1)
+    else:
+        info(f'equal_space is set to {options.equal_space}. This option will be deprecated from v3.0. Always set to True.')
+        options.equal_space = True
 
 
 def write_NT_options_memo(options: Values) -> None:

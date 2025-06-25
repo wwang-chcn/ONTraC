@@ -151,8 +151,7 @@ def niche_trajectory_construct(options: Values) -> None:
     niche_cluster_score, niche_level_NTScore_df = get_niche_NTScore(
         trajectory_construct_method=options.trajectory_construct,
         niche_level_niche_cluster_assign_df=niche_level_niche_cluster_assign_df,
-        niche_adj_matrix=consolidate_out_adj_array,
-        equal_space=options.equal_space)
+        niche_adj_matrix=consolidate_out_adj_array)
     np.savetxt(fname=f'{options.NT_dir}/niche_cluster_score.csv.gz', X=niche_cluster_score, delimiter=',')
 
     cell_level_NTScore_df = niche_to_cell_NTScore(meta_data_df=meta_data_df,
