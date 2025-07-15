@@ -332,7 +332,8 @@ def preprocessing_nt(NN_dir: Union[str, Path], GNN_dir: Union[str, Path]) -> Tup
     # load meta data
     meta_data_df = pd.read_csv(get_meta_data_file(NN_dir), header=0)
     meta_data_df['Sample'] = meta_data_df['Sample'].astype(str).astype('category')
-    meta_data_df['Cell_Type'] = meta_data_df['Cell_Type'].astype(str).astype('category')
+    if 'Cell_Type' in meta_data_df.columns:  # cell-level data
+        meta_data_df['Cell_Type'] = meta_data_df['Cell_Type'].astype(str).astype('category')
 
     # load niche-level niche cluster assign
     if not os.path.exists(niche_level_niche_cluster_file) or not os.path.exists(consolidate_out_adj_file):
