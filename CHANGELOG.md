@@ -6,13 +6,13 @@ Change:
 
 - Accelerate cell type composition loading via new methods
 
-## [2.0.2] - 2025-June-24
+## [2.0.2] - 2025-July-24
 
 Fixed:
 
 - Bugs when handling spot-level dataset
 
-## [2.0.1] - 2025-June-24
+## [2.0.1] - 2025-June-25
 
 Removed:
 

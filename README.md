@@ -3,7 +3,6 @@
 [![PyPI Latest Release](https://img.shields.io/pypi/v/ONTraC.svg)](https://pypi.org/project/ONTraC/)
 [![Python Versions](https://img.shields.io/pypi/pyversions/ONTraC.svg)](https://pypi.org/project/ONTraC/)
 [![Downloads](https://static.pepy.tech/badge/ONTraC)](https://pepy.tech/project/ONTraC)
-[![PyPI Downloads](https://img.shields.io/pypi/dm/ONTraC.svg?label=PyPI%20downloads)](https://pypistats.org/packages/ontrac)
 [![GitHub Stars](https://badgen.net/github/stars/gyuanlab/ONTraC)](https://github.com/gyuanlab/ONTraC)
 [![GitHub Issues](https://img.shields.io/github/issues/gyuanlab/ONTraC.svg)](https://github.com/gyuanlab/ONTraC/issues)
 [![GitHub License](https://img.shields.io/github/license/gyuanlab/ONTraC.svg)](https://github.com/gyuanlab/ONTraC/blob/master/LICENSE)
