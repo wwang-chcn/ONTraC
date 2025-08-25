@@ -1,5 +1,11 @@
 # Change log
 
+## [2.0.3] - 2025-Aug-25
+
+Change:
+
+- Accelerate cell type composition loading via new methods
+
 ## [2.0.2] - 2025-June-24
 
 Fixed:

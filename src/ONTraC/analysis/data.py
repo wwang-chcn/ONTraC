@@ -326,7 +326,7 @@ class AnaData:
         return self._cell_type_coding
 
     def _load_cell_type_composition(self) -> None:
-        data_df, data_2_df = pd.DataFrame(), pd.DataFrame()  # cell type composition, raw cell type composition
+        data_df_list, data_2_df_list = [], []  # cell type composition, raw cell type composition
         for sample in self.rel_params['Data']:
             # cell type composition
             cell_type_composition_df = pd.read_csv(sample['Features'], header=None)
@@ -337,7 +337,7 @@ class AnaData:
             coordinates_df = pd.read_csv(sample['Coordinates'], index_col=0)
             sample_df.index = coordinates_df.index
             sample_df['Sample'] = [sample["Name"]] * sample_df.shape[0]
-            data_df = pd.concat([data_df, sample_df])
+            data_df_list.append(sample_df)
 
             # raw cell type composition
             if not self.options.embedding_adjust:
@@ -351,8 +351,10 @@ class AnaData:
             sample_df = cell_type_composition_df
             sample_df.index = coordinates_df.index
             sample_df['Sample'] = [sample["Name"]] * sample_df.shape[0]
-            data_2_df = pd.concat([data_2_df, sample_df])
+            data_df_list.append(sample_df)
 
+        data_df = pd.concat(data_df_list)
+        data_2_df = pd.concat(data_2_df_list)
         if data_df.shape[0] == self.meta_data_df.shape[0]:  # number of niche consistency check
             if self.options.embedding_adjust:  # adjust cell type composition
                 if data_2_df.shape[0] == self.meta_data_df.shape[0]:  # number of niche consistency check
