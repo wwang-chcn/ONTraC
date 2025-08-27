@@ -2,6 +2,7 @@ import os
 import sys
 from optparse import OptionGroup, OptionParser, Values
 from typing import Dict, List, Optional
+from webbrowser import get
 
 from ..log import *
 
@@ -234,6 +235,7 @@ def validate_io_options(options: Values,
     -------
     None
     """
+
     if io_options is None:
         return
     else:
@@ -241,24 +243,21 @@ def validate_io_options(options: Values,
 
     if ioc.has_io_option('NN_dir'):
         # deprecated `preprocessing_dir` check
-        if hasattr(options,
-                   'preprocessing_dir') and options.preprocessing_dir is not None and (not hasattr(options, 'NN_dir')
-                                                                                       or options.NN_dir is None):
+        if getattr(options, 'preprocessing_dir', None) is not None and getattr(options, 'NN_dir', None) is None:
             warning('The --preprocessing-dir option will be deprecated from v3.0. Please use --NN-dir instead.')
             options.NN_dir = options.preprocessing_dir
         # required check
-        if ioc.get_io_option_attr('NN_dir') in ['required', 'overwrite'] and (not hasattr(options, 'NN_dir')
-                                                                              or options.NN_dir is None):
+        if ioc.get_io_option_attr('NN_dir') in ['required', 'overwrite'] and getattr(options, 'NN_dir', None) is None:
             error('Please provide a directory for niche network outputs.')
             if optparser is not None: optparser.print_help()
             sys.exit(1)
         # overwrite warning
-        elif ioc.get_io_option_attr('NN_dir') == 'overwrite' and hasattr(
-                options, 'NN_dir') and options.NN_dir is not None and os.path.isdir(options.NN_dir):
+        elif ioc.get_io_option_attr('NN_dir') == 'overwrite' and getattr(
+                options, 'NN_dir', None) is not None and os.path.isdir(options.NN_dir):
             warning(f'The directory ({options.NN_dir}) you given already exists. It will be overwritten.')
         # optional check
-        elif ioc.get_io_option_attr('NN_dir') == 'optional' and hasattr(options,
-                                                                        'NN_dir') and options.NN_dir is not None:
+        elif ioc.get_io_option_attr('NN_dir') == 'optional' and getattr(options,
+                                                                        'NN_dir', None) is not None:
             if not os.path.isdir(options.NN_dir):  # directory does not exist
                 warning(f'The directory ({options.NN_dir}) you given does not exist.')
                 options.NN_dir = None
@@ -271,18 +270,17 @@ def validate_io_options(options: Values,
 
     if ioc.has_io_option('GNN_dir'):
         # required check
-        if ioc.get_io_option_attr('GNN_dir') in ['required', 'overwrite'] and (not hasattr(options, 'GNN_dir')
-                                                                               or options.GNN_dir is None):
+        if ioc.get_io_option_attr('GNN_dir') in ['required', 'overwrite'] and getattr(options, 'GNN_dir', None) is None:
             error('Please provide a directory for the GNN output.')
             if optparser is not None: optparser.print_help()
             sys.exit(1)
         # overwrite warning
-        elif ioc.get_io_option_attr('GNN_dir') == 'overwrite' and hasattr(
-                options, 'GNN_dir') and options.GNN_dir is not None and os.path.isdir(options.GNN_dir):
+        elif ioc.get_io_option_attr('GNN_dir') == 'overwrite' and getattr(
+                options, 'GNN_dir', None) is not None and os.path.isdir(options.GNN_dir):
             warning(f'The directory ({options.GNN_dir}) you given already exists. It will be overwritten.')
         # optional check
-        elif ioc.get_io_option_attr('GNN_dir') == 'optional' and hasattr(options,
-                                                                         'GNN_dir') and options.GNN_dir is not None:
+        elif ioc.get_io_option_attr('GNN_dir') == 'optional' and getattr(options,
+                                                                         'GNN_dir', None) is not None:
             if not os.path.isdir(options.GNN_dir):  # directory does not exist
                 warning(f'The directory ({options.GNN_dir}) you given does not exist.')
                 options.GNN_dir = None
@@ -290,28 +288,26 @@ def validate_io_options(options: Values,
                 warning(f'The directory ({options.GNN_dir}) you given is empty.')
                 options.GNN_dir = None
         # create directory
-        elif hasattr(options, 'GNN_dir') and options.GNN_dir is not None:
+        elif getattr(options, 'GNN_dir', None) is not None:
             os.makedirs(options.GNN_dir, exist_ok=True)
 
     if ioc.has_io_option('NT_dir'):
         # deprecated `NTScore_dir` check
-        if hasattr(options, 'NTScore_dir') and options.NTScore_dir is not None and (not hasattr(options, 'NT_dir')
-                                                                                    or options.NT_dir is None):
+        if getattr(options, 'NTScore_dir', None) is not None and getattr(options, 'NT_dir', None) is None:
             warning('The --NTScore-dir option will be deprecated from v3.0. Please use --NT-dir instead.')
             options.NT_dir = options.NTScore_dir
         # required check
-        if ioc.get_io_option_attr('NT_dir') in ['required', 'overwrite'] and (not hasattr(options, 'NT_dir')
-                                                                              or options.NT_dir is None):
+        if ioc.get_io_option_attr('NT_dir') in ['required', 'overwrite'] and getattr(options, 'NT_dir', None) is None:
             error('Please provide a directory for the NTScore output.')
             if optparser is not None: optparser.print_help()
             sys.exit(1)
         # overwrite warning
-        elif ioc.get_io_option_attr('NT_dir') == 'overwrite' and hasattr(
-                options, 'NT_dir') and options.NT_dir is not None and os.path.isdir(options.NT_dir):
+        elif ioc.get_io_option_attr('NT_dir') == 'overwrite' and getattr(
+                options, 'NT_dir', None) is not None and os.path.isdir(options.NT_dir):
             warning(f'The directory ({options.NT_dir}) you given already exists. It will be overwritten.')
         # optional check
-        elif ioc.get_io_option_attr('NT_dir') == 'optional' and hasattr(options,
-                                                                        'NT_dir') and options.NT_dir is not None:
+        elif ioc.get_io_option_attr('NT_dir') == 'optional' and getattr(options,
+                                                                        'NT_dir', None) is not None:
             if not os.path.isdir(options.NT_dir):  # directory does not exist
                 warning(f'The directory ({options.NT_dir}) you given does not exist.')
                 options.NT_dir = None
@@ -319,17 +315,16 @@ def validate_io_options(options: Values,
                 warning(f'The directory ({options.NT_dir}) you given is empty.')
                 options.NT_dir = None
         # create directory
-        elif hasattr(options, 'NT_dir') and options.NT_dir is not None:
+        elif getattr(options, 'NT_dir', None) is not None:
             os.makedirs(options.NT_dir, exist_ok=True)
 
     if ioc.has_io_option('input'):
         # meta data
         ## deprecated `dataset` check
-        if hasattr(options, 'dataset') and options.dataset is not None and (not hasattr(options, 'meta_input')
-                                                                            or options.meta_input is None):
+        if getattr(options, 'dataset', None) is not None and getattr(options, 'meta_input', None) is None:
             warning('The --dataset option will be deprecated from v3.0. Please use --meta-input instead.')
             options.meta_input = options.dataset
-        if not hasattr(options, 'meta_input') or options.meta_input is None:
+        if getattr(options, 'meta_input', None) is None:
             error('Please provide a meta data file in csv format.')
             if optparser is not None: optparser.print_help()
             sys.exit(1)
@@ -343,7 +338,9 @@ def validate_io_options(options: Values,
             if optparser is not None: optparser.print_help()
             sys.exit(1)
         # embedding
-        if hasattr(options, 'embedding_input') and options.embedding_input is not None:
+        if getattr(options, 'embedding_input', None) is None:
+            options.embedding_input = None
+        elif getattr(options, 'embedding_input', None) is not None:
             if not os.path.isfile(options.embedding_input):
                 error(f'The embedding file ({options.embedding_input}) you given does not exist.')
                 if optparser is not None: optparser.print_help()
@@ -353,21 +350,25 @@ def validate_io_options(options: Values,
                 if optparser is not None: optparser.print_help()
                 sys.exit(1)
             # overwrite expression data
-            if hasattr(options, 'exp_input') and options.exp_input is not None:
+            if getattr(options, 'exp_input', None) is not None:
                 warning('The --embedding-input option will overwrite the --exp-input option.')
                 options.exp_input = None
         # expression data
-        if hasattr(options, 'exp_input') and options.exp_input is not None:
-            if not os.path.isfile(options.exp_input):
+        if getattr(options, 'exp_input', None) is None:
+            options.exp_input = None
+        elif getattr(options, 'exp_input', None) is not None:
+            if not os.path.isfile(options.exp_input):  # type: ignore
                 error(f'The expression data file ({options.exp_input}) you given does not exist.')
                 if optparser is not None: optparser.print_help()
                 sys.exit(1)
-            if not options.exp_input.endswith(('csv', 'csv.gz')):
+            if not options.exp_input.endswith(('csv', 'csv.gz')):  # type: ignore
                 error(f'The expression data file ({options.exp_input}) should be in csv format.')
                 if optparser is not None: optparser.print_help()
                 sys.exit(1)
         # low-res expression data
-        if hasattr(options, 'low_res_exp_input') and options.low_res_exp_input is not None:
+        if getattr(options, 'low_res_exp_input', None) is None:
+            options.low_res_exp_input = None
+        elif getattr(options, 'low_res_exp_input', None) is not None:
             if not os.path.isfile(options.low_res_exp_input):
                 error(
                     f'The low-resolution expression data file ({options.low_res_exp_input}) you given does not exist.')
@@ -377,8 +378,10 @@ def validate_io_options(options: Values,
                 error(f'The low-resolution expression data file ({options.low_res_exp_input}) should be in csv format.')
                 if optparser is not None: optparser.print_help()
                 sys.exit(1)
-        # check deconvoluted results files
-        if hasattr(options, 'deconvoluted_ct_composition') and options.deconvoluted_ct_composition is not None:
+        # deconvoluted results files
+        if getattr(options, 'deconvoluted_ct_composition', None) is None:
+            options.deconvoluted_ct_composition = None
+        elif getattr(options, 'deconvoluted_ct_composition', None) is not None:
             if not os.path.isfile(options.deconvoluted_ct_composition):
                 error(
                     f'The deconvoluted outputed cell type composition file ({options.deconvoluted_ct_composition}) you given does not exist.'
@@ -391,7 +394,9 @@ def validate_io_options(options: Values,
                 )
                 if optparser is not None: optparser.print_help()
                 sys.exit(1)
-        if hasattr(options, 'deconvoluted_exp_input') and options.deconvoluted_exp_input is not None:
+        if getattr(options, 'deconvoluted_exp_input', None) is None:
+            options.deconvoluted_exp_input = None
+        elif getattr(options, 'deconvoluted_exp_input', None) is not None:
             if not hasattr(options, 'deconvoluted_ct_composition') or options.deconvoluted_ct_composition is None:
                 error(
                     message=
@@ -413,8 +418,8 @@ def validate_io_options(options: Values,
                 sys.exit(1)
 
     if ioc.has_io_option('output'):  # this is a optional-overwrite option (ONTraC_analysis only)
-        if not hasattr(options, 'output') or options.output is None:
-            pass
+        if getattr(options, 'output', None) is None:
+            options.output = None
         elif os.path.isdir(options.output):  # overwrite warning
             warning(f'The directory ({options.output}) you given already exists. It will be overwritten.')
         else:
@@ -422,7 +427,9 @@ def validate_io_options(options: Values,
             os.makedirs(options.output, exist_ok=True)
 
     if ioc.has_io_option('log'):  # this is a optional option (ONTraC_analysis only)
-        if hasattr(options, 'log') and options.log is not None and not os.path.isfile(options.log):
+        if getattr(options, 'log', None) is None:
+            options.log = None
+        elif getattr(options, 'log', None) is not None and not os.path.isfile(options.log):
             warning(f'Log file: {options.log} you given does not exist.')
             options.log = None
 

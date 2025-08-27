@@ -7,7 +7,7 @@ from ..optparser.command import (_opt_analysis_validate, _opt_gnn_validate, _opt
 from ..run.processes import gnn, niche_network_construct, niche_trajectory_construct
 
 
-def options_valid(options: Values, process='ONTraC') -> Values:
+def options_validate(options: Values, process='ONTraC') -> Values:
     """
     Validate options
     :param options: options
@@ -47,7 +47,7 @@ def run_ontrac(options: Values) -> None:
     """
 
     # ----- options validation -----
-    options = options_valid(options=options)
+    options = options_validate(options=options)
 
     # ----- Niche Network Construct -----
     niche_network_construct(options=options)

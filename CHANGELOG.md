@@ -1,5 +1,11 @@
 # Change log
 
+## [2.0.4] - 2025-Aug-XX
+
+Fixed:
+
+- Options validate process in interactive mode
+
 ## [2.0.3] - 2025-Aug-25
 
 Change:

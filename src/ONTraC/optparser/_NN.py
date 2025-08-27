@@ -101,15 +101,21 @@ def validate_niche_net_constr_options(options: Values, optparser: Optional[Optio
         if optparser is not None: optparser.print_help()
         sys.exit(1)
 
-    if options.embedding_adjust and options.embedding_input is None and options.exp_input is None and options.low_res_exp_input is None and options.deconvoluted_exp_input is None:
+    # embedding adjust
+    if not hasattr(options, 'embedding_adjust'):
+        options.embedding_adjust = False
+
+    if options.embedding_adjust and getattr(options, 'embedding_input', None) is None and getattr(options, 'exp_input', None) is None and getattr(options, 'low_res_exp_input', None) is None and getattr(options, 'deconvoluted_exp_input', None) is None:
         error('Please provide an embedding file or expression data file in csv format.')
-        optparser.print_help()
+        if optparser is not None: optparser.print_help()
         sys.exit(1)
-    
-    if options.embedding_adjust is not None:
-        if options.sigma < 0:
+
+    if options.embedding_adjust:
+        if not hasattr(options, 'sigma'):
+            options.sigma = 1
+        elif options.sigma < 0:
             error('sigma must be greater than 0.')
-            optparser.print_help()
+            if optparser is not None: optparser.print_help()
             sys.exit(1)
 
 
