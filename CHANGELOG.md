@@ -1,6 +1,6 @@
 # Change log
 
-## [2.0.4] - 2025-Aug-XX
+## [2.0.4] - 2025-Aug-27
 
 Fixed:
 
