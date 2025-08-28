@@ -301,8 +301,8 @@ def validate_GP_options(options: Values, optparser: Optional[OptionParser] = Non
 
     # check modularity_loss_weight
     if getattr(options, 'modularity_loss_weight', None) is None:
-        info('modularity_loss_weight is not set. Using default value 0.3.')
-        options.modularity_loss_weight = 0.3
+        info('modularity_loss_weight is not set. Using default value 1.')
+        options.modularity_loss_weight = 1.0
     elif not isinstance(options.modularity_loss_weight, (float, int)):
         error(f'modularity_loss_weight must be a number, exit!')
         if optparser is not None: optparser.print_help()
@@ -314,8 +314,8 @@ def validate_GP_options(options: Values, optparser: Optional[OptionParser] = Non
 
     # check purity_loss_weight
     if getattr(options, 'purity_loss_weight', None) is None:
-        info('purity_loss_weight is not set. Using default value 300.')
-        options.purity_loss_weight = 300
+        info('purity_loss_weight is not set. Using default value 30.')
+        options.purity_loss_weight = 30.0
     elif not isinstance(options.purity_loss_weight, (float, int)):
         error(f'purity_loss_weight must be a number, exit!')
         if optparser is not None: optparser.print_help()
@@ -340,8 +340,8 @@ def validate_GP_options(options: Values, optparser: Optional[OptionParser] = Non
 
     # check beta
     if getattr(options, 'beta', None) is None:
-        info('beta is not set. Using default value 0.03.')
-        options.beta = 0.03
+        info('beta is not set. Using default value 0.3.')
+        options.beta = 0.3
     elif not isinstance(options.beta, (float, int)):
         error(f'beta must be a number, exit!')
         if optparser is not None: optparser.print_help()

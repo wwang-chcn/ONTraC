@@ -1,5 +1,11 @@
 # Change log
 
+## [2.0.5] - 2025-Aug-27
+
+Fixed:
+
+- Mismatch default values in training parameters validation
+
 ## [2.0.4] - 2025-Aug-27
 
 Fixed:
