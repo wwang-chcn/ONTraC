@@ -2,7 +2,6 @@ import os
 import sys
 from optparse import OptionGroup, OptionParser, Values
 from typing import Dict, List, Optional
-from webbrowser import get
 
 from ..log import *
 

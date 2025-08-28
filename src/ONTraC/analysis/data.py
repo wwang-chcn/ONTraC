@@ -1,5 +1,6 @@
 import os
 from optparse import Values
+from pathlib import Path
 from typing import Dict, Optional
 
 import numpy as np
@@ -342,8 +343,10 @@ class AnaData:
             # raw cell type composition
             if not self.options.embedding_adjust:
                 continue
-            feature_file = f"{sample['Features'][:-27]}_Raw_CellTypeComposition.csv.gz"
-            if not os.path.isfile(feature_file):
+            feature_file = Path(sample['Name'] + '_Raw_CellTypeComposition.csv.gz')
+            feature_file = Path(sample['Features']).parent.joinpath(feature_file)
+            if not feature_file.is_file():
+                warning(f"Cannot find raw cell type composition file: {feature_file}. Skip the raw cell type composition loading.")
                 continue
             cell_type_composition_df = pd.read_csv(feature_file, header=None)
             cell_type_composition_df.columns = self.cell_type_codes.loc[np.arange(cell_type_composition_df.shape[1]),
@@ -351,12 +354,12 @@ class AnaData:
             sample_df = cell_type_composition_df
             sample_df.index = coordinates_df.index
             sample_df['Sample'] = [sample["Name"]] * sample_df.shape[0]
-            data_df_list.append(sample_df)
+            data_2_df_list.append(sample_df)
 
         data_df = pd.concat(data_df_list)
-        data_2_df = pd.concat(data_2_df_list)
         if data_df.shape[0] == self.meta_data_df.shape[0]:  # number of niche consistency check
             if self.options.embedding_adjust:  # adjust cell type composition
+                data_2_df = pd.concat(data_2_df_list)
                 if data_2_df.shape[0] == self.meta_data_df.shape[0]:  # number of niche consistency check
                     self._adjust_cell_type_composition = data_df[self.cell_type_codes['Cell_Type'].tolist() +
                                                                  ['Sample']].loc[self.meta_data_df.index]

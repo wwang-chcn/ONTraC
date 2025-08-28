@@ -1,5 +1,11 @@
 # Change log
 
+## [2.0.6] - 2025-Aug-28
+
+Fixed:
+
+- Bugs in cell type composition loading
+
 ## [2.0.5] - 2025-Aug-27
 
 Fixed:
