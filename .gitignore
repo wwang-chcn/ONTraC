@@ -45,3 +45,6 @@ debug/
 
 # torch data cache
 pre*.pt
+
+# VS Code
+.vscode/
