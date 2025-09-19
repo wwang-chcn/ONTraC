@@ -99,6 +99,41 @@ def cal_nc_feat(nc_assign: pd.DataFrame, ctc: pd.DataFrame) -> pd.DataFrame:
     return nc_assign.T @ ctc
 
 
+def cal_nc_feat_from_anadata(ana_data: AnaData, increment=True) -> Optional[pd.DataFrame]:
+    """
+    Calculate the niche cluster feature (cell type composition) matrix from AnaData.
+    :param ana_data: AnaData, the input data.
+    :param increment: bool, whether to increment the calculation.
+    :return: Optional[pd.DataFrame].
+    """
+
+    if increment:
+        # Incremental calculation
+        nc_feat = pd.DataFrame(
+            np.zeros((ana_data.niche_cluster_connectivity.shape[0], ana_data.cell_type_codes.shape[0])),
+            index=[f'NicheCluster_{i}' for i in range(ana_data.niche_cluster_connectivity.shape[0])],
+            columns=ana_data.cell_type_codes['Cell_Type'].tolist(),
+        )
+        # Iterate each sample to calculate the niche cluster feature matrix
+        for sample in ana_data.rel_params['Data']:
+            # load ctc
+            cell_type_composition_df = pd.read_csv(sample['Features'], header=None)
+            cell_type_composition_df.columns = ana_data.cell_type_codes.loc[np.arange(cell_type_composition_df.shape[1]),
+                                                                        'Cell_Type'].tolist()
+            coordinates_df = pd.read_csv(sample['Coordinates'], index_col=0)
+            cell_type_composition_df.index = coordinates_df.index
+            # load nc_assign
+            nc_assign_df = ana_data.niche_level_niche_cluster_assign.loc[cell_type_composition_df.index]
+            # update nc_feat
+            nc_feat += nc_assign_df.values.T @ cell_type_composition_df.values
+         
+        return nc_feat
+    else:
+        # Full calculation
+        return cal_nc_feat(nc_assign=ana_data.niche_level_niche_cluster_assign,
+                           ctc=ana_data.cell_type_composition[ana_data.cell_type_codes['Cell_Type'].tolist()])
+
+
 def cal_nc_feat_similarity(nc_feat: pd.DataFrame) -> pd.DataFrame:
     """
     Calculate the niche cluster feature similarity.
