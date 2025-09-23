@@ -58,6 +58,10 @@ Changed:
 
 ## [1.2.3] - 2025-Sep-23
 
+Added:
+
+- kwargs for `plot_cell_type_composition_along_trajectory_from_anadata` and `plot_cell_type_composition_along_trajectory`
+
 Fixed:
 
 - `cell_types` logic in `plot_cell_type_composition_along_trajectory_from_anadata`

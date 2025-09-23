@@ -250,7 +250,9 @@ def plot_cell_type_composition_along_trajectory(
         agg_cell_num: int = 10,
         figsize: Tuple[int, int] = (6, 2),
         palette: Optional[Dict[str, str]] = None,
-        output_file_path: Optional[Path] = None) -> Optional[Tuple[plt.Figure, plt.Axes]]:
+        output_file_path: Optional[Path] = None,
+        **kwargs,
+        ) -> Optional[Tuple[plt.Figure, plt.Axes]]:
     """
     Plot cell type composition along trajectory.
 
@@ -270,6 +272,8 @@ def plot_cell_type_composition_along_trajectory(
         Color palette for cell types. If None, use default color palette. Keys are cell types and values are colors.
     output_file_path : Optional[Path]
         If provided, save the figure to this path. If None, do not save the figure and return the figure, and axes objects.
+    **kwargs
+        Additional arguments for ax.plot().
     
     Returns
     -------
@@ -321,7 +325,7 @@ def plot_cell_type_composition_along_trajectory(
         fig, ax = plt.subplots(figsize=figsize)
 
         for cell_type in cell_types:
-            ax.plot(rolling_mean[trajectory], rolling_mean[cell_type], label=cell_type, color=palette[cell_type])
+            ax.plot(rolling_mean[trajectory], rolling_mean[cell_type], label=cell_type, color=palette[cell_type], **kwargs)
 
         ax.set_ylim(0, 1)
         ax.legend(title='Cell Types', bbox_to_anchor=(1.05, 1), loc='upper left', ncol=2)
@@ -346,7 +350,9 @@ def plot_cell_type_composition_along_trajectory_from_anadata(
         agg_cell_num: int = 10,
         figsize: Tuple[int, int] = (6, 2),
         palette: Optional[Dict[str, str]] = None,
-        output_file_path: Optional[Union[Path, str]] = None) -> Optional[Tuple[plt.Figure, plt.Axes]]:
+        output_file_path: Optional[Union[Path, str]] = None,
+        **kwargs,
+        ) -> Optional[Tuple[plt.Figure, plt.Axes]]:
     """
     Plot cell type composition (niche features) along trajectory from AnaData object.
 
@@ -368,6 +374,8 @@ def plot_cell_type_composition_along_trajectory_from_anadata(
         {ana_data.options.output}/lineplot_raw_cell_type_composition_along_trajectory.pdf is used. 
         If ana_data.options.output is also None, the figure will not be saved and the function 
         will return the figure and axes objects instead.
+    **kwargs
+        Additional arguments for ax.plot().
     
     Returns
     -------
@@ -426,4 +434,6 @@ def plot_cell_type_composition_along_trajectory_from_anadata(
         agg_cell_num=agg_cell_num,
         figsize=figsize,
         palette=palette,
-        output_file_path=output_file_path)
+        output_file_path=output_file_path,
+        **kwargs,
+        )
