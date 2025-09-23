@@ -847,7 +847,7 @@ def plot_niche_cluster_loadings(
     :param ana_data: AnaData, the data for analysis.
     :return: None or Union[List[Tuple[plt.Figure, plt.Axes]], Tuple[plt.Figure, Union[plt.Axes, List[plt.Axes]]]].
     """
-    if hasattr(ana_data.options, 'sample') and ana_data.options.sample:
+    if getattr(ana_data.options, 'sample', False):
         return plot_niche_cluster_loadings_sample_from_anadata(ana_data=ana_data)
     else:
         return plot_niche_cluster_loadings_dataset_from_anadata(ana_data=ana_data)
@@ -995,7 +995,7 @@ def plot_max_niche_cluster(
     :param ana_data: AnaData, the data for analysis.
     :return: None or Tuple[plt.Figure, plt.Axes].
     """
-    if hasattr(ana_data.options, 'sample') and ana_data.options.sample:
+    if getattr(ana_data.options, 'sample', False):
         return plot_max_niche_cluster_sample_from_anadata(ana_data=ana_data)
     else:
         return plot_max_niche_cluster_dataset_from_anadata(ana_data=ana_data)
@@ -1064,29 +1064,28 @@ def niche_cluster_visualization(ana_data: AnaData) -> None:
     # 1. plot niche cluster connectivity
     plot_niche_cluster_connectivity_from_anadata(ana_data=ana_data)
 
-    if hasattr(ana_data.options, 'sample') and ana_data.options.sample:
+    if getattr(ana_data.options, 'sample', False):
         plot_niche_cluster_connectivity_bysample_from_anadata(ana_data=ana_data)
 
     # 2. plot niche cluster feature similarity
     plot_graph_niche_cluster_feat_similarity_from_anadata(ana_data=ana_data)
 
-    if hasattr(ana_data.options, 'sample') and ana_data.options.sample:
+    if getattr(ana_data.options, 'sample', False):
         plot_graph_niche_cluster_feat_similarity_bysample_from_anadata(ana_data=ana_data)
 
     plot_heatmap_niche_cluster_feat_similarity_from_anadata(ana_data=ana_data)
 
-    if hasattr(ana_data.options, 'sample') and ana_data.options.sample:
+    if getattr(ana_data.options, 'sample', False):
         plot_heatmap_niche_cluster_feat_similarity_by_sample_from_anadata(ana_data=ana_data)
 
     # 3. share of each cluster
     plot_cluster_proportion_from_anadata(ana_data=ana_data)
 
     # 4. niche cluster loadings for each cell
-    if not hasattr(ana_data.options,
-                   'suppress_niche_cluster_loadings') or not ana_data.options.suppress_niche_cluster_loadings:
-        plot_niche_cluster_loadings(ana_data=ana_data)
-    else:
+    if getattr(ana_data.options, 'suppress_niche_cluster_loadings', False):
         info("Skip niche cluster loadings plot according to `suppress_niche_cluster_loadings` option.")
+    else:
+        plot_niche_cluster_loadings(ana_data=ana_data)
 
     # 5. maximum niche cluster for each cell
     plot_max_niche_cluster(ana_data=ana_data)

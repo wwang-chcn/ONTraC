@@ -164,7 +164,7 @@ def plot_cell_type_composition(
     :return: None or Tuple[plt.Figure, plt.Axes].
     """
 
-    if hasattr(ana_data.options, 'sample') and ana_data.options.sample:
+    if getattr(ana_data.options, 'sample', False):
         return plot_cell_type_composition_sample_from_anadata(ana_data=ana_data)
     else:
         return plot_cell_type_composition_dataset_from_anadata(ana_data=ana_data)
@@ -222,7 +222,7 @@ def plot_adjust_cell_type_composition(
     :return: None or Tuple[plt.Figure, plt.Axes].
     """
 
-    if hasattr(ana_data.options, 'sample') and ana_data.options.sample:
+    if getattr(ana_data.options, 'sample', False):
         return plot_adjust_cell_type_composition_sample_from_anadata(ana_data=ana_data)
     else:
         return plot_adjust_cell_type_composition_dataset_from_anadata(ana_data=ana_data)
@@ -361,7 +361,7 @@ def plot_niche_NT_score(
     :return: None or Tuple[plt.Figure, plt.Axes].
     """
 
-    if hasattr(ana_data.options, 'sample') and ana_data.options.sample:
+    if getattr(ana_data.options, 'sample', False):
         return plot_niche_NT_score_sample_from_anadata(ana_data=ana_data)
     else:
         return plot_niche_NT_score_dataset_from_anadata(ana_data=ana_data)
@@ -500,7 +500,7 @@ def plot_cell_NT_score(
     :return: None or Tuple[plt.Figure, plt.Axes].
     """
 
-    if hasattr(ana_data.options, 'sample') and ana_data.options.sample:
+    if getattr(ana_data.options, 'sample', None):
         return plot_cell_NT_score_sample_from_anadata(ana_data=ana_data)
     else:
         return plot_cell_NT_score_dataset_from_anadata(ana_data=ana_data)
@@ -514,17 +514,17 @@ def spatial_visualization(ana_data: AnaData) -> None:
     """
 
     # 1. cell type composition
-    if hasattr(ana_data.options, 'suppress_cell_type_composition') and ana_data.options.suppress_cell_type_composition:
+    if getattr(ana_data.options, 'suppress_cell_type_composition', False):
         info("Skip spatial cell type composition visualization according to `suppress_cell_type_composition` option.")
     else:
         plot_cell_type_composition(ana_data=ana_data)
-        if hasattr(ana_data.options, 'embedding_adjust') and ana_data.options.embedding_adjust:
+        if getattr(ana_data.options, 'embedding_adjust', False):
             plot_adjust_cell_type_composition(ana_data=ana_data)
         else:
             info('Skip the adjusted cell type composition visualization due to no embedding adjust setting.')
 
     # 2. NT score
-    if hasattr(ana_data.options, 'suppress_niche_trajectory') and ana_data.options.suppress_niche_trajectory:
+    if getattr(ana_data.options, 'suppress_niche_trajectory', False):
         info("Skip spatial NT score visualization according to `suppress_niche_trajectory` option.")
     else:
         plot_niche_NT_score(ana_data=ana_data)

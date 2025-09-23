@@ -388,7 +388,7 @@ def plot_cell_type_composition_along_trajectory_from_anadata(
 
     # data_df
     data_df = ana_data.meta_data_df.copy()
-    data_df = data_df.join(1 - ana_data.NT_score['Cell_NTScore'] if hasattr(ana_data.options, 'reverse')
+    data_df = data_df.join(1 - ana_data.NT_score['Cell_NTScore'] if getattr(ana_data.options, 'reverse', False)
                            and ana_data.options.reverse else ana_data.NT_score['Cell_NTScore'])  # type: ignore
     data_df = data_df.join(ana_data.cell_type_composition)
 
@@ -400,7 +400,7 @@ def plot_cell_type_composition_along_trajectory_from_anadata(
 
     # output file path
     if output_file_path is None:
-        if not hasattr(ana_data.options, 'output') or ana_data.options.output is None:
+        if getattr(ana_data.options, 'output', None) is None:
             output_file_path = None
         else:
             output_file_path = Path(ana_data.options.output) / 'lineplot_raw_cell_type_composition_along_trajectory.pdf'

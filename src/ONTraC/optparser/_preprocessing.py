@@ -81,8 +81,8 @@ def write_preprocessing_memo(options: Values):
 
     # print parameters to stdout
     info(message='      -------- preprocessing options -------      ')
-    if hasattr(options, 'resolution'):
+    if hasattr(options, 'resolution') and (getattr(options, 'exp_input', None) is not None or getattr(options, 'embedding_input', None) is not None):
         info(message=f'resolution: {options.resolution}')
-    if hasattr(options, 'dc_method'):
+    if hasattr(options, 'dc_method') and getattr(options, 'low_res_exp_input', None) is not None:
         info(message=f'deconvolution method: {options.dc_method}')
         info(message=f'deconvolution cell type number: {options.dc_ct_num}')
