@@ -342,7 +342,7 @@ def plot_cell_type_composition_along_trajectory(
 
 def plot_cell_type_composition_along_trajectory_from_anadata(
         ana_data: AnaData,
-        cell_types: Optional[Union[str, List[str]]] = None,
+        cell_types: Optional[List[str]] = None,
         agg_cell_num: int = 10,
         figsize: Tuple[int, int] = (6, 2),
         palette: Optional[Dict[str, str]] = None,
@@ -354,9 +354,9 @@ def plot_cell_type_composition_along_trajectory_from_anadata(
     ----------
     ana_data : AnaData
         AnaData object.
-    cell_types : str or list of str
-        Column name(s) in AnaData.meta_data_df that contains the cell type information.
-        Default is None, which means all cell types in AnaData.cell_type_codes will be used.
+    cell_types : list of str
+        List of cell types to plot. If None, plot all cell types in ana_data.cell_type_codes.
+        Cell types not found in ana_data.cell_type_codes will be ignored with a warning.
     agg_cell_num : int
         Number of cells to aggregate in each bin along the trajectory. Default is 10. 1 means no aggregation.
     figsize : Tuple[int, int]
@@ -390,13 +390,23 @@ def plot_cell_type_composition_along_trajectory_from_anadata(
     data_df = ana_data.meta_data_df.copy()
     data_df = data_df.join(1 - ana_data.NT_score['Cell_NTScore'] if getattr(ana_data.options, 'reverse', False)
                            and ana_data.options.reverse else ana_data.NT_score['Cell_NTScore'])  # type: ignore
-    data_df = data_df.join(ana_data.cell_type_composition)
 
     # cell types
+    default_cell_types = ana_data.cell_type_codes['Cell_Type'].values.tolist()
     if cell_types is None:
-        cell_types = ana_data.cell_type_codes['Cell_Type'].values.tolist()
-    elif isinstance(cell_types, str):
-        cell_types = [cell_types]
+        cell_types = default_cell_types
+    elif isinstance(cell_types, list):
+        for cell_type in cell_types:
+            if cell_type not in default_cell_types:
+                warning(f"Cell type {cell_type} not found in AnaData object. Skipping this cell type.")
+        cell_types = [cell_type for cell_type in cell_types if cell_type in default_cell_types]
+        if len(cell_types) == 0:
+            warning("No valid cell types found. Using all cell types instead.")
+            cell_types = default_cell_types
+    else:
+        raise ValueError("cell_types should be a list of strings or None.")
+    
+    data_df = data_df.join(ana_data.cell_type_composition[cell_types])  # type: ignore
 
     # output file path
     if output_file_path is None:

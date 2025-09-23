@@ -56,6 +56,12 @@ Changed:
 - Default value of `PURITY_LOSS_WEIGHT` changed to 30
 - Default value of `BETA` changed to 0.3
 
+## [1.2.3] - 2025-Sep-23
+
+Fixed:
+
+- `cell_types` logic in `plot_cell_type_composition_along_trajectory_from_anadata`
+
 ## [1.2.2] - 2025-June-10
 
 Changed:
