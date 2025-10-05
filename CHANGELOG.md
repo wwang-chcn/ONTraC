@@ -1,5 +1,11 @@
 # Change log
 
+## [2.0.7] - 2025-Oct-5
+
+Added:
+
+- `cal_nc_feat_from_anadata` function
+
 ## [2.0.6] - 2025-Aug-28
 
 Fixed:
