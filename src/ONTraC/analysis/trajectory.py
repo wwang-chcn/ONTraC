@@ -250,7 +250,9 @@ def plot_cell_type_composition_along_trajectory(
         agg_cell_num: int = 10,
         figsize: Tuple[int, int] = (6, 2),
         palette: Optional[Dict[str, str]] = None,
-        output_file_path: Optional[Path] = None) -> Optional[Tuple[plt.Figure, plt.Axes]]:
+        output_file_path: Optional[Path] = None,
+        **kwargs,
+        ) -> Optional[Tuple[plt.Figure, plt.Axes]]:
     """
     Plot cell type composition along trajectory.
 
@@ -270,6 +272,8 @@ def plot_cell_type_composition_along_trajectory(
         Color palette for cell types. If None, use default color palette. Keys are cell types and values are colors.
     output_file_path : Optional[Path]
         If provided, save the figure to this path. If None, do not save the figure and return the figure, and axes objects.
+    **kwargs
+        Additional arguments for ax.plot().
     
     Returns
     -------
@@ -321,7 +325,7 @@ def plot_cell_type_composition_along_trajectory(
         fig, ax = plt.subplots(figsize=figsize)
 
         for cell_type in cell_types:
-            ax.plot(rolling_mean[trajectory], rolling_mean[cell_type], label=cell_type, color=palette[cell_type])
+            ax.plot(rolling_mean[trajectory], rolling_mean[cell_type], label=cell_type, color=palette[cell_type], **kwargs)
 
         ax.set_ylim(0, 1)
         ax.legend(title='Cell Types', bbox_to_anchor=(1.05, 1), loc='upper left', ncol=2)
@@ -342,11 +346,13 @@ def plot_cell_type_composition_along_trajectory(
 
 def plot_cell_type_composition_along_trajectory_from_anadata(
         ana_data: AnaData,
-        cell_types: Optional[Union[str, List[str]]] = None,
+        cell_types: Optional[List[str]] = None,
         agg_cell_num: int = 10,
         figsize: Tuple[int, int] = (6, 2),
         palette: Optional[Dict[str, str]] = None,
-        output_file_path: Optional[Union[Path, str]] = None) -> Optional[Tuple[plt.Figure, plt.Axes]]:
+        output_file_path: Optional[Union[Path, str]] = None,
+        **kwargs,
+        ) -> Optional[Tuple[plt.Figure, plt.Axes]]:
     """
     Plot cell type composition (niche features) along trajectory from AnaData object.
 
@@ -354,9 +360,9 @@ def plot_cell_type_composition_along_trajectory_from_anadata(
     ----------
     ana_data : AnaData
         AnaData object.
-    cell_types : str or list of str
-        Column name(s) in AnaData.meta_data_df that contains the cell type information.
-        Default is None, which means all cell types in AnaData.cell_type_codes will be used.
+    cell_types : list of str
+        List of cell types to plot. If None, plot all cell types in ana_data.cell_type_codes.
+        Cell types not found in ana_data.cell_type_codes will be ignored with a warning.
     agg_cell_num : int
         Number of cells to aggregate in each bin along the trajectory. Default is 10. 1 means no aggregation.
     figsize : Tuple[int, int]
@@ -368,6 +374,8 @@ def plot_cell_type_composition_along_trajectory_from_anadata(
         {ana_data.options.output}/lineplot_raw_cell_type_composition_along_trajectory.pdf is used. 
         If ana_data.options.output is also None, the figure will not be saved and the function 
         will return the figure and axes objects instead.
+    **kwargs
+        Additional arguments for ax.plot().
     
     Returns
     -------
@@ -388,19 +396,29 @@ def plot_cell_type_composition_along_trajectory_from_anadata(
 
     # data_df
     data_df = ana_data.meta_data_df.copy()
-    data_df = data_df.join(1 - ana_data.NT_score['Cell_NTScore'] if hasattr(ana_data.options, 'reverse')
+    data_df = data_df.join(1 - ana_data.NT_score['Cell_NTScore'] if getattr(ana_data.options, 'reverse', False)
                            and ana_data.options.reverse else ana_data.NT_score['Cell_NTScore'])  # type: ignore
-    data_df = data_df.join(ana_data.cell_type_composition)
 
     # cell types
+    default_cell_types = ana_data.cell_type_codes['Cell_Type'].values.tolist()
     if cell_types is None:
-        cell_types = ana_data.cell_type_codes['Cell_Type'].values.tolist()
-    elif isinstance(cell_types, str):
-        cell_types = [cell_types]
+        cell_types = default_cell_types
+    elif isinstance(cell_types, list):
+        for cell_type in cell_types:
+            if cell_type not in default_cell_types:
+                warning(f"Cell type {cell_type} not found in AnaData object. Skipping this cell type.")
+        cell_types = [cell_type for cell_type in cell_types if cell_type in default_cell_types]
+        if len(cell_types) == 0:
+            warning("No valid cell types found. Using all cell types instead.")
+            cell_types = default_cell_types
+    else:
+        raise ValueError("cell_types should be a list of strings or None.")
+    
+    data_df = data_df.join(ana_data.cell_type_composition[cell_types])  # type: ignore
 
     # output file path
     if output_file_path is None:
-        if not hasattr(ana_data.options, 'output') or ana_data.options.output is None:
+        if getattr(ana_data.options, 'output', None) is None:
             output_file_path = None
         else:
             output_file_path = Path(ana_data.options.output) / 'lineplot_raw_cell_type_composition_along_trajectory.pdf'
@@ -416,4 +434,6 @@ def plot_cell_type_composition_along_trajectory_from_anadata(
         agg_cell_num=agg_cell_num,
         figsize=figsize,
         palette=palette,
-        output_file_path=output_file_path)
+        output_file_path=output_file_path,
+        **kwargs,
+        )

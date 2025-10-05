@@ -265,7 +265,7 @@ class AnaData:
         self.options = options
 
         # meta_data_df
-        if hasattr(self.options, 'NN_dir'):
+        if getattr(self.options, 'NN_dir', None) is not None:
 
             # get real path
             params = read_yaml_file(f'{options.NN_dir}/samples.yaml')
@@ -296,24 +296,23 @@ class AnaData:
 
     @property
     def train_loss(self):
-        if not hasattr(self, '_train_loss') or self._train_loss is None:
+        if getattr(self, '_train_loss', None) is None:
             self._train_loss = load_loss_record_data(self.options)
         return self._train_loss
 
     @property
     def umap_embedding(self) -> Optional[np.ndarray]:
-        if hasattr(self, '_umap_embedding'):
-            pass
-        if not os.path.isfile(f'{self.options.NN_dir}/UMAP_embedding.csv'):
-            warning('UMAP_embedding.csv are required for clustering visualization. Skip the clustering visualization.')
-            self._umap_embedding = None
-        else:
-            self._umap_embedding = np.loadtxt(f'{self.options.NN_dir}/UMAP_embedding.csv', delimiter=',')
+        if getattr(self, '_umap_embedding', None) is None:  # type: ignore
+            if not os.path.isfile(f'{self.options.NN_dir}/UMAP_embedding.csv'):
+                warning('UMAP_embedding.csv are required for clustering visualization. Skip the clustering visualization.')
+                self._umap_embedding = None
+            else:
+                self._umap_embedding = np.loadtxt(f'{self.options.NN_dir}/UMAP_embedding.csv', delimiter=',')
         return self._umap_embedding
 
     @property
     def cell_type_codes(self) -> DataFrame:
-        if not hasattr(self, '_cell_type_codes') or self._cell_type_codes is None:  # type: ignore
+        if getattr(self, '_cell_type_codes', None) is None:  # type: ignore
             self._cell_type_codes = pd.read_csv(f'{self.options.NN_dir}/cell_type_code.csv', index_col=0)
             # order the cell type in meta_data_df
             self.meta_data_df['Cell_Type'] = pd.Categorical(self.meta_data_df['Cell_Type'],
@@ -322,7 +321,7 @@ class AnaData:
 
     @property
     def cell_type_coding(self) -> np.ndarray:
-        if not hasattr(self, '_cell_type_coding'):
+        if getattr(self, '_cell_type_coding', None) is None:
             self._cell_type_coding = pd.read_csv(f'{self.options.NN_dir}/ct_coding.csv', index_col=0).values
         return self._cell_type_coding
 
@@ -379,7 +378,7 @@ class AnaData:
 
     @property
     def cell_type_composition(self) -> DataFrame:
-        if not hasattr(self, '_cell_type_composition') or self._cell_type_composition is None:
+        if getattr(self, '_cell_type_composition', None) is None:
             self._load_cell_type_composition()
         return self._cell_type_composition
 
@@ -396,44 +395,40 @@ class AnaData:
     def adjust_cell_type_composition(self) -> DataFrame:
         if not self.options.embedding_adjust:
             warning('The embedding adjust is not enabled. Skip the adjust cell type composition loading.')
-        if not hasattr(self, '_adjust_cell_type_composition'):
+        if getattr(self, '_adjust_cell_type_composition', None) is None:
             self._load_cell_type_composition()
         return self._adjust_cell_type_composition
 
     @property
     def ct_embedding(self) -> Optional[DataFrame]:
-        if hasattr(self, '_ct_embedding'):
-            pass
-        if os.path.isfile(f'{self.options.NN_dir}/ct_embedding.csv'):
+        if getattr(self, '_ct_embedding', None) is None:  # type: ignore
+            if not os.path.isfile(f'{self.options.NN_dir}/ct_embedding.csv'):
+                warning(f"Cannot find cell type embedding file: {self.options.NN_dir}/ct_embedding.csv.")
+                return None
             self._ct_embedding = pd.read_csv(f'{self.options.NN_dir}/ct_embedding.csv', index_col=0)
-        else:
-            warning('Cell type embedding is not available. Skip the cell type based visualization.')
-            self._ct_embedding = None
         return self._ct_embedding
 
     @property
     def NT_score(self) -> Optional[DataFrame]:
-        if not hasattr(self, '_NT_score') or self._NT_score is None:  # type: ignore
+        if getattr(self, '_NT_score', None) is None:  # type: ignore
             self._NT_score = self._load_NT_score()
         return self._NT_score
 
     @property
     def niche_cluster_connectivity(self) -> Optional[np.ndarray]:
-        if not hasattr(self, '_niche_cluster_connectivity') or self._niche_cluster_connectivity is None:  # type: ignore
+        if getattr(self, '_niche_cluster_connectivity', None) is None:  # type: ignore
             self._niche_cluster_connectivity = load_niche_cluster_connectivity(self.options)
         return self._niche_cluster_connectivity
 
     @property
     def niche_cluster_score(self) -> Optional[np.ndarray]:
-        if not hasattr(self, '_niche_cluster_score') or self._niche_cluster_score is None:  # type: ignore
+        if getattr(self, '_niche_cluster_score', None) is None:  # type: ignore
             self._niche_cluster_score = load_niche_cluster_score(self.options)
         return self._niche_cluster_score
 
     @property
     def niche_level_niche_cluster_assign(self) -> Optional[DataFrame]:
-        if not hasattr(
-                self,
-                '_niche_level_niche_cluster_assign') or self._niche_level_niche_cluster_assign is None:  # type: ignore
+        if getattr(self, '_niche_level_niche_cluster_assign', None) is None:  # type: ignore
             self._niche_level_niche_cluster_assign = load_niche_level_niche_cluster_assign(self.options)
             if self._niche_level_niche_cluster_assign is None:
                 return None
@@ -446,9 +441,7 @@ class AnaData:
 
     @property
     def cell_level_niche_cluster_assign(self) -> Optional[DataFrame]:
-        if not hasattr(
-                self,
-                '_cell_level_niche_cluster_assign') or self._cell_level_niche_cluster_assign is None:  # type: ignore
+        if getattr(self, '_cell_level_niche_cluster_assign', None) is None:  # type: ignore
             self._cell_level_niche_cluster_assign = load_cell_level_niche_cluster_assign(self.options)
             if self._cell_level_niche_cluster_assign is None:
                 return None
@@ -461,8 +454,7 @@ class AnaData:
 
     @property
     def niche_level_max_niche_cluster(self) -> Optional[DataFrame]:
-        if not hasattr(self,
-                       '_niche_level_max_niche_cluster') or self._niche_level_max_niche_cluster is None:  # type: ignore
+        if getattr(self, '_niche_level_max_niche_cluster', None) is None:  # type: ignore
             self._niche_level_max_niche_cluster = load_niche_level_max_niche_cluster(self.options)
             if self._niche_level_max_niche_cluster is None:
                 return None
@@ -474,8 +466,7 @@ class AnaData:
 
     @property
     def cell_level_max_niche_cluster(self) -> Optional[DataFrame]:
-        if not hasattr(self,
-                       '_cell_level_max_niche_cluster') or self._cell_level_max_niche_cluster is None:  # type: ignore
+        if getattr(self, '_cell_level_max_niche_cluster', None) is None:  # type: ignore
             self._cell_level_max_niche_cluster = load_cell_level_max_niche_cluster(self.options)
             if self._cell_level_max_niche_cluster is None:
                 return None
@@ -487,7 +478,7 @@ class AnaData:
 
     @property
     def niche_hidden_features(self) -> Optional[np.ndarray]:
-        if not hasattr(self, '_niche_hidden_features') or self._niche_hidden_features is None:  # type: ignore
+        if getattr(self, '_niche_hidden_features', None) is None:  # type: ignore
             self._niche_hidden_features = load_niche_hidden_features(self.options)
             if self._niche_hidden_features is None:
                 return None

@@ -198,7 +198,7 @@ def cal_niche_level_raw_cell_type_counts_from_anadata(ana_data: AnaData) -> pd.D
 
     if 'Cell_Type' not in ana_data.meta_data_df.columns:
         raise AttributeError('Cell_Type column is not found in meta_data_df of AnaData.')
-    if not hasattr(ana_data.options, 'NN_dir') or ana_data.options.NN_dir is None:
+    if getattr(ana_data.options, 'NN_dir', None) is None:
         raise AttributeError('NN_dir is not found in AnaData options.')
 
     cell_type = ana_data.meta_data_df['Cell_Type'].cat.codes

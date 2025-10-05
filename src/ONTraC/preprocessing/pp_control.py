@@ -62,7 +62,7 @@ def load_input_data(
             low_res_exp_df = pd.read_csv(low_res_exp_input, index_col=0)
             # TODO: error message module
             if low_res_exp_df.columns.tolist() != ids:
-                raise ValueError('The first row in low_res_exp_data should be same as the first column of meta_data.')
+                raise ValueError('The first row in low_res_exp_data should be same as the first column of meta_data.\nPlease note that low_res_exp_data should be in the format of #gene x #spot.')
             output['low_res_exp'] = low_res_exp_df  # #gene x #N
         if deconvoluted_ct_composition is not None:
             deconvoluted_ct_composition_df = pd.read_csv(deconvoluted_ct_composition, index_col=0)

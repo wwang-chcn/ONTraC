@@ -396,7 +396,7 @@ def validate_io_options(options: Values,
         if getattr(options, 'deconvoluted_exp_input', None) is None:
             options.deconvoluted_exp_input = None
         elif getattr(options, 'deconvoluted_exp_input', None) is not None:
-            if not hasattr(options, 'deconvoluted_ct_composition') or options.deconvoluted_ct_composition is None:
+            if not getattr(options, 'deconvoluted_ct_composition', None) is None:
                 error(
                     message=
                     'If you want to provide deconvolution results as input. Deconvoluted cell type composition file is required.'
@@ -453,29 +453,29 @@ def write_io_options_memo(options: Values, io_options: Optional[Dict[str, List[s
         ioc = io_dicts_to_io_options_collection(io_options)
 
     info('            -------- I/O options -------             ')
-    if ioc.has_io_option('NN_dir') and hasattr(options, 'NN_dir') and options.NN_dir is not None:
+    if ioc.has_io_option('NN_dir') and getattr(options, 'NN_dir', None) is not None:
         info(f'Niche network output directory:  {options.NN_dir}')
-    if ioc.has_io_option('GNN_dir') and hasattr(options, 'GNN_dir') and options.GNN_dir is not None:
+    if ioc.has_io_option('GNN_dir') and getattr(options, 'GNN_dir', None) is not None:
         info(f'GNN output directory:  {options.GNN_dir}')
-    if ioc.has_io_option('NT_dir') and hasattr(options, 'NT_dir') and options.NT_dir is not None:
+    if ioc.has_io_option('NT_dir') and getattr(options, 'NT_dir', None) is not None:
         info(f'Niche trajectory output directory:  {options.NT_dir}')
     if ioc.has_io_option('output'):  # this is a optional-overwrite option (ONTraC_analysis only)
         info(f'Output directory:  {options.output}')
     if ioc.has_io_option(name='input'):  # this is a required option
         info(f'Meta data file:  {options.meta_input}')
         # TODO: refine logic here
-        if hasattr(options, 'exp_input') and options.exp_input is not None:
+        if getattr(options, 'exp_input', None) is not None:
             info(f'expression data file:  {options.exp_input}')
-        if hasattr(options, 'embedding_input') and options.embedding_input is not None:
+        if getattr(options, 'embedding_input', None) is not None:
             info(f'embedding file:  {options.embedding_input}')
-        if hasattr(options, 'low_res_exp_input') and options.low_res_exp_input is not None:
+        if getattr(options, 'low_res_exp_input', None) is not None:
             info(f'low-resolution expression data file:  {options.low_res_exp_input}')
-        if hasattr(options, 'deconvoluted_ct_composition') and options.deconvoluted_ct_composition is not None:
+        if getattr(options, 'deconvoluted_ct_composition', None) is not None:
             info(f'deconvoluted outputed cell type composition file:  {options.deconvoluted_ct_composition}')
-        if hasattr(options, 'deconvoluted_exp_input') and options.deconvoluted_exp_input is not None:
+        if getattr(options, 'deconvoluted_exp_input', None) is not None:
             info(f'decomposition outputed expression file:  {options.deconvoluted_exp_input}')
-    if ioc.has_io_option(name='log') and hasattr(
-            options, 'log') and options.log is not None:  # this is a optional option (ONTraC_analysis only)
+    if ioc.has_io_option(name='log') and getattr(
+            options, 'log', None) is not None:  # this is a optional option (ONTraC_analysis only)
         info(f'Log file:  {options.log}')
 
 
