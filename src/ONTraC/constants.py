@@ -47,5 +47,6 @@ IO_OPTIONS: Dict[str, Dict[str, List[str]]] = {
         'overwrite': [],
         'optional-overwrite': ['output'],
         'deprecated': [],
+        'removed': ['input'],
     },
 }

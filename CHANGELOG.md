@@ -1,10 +1,11 @@
 # Change log
 
-## [2.0.7] - 2025-Oct-5
+## [2.0.7] - 2025-Oct-6
 
 Added:
 
 - `cal_nc_feat_from_anadata` function
+- Handle removed input options for `ONTraC_analysis`
 
 ## [2.0.6] - 2025-Aug-28
 

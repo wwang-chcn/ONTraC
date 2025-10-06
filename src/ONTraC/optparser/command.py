@@ -470,9 +470,8 @@ def prepare_analysis_optparser() -> OptionParser:
     io_options: Dict[str, List[str]] = IO_OPTIONS['ONTraC_analysis']  # type: ignore
 
     usage = f'''USAGE: %prog [--NN-dir NN_DIR] [--GNN-dir GNN_DIR] [--NT-dir NT_DIR] [-o OUTPUT]
-    [--meta-input META_INPUT] [-l LOG] [--embedding-adjust] [--sigma SIGMA] [-r REVERSE] [-s SAMPLE]
-    [--scale-factor SCALE_FACTOR] [--suppress-cell-type-composition] [--suppress-niche-cluster-loadings]
-    [--suppress-niche-trajectory]
+    [-l LOG] [--embedding-adjust] [--sigma SIGMA] [-r REVERSE] [-s SAMPLE] [--scale-factor SCALE_FACTOR]
+    [--suppress-cell-type-composition] [--suppress-niche-cluster-loadings] [--suppress-niche-trajectory]
     '''
     description = 'ONTraC_analysis: analysis of ONTraC results'
 

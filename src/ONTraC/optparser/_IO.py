@@ -150,48 +150,56 @@ def add_IO_options_group(optparser: OptionParser, io_options: Optional[Dict[str,
 
     # input files
     if ioc.has_io_option('input'):
-        group_io.add_option(
-            '--meta-input',
-            dest='meta_input',
-            type='string',
-            help=
-            'Meta data file in csv format. Each row is a cell. The first column should be the cell name with column name Cell_ID. Coordinates (x, y) and sample should be included. Cell type is required for cell-level data.'
-        )
-        group_io.add_option(
-            '--exp-input',
-            dest='exp_input',
-            type='string',
-            default=None,
-            help=
-            'Normalized expression file in csv format. Each row is a cell and each column is a gene. The first column should be the cell name with column name Cell_ID. If not provided, cell type should be included in the meta data file.'
-        )
-        group_io.add_option(
-            '--embedding-input',
-            dest='embedding_input',
-            type='string',
-            default=None,
-            help='Embedding file in csv format. The first column should be the cell name with column name Cell_ID.')
-        group_io.add_option('--low-res-exp-input',
-                            dest='low_res_exp_input',
-                            type='string',
-                            default=None,
-                            help='Gene X spot matrix in csv format for low-resolution dataset.')
-        group_io.add_option(
-            '--deconvoluted-ct-composition',
-            dest='deconvoluted_ct_composition',
-            type='string',
-            default=None,
-            help=
-            'Deconvoluted cell type composition of each spot in csv format. The first column should be the spot name with column name Spot_ID.'
-        )
-        group_io.add_option(
-            '--deconvoluted-exp-input',
-            dest='deconvoluted_exp_input',
-            type='string',
-            default=None,
-            help=
-            'Deconvoluted expression of each cell type in csv format. The first column should be the cell type name corresponding to the columns name of decomposition outputed cell type composition.'
-        )
+        if ioc.get_io_option_attr('input') == 'required':  # ONTraC & ONTraC_NN
+            group_io.add_option(
+                '--meta-input',
+                dest='meta_input',
+                type='string',
+                help=
+                'Meta data file in csv format. Each row is a cell. The first column should be the cell name with column name Cell_ID. Coordinates (x, y) and sample should be included. Cell type is required for cell-level data.'
+            )
+            group_io.add_option(
+                '--exp-input',
+                dest='exp_input',
+                type='string',
+                default=None,
+                help=
+                'Normalized expression file in csv format. Each row is a cell and each column is a gene. The first column should be the cell name with column name Cell_ID. If not provided, cell type should be included in the meta data file.'
+            )
+            group_io.add_option(
+                '--embedding-input',
+                dest='embedding_input',
+                type='string',
+                default=None,
+                help='Embedding file in csv format. The first column should be the cell name with column name Cell_ID.')
+            group_io.add_option('--low-res-exp-input',
+                                dest='low_res_exp_input',
+                                type='string',
+                                default=None,
+                                help='Gene X spot matrix in csv format for low-resolution dataset.')
+            group_io.add_option(
+                '--deconvoluted-ct-composition',
+                dest='deconvoluted_ct_composition',
+                type='string',
+                default=None,
+                help=
+                'Deconvoluted cell type composition of each spot in csv format. The first column should be the spot name with column name Spot_ID.'
+            )
+            group_io.add_option(
+                '--deconvoluted-exp-input',
+                dest='deconvoluted_exp_input',
+                type='string',
+                default=None,
+                help=
+                'Deconvoluted expression of each cell type in csv format. The first column should be the cell type name corresponding to the columns name of decomposition outputed cell type composition.'
+            )
+        elif ioc.get_io_option_attr('input') == 'removed':  # ONTraC_analysis only
+            group_io.add_option(
+                '--meta-input',
+                dest='meta_input',
+                type='string',
+                help='This options are not required anymore and will be removed from v3.0.')
+
     if ioc.has_io_option('log'):
         group_io.add_option('-l', '--log', dest='log', type='string', help='Log file.')
 
@@ -318,103 +326,109 @@ def validate_io_options(options: Values,
             os.makedirs(options.NT_dir, exist_ok=True)
 
     if ioc.has_io_option('input'):
-        # meta data
-        ## deprecated `dataset` check
-        if getattr(options, 'dataset', None) is not None and getattr(options, 'meta_input', None) is None:
-            warning('The --dataset option will be deprecated from v3.0. Please use --meta-input instead.')
-            options.meta_input = options.dataset
-        if getattr(options, 'meta_input', None) is None:
-            error('Please provide a meta data file in csv format.')
-            if optparser is not None: optparser.print_help()
-            sys.exit(1)
-        if not os.path.isfile(options.meta_input):
-            error(f'The input file ({options.meta_input}) you given does not exist.')
-            if optparser is not None: optparser.print_help()
-            sys.exit(1)
-        ## format check
-        if not options.meta_input.endswith(('csv', 'csv.gz')):
-            error(f'The input file ({options.meta_input}) should be in csv format.')
-            if optparser is not None: optparser.print_help()
-            sys.exit(1)
-        # embedding
-        if getattr(options, 'embedding_input', None) is None:
-            options.embedding_input = None
-        elif getattr(options, 'embedding_input', None) is not None:
-            if not os.path.isfile(options.embedding_input):
-                error(f'The embedding file ({options.embedding_input}) you given does not exist.')
+        if ioc.get_io_option_attr('input') == 'required':  # ONTraC & ONTraC_NN
+            # meta data
+            ## deprecated `dataset` check
+            if getattr(options, 'dataset', None) is not None and getattr(options, 'meta_input', None) is None:
+                warning('The --dataset option will be deprecated from v3.0. Please use --meta-input instead.')
+                options.meta_input = options.dataset
+            if getattr(options, 'meta_input', None) is None:
+                error('Please provide a meta data file in csv format.')
                 if optparser is not None: optparser.print_help()
                 sys.exit(1)
-            if not options.embedding_input.endswith(('csv', 'csv.gz')):
-                error(f'The embedding file ({options.embedding_input}) should be in csv format.')
+            if not os.path.isfile(options.meta_input):
+                error(f'The input file ({options.meta_input}) you given does not exist.')
                 if optparser is not None: optparser.print_help()
                 sys.exit(1)
-            # overwrite expression data
-            if getattr(options, 'exp_input', None) is not None:
-                warning('The --embedding-input option will overwrite the --exp-input option.')
+            ## format check
+            if not options.meta_input.endswith(('csv', 'csv.gz')):
+                error(f'The input file ({options.meta_input}) should be in csv format.')
+                if optparser is not None: optparser.print_help()
+                sys.exit(1)
+            # embedding
+            if getattr(options, 'embedding_input', None) is None:
+                options.embedding_input = None
+            elif getattr(options, 'embedding_input', None) is not None:
+                if not os.path.isfile(options.embedding_input):
+                    error(f'The embedding file ({options.embedding_input}) you given does not exist.')
+                    if optparser is not None: optparser.print_help()
+                    sys.exit(1)
+                if not options.embedding_input.endswith(('csv', 'csv.gz')):
+                    error(f'The embedding file ({options.embedding_input}) should be in csv format.')
+                    if optparser is not None: optparser.print_help()
+                    sys.exit(1)
+                # overwrite expression data
+                if getattr(options, 'exp_input', None) is not None:
+                    warning('The --embedding-input option will overwrite the --exp-input option.')
+                    options.exp_input = None
+            # expression data
+            if getattr(options, 'exp_input', None) is None:
                 options.exp_input = None
-        # expression data
-        if getattr(options, 'exp_input', None) is None:
-            options.exp_input = None
-        elif getattr(options, 'exp_input', None) is not None:
-            if not os.path.isfile(options.exp_input):  # type: ignore
-                error(f'The expression data file ({options.exp_input}) you given does not exist.')
-                if optparser is not None: optparser.print_help()
-                sys.exit(1)
-            if not options.exp_input.endswith(('csv', 'csv.gz')):  # type: ignore
-                error(f'The expression data file ({options.exp_input}) should be in csv format.')
-                if optparser is not None: optparser.print_help()
-                sys.exit(1)
-        # low-res expression data
-        if getattr(options, 'low_res_exp_input', None) is None:
-            options.low_res_exp_input = None
-        elif getattr(options, 'low_res_exp_input', None) is not None:
-            if not os.path.isfile(options.low_res_exp_input):
-                error(
-                    f'The low-resolution expression data file ({options.low_res_exp_input}) you given does not exist.')
-                if optparser is not None: optparser.print_help()
-                sys.exit(1)
-            if not options.low_res_exp_input.endswith(('csv', 'csv.gz')):
-                error(f'The low-resolution expression data file ({options.low_res_exp_input}) should be in csv format.')
-                if optparser is not None: optparser.print_help()
-                sys.exit(1)
-        # deconvoluted results files
-        if getattr(options, 'deconvoluted_ct_composition', None) is None:
-            options.deconvoluted_ct_composition = None
-        elif getattr(options, 'deconvoluted_ct_composition', None) is not None:
-            if not os.path.isfile(options.deconvoluted_ct_composition):
-                error(
-                    f'The deconvoluted outputed cell type composition file ({options.deconvoluted_ct_composition}) you given does not exist.'
-                )
-                if optparser is not None: optparser.print_help()
-                sys.exit(1)
-            if not options.deconvoluted_ct_composition.endswith(('csv', 'csv.gz')):
-                error(
-                    f'The deconvoluted outputed cell type composition file ({options.decomposition_cell_type_composition_input}) should be in csv format.'
-                )
-                if optparser is not None: optparser.print_help()
-                sys.exit(1)
-        if getattr(options, 'deconvoluted_exp_input', None) is None:
-            options.deconvoluted_exp_input = None
-        elif getattr(options, 'deconvoluted_exp_input', None) is not None:
-            if not getattr(options, 'deconvoluted_ct_composition', None) is None:
-                error(
-                    message=
-                    'If you want to provide deconvolution results as input. Deconvoluted cell type composition file is required.'
-                )
-                if optparser is not None: optparser.print_help()
-                sys.exit(1)
-            if not os.path.isfile(options.deconvoluted_exp_input):
-                error(
-                    f'The decomposition outputed expression file ({options.deconvoluted_exp_input}) you given does not exist.'
-                )
-                if optparser is not None: optparser.print_help()
-                sys.exit(1)
-            if not options.deconvoluted_exp_input.endswith(('csv', 'csv.gz')):
-                error(
-                    f'The decomposition outputed expression file ({options.deconvoluted_exp_input}) should be in csv format.'
-                )
-                if optparser is not None: optparser.print_help()
-                sys.exit(1)
+            elif getattr(options, 'exp_input', None) is not None:
+                if not os.path.isfile(options.exp_input):  # type: ignore
+                    error(f'The expression data file ({options.exp_input}) you given does not exist.')
+                    if optparser is not None: optparser.print_help()
+                    sys.exit(1)
+                if not options.exp_input.endswith(('csv', 'csv.gz')):  # type: ignore
+                    error(f'The expression data file ({options.exp_input}) should be in csv format.')
+                    if optparser is not None: optparser.print_help()
+                    sys.exit(1)
+            # low-res expression data
+            if getattr(options, 'low_res_exp_input', None) is None:
+                options.low_res_exp_input = None
+            elif getattr(options, 'low_res_exp_input', None) is not None:
+                if not os.path.isfile(options.low_res_exp_input):
+                    error(
+                        f'The low-resolution expression data file ({options.low_res_exp_input}) you given does not exist.')
+                    if optparser is not None: optparser.print_help()
+                    sys.exit(1)
+                if not options.low_res_exp_input.endswith(('csv', 'csv.gz')):
+                    error(f'The low-resolution expression data file ({options.low_res_exp_input}) should be in csv format.')
+                    if optparser is not None: optparser.print_help()
+                    sys.exit(1)
+            # deconvoluted results files
+            if getattr(options, 'deconvoluted_ct_composition', None) is None:
+                options.deconvoluted_ct_composition = None
+            elif getattr(options, 'deconvoluted_ct_composition', None) is not None:
+                if not os.path.isfile(options.deconvoluted_ct_composition):
+                    error(
+                        f'The deconvoluted outputed cell type composition file ({options.deconvoluted_ct_composition}) you given does not exist.'
+                    )
+                    if optparser is not None: optparser.print_help()
+                    sys.exit(1)
+                if not options.deconvoluted_ct_composition.endswith(('csv', 'csv.gz')):
+                    error(
+                        f'The deconvoluted outputed cell type composition file ({options.decomposition_cell_type_composition_input}) should be in csv format.'
+                    )
+                    if optparser is not None: optparser.print_help()
+                    sys.exit(1)
+            if getattr(options, 'deconvoluted_exp_input', None) is None:
+                options.deconvoluted_exp_input = None
+            elif getattr(options, 'deconvoluted_exp_input', None) is not None:
+                if not getattr(options, 'deconvoluted_ct_composition', None) is None:
+                    error(
+                        message=
+                        'If you want to provide deconvolution results as input. Deconvoluted cell type composition file is required.'
+                    )
+                    if optparser is not None: optparser.print_help()
+                    sys.exit(1)
+                if not os.path.isfile(options.deconvoluted_exp_input):
+                    error(
+                        f'The decomposition outputed expression file ({options.deconvoluted_exp_input}) you given does not exist.'
+                    )
+                    if optparser is not None: optparser.print_help()
+                    sys.exit(1)
+                if not options.deconvoluted_exp_input.endswith(('csv', 'csv.gz')):
+                    error(
+                        f'The decomposition outputed expression file ({options.deconvoluted_exp_input}) should be in csv format.'
+                    )
+                    if optparser is not None: optparser.print_help()
+                    sys.exit(1)
+        elif ioc.get_io_option_attr('input') == 'removed':  # ONTraC_analysis only
+            if getattr(options, 'dataset', None) is not None:
+                warning('The --dataset options are not required anymore and will be removed from v3.0.')
+            if getattr(options, 'meta_input', None) is not None:
+                warning('The --meta-input options are not required anymore and will be removed from v3.0.')
 
     if ioc.has_io_option('output'):  # this is a optional-overwrite option (ONTraC_analysis only)
         if getattr(options, 'output', None) is None:
