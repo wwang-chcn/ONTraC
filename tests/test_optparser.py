@@ -113,8 +113,8 @@ def test_ontrac_analysis_ioc() -> None:
     assert ioc.get_io_option_attr('output') == 'optional-overwrite'
     assert ioc.has_io_option('log')
     assert ioc.get_io_option_attr('log') == 'optional'
-    # wrong options
-    assert not ioc.has_io_option('input')
+    assert ioc.has_io_option('input')
+    assert ioc.get_io_option_attr('input') == 'removed'
 
 
 def test_io_options():
