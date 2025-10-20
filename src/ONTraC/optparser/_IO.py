@@ -405,7 +405,7 @@ def validate_io_options(options: Values,
             if getattr(options, 'deconvoluted_exp_input', None) is None:  # set default None, for interactive mode
                 options.deconvoluted_exp_input = None
             elif getattr(options, 'deconvoluted_exp_input', None) is not None:
-                if not getattr(options, 'deconvoluted_ct_composition', None) is None:
+                if getattr(options, 'deconvoluted_ct_composition', None) is None:
                     error(
                         message=
                         'If you want to provide deconvolution results as input. Deconvoluted cell type composition file is required.'

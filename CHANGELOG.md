@@ -1,5 +1,11 @@
 # Change log
 
+## [2.0.7.post2] - 2025-Oct-20
+
+Fixed:
+
+- Wrong deconvoluted input files validation logic introduced in `v2.0.7`
+
 ## [2.0.7.post1] - 2025-Oct-6
 
 Changed:
