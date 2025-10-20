@@ -346,7 +346,7 @@ def validate_io_options(options: Values,
                 if optparser is not None: optparser.print_help()
                 sys.exit(1)
             # embedding
-            if getattr(options, 'embedding_input', None) is None:
+            if getattr(options, 'embedding_input', None) is None:  # set default None, for interactive mode
                 options.embedding_input = None
             elif getattr(options, 'embedding_input', None) is not None:
                 if not os.path.isfile(options.embedding_input):
@@ -362,7 +362,7 @@ def validate_io_options(options: Values,
                     warning('The --embedding-input option will overwrite the --exp-input option.')
                     options.exp_input = None
             # expression data
-            if getattr(options, 'exp_input', None) is None:
+            if getattr(options, 'exp_input', None) is None:  # set default None, for interactive mode
                 options.exp_input = None
             elif getattr(options, 'exp_input', None) is not None:
                 if not os.path.isfile(options.exp_input):  # type: ignore
@@ -374,7 +374,7 @@ def validate_io_options(options: Values,
                     if optparser is not None: optparser.print_help()
                     sys.exit(1)
             # low-res expression data
-            if getattr(options, 'low_res_exp_input', None) is None:
+            if getattr(options, 'low_res_exp_input', None) is None:  # set default None, for interactive mode
                 options.low_res_exp_input = None
             elif getattr(options, 'low_res_exp_input', None) is not None:
                 if not os.path.isfile(options.low_res_exp_input):
@@ -387,7 +387,7 @@ def validate_io_options(options: Values,
                     if optparser is not None: optparser.print_help()
                     sys.exit(1)
             # deconvoluted results files
-            if getattr(options, 'deconvoluted_ct_composition', None) is None:
+            if getattr(options, 'deconvoluted_ct_composition', None) is None:  # set default None, for interactive mode
                 options.deconvoluted_ct_composition = None
             elif getattr(options, 'deconvoluted_ct_composition', None) is not None:
                 if not os.path.isfile(options.deconvoluted_ct_composition):
@@ -402,7 +402,7 @@ def validate_io_options(options: Values,
                     )
                     if optparser is not None: optparser.print_help()
                     sys.exit(1)
-            if getattr(options, 'deconvoluted_exp_input', None) is None:
+            if getattr(options, 'deconvoluted_exp_input', None) is None:  # set default None, for interactive mode
                 options.deconvoluted_exp_input = None
             elif getattr(options, 'deconvoluted_exp_input', None) is not None:
                 if not getattr(options, 'deconvoluted_ct_composition', None) is None:
