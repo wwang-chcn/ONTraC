@@ -315,8 +315,9 @@ class AnaData:
         if getattr(self, '_cell_type_codes', None) is None:  # type: ignore
             self._cell_type_codes = pd.read_csv(f'{self.options.NN_dir}/cell_type_code.csv', index_col=0)
             # order the cell type in meta_data_df
-            self.meta_data_df['Cell_Type'] = pd.Categorical(self.meta_data_df['Cell_Type'],
-                                                            categories=self._cell_type_codes['Cell_Type'].tolist())
+            if 'Cell_Type' in self.meta_data_df.columns:
+                self.meta_data_df['Cell_Type'] = pd.Categorical(self.meta_data_df['Cell_Type'],
+                                                                categories=self._cell_type_codes['Cell_Type'].tolist())
         return self._cell_type_codes
 
     @property

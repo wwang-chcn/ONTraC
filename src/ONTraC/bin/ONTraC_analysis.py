@@ -29,7 +29,6 @@ def analysis_pipeline(options: Values) -> None:
     ana_data = AnaData(options)
     step_index += 1
 
-    step_index = 0
     if ana_data.options.spatial_res == 'cell':
         # part 1: clustering
         info(message=f'Analysis pipeline step {step_index}: clustering visualization.')
@@ -58,9 +57,10 @@ def analysis_pipeline(options: Values) -> None:
     step_index += 1
 
     # part 6: cell type based output
-    info(message=f'Analysis pipeline step {step_index}: cell type-based visualization.')
-    cell_type_visualization(ana_data=ana_data)
-    step_index += 1
+    if ana_data.options.spatial_res == 'cell':
+        info(message=f'Analysis pipeline step {step_index}: cell type-based visualization.')
+        cell_type_visualization(ana_data=ana_data)
+        step_index += 1
     info('--------------- Analysis pipeline end --------------- ')
 
 

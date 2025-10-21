@@ -1,5 +1,11 @@
 # Change log
 
+## [2.0.7.post3] - 2025-Oct-21
+
+Fixed:
+
+- Unexpected cell type-based analysis for low resolution dataset
+
 ## [2.0.7.post2] - 2025-Oct-20
 
 Fixed:
