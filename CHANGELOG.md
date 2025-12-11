@@ -1,5 +1,11 @@
 # Change log
 
+## [2.0.8] - 2025-Dec-XX
+
+Changed:
+
+- Fix random seed/state in functions handling expression input located in `expression.py` to solve reproducibility issue
+
 ## [2.0.7.post3] - 2025-Oct-21
 
 Fixed:

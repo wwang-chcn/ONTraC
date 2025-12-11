@@ -59,7 +59,7 @@ def define_neighbors(embedding: np.ndarray, n_neighbors: int = 20) -> csr_matrix
 
     info(f'Defining neighbors with {n_neighbors} neighbors...')
 
-    index = pynndescent.NNDescent(embedding, n_neighbors=n_neighbors, metric='euclidean', n_jobs=4)
+    index = pynndescent.NNDescent(embedding, n_neighbors=n_neighbors, metric='euclidean', random_state=42, n_jobs=4)
     knn_indices, knn_dists = index.neighbor_graph
     connectivities, _, _, _ = fuzzy_simplicial_set(X=coo_matrix(([], ([], [])), shape=(embedding.shape[0], 1)),
                                                    n_neighbors=n_neighbors,
@@ -89,7 +89,7 @@ def perform_umap(embedding: np.ndarray,
 
     info(f'Performing UMAP with {n_neighbors} neighbors, {min_dist} minimum distance, and {n_components} components...')
 
-    return umap.UMAP(n_neighbors=n_neighbors, min_dist=min_dist, n_components=n_components).fit_transform(embedding)
+    return umap.UMAP(n_neighbors=n_neighbors, min_dist=min_dist, n_components=n_components, random_state=42).fit_transform(embedding)
 
 
 def perform_leiden(connectivities: csr_matrix, resolution: float = 1.0) -> List[int]:
@@ -112,6 +112,7 @@ def perform_leiden(connectivities: csr_matrix, resolution: float = 1.0) -> List[
 
     partition = leidenalg.find_partition(graph=g,
                                          partition_type=leidenalg.RBConfigurationVertexPartition,
-                                         resolution_parameter=resolution)
+                                         resolution_parameter=resolution,
+                                         seed=42)
 
     return partition.membership
