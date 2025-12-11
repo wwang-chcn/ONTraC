@@ -1,6 +1,6 @@
 # Change log
 
-## [2.0.8] - 2025-Dec-XX
+## [2.0.8] - 2025-Dec-11
 
 Changed:
 
