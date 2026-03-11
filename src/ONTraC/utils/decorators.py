@@ -10,16 +10,16 @@ from ..log import debug
 
 def get_default_args(func) -> dict:
     """Get default arguments of a function.
-    
+
     Parameters
     ----------
             func (function): A function.
-    
+
     Returns
     -------
     dict
         Default arguments of the function.
-        """
+    """
     return {
         k: None if v.default is inspect.Parameter.empty else v.default
         for k, v in inspect.signature(func).parameters.items()
@@ -28,16 +28,16 @@ def get_default_args(func) -> dict:
 
 def selective_args_decorator(func) -> Callable:
     """Decorator that allows a function to accept only a subset of its arguments.
-    
+
     Parameters
     ----------
             func (function): A function.
-        
+
     Returns
     -------
     function
         A wrapper function that accepts only a subset of arguments.
-        """
+    """
 
     @wraps(func)
     def wrapper(*args, **kwargs):
@@ -52,15 +52,15 @@ def selective_args_decorator(func) -> Callable:
         for key, value in inspect.signature(func).parameters.items():
             # debug(f'key: {key}, value: {value}')
             if value.default is inspect.Parameter.empty:  # without default value
-                if key in ['args', 'kwargs', 'self']:  # skip
+                if key in ["args", "kwargs", "self"]:  # skip
                     continue
                 elif key in kwargs:  # with input value
                     default_args[key] = kwargs[key]
                 else:  # without input value
-                    raise TypeError(f'{func.__name__}() missing 1 required positional argument: {key}')
+                    raise TypeError(f"{func.__name__}() missing 1 required positional argument: {key}")
             else:  # with default value
                 default_args[key] = kwargs[key] if key in kwargs else value.default
-        if 'kwargs' in default_args:
+        if "kwargs" in default_args:
             default_args.update(kwargs)
         # debug(f'default_args: {list(default_args.keys())}')
 
@@ -82,13 +82,13 @@ def epoch_filter_decorator(func: Callable) -> Callable:
         """Run callback only for epochs selected by ``epoch_filter``."""
         # debug(f'epoch_filter_decorator: args: {args}')
         # debug(f'epoch_filter_decorator: kwargs: {list(kwargs.keys())}')
-        epoch: int = kwargs.get('epoch')  # type: ignore
-        output_dir: str = kwargs.get('output_dir')  # type: ignore
+        epoch: int = kwargs.get("epoch")  # type: ignore
+        output_dir: str = kwargs.get("output_dir")  # type: ignore
 
         # Check the epoch_filter condition
         if epoch_filter(epoch):
             # Check if output_dir of this epoch exists
-            epoch_output_dir: str = os.path.join(output_dir, f'Epoch_{epoch}')
+            epoch_output_dir: str = os.path.join(output_dir, f"Epoch_{epoch}")
             if not os.path.exists(epoch_output_dir):
                 os.mkdir(epoch_output_dir)
             # Call the original function if condition is True
@@ -101,10 +101,13 @@ def epoch_filter_decorator(func: Callable) -> Callable:
     sig = inspect.signature(func)
     parms = list(sig.parameters.values())
     parms.append(
-        inspect.Parameter(name='epoch_filter',
-                          kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
-                          default=inspect.Parameter.empty,
-                          annotation=Callable))
+        inspect.Parameter(
+            name="epoch_filter",
+            kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
+            default=inspect.Parameter.empty,
+            annotation=Callable,
+        )
+    )
     wrapper.__signature__ = sig.replace(parameters=parms)  # type: ignore
 
     return wrapper

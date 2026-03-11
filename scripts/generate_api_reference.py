@@ -228,7 +228,8 @@ def parse_module(path: Path, src_root: Path, hide_private: bool) -> ModuleDoc:
                         ast.get_docstring(node),
                         fallback=f"API reference entry for function `{node.name}`.",
                     ),
-                ))
+                )
+            )
         elif isinstance(node, ast.ClassDef):
             if should_skip_name(node.name, hide_private):
                 continue
@@ -326,52 +327,56 @@ def render_index(modules: Sequence[ModuleDoc]) -> str:
 
 def render_generation_doc() -> str:
     """Render maintainer notes for regenerating API markdown."""
-    return "\n".join([
-        "# API Reference Generation",
-        "",
-        "This note is for maintainers who regenerate API docs from ONTraC source code.",
-        "",
-        "## Output",
-        "",
-        "- Website-ready API pages are generated into `docs/api_reference/`.",
-        "- The landing page is `docs/api_reference/index.md`.",
-        "",
-        "## Regenerate",
-        "",
-        "```bash",
-        "python scripts/generate_api_reference.py",
-        "```",
-        "",
-        "Optional flags:",
-        "",
-        "```bash",
-        "python scripts/generate_api_reference.py --hide-private",
-        "python scripts/generate_api_reference.py --out-dir docs/api_reference",
-        "```",
-        "",
-    ])
+    return "\n".join(
+        [
+            "# API Reference Generation",
+            "",
+            "This note is for maintainers who regenerate API docs from ONTraC source code.",
+            "",
+            "## Output",
+            "",
+            "- Website-ready API pages are generated into `docs/api_reference/`.",
+            "- The landing page is `docs/api_reference/index.md`.",
+            "",
+            "## Regenerate",
+            "",
+            "```bash",
+            "python scripts/generate_api_reference.py",
+            "```",
+            "",
+            "Optional flags:",
+            "",
+            "```bash",
+            "python scripts/generate_api_reference.py --hide-private",
+            "python scripts/generate_api_reference.py --out-dir docs/api_reference",
+            "```",
+            "",
+        ]
+    )
 
 
 def render_transfer_doc() -> str:
     """Render maintainer notes for copying docs to a website repository."""
-    return "\n".join([
-        "# API Reference Transfer Guide",
-        "",
-        "This note is for maintainers who publish API pages in another website repository.",
-        "",
-        "## What To Copy",
-        "",
-        "- Copy the full `docs/api_reference/` directory.",
-        "- Do not copy this transfer note unless you want maintainer instructions on the site.",
-        "",
-        "## Typical Publish Flow",
-        "",
-        "1. Regenerate docs in ONTraC repo.",
-        "2. Copy `docs/api_reference/` into your website docs tree.",
-        "3. Add `api_reference/index.md` to website navigation.",
-        "4. Commit and deploy website docs.",
-        "",
-    ])
+    return "\n".join(
+        [
+            "# API Reference Transfer Guide",
+            "",
+            "This note is for maintainers who publish API pages in another website repository.",
+            "",
+            "## What To Copy",
+            "",
+            "- Copy the full `docs/api_reference/` directory.",
+            "- Do not copy this transfer note unless you want maintainer instructions on the site.",
+            "",
+            "## Typical Publish Flow",
+            "",
+            "1. Regenerate docs in ONTraC repo.",
+            "2. Copy `docs/api_reference/` into your website docs tree.",
+            "3. Add `api_reference/index.md` to website navigation.",
+            "4. Commit and deploy website docs.",
+            "",
+        ]
+    )
 
 
 def main() -> None:

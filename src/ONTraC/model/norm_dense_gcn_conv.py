@@ -26,7 +26,7 @@ class NormDenseGCNConv(torch.nn.Module):
         bias: bool = True,
     ):
         """Initialize the dense GCN layer.
-        
+
                 Parameters
                 ----------
         in_channels :
@@ -41,19 +41,19 @@ class NormDenseGCNConv(torch.nn.Module):
         bias :
             bool, default=True
                     Whether to add a learnable bias after message passing.
-                """
+        """
         super().__init__()
 
         self.in_channels = in_channels
         self.out_channels = out_channels
         self.improved = improved
 
-        self.lin = Linear(in_channels, out_channels, bias=False, weight_initializer='glorot')
+        self.lin = Linear(in_channels, out_channels, bias=False, weight_initializer="glorot")
 
         if bias:
             self.bias = Parameter(torch.Tensor(out_channels))
         else:
-            self.register_parameter('bias', None)
+            self.register_parameter("bias", None)
 
         self.reset_parameters()
 
@@ -66,7 +66,7 @@ class NormDenseGCNConv(torch.nn.Module):
         """
                 :math: `\\mathbf{\\hat{L}}X\\mathbf{\\Theta}`, with
                        `\\mathbf{\\hat{L}} = \\mathbf{D}^{-1/2}\\mathbf{A}\\mathbf{D}^{-1/2} + I`
-        
+
         Parameters
         ----------
                     x (torch.Tensor): Node feature tensor
@@ -80,7 +80,7 @@ class NormDenseGCNConv(torch.nn.Module):
                     mask (torch.Tensor, optional): Mask matrix
                         :math:`\\mathbf{M} \\in {\\{ 0, 1 \\}}^{B \\times N}` indicating
                         the valid nodes for each graph. (default: :obj:`None`)
-                """
+        """
 
         # inputs shape check
         x = x.unsqueeze(0) if x.dim() == 2 else x
@@ -109,5 +109,4 @@ class NormDenseGCNConv(torch.nn.Module):
 
     def __repr__(self) -> str:
         """Return compact layer summary for debugging."""
-        return (f'{self.__class__.__name__}({self.in_channels}, '
-                f'{self.out_channels})')
+        return f"{self.__class__.__name__}({self.in_channels}, " f"{self.out_channels})"

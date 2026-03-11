@@ -1,4 +1,4 @@
-"""This module contains data handling functions and classes for ONTraC, including the SpatailOmicsDataset class for PyG and functions for loading datasets and computing maximum node counts."""
+"""Data loading and dataset helpers for ONTraC."""
 
 from typing import Dict, List, Union
 from pathlib import Path
@@ -30,7 +30,7 @@ class SpatailOmicsDataset(InMemoryDataset):
 
     def __init__(self, root, params: Dict, transform=None, pre_transform=None):
         """Initialize the dataset container.
-        
+
                 Parameters
                 ----------
         root :
@@ -45,7 +45,7 @@ class SpatailOmicsDataset(InMemoryDataset):
         pre_transform :
             callable, optional
                     Transform applied before serialization.
-                """
+        """
         self.params = params
         super(SpatailOmicsDataset, self).__init__(root, transform, pre_transform)
 
@@ -71,7 +71,7 @@ class SpatailOmicsDataset(InMemoryDataset):
         list[str]
             ``['data.pt']`` for compatibility with PyG conventions.
         """
-        return ['data.pt']
+        return ["data.pt"]
 
     def download(self):
         """No-op download hook.
@@ -83,15 +83,17 @@ class SpatailOmicsDataset(InMemoryDataset):
     def process(self):
         """Convert configured samples into :class:`torch_geometric.data.Data` objects."""
         data_list = []
-        for index, sample in enumerate(self.params['Data']):
+        for index, sample in enumerate(self.params["Data"]):
             info(f'Processing sample {index + 1} of {len(self.params["Data"])}: {sample["Name"]}')
             data = Data(
-                x=torch.from_numpy(np.loadtxt(sample['Features'], dtype=np.float32, delimiter=',')),
-                edge_index=torch.from_numpy(np.loadtxt(sample['EdgeIndex'], dtype=np.int64,
-                                                       delimiter=',')).t().contiguous(),
+                x=torch.from_numpy(np.loadtxt(sample["Features"], dtype=np.float32, delimiter=",")),
+                edge_index=torch.from_numpy(np.loadtxt(sample["EdgeIndex"], dtype=np.int64, delimiter=","))
+                .t()
+                .contiguous(),
                 # TODO: support 3D coordinates
-                pos=torch.from_numpy(pd.read_csv(sample['Coordinates'])[['x', 'y']].values),
-                name=sample['Name'])
+                pos=torch.from_numpy(pd.read_csv(sample["Coordinates"])[["x", "y"]].values),
+                name=sample["Name"],
+            )
             data_list.append(data)
         self.data, self.slices = self.collate(data_list)
 
@@ -101,39 +103,39 @@ class SpatailOmicsDataset(InMemoryDataset):
 # ------------------------------------
 def max_nodes(samples: List[Dict[str, str]]) -> int:
     """Compute the maximum number of cells/spots among input samples.
-    
+
         Parameters
         ----------
     samples :
         list[dict[str, str]]
             Sample records from ``samples.yaml``.
-    
+
         Returns
         -------
         int
             Largest row count across all coordinate files.
-        """
+    """
     max_nodes = 0
     for sample in samples:
-        max_nodes = max(max_nodes, count_lines(sample['Coordinates']))
+        max_nodes = max(max_nodes, count_lines(sample["Coordinates"]))
     return max_nodes
 
 
 def load_dataset(NN_dir: Union[str, Path]) -> SpatailOmicsDataset:
     """Load ONTraC graph dataset from a preprocessing directory.
-    
+
         Parameters
         ----------
     NN_dir :
         str or Path
             Directory that contains ``samples.yaml`` and per-sample CSV artifacts.
-    
+
         Returns
         -------
         SpatailOmicsDataset
             Processed dense-graph dataset ready for GNN training.
-        """
-    params = read_yaml_file(f'{NN_dir}/samples.yaml')
+    """
+    params = read_yaml_file(f"{NN_dir}/samples.yaml")
     rel_params = get_rel_params(NN_dir=NN_dir, params=params)
     dataset = create_torch_dataset(NN_dir=NN_dir, params=rel_params)
     return dataset
@@ -144,7 +146,7 @@ def load_dataset(NN_dir: Union[str, Path]) -> SpatailOmicsDataset:
 # ------------------------------------
 def create_torch_dataset(NN_dir: Union[str, Path], params: Dict) -> SpatailOmicsDataset:
     """Build a dense PyG dataset with a uniform node budget.
-    
+
         Parameters
         ----------
     NN_dir :
@@ -153,22 +155,23 @@ def create_torch_dataset(NN_dir: Union[str, Path], params: Dict) -> SpatailOmics
     params :
         Dict
             Resolved sample configuration, typically from ``samples.yaml``.
-    
+
         Returns
         -------
         SpatailOmicsDataset
     Dataset transformed with
         class:`torch_geometric.transforms.ToDense`.
-        """
+    """
 
     # Step 1: Get the maximum number of nodes
-    m_nodes = max_nodes(params['Data'])
+    m_nodes = max_nodes(params["Data"])
     # upcelling m_nodes to the nearest 100
     m_nodes = int(np.ceil(m_nodes / 100.0)) * 100
-    info(f'Maximum number of cell in one sample is: {m_nodes}.')
+    info(f"Maximum number of cell in one sample is: {m_nodes}.")
 
     # Step 2: Create torch dataset
-    dataset = SpatailOmicsDataset(root=NN_dir, params=params,
-                                  transform=T.ToDense(m_nodes))  # transform edge_index to adj matrix
+    dataset = SpatailOmicsDataset(
+        root=NN_dir, params=params, transform=T.ToDense(m_nodes)
+    )  # transform edge_index to adj matrix
     dataset.process()
     return dataset

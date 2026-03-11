@@ -1,4 +1,4 @@
-"""This module contains functions for inspecting the training process of ONTraC, including recording loss, hidden embeddings, assignments, outputs, and calculating Moran's I."""
+"""Training inspection helpers for ONTraC."""
 
 from typing import Callable, Optional
 
@@ -13,7 +13,7 @@ from ..utils.decorators import epoch_filter_decorator, selective_args_decorator
 
 def loss_record(epoch: int, batch: int, loss: Tensor, **kwargs):
     """Loss record function.
-    
+
     Parameters
     ----------
     epoch :
@@ -24,21 +24,22 @@ def loss_record(epoch: int, batch: int, loss: Tensor, **kwargs):
         reconstruction loss tensor.
     g_loss :
         graph smooth loss tensor.
-    
+
     Returns
     -------
     None."""
-    other_loss_text = ''
+    other_loss_text = ""
     for key, value in kwargs.items():
-        if 'loss' in key:
-            other_loss_text += f', {key}: {value}'
-    info(f'epoch: {epoch}, batch: {batch}, loss: {loss}{other_loss_text}')
+        if "loss" in key:
+            other_loss_text += f", {key}: {value}"
+    info(f"epoch: {epoch}, batch: {batch}, loss: {loss}{other_loss_text}")
 
 
 def _moran_I_factor_tensor(X: Tensor, W: Tensor, mask: Tensor) -> Tensor:
     """Calculate Moran's I.
-        :math:`I = \\frac{n}{\\sum_{i=1}^n\\sum_{j=1}^n w_{ij}}\\frac{(X-\\bar{X})^T W (X-\\bar{X})}{\\sum_{i=1}^n (X_i-\\bar{X})^2}`
-    
+        :math:`I = \\frac{n}{\\sum_{i=1}^n\\sum_{j=1}^n w_{ij}}`
+        :math:`\\frac{(X-\\bar{X})^T W (X-\\bar{X})}{\\sum_{i=1}^n (X_i-\\bar{X})^2}`
+
     Parameters
     ----------
     X :
@@ -47,7 +48,7 @@ def _moran_I_factor_tensor(X: Tensor, W: Tensor, mask: Tensor) -> Tensor:
         np.ndarray, shape: (N, N).
     mask :
         np.ndarray, shape: (N, ).
-    
+
     Returns
     -------
     moran_I."""
@@ -75,14 +76,15 @@ def _moran_I_factor_tensor(X: Tensor, W: Tensor, mask: Tensor) -> Tensor:
     # debug(f'numerator: {torch.diagonal(X_masked_.T @ W_masked @ X_masked_)}.')
     # debug(f'denominator shape: {(X_masked_**2).sum(dim = 0, keepdim=True).shape}.')
     # debug(f'denominator: {(X_masked_**2).sum(dim = 0, keepdim=True)}.')
-    return n / W_masked_sum * torch.diagonal(X_masked_.T @ W_masked @ X_masked_) / (X_masked_**2).sum(dim=0,
-                                                                                                      keepdim=True)
+    return (
+        n / W_masked_sum * torch.diagonal(X_masked_.T @ W_masked @ X_masked_) / (X_masked_**2).sum(dim=0, keepdim=True)
+    )
 
 
 @selective_args_decorator
 def moran_I(output_dir: str, step: int, epoch: int, data: Data, z: Tensor) -> None:
     """Moran's I record function.
-    
+
     Parameters
     ----------
     epoch :
@@ -91,7 +93,7 @@ def moran_I(output_dir: str, step: int, epoch: int, data: Data, z: Tensor) -> No
         torch_geometric.data.Data.
     z :
         hidden embedding tensor.
-    
+
     Returns
     -------
     None."""
@@ -108,17 +110,17 @@ def moran_I(output_dir: str, step: int, epoch: int, data: Data, z: Tensor) -> No
 
     # --- calculate moran's I ---
     MI_list = np.array(
-        list(_moran_I_factor_tensor(z[i, :, :], adj[i], mask[i]).detach().cpu().numpy()
-             for i in range(B))).reshape(B, F)
+        list(_moran_I_factor_tensor(z[i, :, :], adj[i], mask[i]).detach().cpu().numpy() for i in range(B))
+    ).reshape(B, F)
 
-    np.savetxt(fname=f'{output_dir}/moran_I_{epoch}.csv', X=MI_list, delimiter=',')
+    np.savetxt(fname=f"{output_dir}/moran_I_{epoch}.csv", X=MI_list, delimiter=",")
 
 
 @selective_args_decorator
 @epoch_filter_decorator
 def z_record(output_dir: str, epoch: int, z: Tensor, data: Batch) -> None:
     """Hidden embedding record function.
-    
+
     Parameters
     ----------
     epoch :
@@ -127,7 +129,7 @@ def z_record(output_dir: str, epoch: int, z: Tensor, data: Batch) -> None:
         batch number.
     z :
         hidden embedding tensor.
-    
+
     Returns
     -------
     None."""
@@ -139,16 +141,16 @@ def z_record(output_dir: str, epoch: int, z: Tensor, data: Batch) -> None:
     assert B == len(data.x)  # type: ignore
 
     for index, name in enumerate(data.name):  # type: ignore
-        np.savetxt(fname=f'{output_dir}/Epoch_{epoch}/{name}_z.csv.gz',
-                   X=z[index].detach().cpu().numpy(),
-                   delimiter=',')
+        np.savetxt(
+            fname=f"{output_dir}/Epoch_{epoch}/{name}_z.csv.gz", X=z[index].detach().cpu().numpy(), delimiter=","
+        )
 
 
 @selective_args_decorator
 @epoch_filter_decorator
 def s_record(output_dir: str, epoch: int, s: Tensor, data: Batch) -> None:
     """Assignment record function.
-    
+
     Parameters
     ----------
     epoch :
@@ -157,7 +159,7 @@ def s_record(output_dir: str, epoch: int, s: Tensor, data: Batch) -> None:
         batch number.
     s :
         assignment tensor.
-    
+
     Returns
     -------
     None."""
@@ -169,16 +171,16 @@ def s_record(output_dir: str, epoch: int, s: Tensor, data: Batch) -> None:
     assert B == len(data.x)  # type: ignore
 
     for index, name in enumerate(data.name):  # type: ignore
-        np.savetxt(fname=f'{output_dir}/Epoch_{epoch}/{name}_s.csv.gz',
-                   X=s[index].detach().cpu().numpy(),
-                   delimiter=',')
+        np.savetxt(
+            fname=f"{output_dir}/Epoch_{epoch}/{name}_s.csv.gz", X=s[index].detach().cpu().numpy(), delimiter=","
+        )
 
 
 @selective_args_decorator
 @epoch_filter_decorator
 def out_record(output_dir: str, epoch: int, out: Tensor, data: Batch) -> None:
     """Output record function.
-    
+
     Parameters
     ----------
     epoch :
@@ -187,7 +189,7 @@ def out_record(output_dir: str, epoch: int, out: Tensor, data: Batch) -> None:
         batch number.
     out :
         output tensor.
-    
+
     Returns
     -------
     None."""
@@ -199,16 +201,16 @@ def out_record(output_dir: str, epoch: int, out: Tensor, data: Batch) -> None:
     assert B == len(data.x)  # type: ignore
 
     for index, name in enumerate(data.name):  # type: ignore
-        np.savetxt(fname=f'{output_dir}/Epoch_{epoch}/{name}_out.csv.gz',
-                   X=out[index].detach().cpu().numpy(),
-                   delimiter=',')
+        np.savetxt(
+            fname=f"{output_dir}/Epoch_{epoch}/{name}_out.csv.gz", X=out[index].detach().cpu().numpy(), delimiter=","
+        )
 
 
 @selective_args_decorator
 @epoch_filter_decorator
 def out_adj_record(output_dir: str, epoch: int, out_adj: Tensor, data: Batch) -> None:
     """Output adj record function.
-    
+
     Parameters
     ----------
     epoch :
@@ -217,7 +219,7 @@ def out_adj_record(output_dir: str, epoch: int, out_adj: Tensor, data: Batch) ->
         batch number.
     out_adj :
         output adj tensor.
-    
+
     Returns
     -------
     None."""
@@ -229,14 +231,16 @@ def out_adj_record(output_dir: str, epoch: int, out_adj: Tensor, data: Batch) ->
     assert B == len(data.x)  # type: ignore
 
     for index, name in enumerate(data.name):  # type: ignore
-        np.savetxt(fname=f'{output_dir}/Epoch_{epoch}/{name}_out_adj.csv.gz',
-                   X=out_adj[index].detach().cpu().numpy(),
-                   delimiter=',')
+        np.savetxt(
+            fname=f"{output_dir}/Epoch_{epoch}/{name}_out_adj.csv.gz",
+            X=out_adj[index].detach().cpu().numpy(),
+            delimiter=",",
+        )
 
 
 def get_inspect_funcs() -> Optional[list[Callable]]:
     """Inspect function list.
-    
+
     Returns
     -------
     list of inspect functions"""

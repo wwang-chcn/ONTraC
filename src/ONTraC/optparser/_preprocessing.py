@@ -1,4 +1,4 @@
-"""This module contains functions for parsing command-line arguments and options for ONTraC, including adding preprocessing-related flags, validating the parsed options, and writing the options memo to the log."""
+"""Preprocessing argument parsing and validation for ONTraC."""
 
 # pre-processing options
 
@@ -16,14 +16,14 @@ from ._IO import *
 # ------------------------------------
 def add_preprocessing_options_group(optparser: OptionParser) -> None:
     """Add preprocessing options group to optparser.
-    
+
     Parameters
     ----------
     optparser :
         OptionParser object.
     preprocessing_options :
         Set of preprocessing options.
-    
+
     Returns
     -------
     OptionGroup object."""
@@ -31,74 +31,84 @@ def add_preprocessing_options_group(optparser: OptionParser) -> None:
     # preprocessing options group
     group_preprocessing = OptionGroup(optparser, "Preprocessing")
     group_preprocessing.add_option(
-        '--resolution',
-        dest='resolution',
+        "--resolution",
+        dest="resolution",
         type=float,
         default=10.0,
-        help=
-        'Resolution for leiden clustering. Used for clustering cells into cell types when gene expression data is provided. Default is 10.0.'
+        help=(
+            "Leiden resolution for clustering cells into cell types when gene expression "
+            "data is provided. Default is 10.0."
+        ),
     )
-    group_preprocessing.add_option('--deconvolution-method',
-                                   dest='dc_method',
-                                   default='STdeconvolve',
-                                   choices=['STdeconvolve'],
-                                   help='Deconvolution method used for low resolution data. Default is STdeconvolve.')
-    group_preprocessing.add_option('--deconvolution-ct-num',
-                                   dest='dc_ct_num',
-                                   type='int',
-                                   default=10,
-                                   help='Number of cell type that the deconvolution method will deconvolve.')
+    group_preprocessing.add_option(
+        "--deconvolution-method",
+        dest="dc_method",
+        default="STdeconvolve",
+        choices=["STdeconvolve"],
+        help="Deconvolution method used for low resolution data. Default is STdeconvolve.",
+    )
+    group_preprocessing.add_option(
+        "--deconvolution-ct-num",
+        dest="dc_ct_num",
+        type="int",
+        default=10,
+        help="Number of cell type that the deconvolution method will deconvolve.",
+    )
     optparser.add_option_group(group_preprocessing)
 
 
 def validate_preprocessing_options(options: Values, optparser: Optional[OptionParser] = None) -> None:
     """Validate preprocessing options.
-    
+
     Parameters
     ----------
     options :
         Options object.
     optparser :
         OptionParser object.
-    
+
     Returns
     -------
     None"""
 
-    if not hasattr(options, 'resolution'):
+    if not hasattr(options, "resolution"):
         options.resolution = 10.0
-    if getattr(options, 'resolution', 10.0) < 0:
-        error('resolution must be greater than 0.')
-        if optparser is not None: optparser.print_help()
+    if getattr(options, "resolution", 10.0) < 0:
+        error("resolution must be greater than 0.")
+        if optparser is not None:
+            optparser.print_help()
         sys.exit(1)
 
-    if not hasattr(options, 'dc_method'):
-        options.dc_method = 'STdeconvolve'
+    if not hasattr(options, "dc_method"):
+        options.dc_method = "STdeconvolve"
 
-    if not hasattr(options, 'dc_ct_num'):
+    if not hasattr(options, "dc_ct_num"):
         options.dc_ct_num = 10
     else:
-        if getattr(options, 'dc_ct_num', 10) < 2:
-            error('deconvolution_cell_type_number must be greater than 2.')
-            if optparser is not None: optparser.print_help()
+        if getattr(options, "dc_ct_num", 10) < 2:
+            error("deconvolution_cell_type_number must be greater than 2.")
+            if optparser is not None:
+                optparser.print_help()
             sys.exit(1)
-        if getattr(options, 'dc_ct_num', 10) < 4:
-            warning('deconvolution_cell_type_number is less than 4. The result may not be reliable.')
+        if getattr(options, "dc_ct_num", 10) < 4:
+            warning("deconvolution_cell_type_number is less than 4. The result may not be reliable.")
 
 
 def write_preprocessing_memo(options: Values):
     """Write preprocessing memos to stdout.
-    
+
     Parameters
     ----------
     options :
         Options object.
-        """
+    """
 
     # print parameters to stdout
-    info(message='      -------- preprocessing options -------      ')
-    if hasattr(options, 'resolution') and (getattr(options, 'exp_input', None) is not None or getattr(options, 'embedding_input', None) is not None):
-        info(message=f'resolution: {options.resolution}')
-    if hasattr(options, 'dc_method') and getattr(options, 'low_res_exp_input', None) is not None:
-        info(message=f'deconvolution method: {options.dc_method}')
-        info(message=f'deconvolution cell type number: {options.dc_ct_num}')
+    info(message="      -------- preprocessing options -------      ")
+    if hasattr(options, "resolution") and (
+        getattr(options, "exp_input", None) is not None or getattr(options, "embedding_input", None) is not None
+    ):
+        info(message=f"resolution: {options.resolution}")
+    if hasattr(options, "dc_method") and getattr(options, "low_res_exp_input", None) is not None:
+        info(message=f"deconvolution method: {options.dc_method}")
+        info(message=f"deconvolution cell type number: {options.dc_ct_num}")

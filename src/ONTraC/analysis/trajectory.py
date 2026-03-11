@@ -1,5 +1,8 @@
 """This module contains functions for trajectory analysis and visualization."""
 
+from scipy.stats import pearsonr
+import seaborn as sns
+import matplotlib.pyplot as plt
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Union
 
@@ -11,38 +14,35 @@ from ..log import info, warning
 from .data import AnaData
 from .utils import get_n_colors
 
-mpl.rcParams['pdf.fonttype'] = 42
-mpl.rcParams['ps.fonttype'] = 42
-mpl.rcParams['font.family'] = 'Arial'
-import matplotlib.pyplot as plt
-import seaborn as sns
-from scipy.stats import pearsonr
+mpl.rcParams["pdf.fonttype"] = 42
+mpl.rcParams["ps.fonttype"] = 42
+mpl.rcParams["font.family"] = "Arial"
 
 
-def construct_meta_cell_along_trajectory(meta_data_df: pd.DataFrame,
-                                         trajectory: str,
-                                         n_cells: int = 10) -> pd.DataFrame:
+def construct_meta_cell_along_trajectory(
+    meta_data_df: pd.DataFrame, trajectory: str, n_cells: int = 10
+) -> pd.DataFrame:
     """
         Construct features for meta-cells by binning cells along the trajectory.
-    
+
         Parameters
         ----------
     meta_data_df :
         pd.DataFrame
-            DataFrame containing features for each cell. Rows are cells and columns are features. Features should be continuous values.
+            DataFrame of continuous per-cell features (rows=cells, columns=features).
     trajectory :
         str
             Column name in feat_df that contains the trajectory values.
     n_cells :
         int
             Number of cells to bin in each meta-cell.
-        
+
         Returns
         -------
     metacell_df
         pd.DataFrame
             DataFrame containing features for meta-cells. Rows are meta-cells and columns are features.
-        """
+    """
 
     # ensure trajectory in meta_data_df
     assert trajectory in meta_data_df.columns, f"Trajectory column {trajectory} not found in meta_data_df."
@@ -63,15 +63,17 @@ def construct_meta_cell_along_trajectory(meta_data_df: pd.DataFrame,
     return rolling_mean
 
 
-def cal_features_correlation_along_trajectory(data_df: pd.DataFrame,
-                                              trajectory: str,
-                                              features: Optional[List[str]] = None,
-                                              top_n: Optional[int] = None,
-                                              rho_threshold: Optional[float] = None,
-                                              p_val_threshold: Optional[float] = None) -> pd.DataFrame:
+def cal_features_correlation_along_trajectory(
+    data_df: pd.DataFrame,
+    trajectory: str,
+    features: Optional[List[str]] = None,
+    top_n: Optional[int] = None,
+    rho_threshold: Optional[float] = None,
+    p_val_threshold: Optional[float] = None,
+) -> pd.DataFrame:
     """
         Calculate the correlation between features and a trajectory in a DataFrame.
-    
+
         Parameters
         ----------
     data_df :
@@ -97,56 +99,57 @@ def cal_features_correlation_along_trajectory(data_df: pd.DataFrame,
     p_val_threshold :
         Optional[float]
             Optional; maximum p-value to consider a feature. If None, no threshold is applied.
-    
+
         Returns
         -------
         pd.DataFrame
             DataFrame containing top correlated features.
-        """
+    """
 
     if trajectory not in data_df.columns:
         raise ValueError(f"Trajectory column '{trajectory}' not found in metacell_data_df.")
 
-    feature_list: List[str] = data_df.columns.difference(
-        [trajectory]).tolist() if features is None else features
+    feature_list: List[str] = data_df.columns.difference([trajectory]).tolist() if features is None else features
     correlations = []
     for feat in feature_list:
         rho, p_val = pearsonr(data_df[trajectory], data_df[feat])
         correlations.append((feat, rho, p_val))
-    correlations_df = pd.DataFrame(correlations, columns=['Feature', 'PCC', 'P_Value'])
+    correlations_df = pd.DataFrame(correlations, columns=["Feature", "PCC", "P_Value"])
     correlations_df = correlations_df.dropna()
-    correlations_df = correlations_df.sort_values(by='PCC', ascending=False)
+    correlations_df = correlations_df.sort_values(by="PCC", ascending=False)
     if rho_threshold is not None:
-        correlations_df = correlations_df[abs(correlations_df['PCC']) >= rho_threshold]
+        correlations_df = correlations_df[abs(correlations_df["PCC"]) >= rho_threshold]
     if p_val_threshold is not None:
-        correlations_df = correlations_df[correlations_df['P_Value'] <= p_val_threshold]
+        correlations_df = correlations_df[correlations_df["P_Value"] <= p_val_threshold]
     if top_n is not None:
         top_n_df = correlations_df.head(top_n)
-        top_n_df = top_n_df[top_n_df['PCC']>0]
+        top_n_df = top_n_df[top_n_df["PCC"] > 0]
         bottom_n_df = correlations_df.tail(top_n)
-        bottom_n_df = bottom_n_df[bottom_n_df['PCC']<0]
+        bottom_n_df = bottom_n_df[bottom_n_df["PCC"] < 0]
         correlations_df = pd.concat([correlations_df.head(top_n), correlations_df.tail(top_n)], ignore_index=True)
-    return correlations_df.set_index('Feature')
+    return correlations_df.set_index("Feature")
 
 
-def plot_scatter_feat_along_trajectory(data_df: pd.DataFrame,
-                                       trajectory: str,
-                                       feature: str,
-                                       fit_reg: bool = True,
-                                       annotate_pos: Union[str, None] = 'upper left',
-                                       figszie: Tuple[int, int] = (5, 3),
-                                       ylabel: Optional[str] = None,
-                                       scatter_kws: Optional[Dict] = None,
-                                       line_kws: Optional[Dict] = None,
-                                       **kwargs) -> Tuple[plt.Figure, plt.Axes]:
+def plot_scatter_feat_along_trajectory(
+    data_df: pd.DataFrame,
+    trajectory: str,
+    feature: str,
+    fit_reg: bool = True,
+    annotate_pos: Union[str, None] = "upper left",
+    figszie: Tuple[int, int] = (5, 3),
+    ylabel: Optional[str] = None,
+    scatter_kws: Optional[Dict] = None,
+    line_kws: Optional[Dict] = None,
+    **kwargs,
+) -> Tuple[plt.Figure, plt.Axes]:
     """
         Plot scatter plot of feature along trajectory.
-    
+
         Parameters
         ----------
     data_df :
         pd.DataFrame
-            DataFrame containing features for each cell. Rows are cells and columns are features. Features should be continuous values.
+            DataFrame of continuous per-cell features (rows=cells, columns=features).
     trajectory :
         str
             Column name in feat_df that contains the trajectory values.
@@ -158,7 +161,8 @@ def plot_scatter_feat_along_trajectory(data_df: pd.DataFrame,
             Whether to plot regression line.
     annotate_pos :
         str
-            Position to annotate PCC and p-value. Should be one of 'upper left', 'upper right', 'lower left', 'lower right', None.
+            PCC/p-value annotation position: 'upper left', 'upper right',
+            'lower left', 'lower right', or None.
             None means no annotation.
     figszie :
         Tuple[int, int]
@@ -174,7 +178,7 @@ def plot_scatter_feat_along_trajectory(data_df: pd.DataFrame,
             Additional arguments for sns.regplot line_kws.
         **kwargs
             Additional arguments for sns.regplot.
-    
+
         Returns
         -------
     fig
@@ -183,12 +187,12 @@ def plot_scatter_feat_along_trajectory(data_df: pd.DataFrame,
     ax
         plt.Axes
             Axes object.
-        """
+    """
 
     # default parameters
-    default_scatter_kws = {'edgecolor': None}
-    default_line_kws = {'color': 'red'}
-    default_kwargs = {'ci': None}
+    default_scatter_kws = {"edgecolor": None}
+    default_line_kws = {"color": "red"}
+    default_kwargs = {"ci": None}
 
     # update default kws
     scatter_kws = {**default_scatter_kws, **(scatter_kws or {})}
@@ -205,27 +209,31 @@ def plot_scatter_feat_along_trajectory(data_df: pd.DataFrame,
     data_df = data_df.sort_values(by=trajectory)
 
     # Visualization
-    with sns.axes_style('white', rc={
-            'xtick.bottom': True,
-            'ytick.left': True
-    }), sns.plotting_context('paper',
-                             rc={
-                                 'axes.titlesize': 8,
-                                 'axes.labelsize': 8,
-                                 'xtick.labelsize': 6,
-                                 'ytick.labelsize': 6,
-                                 'legend.fontsize': 6
-                             }):
+    with (
+        sns.axes_style("white", rc={"xtick.bottom": True, "ytick.left": True}),
+        sns.plotting_context(
+            "paper",
+            rc={
+                "axes.titlesize": 8,
+                "axes.labelsize": 8,
+                "xtick.labelsize": 6,
+                "ytick.labelsize": 6,
+                "legend.fontsize": 6,
+            },
+        ),
+    ):
         fig, ax = plt.subplots(figsize=figszie)
 
-        sns.regplot(data=data_df,
-                    x=trajectory,
-                    y=feature,
-                    fit_reg=fit_reg,
-                    scatter_kws=scatter_kws,
-                    line_kws=line_kws,
-                    **kwargs,
-                    ax=ax)
+        sns.regplot(
+            data=data_df,
+            x=trajectory,
+            y=feature,
+            fit_reg=fit_reg,
+            scatter_kws=scatter_kws,
+            line_kws=line_kws,
+            **kwargs,
+            ax=ax,
+        )
 
         # descriptive annotation
         ax.set_title(feature)
@@ -235,29 +243,21 @@ def plot_scatter_feat_along_trajectory(data_df: pd.DataFrame,
         # correlation annotation
         rho, p_val = pearsonr(data_df[trajectory], data_df[feature])
         if annotate_pos == "upper left":
-            ax.annotate(f"PCC = {rho:.2f}\nP = {p_val:.6f}",
-                        xy=(0.02, 0.98),
-                        xycoords="axes fraction",
-                        ha="left",
-                        va="top")
+            ax.annotate(
+                f"PCC = {rho:.2f}\nP = {p_val:.6f}", xy=(0.02, 0.98), xycoords="axes fraction", ha="left", va="top"
+            )
         elif annotate_pos == "upper right":
-            ax.annotate(f"PCC = {rho:.2f}\nP = {p_val:.6f}",
-                        xy=(0.98, 0.98),
-                        xycoords="axes fraction",
-                        ha="right",
-                        va="top")
+            ax.annotate(
+                f"PCC = {rho:.2f}\nP = {p_val:.6f}", xy=(0.98, 0.98), xycoords="axes fraction", ha="right", va="top"
+            )
         elif annotate_pos == "lower left":
-            ax.annotate(f"PCC = {rho:.2f}\nP = {p_val:.6f}",
-                        xy=(0.02, 0.02),
-                        xycoords="axes fraction",
-                        ha="left",
-                        va="bottom")
+            ax.annotate(
+                f"PCC = {rho:.2f}\nP = {p_val:.6f}", xy=(0.02, 0.02), xycoords="axes fraction", ha="left", va="bottom"
+            )
         elif annotate_pos == "lower right":
-            ax.annotate(f"PCC = {rho:.2f}\nP = {p_val:.6f}",
-                        xy=(0.98, 0.02),
-                        xycoords="axes fraction",
-                        ha="right",
-                        va="bottom")
+            ax.annotate(
+                f"PCC = {rho:.2f}\nP = {p_val:.6f}", xy=(0.98, 0.02), xycoords="axes fraction", ha="right", va="bottom"
+            )
         elif annotate_pos is None:
             pass
         else:
@@ -267,23 +267,23 @@ def plot_scatter_feat_along_trajectory(data_df: pd.DataFrame,
 
 
 def plot_cell_type_composition_along_trajectory(
-        data_df: pd.DataFrame,
-        trajectory: str,
-        cell_types: Union[str, List[str]],
-        agg_cell_num: int = 10,
-        figsize: Tuple[int, int] = (6, 2),
-        palette: Optional[Dict[str, str]] = None,
-        output_file_path: Optional[Path] = None,
-        **kwargs,
-        ) -> Optional[Tuple[plt.Figure, plt.Axes]]:
+    data_df: pd.DataFrame,
+    trajectory: str,
+    cell_types: Union[str, List[str]],
+    agg_cell_num: int = 10,
+    figsize: Tuple[int, int] = (6, 2),
+    palette: Optional[Dict[str, str]] = None,
+    output_file_path: Optional[Path] = None,
+    **kwargs,
+) -> Optional[Tuple[plt.Figure, plt.Axes]]:
     """
         Plot cell type composition along trajectory.
-    
+
         Parameters
         ----------
     data_df :
         pd.DataFrame
-            DataFrame containing cell type information for each cell. Rows are cells and columns are cell types and trajectory.
+            Per-cell table with trajectory and cell-type composition columns.
     trajectory :
         str
             Column name in data_df that contains the trajectory values.
@@ -301,10 +301,11 @@ def plot_cell_type_composition_along_trajectory(
             Color palette for cell types. If None, use default color palette. Keys are cell types and values are colors.
     output_file_path :
         Optional[Path]
-            If provided, save the figure to this path. If None, do not save the figure and return the figure, and axes objects.
+            If provided, save the figure to this path; otherwise return figure
+            and axes objects.
         **kwargs
             Additional arguments for ax.plot().
-        
+
         Returns
         -------
     fig
@@ -313,7 +314,7 @@ def plot_cell_type_composition_along_trajectory(
     ax
         plt.Axes
             Axes object.
-        """
+    """
 
     # ensure trajectory in data_df
     assert trajectory in data_df.columns, f"Trajectory column {trajectory} not found in data_df."
@@ -336,39 +337,43 @@ def plot_cell_type_composition_along_trajectory(
 
     # bin cells into meta-cells
     if agg_cell_num > 1:
-        rolling_mean = construct_meta_cell_along_trajectory(meta_data_df=data_df.loc[:, cell_types + [trajectory]],
-                                                            trajectory=trajectory,
-                                                            n_cells=agg_cell_num)
+        rolling_mean = construct_meta_cell_along_trajectory(
+            meta_data_df=data_df.loc[:, cell_types + [trajectory]], trajectory=trajectory, n_cells=agg_cell_num
+        )
     else:
         rolling_mean = data_df
 
     # plot cell type composition along trajectory
-    with sns.axes_style('white', rc={
-            'xtick.bottom': True,
-            'ytick.left': True
-    }), sns.plotting_context('paper',
-                             rc={
-                                 'axes.titlesize': 8,
-                                 'axes.labelsize': 8,
-                                 'xtick.labelsize': 6,
-                                 'ytick.labelsize': 6,
-                                 'legend.fontsize': 6
-                             }):
+    with (
+        sns.axes_style("white", rc={"xtick.bottom": True, "ytick.left": True}),
+        sns.plotting_context(
+            "paper",
+            rc={
+                "axes.titlesize": 8,
+                "axes.labelsize": 8,
+                "xtick.labelsize": 6,
+                "ytick.labelsize": 6,
+                "legend.fontsize": 6,
+            },
+        ),
+    ):
         fig, ax = plt.subplots(figsize=figsize)
 
         for cell_type in cell_types:
-            ax.plot(rolling_mean[trajectory], rolling_mean[cell_type], label=cell_type, color=palette[cell_type], **kwargs)
+            ax.plot(
+                rolling_mean[trajectory], rolling_mean[cell_type], label=cell_type, color=palette[cell_type], **kwargs
+            )
 
         ax.set_ylim(0, 1)
-        ax.legend(title='Cell Types', bbox_to_anchor=(1.05, 1), loc='upper left', ncol=2)
+        ax.legend(title="Cell Types", bbox_to_anchor=(1.05, 1), loc="upper left", ncol=2)
         ax.set_xlabel(trajectory)
-        ax.set_ylabel('Normalized Cell Type Composition')
-        ax.set_title('Cell Type Composition Along Niche Trajectory')
+        ax.set_ylabel("Normalized Cell Type Composition")
+        ax.set_title("Cell Type Composition Along Niche Trajectory")
         fig.tight_layout()
 
     if output_file_path is not None:
         output_file_path.parent.mkdir(parents=True, exist_ok=True)
-        fig.savefig(output_file_path, bbox_inches='tight', dpi=300)
+        fig.savefig(output_file_path, bbox_inches="tight", dpi=300)
         info(f"Saved cell type composition plot to {output_file_path}")
         plt.close(fig)
         return None
@@ -377,17 +382,17 @@ def plot_cell_type_composition_along_trajectory(
 
 
 def plot_cell_type_composition_along_trajectory_from_anadata(
-        ana_data: AnaData,
-        cell_types: Optional[List[str]] = None,
-        agg_cell_num: int = 10,
-        figsize: Tuple[int, int] = (6, 2),
-        palette: Optional[Dict[str, str]] = None,
-        output_file_path: Optional[Union[Path, str]] = None,
-        **kwargs,
-        ) -> Optional[Tuple[plt.Figure, plt.Axes]]:
+    ana_data: AnaData,
+    cell_types: Optional[List[str]] = None,
+    agg_cell_num: int = 10,
+    figsize: Tuple[int, int] = (6, 2),
+    palette: Optional[Dict[str, str]] = None,
+    output_file_path: Optional[Union[Path, str]] = None,
+    **kwargs,
+) -> Optional[Tuple[plt.Figure, plt.Axes]]:
     """
         Plot cell type composition (niche features) along trajectory from AnaData object.
-    
+
         Parameters
         ----------
     ana_data :
@@ -409,12 +414,12 @@ def plot_cell_type_composition_along_trajectory_from_anadata(
     output_file_path :
         Optional[Union[Path, str]]
             Path to save the figure. If None, the default path
-            {ana_data.options.output}/lineplot_raw_cell_type_composition_along_trajectory.pdf is used. 
-            If ana_data.options.output is also None, the figure will not be saved and the function 
+            {ana_data.options.output}/lineplot_raw_cell_type_composition_along_trajectory.pdf is used.
+            If ana_data.options.output is also None, the figure will not be saved and the function
             will return the figure and axes objects instead.
         **kwargs
             Additional arguments for ax.plot().
-        
+
         Returns
         -------
     fig
@@ -423,7 +428,7 @@ def plot_cell_type_composition_along_trajectory_from_anadata(
     ax
         plt.Axes
             Axes object.
-        """
+    """
 
     # ensure ana_data has trajectory and cell types
     if ana_data.NT_score is None:
@@ -432,15 +437,19 @@ def plot_cell_type_composition_along_trajectory_from_anadata(
         warning("Cell type codes are not set in AnaData object. Skipping cell type composition along trajectory plot.")
     if ana_data.cell_type_composition is None:
         warning(
-            "Cell type composition is not set in AnaData object. Skipping cell type composition along trajectory plot.")
+            "Cell type composition is not set in AnaData object. Skipping cell type composition along trajectory plot."
+        )
 
     # data_df
     data_df = ana_data.meta_data_df.copy()
-    data_df = data_df.join(1 - ana_data.NT_score['Cell_NTScore'] if getattr(ana_data.options, 'reverse', False)
-                           and ana_data.options.reverse else ana_data.NT_score['Cell_NTScore'])  # type: ignore
+    data_df = data_df.join(
+        1 - ana_data.NT_score["Cell_NTScore"]
+        if getattr(ana_data.options, "reverse", False) and ana_data.options.reverse
+        else ana_data.NT_score["Cell_NTScore"]
+    )  # type: ignore
 
     # cell types
-    default_cell_types = ana_data.cell_type_codes['Cell_Type'].values.tolist()
+    default_cell_types = ana_data.cell_type_codes["Cell_Type"].values.tolist()
     if cell_types is None:
         cell_types = default_cell_types
     elif isinstance(cell_types, list):
@@ -453,27 +462,27 @@ def plot_cell_type_composition_along_trajectory_from_anadata(
             cell_types = default_cell_types
     else:
         raise ValueError("cell_types should be a list of strings or None.")
-    
+
     data_df = data_df.join(ana_data.cell_type_composition[cell_types])  # type: ignore
 
     # output file path
     if output_file_path is None:
-        if getattr(ana_data.options, 'output', None) is None:
+        if getattr(ana_data.options, "output", None) is None:
             output_file_path = None
         else:
-            output_file_path = Path(ana_data.options.output) / 'lineplot_raw_cell_type_composition_along_trajectory.pdf'
+            output_file_path = Path(ana_data.options.output) / "lineplot_raw_cell_type_composition_along_trajectory.pdf"
     else:
         output_file_path = Path(output_file_path)
         if not output_file_path.suffix:
-            output_file_path = output_file_path.with_suffix('.pdf')
+            output_file_path = output_file_path.with_suffix(".pdf")
 
     return plot_cell_type_composition_along_trajectory(
         data_df=data_df,
-        trajectory='Cell_NTScore',
+        trajectory="Cell_NTScore",
         cell_types=cell_types,  # type: ignore
         agg_cell_num=agg_cell_num,
         figsize=figsize,
         palette=palette,
         output_file_path=output_file_path,
         **kwargs,
-        )
+    )

@@ -17,7 +17,7 @@ class GraphPooling(torch.nn.Module):
 
     def __init__(self, input_feats, k: int, dropout: float = 0, exponent: float = 1, *args, **kwargs) -> None:
         """Initialize graph pooling module.
-        
+
                 Parameters
                 ----------
         input_feats :
@@ -32,7 +32,7 @@ class GraphPooling(torch.nn.Module):
         exponent :
             float, default=1
                     Assignment logit temperature scaling factor.
-                """
+        """
         super().__init__(*args, **kwargs)
         self.dropout = dropout
         self.exponent = exponent
@@ -45,10 +45,9 @@ class GraphPooling(torch.nn.Module):
         """Reset learnable parameters in the internal pooling layer."""
         self.pool.reset_parameters()
 
-    def forward(self,
-                x: Tensor,
-                adj: Tensor,
-                mask: Optional[Tensor] = None) -> Tuple[Tensor, Tensor, Tensor, Tensor, Tensor, Tensor]:
+    def forward(
+        self, x: Tensor, adj: Tensor, mask: Optional[Tensor] = None
+    ) -> Tuple[Tensor, Tensor, Tensor, Tensor, Tensor, Tensor]:
         """
                 forward function
         Parameters
@@ -66,7 +65,7 @@ class GraphPooling(torch.nn.Module):
         -------
         Tensor
             output feature matrix
-                """
+        """
         s, out, out_adj, spectral_loss, ortho_loss, cluster_loss = self.pool(x=x, adj=adj, mask=mask)
         return s, out, out_adj, spectral_loss, ortho_loss, cluster_loss
 
@@ -79,17 +78,19 @@ class GraphPooling(torch.nn.Module):
 class GNN(torch.nn.Module):
     """Stacked dense-GCN encoder followed by DMoN graph pooling."""
 
-    def __init__(self,
-                 input_feats: int,
-                 hidden_feats: int,
-                 k: int,
-                 n_gcn_layers: int = 2,
-                 dropout: float = 0,
-                 exponent: float = 1,
-                 *args,
-                 **kwargs) -> None:
+    def __init__(
+        self,
+        input_feats: int,
+        hidden_feats: int,
+        k: int,
+        n_gcn_layers: int = 2,
+        dropout: float = 0,
+        exponent: float = 1,
+        *args,
+        **kwargs,
+    ) -> None:
         """Initialize ONTraC graph clustering model.
-        
+
                 Parameters
                 ----------
         input_feats :
@@ -110,11 +111,12 @@ class GNN(torch.nn.Module):
         exponent :
             float, default=1
                     Assignment logit temperature scaling factor for pooling.
-                """
+        """
         super().__init__(*args, **kwargs)
         self.n_gcn_layers = n_gcn_layers
-        self.gcns = nn.ModuleList([NormDenseGCNConv(input_feats if i == 0 else hidden_feats, hidden_feats)
-                                   for i in range(self.n_gcn_layers)])
+        self.gcns = nn.ModuleList(
+            [NormDenseGCNConv(input_feats if i == 0 else hidden_feats, hidden_feats) for i in range(self.n_gcn_layers)]
+        )
         self.activations = nn.ModuleList([torch.nn.SELU() for _ in range(self.n_gcn_layers)])
         self.pool = GraphPooling(input_feats=hidden_feats, k=k, dropout=dropout, exponent=exponent)
         self.k = k
@@ -127,10 +129,9 @@ class GNN(torch.nn.Module):
             gcn.reset_parameters()
         self.pool.reset_parameters()
 
-    def forward(self,
-                x: Tensor,
-                adj: Tensor,
-                mask: Optional[Tensor] = None) -> Tuple[Tensor, Tensor, Tensor, Tensor, Tensor, Tensor]:
+    def forward(
+        self, x: Tensor, adj: Tensor, mask: Optional[Tensor] = None
+    ) -> Tuple[Tensor, Tensor, Tensor, Tensor, Tensor, Tensor]:
         """
                 forward function
                 X' = \\mathbf{\\hat{L}}X\\mathbf{\\Theta}
@@ -152,16 +153,15 @@ class GNN(torch.nn.Module):
         -------
         Tensor
             output feature matrix
-                """
+        """
         for i in range(self.n_gcn_layers):
             x = self.activations[i](self.gcns[i](x=x, adj=adj, mask=mask))
         s, out, out_adj, spectral_loss, ortho_loss, cluster_loss = self.pool(x=x, adj=adj, mask=mask)
         return s, out, out_adj, spectral_loss, ortho_loss, cluster_loss
 
-    def evaluate(self,
-                 x: Tensor,
-                 adj: Tensor,
-                 mask: Optional[Tensor] = None) -> Tuple[Tensor, Tensor, Tensor, Tensor, Tensor, Tensor]:
+    def evaluate(
+        self, x: Tensor, adj: Tensor, mask: Optional[Tensor] = None
+    ) -> Tuple[Tensor, Tensor, Tensor, Tensor, Tensor, Tensor]:
         """Run a forward-style pass intended for evaluation loops.
 
         Returns the same tuple as :meth:`forward`.
@@ -189,18 +189,18 @@ class GNN(torch.nn.Module):
         -------
         s (torch.Tensor)
             Node assignment matrix
-        
+
             math:`\\mathbf{S} \\in \\mathbb{R}^{B \\times N \\times K}`
         out (torch.Tensor)
             Output feature matrix
-        
+
             math:`\\mathbf{X} \\in \\mathbb{R}^{B \\times K \\times H}`
         out_adj (torch.Tensor)
             Output adjacency matrix
-        
+
             math:`\\mathbf{A} \\in \\mathbb{R}^{B \\times K \\times K}`
                     """
-        
+
         for i in range(self.n_gcn_layers):
             x = self.activations[i](self.gcns[i](x=x, adj=adj, mask=mask))
         s, out, out_adj, *_ = self.pool(x=x, adj=adj, mask=mask)
@@ -213,4 +213,4 @@ class GNN(torch.nn.Module):
         return x
 
 
-__all__ = ['GraphPooling', 'GNN']
+__all__ = ["GraphPooling", "GNN"]

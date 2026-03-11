@@ -15,8 +15,8 @@ def options() -> Values:
     """Provide common training options for GNN tests."""
     # Create an options object for testing
     _options = Values()
-    _options.NN_dir = 'tests/_data/NN'
-    _options.GNN_dir = 'tests/_data/GNN'
+    _options.NN_dir = "tests/_data/NN"
+    _options.GNN_dir = "tests/_data/GNN"
     _options.batch_size = 5
     _options.lr = 0.03
     _options.hidden_feats = 4
@@ -45,25 +45,25 @@ def sample_loader(options: Values, dataset: SpatailOmicsDataset) -> DenseDataLoa
 @pytest.fixture()
 def nn_model(options: Values, dataset: SpatailOmicsDataset) -> torch.nn.Module:
     """Instantiate and initialize the GNN model with checkpoint weights."""
-    model = GNN(input_feats=dataset.num_features,
-                hidden_feats=options.hidden_feats,
-                k=options.k,
-                exponent=options.beta)
-    model.load_state_dict(torch.load(f'{options.GNN_dir}/epoch_0.pt', map_location=torch.device('cpu')))
+    model = GNN(input_feats=dataset.num_features, hidden_feats=options.hidden_feats, k=options.k, exponent=options.beta)
+    model.load_state_dict(torch.load(f"{options.GNN_dir}/epoch_0.pt", map_location=torch.device("cpu")))
     return model
 
 
 def test_train(options: Values, sample_loader: DenseDataLoader, nn_model: torch.nn.Module) -> None:
     """Run one GNN training epoch and validate parameter updates against a reference checkpoint."""
-    batch_train = GNNBatchTrain(model=nn_model, device=torch.device('cpu'), data_loader=sample_loader)
+    batch_train = GNNBatchTrain(model=nn_model, device=torch.device("cpu"), data_loader=sample_loader)
     optimizer = torch.optim.Adam(nn_model.parameters(), lr=options.lr)
-    batch_train.set_train_args(optimizer=optimizer,
-                               modularity_loss_weight=options.modularity_loss_weight,
-                               purity_loss_weight=options.purity_loss_weight,
-                               regularization_loss_weight=options.regularization_loss_weight,
-                               beta=options.beta)
+    batch_train.set_train_args(
+        optimizer=optimizer,
+        modularity_loss_weight=options.modularity_loss_weight,
+        purity_loss_weight=options.purity_loss_weight,
+        regularization_loss_weight=options.regularization_loss_weight,
+        beta=options.beta,
+    )
     batch_train.train_epoch(epoch=1)
-    trained_params = torch.load(f'{options.GNN_dir}/epoch_1.pt', map_location=torch.device('cpu'))
+    trained_params = torch.load(f"{options.GNN_dir}/epoch_1.pt", map_location=torch.device("cpu"))
     for k, v in nn_model.named_parameters():
-        assert torch.allclose(v, trained_params[k],
-                              rtol=0.05)  # Small platform-level differences can occur between Linux and macOS.
+        assert torch.allclose(
+            v, trained_params[k], rtol=0.05
+        )  # Small platform-level differences can occur between Linux and macOS.

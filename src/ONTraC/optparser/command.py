@@ -1,4 +1,4 @@
-"""This module contains functions for parsing command-line arguments and options for ONTraC, including preparing the optparser object, validating the parsed options, and writing the options memo to the log."""
+"""Entry points for ONTraC command-line option parsing."""
 
 from optparse import OptionGroup, OptionParser, Values
 from typing import Dict, List
@@ -19,26 +19,32 @@ from ._train import *
 # ------------------------------------
 def prepare_ontrac_optparser() -> OptionParser:
     """Prepare optparser object. New options will be added in this function first.
-    
+
     Returns
     -------
     OptionParser object."""
 
     # args
-    io_options: Dict[str, List[str]] = IO_OPTIONS['ONTraC']  # type: ignore
+    io_options: Dict[str, List[str]] = IO_OPTIONS["ONTraC"]  # type: ignore
 
     # usage and description
-    usage = f'''USAGE: %prog <--NN-dir NN_DIR> <--GNN-dir GNN_DIR> <--NT-dir NT_DIR> <--meta-input META_INPUT>
-    [--exp-input EXP_INPUT] [--embedding-input EMBEDDING_INPUT] [--low-res-exp-input LOW_RES_EXP_INPUT] [--deconvoluted-ct-composition DECONVOLUTED_CT_COMPOSITION]
-    [--deconvoluted-exp-input DECONVOLUTED_EXP_INPUT] [--resolution RESOLUTION] [--deconvolution-method DC_METHOD] [--deconvolution-ct-num DC_CT_NUM]
-    [--n-cpu N_CPU] [--n-neighbors N_NEIGHBORS] [--n-local N_LOCAL] [--embedding-adjust] [--sigma SIGMA] [--device DEVICE] [--epochs EPOCHS] [--patience PATIENCE]
-    [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] [-s SEED] [--lr LR] [--hidden-feats HIDDEN_FEATS]
-    [--n-gcn-layers N_GCN_LAYERS] [-k K] [--modularity-loss-weight MODULARITY_LOSS_WEIGHT] [--purity-loss-weight PURITY_LOSS_WEIGHT]
-    [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA] [--trajectory-construct TRAJECTORY_CONSTRUCT] [--equal-space]'''
-    description = 'All steps of ONTraC including niche network construction, GNN, and niche construction.'
+    usage = f"""USAGE: %prog <--NN-dir NN_DIR> <--GNN-dir GNN_DIR> <--NT-dir NT_DIR> <--meta-input META_INPUT>
+    [--exp-input EXP_INPUT] [--embedding-input EMBEDDING_INPUT]
+    [--low-res-exp-input LOW_RES_EXP_INPUT]
+    [--deconvoluted-ct-composition DECONVOLUTED_CT_COMPOSITION]
+    [--deconvoluted-exp-input DECONVOLUTED_EXP_INPUT] [--resolution RESOLUTION]
+    [--deconvolution-method DC_METHOD] [--deconvolution-ct-num DC_CT_NUM]
+    [--n-cpu N_CPU] [--n-neighbors N_NEIGHBORS] [--n-local N_LOCAL] [--embedding-adjust]
+    [--sigma SIGMA] [--device DEVICE] [--epochs EPOCHS] [--patience PATIENCE]
+    [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE]
+    [-s SEED] [--lr LR] [--hidden-feats HIDDEN_FEATS] [--n-gcn-layers N_GCN_LAYERS] [-k K]
+    [--modularity-loss-weight MODULARITY_LOSS_WEIGHT] [--purity-loss-weight PURITY_LOSS_WEIGHT]
+    [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA]
+    [--trajectory-construct TRAJECTORY_CONSTRUCT] [--equal-space]"""
+    description = "All steps of ONTraC including niche network construction, GNN, and niche construction."
 
     # option processor
-    optparser = OptionParser(version=f'%prog {__version__}', description=description, usage=usage, add_help_option=True)
+    optparser = OptionParser(version=f"%prog {__version__}", description=description, usage=usage, add_help_option=True)
 
     # I/O options group
     add_IO_options_group(optparser=optparser, io_options=io_options)
@@ -60,9 +66,11 @@ def prepare_ontrac_optparser() -> OptionParser:
     return optparser
 
 
-def _opt_ontrac_validate(options: Values, io_options: Dict[str, List[str]], optparser: Optional[OptionParser] = None) -> Values:
+def _opt_ontrac_validate(
+    options: Values, io_options: Dict[str, List[str]], optparser: Optional[OptionParser] = None
+) -> Values:
     """Validate options from a OptParser object.
-    
+
     Parameters
     ----------
     options :
@@ -71,7 +79,7 @@ def _opt_ontrac_validate(options: Values, io_options: Dict[str, List[str]], optp
         I/O options.
     optparser :
         OptionParser object.
-    
+
     Returns
     -------
     Values object."""
@@ -90,7 +98,7 @@ def _opt_ontrac_validate(options: Values, io_options: Dict[str, List[str]], optp
     validate_NT_options(options=options, optparser=optparser)
 
     # print parameters to stdout
-    info(message='------------------ RUN params memo ------------------ ')
+    info(message="------------------ RUN params memo ------------------ ")
     write_io_options_memo(options=options, io_options=io_options)
     write_preprocessing_memo(options=options)
     write_niche_net_constr_memo(options=options)
@@ -98,25 +106,25 @@ def _opt_ontrac_validate(options: Values, io_options: Dict[str, List[str]], optp
     write_GCN_options_memo(options=options)
     write_GP_options_memo(options=options)
     write_NT_options_memo(options=options)
-    info(message='--------------- RUN params memo end ----------------- ')
+    info(message="--------------- RUN params memo end ----------------- ")
 
     return options
 
 
 def opt_ontrac_validate(optparser) -> Values:
     """Validate options from a OptParser object.
-    
+
     Parameters
     ----------
     optparser :
         OptionParser object.
-    
+
     Returns
     -------
     Values object."""
 
     # args
-    io_options: Dict[str, List[str]] = IO_OPTIONS['ONTraC']  # type: ignore
+    io_options: Dict[str, List[str]] = IO_OPTIONS["ONTraC"]  # type: ignore
 
     (options, args) = optparser.parse_args()
 
@@ -130,24 +138,24 @@ def opt_ontrac_validate(optparser) -> Values:
 # ------------------------------------
 def prepare_nn_optparser() -> OptionParser:
     """Prepare optparser object. New options will be added in thisfunction first.
-    
+
     Returns
     -------
     OptionParser object."""
 
     # args
-    io_options: Dict[str, List[str]] = IO_OPTIONS['ONTraC_NN']  # type: ignore
+    io_options: Dict[str, List[str]] = IO_OPTIONS["ONTraC_NN"]  # type: ignore
 
     # usage and description
-    usage = f'''USAGE: %prog <--NN-dir NN_DIR> <--meta-input META_INPUT> [--exp-input EXP_INPUT]
+    usage = f"""USAGE: %prog <--NN-dir NN_DIR> <--meta-input META_INPUT> [--exp-input EXP_INPUT]
     [--embedding-input EMBEDDING_INPUT] [--low-res-exp-input LOW_RES_EXP_INPUT]
     [--deconvoluted-ct-composition DECONVOLUTED_CT_COMPOSITION] [--deconvoluted-exp-input DECONVOLUTED_EXP_INPUT]
     [--resolution RESOLUTION] [--deconvolution-method DC_METHOD] [--deconvolution-ct-num DC_CT_NUM]
-    [--n-cpu N_CPU] [--n-neighbors N_NEIGHBORS] [--n-local N_LOCAL] [--embedding-adjust] [--sigma SIGMA]'''
-    description = 'Create niche network and calculate features (normalized cell type composition). (Step 1 of ONTraC)'
+    [--n-cpu N_CPU] [--n-neighbors N_NEIGHBORS] [--n-local N_LOCAL] [--embedding-adjust] [--sigma SIGMA]"""
+    description = "Create niche network and calculate features (normalized cell type composition). (Step 1 of ONTraC)"
 
     # option processor
-    optparser = OptionParser(version=f'%prog {__version__}', description=description, usage=usage, add_help_option=True)
+    optparser = OptionParser(version=f"%prog {__version__}", description=description, usage=usage, add_help_option=True)
 
     # I/O options group
     add_IO_options_group(optparser=optparser, io_options=io_options)
@@ -161,11 +169,11 @@ def prepare_nn_optparser() -> OptionParser:
     return optparser
 
 
-def _opt_nn_validate(options: Values,
-                     io_options: Dict[str, List[str]],
-                     optparser: Optional[OptionParser] = None) -> Values:
+def _opt_nn_validate(
+    options: Values, io_options: Dict[str, List[str]], optparser: Optional[OptionParser] = None
+) -> Values:
     """Validate options from a OptParser object.
-    
+
         Parameters
         ----------
     options :
@@ -177,12 +185,12 @@ def _opt_nn_validate(options: Values,
     optparser :
         Optional[OptionParser], optional
             OptionParser object, by default None
-    
+
         Returns
         -------
         Values
             Values object.
-        """
+    """
 
     # IO
     validate_io_options(options=options, io_options=io_options, optparser=optparser)
@@ -190,28 +198,28 @@ def _opt_nn_validate(options: Values,
     validate_niche_net_constr_options(options=options, optparser=optparser)
 
     # print parameters to stdout
-    info(message='------------------ RUN params memo ------------------ ')
+    info(message="------------------ RUN params memo ------------------ ")
     write_io_options_memo(options=options, io_options=io_options)
     write_niche_net_constr_memo(options=options)
-    info(message='--------------- RUN params memo end ----------------- ')
+    info(message="--------------- RUN params memo end ----------------- ")
 
     return options
 
 
 def opt_nn_validate(optparser) -> Values:
     """Validate options from a OptParser object.
-    
+
     Parameters
     ----------
     optparser :
         OptionParser object.
-    
+
     Returns
     -------
     Values object."""
 
     # args
-    io_options: Dict[str, List[str]] = IO_OPTIONS['ONTraC_NN']  # type: ignore
+    io_options: Dict[str, List[str]] = IO_OPTIONS["ONTraC_NN"]  # type: ignore
 
     (options, args) = optparser.parse_args()
 
@@ -225,24 +233,24 @@ def opt_nn_validate(optparser) -> Values:
 # ------------------------------------
 def prepare_gnn_optparser() -> OptionParser:
     """Prepare optparser object. New options will be added in thisfunction first.
-    
+
     Returns
     -------
     OptionParser object."""
 
     # args
-    io_options: Dict[str, List[str]] = IO_OPTIONS['ONTraC_GNN']  # type: ignore
+    io_options: Dict[str, List[str]] = IO_OPTIONS["ONTraC_GNN"]  # type: ignore
 
     # usage and description
-    usage = f'''USAGE: %prog <--NN-dir NN_DIR> <--GNN-dir GNN_DIR> [--device DEVICE]
-    [--epochs EPOCHS] [--patience PATIENCE] [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] 
+    usage = f"""USAGE: %prog <--NN-dir NN_DIR> <--GNN-dir GNN_DIR> [--device DEVICE]
+    [--epochs EPOCHS] [--patience PATIENCE] [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE]
     [-s SEED] [--lr LR] [--hidden-feats HIDDEN_FEATS] [--n-gcn-layers N_GCN_LAYERS] [-k K]
-    [--modularity-loss-weight MODULARITY_LOSS_WEIGHT] [--purity-loss-weight PURITY_LOSS_WEIGHT] 
-    [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA]'''
-    description = 'Graph Neural Network (GNN, GCN + GP). The core algorithm of ONTraC. (Step 2/3 of ONTraC)'
+    [--modularity-loss-weight MODULARITY_LOSS_WEIGHT] [--purity-loss-weight PURITY_LOSS_WEIGHT]
+    [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA]"""
+    description = "Graph Neural Network (GNN, GCN + GP). The core algorithm of ONTraC. (Step 2/3 of ONTraC)"
 
     # option processor
-    optparser = OptionParser(version=f'%prog {__version__}', description=description, usage=usage, add_help_option=True)
+    optparser = OptionParser(version=f"%prog {__version__}", description=description, usage=usage, add_help_option=True)
 
     # I/O options group
     add_IO_options_group(optparser=optparser, io_options=io_options)
@@ -255,11 +263,11 @@ def prepare_gnn_optparser() -> OptionParser:
     return optparser
 
 
-def _opt_gnn_validate(options: Values,
-                      io_options: Dict[str, List[str]],
-                      optparser: Optional[OptionParser] = None) -> Values:
+def _opt_gnn_validate(
+    options: Values, io_options: Dict[str, List[str]], optparser: Optional[OptionParser] = None
+) -> Values:
     """Validate options from a OptParser object.
-    
+
         Parameters
         ----------
     options :
@@ -271,12 +279,12 @@ def _opt_gnn_validate(options: Values,
     optparser :
         Optional[OptionParser], optional
             OptionParser object, by default None
-    
+
         Returns
         -------
         Values
             Values object.
-        """
+    """
 
     # IO
     validate_io_options(options=options, io_options=io_options, optparser=optparser)
@@ -286,30 +294,30 @@ def _opt_gnn_validate(options: Values,
     validate_GP_options(options=options, optparser=optparser)
 
     # print parameters to stdout
-    info(message='------------------ RUN params memo ------------------ ')
+    info(message="------------------ RUN params memo ------------------ ")
     write_io_options_memo(options=options, io_options=io_options)
     write_train_options_memo(options=options)
     write_GCN_options_memo(options=options)
     write_GP_options_memo(options=options)
-    info(message='--------------- RUN params memo end ----------------- ')
+    info(message="--------------- RUN params memo end ----------------- ")
 
     return options
 
 
 def opt_gnn_validate(optparser: OptionParser) -> Values:
     """Validate options from a OptParser object.
-    
+
     Parameters
     ----------
     optparser :
         OptionParser object.
-    
+
     Returns
     -------
     Values object."""
 
     # args
-    io_options: Dict[str, List[str]] = IO_OPTIONS['ONTraC_GNN']  # type: ignore
+    io_options: Dict[str, List[str]] = IO_OPTIONS["ONTraC_GNN"]  # type: ignore
 
     (options, args) = optparser.parse_args()
 
@@ -323,21 +331,24 @@ def opt_gnn_validate(optparser: OptionParser) -> Values:
 # ------------------------------------
 def prepare_nt_optparser() -> OptionParser:
     """Prepare optparser object. New options will be added in thisfunction first.
-    
+
     Returns
     -------
     OptionParser object."""
 
     # args
-    io_options: Dict[str, List[str]] = IO_OPTIONS['ONTraC_NT']  # type: ignore
+    io_options: Dict[str, List[str]] = IO_OPTIONS["ONTraC_NT"]  # type: ignore
 
     # usage and description
-    usage = f'''USAGE: %prog <--NN-dir NN_DIR> <--GNN-dir GNN_DIR> <--NT-dir NT_DIR> 
-            [--trajectory-construct TRAJECTORY_CONSTRUCT] [--equal-space]'''
-    description = 'ONTraC_NT: construct niche trajectory for niche cluster and project the NT score to each cell. (Step 4 of ONTraC)'
+    usage = f"""USAGE: %prog <--NN-dir NN_DIR> <--GNN-dir GNN_DIR> <--NT-dir NT_DIR>
+            [--trajectory-construct TRAJECTORY_CONSTRUCT] [--equal-space]"""
+    description = (
+        "ONTraC_NT: construct niche trajectory for niche clusters and "
+        "project NT scores to cells. (Step 4 of ONTraC)"
+    )
 
     # option processor
-    optparser = OptionParser(version=f'%prog {__version__}', description=description, usage=usage, add_help_option=True)
+    optparser = OptionParser(version=f"%prog {__version__}", description=description, usage=usage, add_help_option=True)
 
     add_IO_options_group(optparser=optparser, io_options=io_options)
     add_NT_options_group(optparser=optparser)
@@ -345,11 +356,11 @@ def prepare_nt_optparser() -> OptionParser:
     return optparser
 
 
-def _opt_nt_validate(options: Values,
-                     io_options: Dict[str, List[str]],
-                     optparser: Optional[OptionParser] = None) -> Values:
+def _opt_nt_validate(
+    options: Values, io_options: Dict[str, List[str]], optparser: Optional[OptionParser] = None
+) -> Values:
     """Validate options from a OptParser object.
-    
+
         Parameters
         ----------
     options :
@@ -361,12 +372,12 @@ def _opt_nt_validate(options: Values,
     optparser :
         Optional[OptionParser], optional
             OptionParser object, by default None
-    
+
         Returns
         -------
         Values
             Values object.
-        """
+    """
 
     # IO
     validate_io_options(options=options, io_options=io_options, optparser=optparser)
@@ -374,28 +385,28 @@ def _opt_nt_validate(options: Values,
     validate_NT_options(options=options, optparser=optparser)
 
     # print parameters to stdout
-    info(message='------------------ RUN params memo ------------------ ')
+    info(message="------------------ RUN params memo ------------------ ")
     write_io_options_memo(options=options, io_options=io_options)
     write_NT_options_memo(options=options)
-    info(message='--------------- RUN params memo end ----------------- ')
+    info(message="--------------- RUN params memo end ----------------- ")
 
     return options
 
 
 def opt_nt_validate(optparser: OptionParser) -> Values:
     """Validate options from a OptParser object.
-    
+
     Parameters
     ----------
     optparser :
         OptionParser object.
-    
+
     Returns
     -------
     Values object."""
 
     # args
-    io_options: Dict[str, List[str]] = IO_OPTIONS['ONTraC_NT']  # type: ignore
+    io_options: Dict[str, List[str]] = IO_OPTIONS["ONTraC_NT"]  # type: ignore
 
     (options, args) = optparser.parse_args()
 
@@ -409,24 +420,25 @@ def opt_nt_validate(optparser: OptionParser) -> Values:
 # ------------------------------------
 def prepare_gt_optparser() -> OptionParser:
     """Prepare optparser object. New options will be added in thisfunction first.
-    
+
     Returns
     -------
     OptionParser object."""
 
     # args
-    io_options: Dict[str, List[str]] = IO_OPTIONS['ONTraC_GT']  # type: ignore
+    io_options: Dict[str, List[str]] = IO_OPTIONS["ONTraC_GT"]  # type: ignore
 
-    usage = f'''USAGE: %prog <--NN-dir NN_DIR> <--GNN-dir GNN_DIR> <--NT-dir NT_DIR> [--device DEVICE]
-    [--epochs EPOCHS] [--patience PATIENCE] [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE] 
+    usage = f"""USAGE: %prog <--NN-dir NN_DIR> <--GNN-dir GNN_DIR> <--NT-dir NT_DIR> [--device DEVICE]
+    [--epochs EPOCHS] [--patience PATIENCE] [--min-delta MIN_DELTA] [--min-epochs MIN_EPOCHS] [--batch-size BATCH_SIZE]
     [-s SEED] [--lr LR] [--hidden-feats HIDDEN_FEATS] [--n-gcn-layers N_GCN_LAYERS] [-k K]
-    [--modularity-loss-weight MODULARITY_LOSS_WEIGHT] [--purity-loss-weight PURITY_LOSS_WEIGHT] 
-    [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA] [--trajectory-construct TRAJECTORY_CONSTRUCT]
-    [--equal-space]'''
-    description = 'ONTraC_GT: GNN and Niche Trajectory'
+    [--modularity-loss-weight MODULARITY_LOSS_WEIGHT] [--purity-loss-weight PURITY_LOSS_WEIGHT]
+    [--regularization-loss-weight REGULARIZATION_LOSS_WEIGHT] [--beta BETA]
+    [--trajectory-construct TRAJECTORY_CONSTRUCT]
+    [--equal-space]"""
+    description = "ONTraC_GT: GNN and Niche Trajectory"
 
     # option processor
-    optparser = OptionParser(version=f'%prog {__version__}', description=description, usage=usage, add_help_option=True)
+    optparser = OptionParser(version=f"%prog {__version__}", description=description, usage=usage, add_help_option=True)
 
     # I/O options group
     add_IO_options_group(optparser=optparser, io_options=io_options)
@@ -442,11 +454,11 @@ def prepare_gt_optparser() -> OptionParser:
     return optparser
 
 
-def _opt_gt_validate(options: Values,
-                     io_options: Dict[str, List[str]],
-                     optparser: Optional[OptionParser] = None) -> Values:
+def _opt_gt_validate(
+    options: Values, io_options: Dict[str, List[str]], optparser: Optional[OptionParser] = None
+) -> Values:
     """Validate options from a OptParser object.
-    
+
         Parameters
         ----------
     options :
@@ -458,12 +470,12 @@ def _opt_gt_validate(options: Values,
     optparser :
         Optional[OptionParser], optional
             OptionParser object, by default None
-    
+
         Returns
         -------
         Values
             Values object.
-        """
+    """
 
     # IO
     validate_io_options(options=options, io_options=io_options, optparser=optparser)
@@ -475,31 +487,31 @@ def _opt_gt_validate(options: Values,
     validate_NT_options(options=options, optparser=optparser)
 
     # print parameters to stdout
-    info(message='------------------ RUN params memo ------------------ ')
+    info(message="------------------ RUN params memo ------------------ ")
     write_io_options_memo(options, io_options)
     write_train_options_memo(options)
     write_GCN_options_memo(options)
     write_GP_options_memo(options)
     write_NT_options_memo(options)
-    info(message='--------------- RUN params memo end ----------------- ')
+    info(message="--------------- RUN params memo end ----------------- ")
 
     return options
 
 
 def opt_gt_validate(optparser: OptionParser) -> Values:
     """Validate options from a OptParser object.
-    
+
     Parameters
     ----------
     optparser :
         OptionParser object.
-    
+
     Returns
     -------
     Values object."""
 
     # args
-    io_options: Dict[str, List[str]] = IO_OPTIONS['ONTraC_GT']  # type: ignore
+    io_options: Dict[str, List[str]] = IO_OPTIONS["ONTraC_GT"]  # type: ignore
 
     (options, args) = optparser.parse_args()
 
@@ -513,22 +525,22 @@ def opt_gt_validate(optparser: OptionParser) -> Values:
 # ------------------------------------
 def prepare_analysis_optparser() -> OptionParser:
     """Prepare optparser object. New options will be added in thisfunction first.
-    
+
     Returns
     -------
     OptionParser object."""
 
     # args
-    io_options: Dict[str, List[str]] = IO_OPTIONS['ONTraC_analysis']  # type: ignore
+    io_options: Dict[str, List[str]] = IO_OPTIONS["ONTraC_analysis"]  # type: ignore
 
-    usage = f'''USAGE: %prog [--NN-dir NN_DIR] [--GNN-dir GNN_DIR] [--NT-dir NT_DIR] [-o OUTPUT]
+    usage = f"""USAGE: %prog [--NN-dir NN_DIR] [--GNN-dir GNN_DIR] [--NT-dir NT_DIR] [-o OUTPUT]
     [-l LOG] [--embedding-adjust] [--sigma SIGMA] [-r REVERSE] [-s SAMPLE] [--scale-factor SCALE_FACTOR]
     [--suppress-cell-type-composition] [--suppress-niche-cluster-loadings] [--suppress-niche-trajectory]
-    '''
-    description = 'ONTraC_analysis: analysis of ONTraC results'
+    """
+    description = "ONTraC_analysis: analysis of ONTraC results"
 
     # option processor
-    optparser = OptionParser(version=f'%prog {__version__}', description=description, usage=usage, add_help_option=True)
+    optparser = OptionParser(version=f"%prog {__version__}", description=description, usage=usage, add_help_option=True)
 
     add_IO_options_group(optparser=optparser, io_options=io_options)
     add_visualization_group(optparser)
@@ -537,11 +549,11 @@ def prepare_analysis_optparser() -> OptionParser:
     return optparser
 
 
-def _opt_analysis_validate(options: Values,
-                           io_options: Dict[str, List[str]],
-                           optparser: Optional[OptionParser] = None) -> Values:
+def _opt_analysis_validate(
+    options: Values, io_options: Dict[str, List[str]], optparser: Optional[OptionParser] = None
+) -> Values:
     """Validate options from a OptParser object.
-    
+
         Parameters
         ----------
     options :
@@ -553,12 +565,12 @@ def _opt_analysis_validate(options: Values,
     optparser :
         Optional[OptionParser], optional
             OptionParser object, by default None
-    
+
         Returns
         -------
         Values
             Values object.
-        """
+    """
 
     # IO
     validate_io_options(options=options, io_options=io_options, optparser=optparser)
@@ -567,29 +579,29 @@ def _opt_analysis_validate(options: Values,
     validate_suppress_options(options, optparser=optparser)
 
     # print parameters to stdout
-    info(message='------------------ RUN params memo ------------------ ')
+    info(message="------------------ RUN params memo ------------------ ")
     write_io_options_memo(options, io_options)
     write_visualization_options_memo(options)
     write_suppress_options_memo(options)
-    info(message='--------------- RUN params memo end ----------------- ')
+    info(message="--------------- RUN params memo end ----------------- ")
 
     return options
 
 
 def opt_analysis_validate(optparser: OptionParser) -> Values:
     """Validate options from a OptParser object.
-    
+
     Parameters
     ----------
     optparser :
         OptionParser object.
-    
+
     Returns
     -------
     Values object."""
 
     # args
-    io_options: Dict[str, List[str]] = IO_OPTIONS['ONTraC_analysis']  # type: ignore
+    io_options: Dict[str, List[str]] = IO_OPTIONS["ONTraC_analysis"]  # type: ignore
 
     (options, args) = optparser.parse_args()
 
@@ -602,7 +614,16 @@ def opt_analysis_validate(optparser: OptionParser) -> Values:
 # functions to be exported
 # ------------------------------------
 __all__ = [
-    'prepare_ontrac_optparser', 'opt_ontrac_validate', 'prepare_nn_optparser', 'opt_nn_validate',
-    'prepare_gnn_optparser', 'opt_gnn_validate', 'prepare_nt_optparser', 'opt_nt_validate', 'prepare_gt_optparser',
-    'opt_gt_validate', 'prepare_analysis_optparser', 'opt_analysis_validate'
+    "prepare_ontrac_optparser",
+    "opt_ontrac_validate",
+    "prepare_nn_optparser",
+    "opt_nn_validate",
+    "prepare_gnn_optparser",
+    "opt_gnn_validate",
+    "prepare_nt_optparser",
+    "opt_nt_validate",
+    "prepare_gt_optparser",
+    "opt_gt_validate",
+    "prepare_analysis_optparser",
+    "opt_analysis_validate",
 ]

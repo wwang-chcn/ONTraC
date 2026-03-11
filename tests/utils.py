@@ -8,13 +8,13 @@ def temp_dirs(options: Values):
     """Create temporary directories required by integration-style tests."""
     try:
         # Create temporary directories
-        if hasattr(options, 'NN_dir'):
+        if hasattr(options, "NN_dir"):
             os.makedirs(options.NN_dir, exist_ok=True)
-        if hasattr(options, 'GNN_dir'):
+        if hasattr(options, "GNN_dir"):
             os.makedirs(options.GNN_dir, exist_ok=True)
-        if hasattr(options, 'NT_dir'):
+        if hasattr(options, "NT_dir"):
             os.makedirs(options.NT_dir, exist_ok=True)
-        if hasattr(options, 'output'):
+        if hasattr(options, "output"):
             os.makedirs(options.output, exist_ok=True)
 
         # Yield to the test
@@ -33,4 +33,4 @@ def temp_dirs(options: Values):
         #     shutil.rmtree(options.output)
 
         # Remove generated files
-        os.remove(f'{options.NN_dir}/meta_data.csv.gz')
+        os.remove(f"{options.NN_dir}/meta_data.csv.gz")

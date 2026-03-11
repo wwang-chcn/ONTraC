@@ -8,8 +8,9 @@ from ..log import debug
 
 def moran_I_features(X: Tensor, W: Tensor, mask: Tensor) -> Tensor:
     """Calculate Moran's I.
-        :math:`I = \\frac{n}{\\sum_{i=1}^n\\sum_{j=1}^n w_{ij}}\\frac{(X-\\bar{X})^T W (X-\\bar{X})}{\\sum_{i=1}^n (X_i-\\bar{X})^2}`
-    
+        :math:`I = \\frac{n}{\\sum_{i=1}^n\\sum_{j=1}^n w_{ij}}`
+        :math:`\\frac{(X-\\bar{X})^T W (X-\\bar{X})}{\\sum_{i=1}^n (X_i-\\bar{X})^2}`
+
     Parameters
     ----------
     X :
@@ -18,7 +19,7 @@ def moran_I_features(X: Tensor, W: Tensor, mask: Tensor) -> Tensor:
         Tensor, shape: (N, N).
     mask :
         Tensor, shape: (N, ).
-    
+
     Returns
     -------
     moran_I: Tensor, shape: (F, )."""
@@ -45,23 +46,25 @@ def moran_I_features(X: Tensor, W: Tensor, mask: Tensor) -> Tensor:
     # debug(f'W_masked_sum: {W_masked_sum}.')
     # debug(f'numerator: {torch.diagonal(X_masked_.T @ W_masked @ X_masked_)}.')  # F x 1
     # debug(f'denominator: {(X_masked_**2).sum(dim = 0, keepdim=True)}.')  # F x 1
-    return n / W_masked_sum * torch.diagonal(X_masked_.T @ W_masked @ X_masked_) / (X_masked_**2).sum(dim=0,
-                                                                                                      keepdim=True)
+    return (
+        n / W_masked_sum * torch.diagonal(X_masked_.T @ W_masked @ X_masked_) / (X_masked_**2).sum(dim=0, keepdim=True)
+    )
 
 
 def graph_smooth_loss(z: Tensor, adj: Tensor, mask: Tensor) -> Tensor:
     """Graph smooth loss using -1 * moran's I.
         :math: `L_{smooth} = \\frac{1}{2}\\sum_{i=1}^{N}\\sum_{j=1}^{N}w_{ij}(z_i - z_j)^2`
-    
+
     Parameters
     ----------
     z :
-        hidden embedding tensor :math:`\\mathbf{Z} \\in \\mathbb{R}^{B \\times N \\times F}`, with batch-size :math:`B`, (maximum) number of nodes :math:`N` for each graph, and feature dimension :math:`F`.
+        Hidden embedding tensor :math:`\\mathbf{Z} \\in \\mathbb{R}^{B \\times N \\times F}` with batch-size
+        :math:`B`, nodes :math:`N`, and feature dimension :math:`F`.
     adj :
         adjacency tensor :math:`\\mathbf{A} \\in \\mathbb{R}^{B \\times N \\times N}`.
     mask :
         mask tensor :math:`\\mathbf{M} \\in {\\{ 0, 1 \\}}^{B \\times N}`.
-    
+
     Returns
     -------
     loss tensor."""
@@ -97,7 +100,7 @@ def within_cluster_variance_loss(x: Tensor, s: Tensor, mask: Tensor) -> Tensor:
     -------
     loss
         within cluster variance loss.
-        """
+    """
 
     # --- Extend mask to match the dimensions of x and s ---
     mask_extended_x = mask.unsqueeze(-1).expand_as(x)  # B x N x F
@@ -108,13 +111,13 @@ def within_cluster_variance_loss(x: Tensor, s: Tensor, mask: Tensor) -> Tensor:
     masked_s = s * mask_extended_s  # B x N x C
 
     # --- Compute the cluster centroids ---
-    sum_x = torch.einsum('bnf,bnc->cf', masked_x, masked_s)  # C x F, sum of each cluster
+    sum_x = torch.einsum("bnf,bnc->cf", masked_x, masked_s)  # C x F, sum of each cluster
     num_points = torch.sum(masked_s, dim=(0, 1)) + 1e-10  # avoid divide by zero
     centroids = sum_x / num_points.unsqueeze(-1)  # C x F, mean of each cluster
 
     # --- Compute the squared distance from the centroids ---
-    expanded_centroids = torch.einsum('cf,bnc->bnf', centroids, masked_s)  # B x N x F
-    squared_distance = (masked_x - expanded_centroids)**2  # B x N x F
+    expanded_centroids = torch.einsum("cf,bnc->bnf", centroids, masked_s)  # B x N x F
+    squared_distance = (masked_x - expanded_centroids) ** 2  # B x N x F
 
     # --- Compute the loss ---
     loss = torch.sum(squared_distance * mask_extended_x) / mask.sum()  # average over all nodes with mask
@@ -133,7 +136,7 @@ def masked_variance(x, mask):
     Returns
     -------
             variance.
-        """
+    """
 
     # Apply the mask
     x_masked = x * mask.unsqueeze(-1)

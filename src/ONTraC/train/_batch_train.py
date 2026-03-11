@@ -1,4 +1,4 @@
-"""This module contains the BatchTrain class, which provides an abstract interface for mini-batch training of ONTraC models, as well as a concrete implementation for GNN-based models."""
+"""Batch training abstractions and implementations for ONTraC."""
 
 from abc import ABC, abstractmethod
 from typing import Callable, Dict, List, Optional, Protocol, Tuple
@@ -22,7 +22,7 @@ class BatchTrain(ABC):
 
     def __init__(self, model: torch.nn.Module, device: torch.device, data_loader: DataLoader) -> None:
         """Initialize trainer state.
-        
+
                 Parameters
                 ----------
         model :
@@ -34,7 +34,7 @@ class BatchTrain(ABC):
         data_loader :
             DataLoader
                     Mini-batch loader that yields graph ``Data`` objects.
-                """
+        """
         super(BatchTrain, self).__init__()
         self.model: torch.nn.Module = model
         self.device: torch.device = device
@@ -43,21 +43,25 @@ class BatchTrain(ABC):
 
     def __str__(self):
         """Return human-readable trainer summary."""
-        return f"{self.__class__.__name__}(model='{self.model}', device='{self.device}', data_loader='{self.data_loader}')"
+        return (
+            f"{self.__class__.__name__}(model='{self.model}', device='{self.device}', data_loader='{self.data_loader}')"
+        )
 
     def __repr__(self):
         """Return unambiguous trainer representation."""
         return self.__str__()
 
-    def train(self,
-              max_epochs: int = 100,
-              max_patience: int = 50,
-              min_delta: float = 0,
-              min_epochs: int = 100,
-              *args,
-              **kwargs) -> None:
+    def train(
+        self,
+        max_epochs: int = 100,
+        max_patience: int = 50,
+        min_delta: float = 0,
+        min_epochs: int = 100,
+        *args,
+        **kwargs,
+    ) -> None:
         """Train model with optional early stopping and checkpoint snapshots.
-        
+
                 Parameters
                 ----------
         max_epochs :
@@ -75,7 +79,7 @@ class BatchTrain(ABC):
                 *args, **kwargs
                     Passed to :meth:`set_train_args`. If ``output`` is provided in
                     ``kwargs``, periodic snapshots are saved.
-                """
+        """
 
         self.set_train_args(*args, **kwargs)
 
@@ -100,9 +104,9 @@ class BatchTrain(ABC):
             # max_patience == 0 means no early stopping
             if max_patience != 0 and patience >= max_patience and epoch >= min_epochs:
                 break
-            if round_epoch_filter(epoch) and 'output' in kwargs:
-                output_dir = kwargs['output']
-                self.save(f'{output_dir}/epoch_{epoch + 1}.pt')
+            if round_epoch_filter(epoch) and "output" in kwargs:
+                output_dir = kwargs["output"]
+                self.save(f"{output_dir}/epoch_{epoch + 1}.pt")
         self.model.load_state_dict(best_params)
 
     @abstractmethod
@@ -175,13 +179,15 @@ class GNNBatchTrain(BatchTrain):
     """
 
     @selective_args_decorator
-    def set_train_args(self,
-                       optimizer: torch.optim.Optimizer,
-                       modularity_loss_weight: float = 1,
-                       purity_loss_weight: float = 0,
-                       regularization_loss_weight: float = 1,
-                       ortho_loss_weight: float = 0,
-                       inspect_funcs: Optional[List[Callable]] = None) -> None:
+    def set_train_args(
+        self,
+        optimizer: torch.optim.Optimizer,
+        modularity_loss_weight: float = 1,
+        purity_loss_weight: float = 0,
+        regularization_loss_weight: float = 1,
+        ortho_loss_weight: float = 0,
+        inspect_funcs: Optional[List[Callable]] = None,
+    ) -> None:
         """Configure optimizer and weighted objective coefficients."""
         self.optimizer = optimizer
         self.spectral_loss_weight = modularity_loss_weight
@@ -211,7 +217,8 @@ class GNNBatchTrain(BatchTrain):
             data = data.to(self.device)
             s, out, out_adj, spectral_loss, ortho_loss, cluster_loss = self.model(data.x, data.adj, data.mask)
             loss, spectral_loss, ortho_loss, cluster_loss, feat_similarity_loss = self.cal_loss(
-                spectral_loss, ortho_loss, cluster_loss, data, s)
+                spectral_loss, ortho_loss, cluster_loss, data, s
+            )
             loss.backward()
             self.optimizer.step()
             self.optimizer.zero_grad()
@@ -245,9 +252,11 @@ class GNNBatchTrain(BatchTrain):
             for data in self.data_loader:
                 data = data.to(self.device)
                 s, out, out_adj, spectral_loss, ortho_loss, cluster_loss = self.model.evaluate(
-                    data.x, data.adj, data.mask)
+                    data.x, data.adj, data.mask
+                )
                 loss, spectral_loss, ortho_loss, cluster_loss, feat_similarity_loss = self.cal_loss(
-                    spectral_loss, ortho_loss, cluster_loss, data, s)
+                    spectral_loss, ortho_loss, cluster_loss, data, s
+                )
 
                 spectral_loss_list.append(spectral_loss.item())
                 # ortho_loss_list.append(ortho_loss.item())
@@ -260,11 +269,11 @@ class GNNBatchTrain(BatchTrain):
         feat_similarity_loss = np.mean(feat_similarity_loss_list)
         loss = np.mean(loss_list)
         results_dict = {
-            'modularity_loss': spectral_loss,
-            'purity_loss': feat_similarity_loss,
-            'regularization_loss': cluster_loss,
+            "modularity_loss": spectral_loss,
+            "purity_loss": feat_similarity_loss,
+            "regularization_loss": cluster_loss,
             # 'ortho_loss': ortho_loss,
-            'total_loss': loss
+            "total_loss": loss,
         }
         return results_dict
 
@@ -274,7 +283,7 @@ class GNNBatchTrain(BatchTrain):
         with torch.no_grad():
             s, out, out_adj = self.model.predict(data.x, data.adj, data.mask)
             z = self.model.predict_embed(data.x, data.adj, data.mask)
-        return {'z': z, 's': s, 'out': out, 'out_adj': out_adj}
+        return {"z": z, "s": s, "out": out, "out_adj": out_adj}
 
     def predict_embed(self, data: Data) -> Tensor:
         """Return node embeddings before pooling for a ``Data`` object."""
@@ -284,4 +293,4 @@ class GNNBatchTrain(BatchTrain):
         return z
 
 
-__all__ = ['SubBatchTrainProtocol', 'GNNBatchTrain']
+__all__ = ["SubBatchTrainProtocol", "GNNBatchTrain"]

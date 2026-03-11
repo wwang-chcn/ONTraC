@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""This module contains the main function for the `NicheTrajectory` command, which will be deprecated in favor of `ONTraC_NT`."""
+"""Entrypoint for the `NicheTrajectory` compatibility command."""
 
 import sys
 
@@ -19,7 +19,7 @@ def main() -> None:
     write_version_info()
 
     # deprecation warning
-    warning('NicheTrajectory will be deprecated from v3.0. Please use ONTraC_NT instead.')
+    warning("NicheTrajectory will be deprecated from v3.0. Please use ONTraC_NT instead.")
 
     # load parameters
     options = load_parameters(opt_validate_func=opt_nt_validate, prepare_optparser_func=prepare_nt_optparser)
@@ -31,7 +31,7 @@ def main() -> None:
 # ------------------------------------
 # Program running
 # ------------------------------------
-if __name__ == '__main__':
+if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:

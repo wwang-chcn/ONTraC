@@ -1,4 +1,4 @@
-"""This module contains functions for parsing command-line arguments and options for ONTraC, including adding niche trajectory construction-related flags, validating the parsed options, and writing the options memo to the log."""
+"""Niche trajectory argument parsing and validation for ONTraC."""
 
 import sys
 from optparse import OptionGroup, OptionParser, Values
@@ -17,12 +17,12 @@ from ._train import *
 # ------------------------------------
 def add_NT_options_group(optparser: OptionParser) -> None:
     """Add niche trajectory options group to optparser.
-    
+
     Parameters
     ----------
     optparser :
         OptionParser object.
-    
+
     Returns
     -------
     OptionGroup object."""
@@ -30,23 +30,25 @@ def add_NT_options_group(optparser: OptionParser) -> None:
     group_NT = OptionGroup(optparser, "Options for niche trajectory")
     optparser.add_option_group(group_NT)
     group_NT.add_option(
-        '--trajectory-construct',
-        dest='trajectory_construct',
-        default='BF',
-        choices=['BF'],
-        help="Method to construct the niche trajectory. Default is 'BF' (brute-force)")
+        "--trajectory-construct",
+        dest="trajectory_construct",
+        default="BF",
+        choices=["BF"],
+        help="Method to construct the niche trajectory. Default is 'BF' (brute-force)",
+    )
     group_NT.add_option(
-        '--equal-space',
-        dest='equal_space',
+        "--equal-space",
+        dest="equal_space",
         default=True,
-        action='store_true',
-        help="This options will be deprecated from v3.0. Always set to True.")
+        action="store_true",
+        help="This options will be deprecated from v3.0. Always set to True.",
+    )
 
 
 def validate_NT_options(options: Values, optparser: Optional[OptionParser] = None) -> None:
     """
         Validate niche trajectory options.
-    
+
         Parameters
         ----------
     options :
@@ -55,46 +57,50 @@ def validate_NT_options(options: Values, optparser: Optional[OptionParser] = Non
     optparser :
         Optional[OptionParser], optional
             OptionParser object. The default is None.
-    
+
         Returns
         -------
         None
-        """
+    """
 
     # trajectory_construct
-    if getattr(options, 'trajectory_construct', None) is None:
-        info('trajectory_construct is not set. Using default value BF.')
-        options.trajectory_construct = 'BF'
-    elif options.trajectory_construct not in ['BF']:
-        error('trajectory_construct must be BF')
-        if optparser is not None: optparser.print_help()
+    if getattr(options, "trajectory_construct", None) is None:
+        info("trajectory_construct is not set. Using default value BF.")
+        options.trajectory_construct = "BF"
+    elif options.trajectory_construct not in ["BF"]:
+        error("trajectory_construct must be BF")
+        if optparser is not None:
+            optparser.print_help()
         sys.exit(1)
 
     # equal_space
-    if getattr(options, 'equal_space', None) is None:
-        info('equal_space is not set. Using default value True.')
+    if getattr(options, "equal_space", None) is None:
+        info("equal_space is not set. Using default value True.")
         options.equal_space = True
     elif not isinstance(options.equal_space, bool):
-        error('equal_space must be a boolean value')
-        if optparser is not None: optparser.print_help()
+        error("equal_space must be a boolean value")
+        if optparser is not None:
+            optparser.print_help()
         sys.exit(1)
     else:
-        info(f'equal_space is set to {options.equal_space}. This option will be deprecated from v3.0. Always set to True.')
+        info(
+            f"equal_space is set to {options.equal_space}. It will be deprecated from v3.0 and always treated as True."
+        )
         options.equal_space = True
 
 
 def write_NT_options_memo(options: Values) -> None:
     """Write niche trajectory options memo.
-    
+
     Parameters
     ----------
     options :
         Values, options.
-    
+
     Returns
     -------
     None."""
 
-    info('---------------- Niche trajectory options ----------------')
-    info(f'Equally spaced niche cluster scores: {options.equal_space}')
-    info(f'Niche trajectory construction method: {options.trajectory_construct}')
+    info("---------------- Niche trajectory options ----------------")
+    info(f"Equally spaced niche cluster scores: {options.equal_space}")
+    info(f"Niche trajectory construction method: {options.trajectory_construct}")

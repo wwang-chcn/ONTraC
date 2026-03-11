@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""This module contains the main function for the `ONTraC` CLI pipeline, which executes the full end-to-end ONTraC analysis workflow (NN + GNN + NT)."""
+"""Entrypoint for the `ONTraC` CLI pipeline."""
 
 import sys
 
@@ -33,7 +33,7 @@ def main() -> None:
 # ------------------------------------
 # Program running
 # ------------------------------------
-if __name__ == '__main__':
+if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
