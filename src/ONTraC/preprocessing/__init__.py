@@ -1,8 +1,8 @@
 """
-Pre-processing module for ONTraC. 
+Preprocessing utilities for ONTraC.
 
-This module provides pre-processing tools and utilities for spatial transcriptomics data, including functions for loading and processing input data, generating cell type codes, and preparing data for main ONTraC steps.
-The pre-processing module is designed to handle both cell-level and spot-level spatial transcriptomics data, and it includes functions for generating the necessary input files and matrices.
+This module contains data-loading and preprocessing helpers for both
+cell-level and spot-level spatial transcriptomics inputs.
 """
 
 # pre-processing logic
@@ -12,4 +12,3 @@ The pre-processing module is designed to handle both cell-level and spot-level s
 #       - if cell-level data, generate ct code directly from meta data
 #       - if spot-level data, load low res exp data, generate spotXct matrix, and generate ct code
 # option 2: load data from NN-dir
-

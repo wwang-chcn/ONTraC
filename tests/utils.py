@@ -1,16 +1,11 @@
 import os
-import shutil
 from contextlib import contextmanager
 from optparse import Values
 
 
 @contextmanager
 def temp_dirs(options: Values):
-    """
-    Create temporary directories for testing.
-    :param options: Values, options.
-    :return: None.
-    """
+    """Create temporary directories required by integration-style tests."""
     try:
         # Create temporary directories
         if hasattr(options, 'NN_dir'):

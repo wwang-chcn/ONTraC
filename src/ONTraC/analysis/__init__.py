@@ -1,6 +1,6 @@
 """
-Analysis module for ONTraC.
+Analysis workflows for ONTraC.
 
-This module provides analysis tools and utilities for spatial transcriptomics data,
-including clustering analysis, trajectory inference, annotation, and visualization.
+This module provides visualization and post-processing utilities for clustering,
+niche composition, connectivity, and trajectory interpretation.
 """

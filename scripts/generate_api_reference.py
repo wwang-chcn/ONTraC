@@ -190,6 +190,8 @@ def iter_python_files(src_dir: Path, excluded_dir_names: Sequence[str]) -> Itera
     excluded = set(excluded_dir_names)
     files = []
     for path in src_dir.rglob("*.py"):
+        if path == src_dir / "__init__.py":
+            continue
         if any(part in excluded for part in path.parts):
             continue
         files.append(path)
@@ -403,6 +405,13 @@ def main() -> None:
         (out_dir / f"{module_doc.name}.md").write_text(render_module(module_doc), encoding="utf-8")
 
     modules.sort(key=lambda x: x.name)
+
+    expected_files = {f"{module.name}.md" for module in modules}
+    expected_files.add("index.md")
+    for existing in out_dir.glob("*.md"):
+        if existing.name not in expected_files:
+            existing.unlink()
+
     (out_dir / "index.md").write_text(render_index(modules=modules), encoding="utf-8")
     (out_dir.parent / "api_reference_generation.md").write_text(render_generation_doc(), encoding="utf-8")
     (out_dir.parent / "api_reference_transfer.md").write_text(render_transfer_doc(), encoding="utf-8")

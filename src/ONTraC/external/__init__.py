@@ -1,6 +1,6 @@
 """
-Excutive module for ONTraC analysis.
+External-tool integrations for ONTraC.
 
-This module provides API interfaces for using other languages (e.g., R) as some parts of ONTraC.
+This module exposes wrappers that call third-party programs (for example R
+scripts) from the ONTraC workflow.
 """
-

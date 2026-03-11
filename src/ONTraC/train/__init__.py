@@ -1,7 +1,8 @@
 """
-Train module for ONTraC.
+Training utilities for ONTraC.
 
-This module contains APIs to train the GNN model.
+This module exports trainer classes and objective functions for fitting
+ONTraC graph neural network models.
 """
 
 from ._batch_train import *

@@ -1,7 +1,8 @@
 """
-NicheTrajectory module for ONTraC.
+Niche-trajectory construction APIs for ONTraC.
 
-This module accounts for the NT (niche trajectory construction) step in ONTraC.
+This module contains trajectory-path inference and niche-level score
+aggregation utilities.
 """
 
 from ._niche_trajectory import *

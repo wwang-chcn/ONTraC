@@ -1,7 +1,8 @@
 """
-Integrate module for ONTraC analysis.
+Interactive integration helpers for ONTraC.
 
-This module provides API interfaces for running ontrac interactively through jupyter notebooks or in other packages.
+This module provides programmatic entry points for running ONTraC from
+notebooks or other Python projects.
 """
 
 from .general_control import run_ontrac

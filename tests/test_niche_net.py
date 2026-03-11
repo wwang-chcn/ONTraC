@@ -125,16 +125,12 @@ def cell_type_composition() -> np.ndarray:
 
 
 def test_load_meta_data(options: Values) -> None:
-    """
-    Test the load_meta_data module.
-    :param options: Values, options.
-    :return: None.
-    """
+    """Validate metadata loading and generated cell-type-code artifacts."""
 
     with temp_dirs(options=options):
         # load_meta_data function should:
         # 1) read original data file (options.meta_input)
-        # 2) retrun original data with Cell_ID, Sample, Cell_Type, x, and y columns
+        # 2) return original data with Cell_ID, Sample, Cell_Type, x, and y columns
         # 3) Cell_ID should be unique
         # 4) Cell_Type should be categorical
         # 5) save `cell_type_code.csv` file in the preprocessing directory
@@ -167,15 +163,7 @@ def test_load_meta_data(options: Values) -> None:
 
 def test_build_knn_network(options: Values, sample_data_df: pd.DataFrame, sample_name: str, dis_matrix: np.ndarray,
                            indices_matrix: np.ndarray) -> None:
-    """
-    Test the build_knn_network function.
-    :param options: Values, options.
-    :param sample_data_df: pd.DataFrame, sample data.
-    :param sample_name: str, sample name.
-    :param dis_matrix: np.ndarray, distance matrix.
-    :param indices_matrix: np.ndarray, indices matrix.
-    :return: None.
-    """
+    """Check kNN graph construction outputs against expected coordinates, distances, and neighbor indices."""
 
     # Call the function
     gen_coordinates, gen_dis_matrix, gen_indices_matrix = build_knn_network(sample_name=sample_name,
@@ -205,15 +193,7 @@ def test_build_knn_network(options: Values, sample_data_df: pd.DataFrame, sample
 
 def test_calc_edge_index(options: Values, sample_data_df: pd.DataFrame, sample_name: str, indices_matrix: np.ndarray,
                          edge_index: np.ndarray) -> None:
-    """
-    Test the calc_edge_index function.
-    :param options: Values, options.
-    :param sample_data_df: pd.DataFrame, sample data.
-    :param sample_name: str, sample name.
-    :param indices_matrix: np.ndarray, indices matrix.
-    :param edge_index: np.ndarray, edge index.
-    :return: None.
-    """
+    """Validate edge-index conversion from neighbor indices."""
 
     # Call the function
     gen_edge_index = calc_edge_index(sample_name=sample_name,
@@ -233,15 +213,7 @@ def test_calc_edge_index(options: Values, sample_data_df: pd.DataFrame, sample_n
 
 def test_calc_niche_weight_matrix(options: Values, sample_data_df: pd.DataFrame, dis_matrix: np.ndarray,
                                   indices_matrix: np.ndarray, niche_weight_matrix: csr_matrix) -> None:
-    """
-    Test the calc_niche_weight_matrix function.
-    :param options: Values, options.
-    :param sample_data_df: pd.DataFrame, sample data.
-    :param dis_matrix: np.ndarray, distance matrix.
-    :param indices_matrix: np.ndarray, indices matrix.
-    :param niche_weight_matrix: csr_matrix, niche weight matrix.
-    :return: None.
-    """
+    """Verify Gaussian niche-weight matrix values against a fixed reference."""
 
     # Call the function
     gen_niche_weight_matrix = calc_niche_weight_matrix(sample_name='sample',
@@ -263,14 +235,7 @@ def test_calc_niche_weight_matrix(options: Values, sample_data_df: pd.DataFrame,
 
 def test_calc_cell_type_composition(niche_weight_matrix: csr_matrix, ct_coding_matrix: np.ndarray,
                                     cell_type_composition: np.ndarray) -> None:
-    """
-    Test the calc_cell_type_composition function.
-    :param options: Values, options.
-    :param sample_data_df: pd.DataFrame, sample data.
-    :param niche_weight_matrix: csr_matrix, niche weight matrix.
-    :param cell_type_composition: np.ndarray, cell type composition.
-    :return: None.
-    """
+    """Check computed cell-type composition against expected normalized outputs."""
 
     # Call the function
     gen_cell_type_composition = calc_cell_type_composition(niche_weight_matrix=niche_weight_matrix,

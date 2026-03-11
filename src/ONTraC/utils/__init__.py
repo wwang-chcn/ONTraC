@@ -1,6 +1,8 @@
 """
-Utils module for ONTraC.
+General utility functions for ONTraC.
 
-This module contains utility functions and classes for ONTraC, including general-purpose functions that are used across different modules of ONTraC."""
+This module contains shared helpers used across data processing, training,
+analysis, and command-line execution.
+"""
 
 from ._utils import *

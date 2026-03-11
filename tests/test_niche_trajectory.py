@@ -3,15 +3,13 @@ from unittest.mock import Mock
 import numpy as np
 import pandas as pd
 
-from ONTraC.niche_trajectory._niche_trajectory import get_niche_NTScore, get_niche_trajectory_path, trajectory_path_to_NC_score
+from ONTraC.niche_trajectory._niche_trajectory import (get_niche_NTScore,
+                                                       get_niche_trajectory_path,
+                                                       trajectory_path_to_NC_score)
 
 
 def test_get_niche_trajectory_path() -> None:
-    """
-    Test the function get_niche_trajectory_path.
-    
-    :return: None.
-    """
+    """Validate path construction for multiple adjacency matrices and trajectory settings."""
     # Test case: Adjacency matrix with 4 nodes
     adj_matrix = np.array([[0, 10, 15, 20], [10, 0, 35, 25], [15, 35, 0, 30], [20, 25, 30, 0]])
     expected_path = [0, 3, 2, 1]
@@ -48,11 +46,7 @@ def test_get_niche_trajectory_path() -> None:
 
 
 def test_trajectory_path_to_NC_score():
-    """
-    Test the function trajectory_path_to_NC_score.
-    :param options: Values, options.
-    :return: None.
-    """
+    """Verify conversion from trajectory path to ordered niche-cluster score."""
 
     options = Mock()
 
@@ -66,11 +60,7 @@ def test_trajectory_path_to_NC_score():
 
 
 def test_get_niche_NTScore():
-    """
-    Test the function get_niche_NTScore.
-    :param options: Values, options.
-    :return: None.
-    """
+    """Validate niche-level NT score calculation on a synthetic toy example."""
 
     # Test case: Niche cluster loading with 3 clusters and adjacency matrix with 3 nodes
     niche_level_niche_cluster_assign_df = pd.DataFrame(np.array([[0.1, 0.2, 0.7], [0.4, 0.5, 0.1],
