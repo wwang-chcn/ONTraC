@@ -10,4 +10,8 @@ find . -type d -name "build" -exec rm -rf {} +
 # Clean cache files
 find . -type f -name "*.pyc" -delete
 
+# Clean API reference
+rm -r docs/api_reference
+
+
 echo "Cache cleaned successfully!"
