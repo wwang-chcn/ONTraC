@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+"""This module contains the main function for the `ONTraC_NN` CLI pipeline for niche network construction."""
 
 import sys
 
@@ -11,9 +12,7 @@ from ..utils import write_version_info
 # Main Function
 # ------------------------------------
 def main() -> None:
-    """
-    The main function
-    """
+    """Run the `ONTraC_NN` CLI pipeline for niche network construction."""
 
     # write version information
     write_version_info()

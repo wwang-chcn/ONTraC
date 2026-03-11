@@ -1,3 +1,5 @@
+"""This module contains functions for QC in niche networks step."""
+
 from pathlib import Path
 from typing import List, Optional, Tuple, Union
 
@@ -20,12 +22,23 @@ from .data import AnaData
 def clustering_visualization(
         data_df: pd.DataFrame,
         output_file_path: Optional[Union[str, Path]] = None) -> Optional[Tuple[plt.Figure, plt.Axes]]:
-    """
-    Visualization of clustering results.
-    :param data_df: pd.DataFrame, data for visualization.
-    :param output_file_path: str or Path, output file path.
-    :return: None.
-    """
+    """Plot UMAP clustering colored by cell type.
+    
+        Parameters
+        ----------
+    data_df :
+        pd.DataFrame
+            Data frame containing ``Embedding_1``, ``Embedding_2`` and ``Cell_Type``.
+    output_file_path :
+        str or Path, optional
+            Directory where ``clustering.pdf`` is written. If not provided, the
+            figure is returned for interactive use.
+    
+        Returns
+        -------
+        tuple[matplotlib.figure.Figure, matplotlib.axes.Axes] or None
+            Figure/axes for in-memory use, or ``None`` when saved to disk.
+        """
 
     with sns.axes_style('white', rc={
             'xtick.bottom': True,
@@ -53,10 +66,12 @@ def clustering_visualization(
 
 def clustering_visualization_from_anadata(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.Axes]]:
     """Visualization of clustering results.
-    
-    Args:
-        ana_data: AnaData object.
-    """
+        
+    Parameters
+    ----------
+    ana_data :
+        AnaData object.
+        """
 
     # check if the embedding is available
     if ana_data.umap_embedding is None:
@@ -74,6 +89,27 @@ def clustering_visualization_from_anadata(ana_data: AnaData) -> Optional[Tuple[p
 def embedding_adjust_visualization(dis_df: pd.DataFrame,
                                    output_file_name: str,
                                    output_file_path: Optional[Union[str, Path]] = None) -> Optional[ClusterGrid]:
+    """Draw a clustered heatmap for pairwise distance/similarity matrices.
+    
+        Parameters
+        ----------
+    dis_df :
+        pd.DataFrame
+            Square matrix indexed by cell-type labels.
+    output_file_name :
+        str
+            File name to save under ``output_file_path``.
+    output_file_path :
+        str or Path, optional
+            Output directory. If ``None``, the :class:`seaborn.matrix.ClusterGrid`
+            object is returned.
+    
+        Returns
+        -------
+        ClusterGrid or None
+            In-memory plot object when no output path is provided, otherwise
+            ``None``.
+        """
     with sns.axes_style('white', rc={
             'xtick.bottom': True,
             'ytick.left': True
@@ -95,10 +131,12 @@ def embedding_adjust_visualization(dis_df: pd.DataFrame,
 
 def embedding_adjust_visualization_from_anadata(ana_data: AnaData) -> Optional[List[ClusterGrid]]:
     """Visualization of embedding adjust.
-
-    Args:
-        ana_data: AnaData object.
-    """
+    
+    Parameters
+    ----------
+    ana_data :
+        AnaData object.
+        """
 
     if not ana_data.options.embedding_adjust:
         return None

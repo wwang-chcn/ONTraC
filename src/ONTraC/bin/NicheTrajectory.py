@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+"""This module contains the main function for the `NicheTrajectory` command, which will be deprecated in favor of `ONTraC_NT`."""
 
 import sys
 
@@ -12,9 +13,7 @@ from ..utils import write_version_info
 # Main Function
 # ------------------------------------
 def main() -> None:
-    """
-    The main function
-    """
+    """Run deprecated `NicheTrajectory` command (use `ONTraC_NT`)."""
 
     # write version information
     write_version_info()

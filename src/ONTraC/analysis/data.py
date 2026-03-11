@@ -1,3 +1,5 @@
+"""This module defines the AnaData class and related functions to create it from ONTraC results."""
+
 import os
 from optparse import Values
 from pathlib import Path
@@ -16,17 +18,22 @@ from ..utils import get_meta_data_file, get_rel_params, read_yaml_file
 # ----------------------------
 def load_loss_record_data(options) -> Optional[Dict]:
     """
-    Parse the log file and save the training loss to a csv file.
-    Args:
-        options: Values, the options from optparse
-    Returns:
-        Dict: {'loss_df': DataFrame, 'loss_dict': Dict} or None
-        loss_df is the training loss DataFrame
-        loss_dict is the final loss dictionary
-
-    loss record example:
-        16:31:47 --- INFO: epoch: 1, batch: 1, loss: 8.554190635681152, spectral_loss: -6.64739809508319e-06, cluster_loss: 0.06959901750087738, feat_similarity_loss: 8.484598159790039
-    """
+        Parse the log file and save the training loss to a csv file.
+    Parameters
+    ----------
+    options :
+        Values, the options from optparse
+    Returns
+    -------
+    Dict
+        {'loss_df': DataFrame, 'loss_dict': Dict} or None
+            loss_df is the training loss DataFrame
+            loss_dict is the final loss dictionary
+    
+        loss record example:
+    16
+        31:47 --- INFO: epoch: 1, batch: 1, loss: 8.554190635681152, spectral_loss: -6.64739809508319e-06, cluster_loss: 0.06959901750087738, feat_similarity_loss: 8.484598159790039
+        """
     loss, loss_name = [], []  # type: ignore
     if options.log is None:
         return None
@@ -73,12 +80,16 @@ def load_loss_record_data(options) -> Optional[Dict]:
 
 def load_niche_cluster_connectivity(options: Values) -> Optional[np.ndarray]:
     """
-    Load the niche cluster connectivity from the output of GNN.
-    Args:
-        options: Values, the options from optparse
-    Returns:
-        Optional[np.ndarray]: the niche cluster connectivity
-    """
+        Load the niche cluster connectivity from the output of GNN.
+    Parameters
+    ----------
+    options :
+        Values, the options from optparse
+    Returns
+    -------
+    Optional[np.ndarray]
+        the niche cluster connectivity
+        """
 
     if options.GNN_dir is None:
         return None
@@ -95,12 +106,16 @@ def load_niche_cluster_connectivity(options: Values) -> Optional[np.ndarray]:
 
 def load_niche_cluster_score(options: Values) -> Optional[np.ndarray]:
     """
-    Load the niche cluster score from the output of NT score.
-    Args:
-        options: Values, the options from optparse
-    Returns:
-        Optional[np.ndarray]: the niche cluster score
-    """
+        Load the niche cluster score from the output of NT score.
+    Parameters
+    ----------
+    options :
+        Values, the options from optparse
+    Returns
+    -------
+    Optional[np.ndarray]
+        the niche cluster score
+        """
 
     if options.NT_dir is None:
         return None
@@ -117,12 +132,16 @@ def load_niche_cluster_score(options: Values) -> Optional[np.ndarray]:
 
 def load_niche_level_niche_cluster_assign(options: Values) -> Optional[DataFrame]:
     """
-    Load the niche cluster assignment for each niche level.
-    Args:
-        options: Values, the options from optparse
-    Returns:
-        Optional[DataFrame]: the niche cluster assignment for each niche level
-    """
+        Load the niche cluster assignment for each niche level.
+    Parameters
+    ----------
+    options :
+        Values, the options from optparse
+    Returns
+    -------
+    Optional[DataFrame]
+        the niche cluster assignment for each niche level
+        """
 
     if options.GNN_dir is None:
         return None
@@ -139,12 +158,16 @@ def load_niche_level_niche_cluster_assign(options: Values) -> Optional[DataFrame
 
 def load_cell_level_niche_cluster_assign(options: Values) -> Optional[DataFrame]:
     """
-    Load the niche cluster assignment for each cell level.
-    Args:
-        options: Values, the options from optparse
-    Returns:
-        Optional[DataFrame]: the niche cluster assignment for each cell level
-    """
+        Load the niche cluster assignment for each cell level.
+    Parameters
+    ----------
+    options :
+        Values, the options from optparse
+    Returns
+    -------
+    Optional[DataFrame]
+        the niche cluster assignment for each cell level
+        """
 
     if options.GNN_dir is None:
         return None
@@ -161,12 +184,16 @@ def load_cell_level_niche_cluster_assign(options: Values) -> Optional[DataFrame]
 
 def load_niche_level_max_niche_cluster(options: Values) -> Optional[DataFrame]:
     """
-    Load the max niche cluster assignment for each niche level.
-    Args:
-        options: Values, the options from optparse
-    Returns:
-        Optional[DataFrame]: the max niche cluster assignment for each niche level
-    """
+        Load the max niche cluster assignment for each niche level.
+    Parameters
+    ----------
+    options :
+        Values, the options from optparse
+    Returns
+    -------
+    Optional[DataFrame]
+        the max niche cluster assignment for each niche level
+        """
 
     if options.GNN_dir is None:
         return None
@@ -183,12 +210,16 @@ def load_niche_level_max_niche_cluster(options: Values) -> Optional[DataFrame]:
 
 def load_cell_level_max_niche_cluster(options: Values) -> Optional[DataFrame]:
     """
-    Load the max niche cluster assignment for each cell level.
-    Args:
-        options: Values, the options from optparse
-    Returns:
-        Optional[DataFrame]: the max niche cluster assignment for each cell level
-    """
+        Load the max niche cluster assignment for each cell level.
+    Parameters
+    ----------
+    options :
+        Values, the options from optparse
+    Returns
+    -------
+    Optional[DataFrame]
+        the max niche cluster assignment for each cell level
+        """
 
     if options.GNN_dir is None:
         return None
@@ -205,12 +236,16 @@ def load_cell_level_max_niche_cluster(options: Values) -> Optional[DataFrame]:
 
 def load_niche_hidden_features(options: Values) -> Optional[np.ndarray]:
     """
-    Load the niche hidden features.
-    Args:
-        options: Values, the options from optparse
-    Returns:
-        Optional[np.ndarray]: the niche hidden features
-    """
+        Load the niche hidden features.
+    Parameters
+    ----------
+    options :
+        Values, the options from optparse
+    Returns
+    -------
+    Optional[np.ndarray]
+        the niche hidden features
+        """
 
     if options.NT_dir is None:
         return None
@@ -231,35 +266,24 @@ def load_niche_hidden_features(options: Values) -> Optional[np.ndarray]:
 
 
 class AnaData:
-    """
-    Class to store the data for analysis
-    This class have the following attributes:
-    - options: Values, the options from optparse
-    - rel_params: Dict, the relative paths for params
-    - meta_data_df: DataFrame, the original Cell ID and Cell Type
-    - train_loss: Dict, the training loss
-    - cell_type_codes: DataFrame, the cell type codes
-    - cell_type_coding: np.ndarray, #N X #cell_type, the cell type coding matrix
-    - cell_type_composition: DataFrame, the cell type composition
-    - ct_embedding: DataFrame, #cell_type X #gene, the cell type embedding
-    - niche_cluster_connectivity: np.ndarray, the niche cluster connectivity
-    - niche_level_niche_cluster_assign: DataFrame, the niche cluster assignment for each niche level
-    - cell_level_niche_cluster_assign: DataFrame, the niche cluster assignment for each cell level
-    - niche_level_max_niche_cluster: DataFrame, the max niche cluster assignment for each niche level
-    - cell_level_max_niche_cluster: DataFrame, the max niche cluster assignment for each cell level
-    - train_loss: Dict, the training loss
-    - NT_score: DataFrame, the NT score
-    - niche_cluster_score: np.ndarray, the niche cluster score
-    - niche_level_niche_cluster_assign: pd.DataFrame, the niche cluster assignment for each niche level
-    - cell_level_niche_cluster_assign: pd.DataFrame, the niche cluster assignment for each cell level
-    - niche_level_max_niche_cluster: pd.DataFrame, the max niche cluster assignment for each niche level
-    - cell_level_max_niche_cluster: pd.DataFrame, the max niche cluster assignment for each cell level
-    - niche_hidden_features: np.ndarray, the hidden features for each niche level
+    """Lazy-loading analysis container for ONTraC outputs.
+
+    ``AnaData`` centralizes metadata and downstream artifacts generated by
+    preprocessing (`NN_dir`), graph clustering (`GNN_dir`), and niche trajectory
+    scoring (`NT_dir`). Expensive tables are loaded on first access via
+    properties, which keeps command-line visualization pipelines lightweight.
     """
 
     def __init__(self, options: Values) -> None:
-        """
-        Initialize the class with the options"""
+        """Initialize an analysis object from parsed CLI options.
+        
+                Parameters
+                ----------
+        options :
+            Values
+                    Parsed options object that may include ``NN_dir``, ``GNN_dir``,
+                    ``NT_dir``, and optional visualization flags.
+                """
 
         # save options
         self.options = options
@@ -296,12 +320,28 @@ class AnaData:
 
     @property
     def train_loss(self):
+        """Load and cache training-loss summaries parsed from log files.
+
+        Returns
+        -------
+        dict or None
+            Dictionary with ``loss_df`` and ``loss_dict`` keys when a log file is
+            available; otherwise ``None``.
+        """
         if getattr(self, '_train_loss', None) is None:
             self._train_loss = load_loss_record_data(self.options)
         return self._train_loss
 
     @property
     def umap_embedding(self) -> Optional[np.ndarray]:
+        """Return the 2D UMAP embedding saved by preprocessing.
+
+        Returns
+        -------
+        np.ndarray or None
+            Array of shape ``(n_cells, 2)`` if ``UMAP_embedding.csv`` exists,
+            else ``None``.
+        """
         if getattr(self, '_umap_embedding', None) is None:  # type: ignore
             if not os.path.isfile(f'{self.options.NN_dir}/UMAP_embedding.csv'):
                 warning('UMAP_embedding.csv are required for clustering visualization. Skip the clustering visualization.')
@@ -312,6 +352,13 @@ class AnaData:
 
     @property
     def cell_type_codes(self) -> DataFrame:
+        """Load mapping from integer code to cell-type name.
+
+        Returns
+        -------
+        DataFrame
+            Table from ``cell_type_code.csv`` with a ``Cell_Type`` column.
+        """
         if getattr(self, '_cell_type_codes', None) is None:  # type: ignore
             self._cell_type_codes = pd.read_csv(f'{self.options.NN_dir}/cell_type_code.csv', index_col=0)
             # order the cell type in meta_data_df
@@ -322,11 +369,24 @@ class AnaData:
 
     @property
     def cell_type_coding(self) -> np.ndarray:
+        """Load one-hot-like cell-type coding matrix.
+
+        Returns
+        -------
+        np.ndarray
+            Matrix with shape ``(n_cells_or_spots, n_cell_types)``.
+        """
         if getattr(self, '_cell_type_coding', None) is None:
             self._cell_type_coding = pd.read_csv(f'{self.options.NN_dir}/ct_coding.csv', index_col=0).values
         return self._cell_type_coding
 
     def _load_cell_type_composition(self) -> None:
+        """Load per-cell (or per-spot) cell-type composition across all samples.
+
+        This internal helper concatenates per-sample feature matrices, aligns
+        them to ``meta_data_df`` ordering, and optionally loads raw and adjusted
+        matrices when embedding adjustment is enabled.
+        """
         data_df_list, data_2_df_list = [], []  # cell type composition, raw cell type composition
         for sample in self.rel_params['Data']:
             # cell type composition
@@ -379,11 +439,25 @@ class AnaData:
 
     @property
     def cell_type_composition(self) -> DataFrame:
+        """Return the (possibly raw) cell-type composition matrix.
+
+        Returns
+        -------
+        DataFrame
+            Cell/spot-by-cell-type matrix with an additional ``Sample`` column.
+        """
         if getattr(self, '_cell_type_composition', None) is None:
             self._load_cell_type_composition()
         return self._cell_type_composition
 
     def _load_NT_score(self) -> Optional[DataFrame]:
+        """Load and align NT scores to metadata index.
+
+        Returns
+        -------
+        DataFrame or None
+            NT score table indexed like ``meta_data_df`` when available.
+        """
         if self.options.NT_dir is None:
             return None
         if not os.path.isfile(f'{self.options.NT_dir}/NTScore.csv.gz'):
@@ -394,6 +468,13 @@ class AnaData:
 
     @property
     def adjust_cell_type_composition(self) -> DataFrame:
+        """Return embedding-adjusted cell-type composition.
+
+        Returns
+        -------
+        DataFrame
+            Adjusted composition matrix aligned to metadata order.
+        """
         if not self.options.embedding_adjust:
             warning('The embedding adjust is not enabled. Skip the adjust cell type composition loading.')
         if getattr(self, '_adjust_cell_type_composition', None) is None:
@@ -402,6 +483,13 @@ class AnaData:
 
     @property
     def ct_embedding(self) -> Optional[DataFrame]:
+        """Load cell-type embedding used for composition adjustment.
+
+        Returns
+        -------
+        DataFrame or None
+            Cell-type embedding table, or ``None`` if the file is absent.
+        """
         if getattr(self, '_ct_embedding', None) is None:  # type: ignore
             if not os.path.isfile(f'{self.options.NN_dir}/ct_embedding.csv'):
                 warning(f"Cannot find cell type embedding file: {self.options.NN_dir}/ct_embedding.csv.")
@@ -411,24 +499,28 @@ class AnaData:
 
     @property
     def NT_score(self) -> Optional[DataFrame]:
+        """Return cached NT score table."""
         if getattr(self, '_NT_score', None) is None:  # type: ignore
             self._NT_score = self._load_NT_score()
         return self._NT_score
 
     @property
     def niche_cluster_connectivity(self) -> Optional[np.ndarray]:
+        """Return niche-cluster connectivity matrix from GNN output."""
         if getattr(self, '_niche_cluster_connectivity', None) is None:  # type: ignore
             self._niche_cluster_connectivity = load_niche_cluster_connectivity(self.options)
         return self._niche_cluster_connectivity
 
     @property
     def niche_cluster_score(self) -> Optional[np.ndarray]:
+        """Return niche-cluster trajectory scores from NT output."""
         if getattr(self, '_niche_cluster_score', None) is None:  # type: ignore
             self._niche_cluster_score = load_niche_cluster_score(self.options)
         return self._niche_cluster_score
 
     @property
     def niche_level_niche_cluster_assign(self) -> Optional[DataFrame]:
+        """Load niche-cluster assignments at niche level and align by index."""
         if getattr(self, '_niche_level_niche_cluster_assign', None) is None:  # type: ignore
             self._niche_level_niche_cluster_assign = load_niche_level_niche_cluster_assign(self.options)
             if self._niche_level_niche_cluster_assign is None:
@@ -442,6 +534,7 @@ class AnaData:
 
     @property
     def cell_level_niche_cluster_assign(self) -> Optional[DataFrame]:
+        """Load niche-cluster assignments at cell level and align by index."""
         if getattr(self, '_cell_level_niche_cluster_assign', None) is None:  # type: ignore
             self._cell_level_niche_cluster_assign = load_cell_level_niche_cluster_assign(self.options)
             if self._cell_level_niche_cluster_assign is None:
@@ -455,6 +548,7 @@ class AnaData:
 
     @property
     def niche_level_max_niche_cluster(self) -> Optional[DataFrame]:
+        """Load most-likely niche cluster at niche level."""
         if getattr(self, '_niche_level_max_niche_cluster', None) is None:  # type: ignore
             self._niche_level_max_niche_cluster = load_niche_level_max_niche_cluster(self.options)
             if self._niche_level_max_niche_cluster is None:
@@ -467,6 +561,7 @@ class AnaData:
 
     @property
     def cell_level_max_niche_cluster(self) -> Optional[DataFrame]:
+        """Load most-likely niche cluster at cell level."""
         if getattr(self, '_cell_level_max_niche_cluster', None) is None:  # type: ignore
             self._cell_level_max_niche_cluster = load_cell_level_max_niche_cluster(self.options)
             if self._cell_level_max_niche_cluster is None:
@@ -479,6 +574,7 @@ class AnaData:
 
     @property
     def niche_hidden_features(self) -> Optional[np.ndarray]:
+        """Load hidden feature representation for each niche."""
         if getattr(self, '_niche_hidden_features', None) is None:  # type: ignore
             self._niche_hidden_features = load_niche_hidden_features(self.options)
             if self._niche_hidden_features is None:

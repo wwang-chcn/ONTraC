@@ -1,3 +1,5 @@
+"""This module contains API to use R-based deconvolution method STdeconvolve for ONTraC."""
+
 import subprocess
 from importlib import resources
 from pathlib import Path
@@ -10,14 +12,22 @@ def apply_STdeconvolve(NN_dir: Union[str, Path],
                        exp_df: pd.DataFrame,
                        ct_num: int,
                        gen_ct_embedding: bool = False) -> pd.DataFrame:
-    """
-    Apply STdeconvolve to spot-level data.
-    :param NN_dir: Niche network directory.
-    :param pd.DataFram: Expression dataFrame.  #spot x #gene
-    :param ct_num: Number of cell types.
-    :param gen_ct_embedding: Generate cell type embedding or not.
-    :return: Deconvoluted expression DataFrame.  #spot x #cell_type
-    """
+    """Apply STdeconvolve to spot-level data.
+    
+    Parameters
+    ----------
+    NN_dir :
+        Niche network directory.
+    pd.DataFram :
+        Expression dataFrame.  #spot x #gene
+    ct_num :
+        Number of cell types.
+    gen_ct_embedding :
+        Generate cell type embedding or not.
+    
+    Returns
+    -------
+    Deconvoluted expression DataFrame.  #spot x #cell_type"""
 
     # save expression matrix in csv format
     exp_matrix_file = f'{NN_dir}/filtered_spot_exp.csv.gz'

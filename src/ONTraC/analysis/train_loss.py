@@ -1,3 +1,5 @@
+"""This module contains functions for training loss visualization."""
+
 from typing import Optional, Tuple
 
 import matplotlib as mpl
@@ -12,11 +14,16 @@ from .data import AnaData
 
 
 def train_loss_visualiztion(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.Axes]]:
-    """
-    Train loss visualization.
-    :param ana_data: AnaData.
-    :return: None or (fig, axes).
-    """
+    """Train loss visualization.
+    
+    Parameters
+    ----------
+    ana_data :
+        AnaData.
+    
+    Returns
+    -------
+    None or (fig, axes)."""
 
     if ana_data.train_loss is None:
         return None

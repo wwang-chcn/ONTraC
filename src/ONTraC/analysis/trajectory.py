@@ -1,3 +1,5 @@
+"""This module contains functions for trajectory analysis and visualization."""
+
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Union
 
@@ -21,22 +23,26 @@ def construct_meta_cell_along_trajectory(meta_data_df: pd.DataFrame,
                                          trajectory: str,
                                          n_cells: int = 10) -> pd.DataFrame:
     """
-    Construct features for meta-cells by binning cells along the trajectory.
-
-    Parameters
-    ----------
-    meta_data_df : pd.DataFrame
-        DataFrame containing features for each cell. Rows are cells and columns are features. Features should be continuous values.
-    trajectory : str
-        Column name in feat_df that contains the trajectory values.
-    n_cells : int
-        Number of cells to bin in each meta-cell.
+        Construct features for meta-cells by binning cells along the trajectory.
     
-    Returns
-    -------
-    metacell_df : pd.DataFrame
-        DataFrame containing features for meta-cells. Rows are meta-cells and columns are features.
-    """
+        Parameters
+        ----------
+    meta_data_df :
+        pd.DataFrame
+            DataFrame containing features for each cell. Rows are cells and columns are features. Features should be continuous values.
+    trajectory :
+        str
+            Column name in feat_df that contains the trajectory values.
+    n_cells :
+        int
+            Number of cells to bin in each meta-cell.
+        
+        Returns
+        -------
+    metacell_df
+        pd.DataFrame
+            DataFrame containing features for meta-cells. Rows are meta-cells and columns are features.
+        """
 
     # ensure trajectory in meta_data_df
     assert trajectory in meta_data_df.columns, f"Trajectory column {trajectory} not found in meta_data_df."
@@ -64,33 +70,39 @@ def cal_features_correlation_along_trajectory(data_df: pd.DataFrame,
                                               rho_threshold: Optional[float] = None,
                                               p_val_threshold: Optional[float] = None) -> pd.DataFrame:
     """
-    Calculate the correlation between features and a trajectory in a DataFrame.
-
-    Parameters
-    ----------
-    data_df : pd.DataFrame
-        DataFrame containing features for each (meta-)cell.
-        Rows are meta-cells and columns are features and trajectory.
-        All columns should be continuous values.
-        All columns except the trajectory column should be features.
-    trajectory : str
-        Column name in data_df that contains the trajectory values.
-    features : Optional[List[str]]
-        Optional; if provided, only consider these features for correlation.
-        If None, consider all features except the trajectory column.
-    top_n : Optional[int]
-        Optional; if provided, return only the top N features with highest absolute correlation to the trajectory.
-        If None, return all features that meet the correlation and p-value thresholds.
-    rho_threshold : Optional[float]
-        Optional; minimum absolute correlation coefficient to consider a feature. If None, no threshold is applied.
-    p_val_threshold : Optional[float]
-        Optional; maximum p-value to consider a feature. If None, no threshold is applied.
-
-    Returns
-    -------
-    pd.DataFrame
-        DataFrame containing top correlated features.
-    """
+        Calculate the correlation between features and a trajectory in a DataFrame.
+    
+        Parameters
+        ----------
+    data_df :
+        pd.DataFrame
+            DataFrame containing features for each (meta-)cell.
+            Rows are meta-cells and columns are features and trajectory.
+            All columns should be continuous values.
+            All columns except the trajectory column should be features.
+    trajectory :
+        str
+            Column name in data_df that contains the trajectory values.
+    features :
+        Optional[List[str]]
+            Optional; if provided, only consider these features for correlation.
+            If None, consider all features except the trajectory column.
+    top_n :
+        Optional[int]
+            Optional; if provided, return only the top N features with highest absolute correlation to the trajectory.
+            If None, return all features that meet the correlation and p-value thresholds.
+    rho_threshold :
+        Optional[float]
+            Optional; minimum absolute correlation coefficient to consider a feature. If None, no threshold is applied.
+    p_val_threshold :
+        Optional[float]
+            Optional; maximum p-value to consider a feature. If None, no threshold is applied.
+    
+        Returns
+        -------
+        pd.DataFrame
+            DataFrame containing top correlated features.
+        """
 
     if trajectory not in data_df.columns:
         raise ValueError(f"Trajectory column '{trajectory}' not found in metacell_data_df.")
@@ -128,39 +140,50 @@ def plot_scatter_feat_along_trajectory(data_df: pd.DataFrame,
                                        line_kws: Optional[Dict] = None,
                                        **kwargs) -> Tuple[plt.Figure, plt.Axes]:
     """
-    Plot scatter plot of feature along trajectory.
-
-    Parameters
-    ----------
-    data_df : pd.DataFrame
-        DataFrame containing features for each cell. Rows are cells and columns are features. Features should be continuous values.
-    trajectory : str
-        Column name in feat_df that contains the trajectory values.
-    feature : str
-        Column name in feat_df that contains the feature values.
-    fit_reg : bool
-        Whether to plot regression line.
-    annotate_pos : str
-        Position to annotate PCC and p-value. Should be one of 'upper left', 'upper right', 'lower left', 'lower right', None.
-        None means no annotation.
-    figszie : Tuple[int, int]
-        Figure size. Default is (5, 3).
-    ylabel : str
-        Label for y-axis.
-    scatter_kws : dict
-        Additional arguments for sns.regplot scatter_kws.
-    line_kws : dict
-        Additional arguments for sns.regplot line_kws.
-    **kwargs
-        Additional arguments for sns.regplot.
-
-    Returns
-    -------
-    fig : plt.Figure
-        Figure object.
-    ax : plt.Axes
-        Axes object.
-    """
+        Plot scatter plot of feature along trajectory.
+    
+        Parameters
+        ----------
+    data_df :
+        pd.DataFrame
+            DataFrame containing features for each cell. Rows are cells and columns are features. Features should be continuous values.
+    trajectory :
+        str
+            Column name in feat_df that contains the trajectory values.
+    feature :
+        str
+            Column name in feat_df that contains the feature values.
+    fit_reg :
+        bool
+            Whether to plot regression line.
+    annotate_pos :
+        str
+            Position to annotate PCC and p-value. Should be one of 'upper left', 'upper right', 'lower left', 'lower right', None.
+            None means no annotation.
+    figszie :
+        Tuple[int, int]
+            Figure size. Default is (5, 3).
+    ylabel :
+        str
+            Label for y-axis.
+    scatter_kws :
+        dict
+            Additional arguments for sns.regplot scatter_kws.
+    line_kws :
+        dict
+            Additional arguments for sns.regplot line_kws.
+        **kwargs
+            Additional arguments for sns.regplot.
+    
+        Returns
+        -------
+    fig
+        plt.Figure
+            Figure object.
+    ax
+        plt.Axes
+            Axes object.
+        """
 
     # default parameters
     default_scatter_kws = {'edgecolor': None}
@@ -254,34 +277,43 @@ def plot_cell_type_composition_along_trajectory(
         **kwargs,
         ) -> Optional[Tuple[plt.Figure, plt.Axes]]:
     """
-    Plot cell type composition along trajectory.
-
-    Parameters
-    ----------
-    data_df : pd.DataFrame
-        DataFrame containing cell type information for each cell. Rows are cells and columns are cell types and trajectory.
-    trajectory : str
-        Column name in data_df that contains the trajectory values.
-    cell_types : str or list of str
-        Column name(s) in data_df that contains the cell type information.
-    agg_cell_num : int
-        Number of cells to aggregate in each bin along the trajectory. Default is 10. 1 means no aggregation.
-    figsize : Optional[Tuple[int, int]]
-        Figure size. Default is (6, 2).
-    palette : Optional[Dict[str, str]]
-        Color palette for cell types. If None, use default color palette. Keys are cell types and values are colors.
-    output_file_path : Optional[Path]
-        If provided, save the figure to this path. If None, do not save the figure and return the figure, and axes objects.
-    **kwargs
-        Additional arguments for ax.plot().
+        Plot cell type composition along trajectory.
     
-    Returns
-    -------
-    fig : plt.Figure
-        Figure object.
-    ax : plt.Axes
-        Axes object.
-    """
+        Parameters
+        ----------
+    data_df :
+        pd.DataFrame
+            DataFrame containing cell type information for each cell. Rows are cells and columns are cell types and trajectory.
+    trajectory :
+        str
+            Column name in data_df that contains the trajectory values.
+    cell_types :
+        str or list of str
+            Column name(s) in data_df that contains the cell type information.
+    agg_cell_num :
+        int
+            Number of cells to aggregate in each bin along the trajectory. Default is 10. 1 means no aggregation.
+    figsize :
+        Optional[Tuple[int, int]]
+            Figure size. Default is (6, 2).
+    palette :
+        Optional[Dict[str, str]]
+            Color palette for cell types. If None, use default color palette. Keys are cell types and values are colors.
+    output_file_path :
+        Optional[Path]
+            If provided, save the figure to this path. If None, do not save the figure and return the figure, and axes objects.
+        **kwargs
+            Additional arguments for ax.plot().
+        
+        Returns
+        -------
+    fig
+        plt.Figure
+            Figure object.
+    ax
+        plt.Axes
+            Axes object.
+        """
 
     # ensure trajectory in data_df
     assert trajectory in data_df.columns, f"Trajectory column {trajectory} not found in data_df."
@@ -354,36 +386,44 @@ def plot_cell_type_composition_along_trajectory_from_anadata(
         **kwargs,
         ) -> Optional[Tuple[plt.Figure, plt.Axes]]:
     """
-    Plot cell type composition (niche features) along trajectory from AnaData object.
-
-    Parameters
-    ----------
-    ana_data : AnaData
-        AnaData object.
-    cell_types : list of str
-        List of cell types to plot. If None, plot all cell types in ana_data.cell_type_codes.
-        Cell types not found in ana_data.cell_type_codes will be ignored with a warning.
-    agg_cell_num : int
-        Number of cells to aggregate in each bin along the trajectory. Default is 10. 1 means no aggregation.
-    figsize : Tuple[int, int]
-        Figure size. Default is (6, 2).
-    palette : Optional[Dict[str, str]]
-        Color palette for cell types. If None, use default color palette. Keys are cell types and values are colors.
-    output_file_path : Optional[Union[Path, str]]
-        Path to save the figure. If None, the default path
-        {ana_data.options.output}/lineplot_raw_cell_type_composition_along_trajectory.pdf is used. 
-        If ana_data.options.output is also None, the figure will not be saved and the function 
-        will return the figure and axes objects instead.
-    **kwargs
-        Additional arguments for ax.plot().
+        Plot cell type composition (niche features) along trajectory from AnaData object.
     
-    Returns
-    -------
-    fig : plt.Figure
-        Figure object.
-    ax : plt.Axes
-        Axes object.
-    """
+        Parameters
+        ----------
+    ana_data :
+        AnaData
+            AnaData object.
+    cell_types :
+        list of str
+            List of cell types to plot. If None, plot all cell types in ana_data.cell_type_codes.
+            Cell types not found in ana_data.cell_type_codes will be ignored with a warning.
+    agg_cell_num :
+        int
+            Number of cells to aggregate in each bin along the trajectory. Default is 10. 1 means no aggregation.
+    figsize :
+        Tuple[int, int]
+            Figure size. Default is (6, 2).
+    palette :
+        Optional[Dict[str, str]]
+            Color palette for cell types. If None, use default color palette. Keys are cell types and values are colors.
+    output_file_path :
+        Optional[Union[Path, str]]
+            Path to save the figure. If None, the default path
+            {ana_data.options.output}/lineplot_raw_cell_type_composition_along_trajectory.pdf is used. 
+            If ana_data.options.output is also None, the figure will not be saved and the function 
+            will return the figure and axes objects instead.
+        **kwargs
+            Additional arguments for ax.plot().
+        
+        Returns
+        -------
+    fig
+        plt.Figure
+            Figure object.
+    ax
+        plt.Axes
+            Axes object.
+        """
 
     # ensure ana_data has trajectory and cell types
     if ana_data.NT_score is None:

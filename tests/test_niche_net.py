@@ -17,6 +17,7 @@ from .utils import temp_dirs
 
 @pytest.fixture
 def options() -> Values:
+    """Provide shared ONTraC niche-network options for tests."""
     # Create an options object for testing
     _options = Values()
     _options.meta_input = 'tests/_data/test_metadata.csv'
@@ -29,6 +30,7 @@ def options() -> Values:
 
 @pytest.fixture()
 def sample_data_df(options: Values) -> pd.DataFrame:
+    """Load one sample's metadata with categorical cell types."""
     # Create sample data
     sample_data_df = pd.read_csv(options.meta_input)
     sample_data_df = sample_data_df[sample_data_df['Sample'] == 'S1']
@@ -38,11 +40,13 @@ def sample_data_df(options: Values) -> pd.DataFrame:
 
 @pytest.fixture()
 def sample_name() -> str:
+    """Return canonical test sample name."""
     return 'S1'
 
 
 @pytest.fixture()
 def dis_matrix() -> np.ndarray:
+    """Return reference kNN distance matrix."""
     return np.array([[0., 1.41421356, 2.82842712, 4.24264069, 5.65685425, 7.07106781],
                      [0., 1.41421356, 1.41421356, 2.82842712, 4.24264069, 5.65685425],
                      [0., 1.41421356, 1.41421356, 2.82842712, 2.82842712, 4.24264069],
@@ -55,12 +59,14 @@ def dis_matrix() -> np.ndarray:
 
 @pytest.fixture()
 def indices_matrix() -> np.ndarray:
+    """Return reference kNN index matrix."""
     return np.array([[0, 1, 2, 3, 4, 5], [1, 2, 0, 3, 4, 5], [2, 1, 3, 0, 4, 5], [3, 4, 2, 5, 1, 0], [4, 5, 3, 2, 6, 1],
                      [5, 4, 6, 7, 3, 2], [6, 7, 5, 4, 3, 2], [7, 6, 5, 4, 3, 2]])
 
 
 @pytest.fixture()
 def edge_index() -> np.ndarray:
+    """Return expected directed edge index for the reference graph."""
     return np.array([[0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [1, 0], [1, 2], [1, 3], [1, 4], [1, 5], [2, 0], [2, 1],
                      [2, 3], [2, 4], [2, 5], [2, 6], [2, 7], [3, 0], [3, 1], [3, 2], [3, 4], [3, 5], [3, 6], [3, 7],
                      [4, 0], [4, 1], [4, 2], [4, 3], [4, 5], [4, 6], [4, 7], [5, 0], [5, 1], [5, 2], [5, 3], [5, 4],
@@ -69,6 +75,7 @@ def edge_index() -> np.ndarray:
 
 @pytest.fixture()
 def niche_weight_matrix() -> csr_matrix:
+    """Return expected niche-weight adjacency as a sparse matrix."""
     return csr_matrix([[
         1.00000000e+00, 7.78800783e-01, 3.67879441e-01, 1.05399223e-01, 1.83156386e-02, 1.93045410e-03, 0.00000000e+00,
         0.00000000e+00
@@ -105,11 +112,13 @@ def niche_weight_matrix() -> csr_matrix:
 
 @pytest.fixture()
 def ct_coding_matrix() -> np.ndarray:
+    """Return synthetic one-hot cell-type coding matrix."""
     return np.array([[1., 0.], [0., 1.], [1., 0.], [0., 1.], [1., 0.], [0., 1.], [1., 0.], [0., 1.]])
 
 
 @pytest.fixture()
 def cell_type_composition() -> np.ndarray:
+    """Return expected cell-type composition output for reference input."""
     return np.array([[0.61003367, 0.38996633], [0.41949784, 0.58050216], [0.58483686, 0.41516314],
                      [0.41516314, 0.58483686], [0.58483686, 0.41516314], [0.41516314, 0.58483686],
                      [0.58050216, 0.41949784], [0.38996633, 0.61003367]])

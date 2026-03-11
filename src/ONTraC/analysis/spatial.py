@@ -1,3 +1,5 @@
+"""This module contains functions for spatial-based analysis and visualization."""
+
 from pathlib import Path
 from typing import List, Optional, Tuple, Union
 
@@ -19,14 +21,22 @@ def plot_cell_type_composition_dataset(
         cell_type_codes: pd.DataFrame,
         cell_type_composition: pd.DataFrame,
         output_file_path: Optional[Union[str, Path]] = None) -> Optional[Tuple[plt.Figure, plt.Axes]]:
-    """
-    Plot spatial distribution of cell type composition.
-    :param meta_data_df: pd.DataFrame, the meta data.
-    :param cell_type_codes: pd.DataFrame, the cell type codes.
-    :param cell_type_composition: pd.DataFrame, the cell type composition data.
-    :param output_file_path: Optional[Union[str, Path]], the output file path.
-    :return: None or Tuple[plt.Figure, plt.Axes].
-    """
+    """Plot spatial distribution of cell type composition.
+    
+    Parameters
+    ----------
+    meta_data_df :
+        pd.DataFrame, the meta data.
+    cell_type_codes :
+        pd.DataFrame, the cell type codes.
+    cell_type_composition :
+        pd.DataFrame, the cell type composition data.
+    output_file_path :
+        Optional[Union[str, Path]], the output file path.
+    
+    Returns
+    -------
+    None or Tuple[plt.Figure, plt.Axes]."""
 
     samples: List[str] = meta_data_df['Sample'].unique().tolist()
     cell_types: List[str] = cell_type_codes['Cell_Type'].tolist()
@@ -60,11 +70,16 @@ def plot_cell_type_composition_dataset(
 
 
 def plot_cell_type_composition_dataset_from_anadata(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.Axes]]:
-    """
-    Plot spatial distribution of cell type composition.
-    :param ana_data: AnaData, the data for analysis.
-    :return: None or Tuple[plt.Figure, plt.Axes].
-    """
+    """Plot spatial distribution of cell type composition.
+    
+    Parameters
+    ----------
+    ana_data :
+        AnaData, the data for analysis.
+    
+    Returns
+    -------
+    None or Tuple[plt.Figure, plt.Axes]."""
 
     try:
         if ana_data.cell_type_composition is None:
@@ -89,15 +104,24 @@ def plot_cell_type_composition_sample(
         cell_type_composition: pd.DataFrame,
         spatial_scaling_factor: float = 1.0,
         output_file_path: Optional[Union[str, Path]] = None) -> Optional[List[Tuple[plt.Figure, plt.Axes]]]:
-    """
-    Plot spatial distribution of cell type composition.
-    :param meta_data_df: pd.DataFrame, the meta data.
-    :param cell_type_codes: pd.DataFrame, the cell type codes.
-    :param cell_type_composition: pd.DataFrame, the cell type composition data.
-    :param spatial_scaling_factor: float, the scale factor control the size of spatial-based plots.
-    :param output_file_path: Optional[Union[str, Path]], the output file path.
-    :return: None.
-    """
+    """Plot spatial distribution of cell type composition.
+    
+    Parameters
+    ----------
+    meta_data_df :
+        pd.DataFrame, the meta data.
+    cell_type_codes :
+        pd.DataFrame, the cell type codes.
+    cell_type_composition :
+        pd.DataFrame, the cell type composition data.
+    spatial_scaling_factor :
+        float, the scale factor control the size of spatial-based plots.
+    output_file_path :
+        Optional[Union[str, Path]], the output file path.
+    
+    Returns
+    -------
+    None."""
 
     samples: List[str] = meta_data_df['Sample'].unique().tolist()
     cell_types: List[str] = cell_type_codes['Cell_Type'].tolist()
@@ -132,11 +156,16 @@ def plot_cell_type_composition_sample(
 
 
 def plot_cell_type_composition_sample_from_anadata(ana_data: AnaData) -> Optional[List[Tuple[plt.Figure, plt.Axes]]]:
-    """
-    Plot spatial distribution of cell type composition.
-    :param ana_data: AnaData, the data for analysis.
-    :return: None or Tuple[plt.Figure, plt.Axes].
-    """
+    """Plot spatial distribution of cell type composition.
+    
+    Parameters
+    ----------
+    ana_data :
+        AnaData, the data for analysis.
+    
+    Returns
+    -------
+    None or Tuple[plt.Figure, plt.Axes]."""
 
     try:
         if ana_data.cell_type_composition is None:
@@ -158,11 +187,16 @@ def plot_cell_type_composition_sample_from_anadata(ana_data: AnaData) -> Optiona
 
 def plot_cell_type_composition(
         ana_data: AnaData) -> Optional[Union[List[Tuple[plt.Figure, plt.Axes]], Tuple[plt.Figure, plt.Axes]]]:
-    """
-    Plot spatial distribution of cell type composition.
-    :param ana_data: AnaData, the data for analysis.
-    :return: None or Tuple[plt.Figure, plt.Axes].
-    """
+    """Plot spatial distribution of cell type composition.
+    
+    Parameters
+    ----------
+    ana_data :
+        AnaData, the data for analysis.
+    
+    Returns
+    -------
+    None or Tuple[plt.Figure, plt.Axes]."""
 
     if getattr(ana_data.options, 'sample', False):
         return plot_cell_type_composition_sample_from_anadata(ana_data=ana_data)
@@ -172,11 +206,16 @@ def plot_cell_type_composition(
 
 def plot_adjust_cell_type_composition_sample_from_anadata(
         ana_data: AnaData) -> Optional[List[Tuple[plt.Figure, plt.Axes]]]:
-    """
-    Plot spatial distribution of adjusted cell type composition.
-    :param ana_data: AnaData, the data for analysis.
-    :return: None or Tuple[plt.Figure, plt.Axes].
-    """
+    """Plot spatial distribution of adjusted cell type composition.
+    
+    Parameters
+    ----------
+    ana_data :
+        AnaData, the data for analysis.
+    
+    Returns
+    -------
+    None or Tuple[plt.Figure, plt.Axes]."""
 
     try:
         if ana_data.adjust_cell_type_composition is None:
@@ -194,11 +233,16 @@ def plot_adjust_cell_type_composition_sample_from_anadata(
 
 
 def plot_adjust_cell_type_composition_dataset_from_anadata(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.Axes]]:
-    """
-    Plot spatial distribution of adjusted cell type composition.
-    :param ana_data: AnaData, the data for analysis.
-    :return: None or Tuple[plt.Figure, plt.Axes].
-    """
+    """Plot spatial distribution of adjusted cell type composition.
+    
+    Parameters
+    ----------
+    ana_data :
+        AnaData, the data for analysis.
+    
+    Returns
+    -------
+    None or Tuple[plt.Figure, plt.Axes]."""
 
     try:
         if ana_data.adjust_cell_type_composition is None:
@@ -216,11 +260,16 @@ def plot_adjust_cell_type_composition_dataset_from_anadata(ana_data: AnaData) ->
 
 def plot_adjust_cell_type_composition(
         ana_data: AnaData) -> Optional[Union[List[Tuple[plt.Figure, plt.Axes]], Tuple[plt.Figure, plt.Axes]]]:
-    """
-    Plot spatial distribution of adjusted cell type composition.
-    :param ana_data: AnaData, the data for analysis.
-    :return: None or Tuple[plt.Figure, plt.Axes].
-    """
+    """Plot spatial distribution of adjusted cell type composition.
+    
+    Parameters
+    ----------
+    ana_data :
+        AnaData, the data for analysis.
+    
+    Returns
+    -------
+    None or Tuple[plt.Figure, plt.Axes]."""
 
     if getattr(ana_data.options, 'sample', False):
         return plot_adjust_cell_type_composition_sample_from_anadata(ana_data=ana_data)
@@ -233,14 +282,22 @@ def plot_niche_NT_score_dataset(
         meta_data_df: pd.DataFrame,
         reverse: bool = False,
         output_file_path: Optional[Union[str, Path]] = None) -> Optional[Tuple[plt.Figure, plt.Axes]]:
-    """
-    Plot spatial distribution of niche NT score.
-    :param NT_score: pd.DataFrame, the NT score data.
-    :param meta_data_df: pd.DataFrame, the meta data.
-    :param reverse: bool, reverse the NT score or not.
-    :param output_file_path: Optional[Union[str, Path]], the output file path.
-    :return: None or Tuple[plt.Figure, plt.Axes].
-    """
+    """Plot spatial distribution of niche NT score.
+    
+    Parameters
+    ----------
+    NT_score :
+        pd.DataFrame, the NT score data.
+    meta_data_df :
+        pd.DataFrame, the meta data.
+    reverse :
+        bool, reverse the NT score or not.
+    output_file_path :
+        Optional[Union[str, Path]], the output file path.
+    
+    Returns
+    -------
+    None or Tuple[plt.Figure, plt.Axes]."""
 
     samples: List[str] = meta_data_df['Sample'].unique().tolist()
 
@@ -266,11 +323,16 @@ def plot_niche_NT_score_dataset(
 
 
 def plot_niche_NT_score_dataset_from_anadata(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.Axes]]:
-    """
-    Plot spatial distribution of niche NT score.
-    :param ana_data: AnaData, the data for analysis.
-    :return: None or Tuple[plt.Figure, plt.Axes].
-    """
+    """Plot spatial distribution of niche NT score.
+    
+    Parameters
+    ----------
+    ana_data :
+        AnaData, the data for analysis.
+    
+    Returns
+    -------
+    None or Tuple[plt.Figure, plt.Axes]."""
 
     try:
         if ana_data.NT_score is None:
@@ -295,15 +357,24 @@ def plot_niche_NT_score_sample(
         reverse: bool = False,
         spatial_scaling_factor: float = 1.0,
         output_file_path: Optional[Union[str, Path]] = None) -> Optional[List[Tuple[plt.Figure, plt.Axes]]]:
-    """
-    Plot spatial distribution of niche NT score.
-    :param NT_score: pd.DataFrame, the NT score data.
-    :param meta_data_df: pd.DataFrame, the meta data.
-    :param reverse: bool, reverse the NT score or not.
-    :param spatial_scaling_factor: float, the scale factor control the size of spatial-based plots.
-    :param output_file_path: Optional[Union[str, Path]], the output file path.
-    :return: None or Tuple[plt.Figure, plt.Axes].
-    """
+    """Plot spatial distribution of niche NT score.
+    
+    Parameters
+    ----------
+    NT_score :
+        pd.DataFrame, the NT score data.
+    meta_data_df :
+        pd.DataFrame, the meta data.
+    reverse :
+        bool, reverse the NT score or not.
+    spatial_scaling_factor :
+        float, the scale factor control the size of spatial-based plots.
+    output_file_path :
+        Optional[Union[str, Path]], the output file path.
+    
+    Returns
+    -------
+    None or Tuple[plt.Figure, plt.Axes]."""
 
     samples: List[str] = meta_data_df['Sample'].unique().tolist()
 
@@ -329,11 +400,16 @@ def plot_niche_NT_score_sample(
 
 
 def plot_niche_NT_score_sample_from_anadata(ana_data: AnaData) -> Optional[List[Tuple[plt.Figure, plt.Axes]]]:
-    """
-    Plot spatial distribution of niche NT score.
-    :param ana_data: AnaData, the data for analysis.
-    :return: None or Tuple[plt.Figure, plt.Axes].
-    """
+    """Plot spatial distribution of niche NT score.
+    
+    Parameters
+    ----------
+    ana_data :
+        AnaData, the data for analysis.
+    
+    Returns
+    -------
+    None or Tuple[plt.Figure, plt.Axes]."""
 
     try:
         if ana_data.NT_score is None:
@@ -355,11 +431,16 @@ def plot_niche_NT_score_sample_from_anadata(ana_data: AnaData) -> Optional[List[
 
 def plot_niche_NT_score(
         ana_data: AnaData) -> Optional[Union[List[Tuple[plt.Figure, plt.Axes]], Tuple[plt.Figure, plt.Axes]]]:
-    """
-    Plot spatial distribution of niche NT score.
-    :param ana_data: AnaData, the data for analysis.
-    :return: None or Tuple[plt.Figure, plt.Axes].
-    """
+    """Plot spatial distribution of niche NT score.
+    
+    Parameters
+    ----------
+    ana_data :
+        AnaData, the data for analysis.
+    
+    Returns
+    -------
+    None or Tuple[plt.Figure, plt.Axes]."""
 
     if getattr(ana_data.options, 'sample', False):
         return plot_niche_NT_score_sample_from_anadata(ana_data=ana_data)
@@ -372,14 +453,22 @@ def plot_cell_NT_score_dataset(
         meta_data_df: pd.DataFrame,
         reverse: bool = False,
         output_file_path: Optional[Union[str, Path]] = None) -> Optional[Tuple[plt.Figure, plt.Axes]]:
-    """
-    Plot spatial distribution of cell NT score.
-    :param NT_score: pd.DataFrame, the NT score data.
-    :param meta_data_df: pd.DataFrame, the meta data.
-    :param reverse: bool, reverse the NT score or not.
-    :param output_file_path: Optional[Union[str, Path]], the output file path.
-    :return: None or Tuple[plt.Figure, plt.Axes].
-    """
+    """Plot spatial distribution of cell NT score.
+    
+    Parameters
+    ----------
+    NT_score :
+        pd.DataFrame, the NT score data.
+    meta_data_df :
+        pd.DataFrame, the meta data.
+    reverse :
+        bool, reverse the NT score or not.
+    output_file_path :
+        Optional[Union[str, Path]], the output file path.
+    
+    Returns
+    -------
+    None or Tuple[plt.Figure, plt.Axes]."""
 
     samples: List[str] = meta_data_df['Sample'].unique().tolist()
 
@@ -405,11 +494,16 @@ def plot_cell_NT_score_dataset(
 
 
 def plot_cell_NT_score_dataset_from_anadata(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.Axes]]:
-    """
-    Plot spatial distribution of cell NT score.
-    :param ana_data: AnaData, the data for analysis.
-    :return: None or Tuple[plt.Figure, plt.Axes].
-    """
+    """Plot spatial distribution of cell NT score.
+    
+    Parameters
+    ----------
+    ana_data :
+        AnaData, the data for analysis.
+    
+    Returns
+    -------
+    None or Tuple[plt.Figure, plt.Axes]."""
 
     try:
         if ana_data.NT_score is None:
@@ -434,15 +528,24 @@ def plot_cell_NT_score_sample(
         reverse: bool = False,
         spatial_scaling_factor: float = 1.0,
         output_file_path: Optional[Union[str, Path]] = None) -> Optional[List[Tuple[plt.Figure, plt.Axes]]]:
-    """
-    Plot spatial distribution of cell NT score.
-    :param NT_score: pd.DataFrame, the NT score data.
-    :param meta_data_df: pd.DataFrame, the meta data.
-    :param reverse: bool, reverse the NT score or not.
-    :param spatial_scaling_factor: float, the scale factor control the size of spatial-based plots.
-    :param output_file_path: Optional[Union[str, Path]], the output file path.
-    :return: None or Tuple[plt.Figure, plt.Axes].
-    """
+    """Plot spatial distribution of cell NT score.
+    
+    Parameters
+    ----------
+    NT_score :
+        pd.DataFrame, the NT score data.
+    meta_data_df :
+        pd.DataFrame, the meta data.
+    reverse :
+        bool, reverse the NT score or not.
+    spatial_scaling_factor :
+        float, the scale factor control the size of spatial-based plots.
+    output_file_path :
+        Optional[Union[str, Path]], the output file path.
+    
+    Returns
+    -------
+    None or Tuple[plt.Figure, plt.Axes]."""
 
     samples: List[str] = meta_data_df['Sample'].unique().tolist()
 
@@ -468,11 +571,16 @@ def plot_cell_NT_score_sample(
 
 
 def plot_cell_NT_score_sample_from_anadata(ana_data: AnaData) -> Optional[List[Tuple[plt.Figure, plt.Axes]]]:
-    """
-    Plot spatial distribution of cell NT score.
-    :param ana_data: AnaData, the data for analysis.
-    :return: None or Tuple[plt.Figure, plt.Axes].
-    """
+    """Plot spatial distribution of cell NT score.
+    
+    Parameters
+    ----------
+    ana_data :
+        AnaData, the data for analysis.
+    
+    Returns
+    -------
+    None or Tuple[plt.Figure, plt.Axes]."""
 
     try:
         if ana_data.NT_score is None:
@@ -494,11 +602,16 @@ def plot_cell_NT_score_sample_from_anadata(ana_data: AnaData) -> Optional[List[T
 
 def plot_cell_NT_score(
         ana_data: AnaData) -> Optional[Union[List[Tuple[plt.Figure, plt.Axes]], Tuple[plt.Figure, plt.Axes]]]:
-    """
-    Plot spatial distribution of cell NT score.
-    :param ana_data: AnaData, the data for analysis.
-    :return: None or Tuple[plt.Figure, plt.Axes].
-    """
+    """Plot spatial distribution of cell NT score.
+    
+    Parameters
+    ----------
+    ana_data :
+        AnaData, the data for analysis.
+    
+    Returns
+    -------
+    None or Tuple[plt.Figure, plt.Axes]."""
 
     if getattr(ana_data.options, 'sample', None):
         return plot_cell_NT_score_sample_from_anadata(ana_data=ana_data)
@@ -507,11 +620,16 @@ def plot_cell_NT_score(
 
 
 def spatial_visualization(ana_data: AnaData) -> None:
-    """
-    All spatial visualization will include here.
-    :param ana_data: AnaData, the data for analysis.
-    :return: None.
-    """
+    """All spatial visualization will include here.
+    
+    Parameters
+    ----------
+    ana_data :
+        AnaData, the data for analysis.
+    
+    Returns
+    -------
+    None."""
 
     # 1. cell type composition
     if getattr(ana_data.options, 'suppress_cell_type_composition', False):

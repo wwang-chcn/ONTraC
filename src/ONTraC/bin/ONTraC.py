@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+"""This module contains the main function for the `ONTraC` CLI pipeline, which executes the full end-to-end ONTraC analysis workflow (NN + GNN + NT)."""
 
 import sys
 
@@ -11,9 +12,7 @@ from ..utils import write_version_info
 # Main Function
 # ------------------------------------
 def main() -> None:
-    """
-    The main function
-    """
+    """Run end-to-end ONTraC pipeline (NN preprocessing + GNN + NT)."""
 
     # write version information
     write_version_info()

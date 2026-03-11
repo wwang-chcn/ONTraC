@@ -12,6 +12,7 @@ from ONTraC.train import GNNBatchTrain
 
 @pytest.fixture
 def options() -> Values:
+    """Provide common training options for GNN tests."""
     # Create an options object for testing
     _options = Values()
     _options.NN_dir = 'tests/_data/NN'
@@ -29,11 +30,13 @@ def options() -> Values:
 
 @pytest.fixture()
 def dataset(options: Values) -> SpatailOmicsDataset:
+    """Load the reference toy dataset."""
     return load_dataset(NN_dir=options.NN_dir)
 
 
 @pytest.fixture()
 def sample_loader(options: Values, dataset: SpatailOmicsDataset) -> DenseDataLoader:
+    """Create dense mini-batch loader for the toy dataset."""
     batch_size = options.batch_size if options.batch_size > 0 else len(dataset)
     sample_loader = DenseDataLoader(dataset, batch_size=batch_size)
     return sample_loader
@@ -41,6 +44,7 @@ def sample_loader(options: Values, dataset: SpatailOmicsDataset) -> DenseDataLoa
 
 @pytest.fixture()
 def nn_model(options: Values, dataset: SpatailOmicsDataset) -> torch.nn.Module:
+    """Instantiate and initialize the GNN model with checkpoint weights."""
     model = GNN(input_feats=dataset.num_features, hidden_feats=options.hidden_feats, k=options.k, exponent=options.beta)
     model.load_state_dict(torch.load(f'{options.GNN_dir}/epoch_0.pt', map_location=torch.device('cpu')))
     return model

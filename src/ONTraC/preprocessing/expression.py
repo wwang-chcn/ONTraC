@@ -1,3 +1,5 @@
+"""This module contains functions to handle gene expression data in the preprocessing step."""
+
 from typing import List
 
 import numpy as np
@@ -8,12 +10,18 @@ from ..log import *
 
 
 def perform_pca(expression_data: pd.DataFrame, n_components: int = 50) -> np.ndarray:
-    """
-    Perform PCA on the expression data.
-    :param expression_data: Expression data.
-    :param n_components: Number of components.
-    :return: PCA result.
-    """
+    """Perform PCA on the expression data.
+    
+    Parameters
+    ----------
+    expression_data :
+        Expression data.
+    n_components :
+        Number of components.
+    
+    Returns
+    -------
+    PCA result."""
 
     from sklearn.decomposition import PCA
 
@@ -28,13 +36,20 @@ def perform_pca(expression_data: pd.DataFrame, n_components: int = 50) -> np.nda
 
 
 def perform_harmony(embedding, meta_df: pd.DataFrame, batch_key: str) -> np.ndarray:
-    """
-    Perform Harmony on the embedding.
-    :param embedding: Embedding.
-    :param meta_df: Meta data.
-    :param batch_key: Batch key.
-    :return: Harmony result.
-    """
+    """Perform Harmony on the embedding.
+    
+    Parameters
+    ----------
+    embedding :
+        Embedding.
+    meta_df :
+        Meta data.
+    batch_key :
+        Batch key.
+    
+    Returns
+    -------
+    Harmony result."""
 
     from harmonypy import run_harmony
 
@@ -44,12 +59,18 @@ def perform_harmony(embedding, meta_df: pd.DataFrame, batch_key: str) -> np.ndar
 
 
 def define_neighbors(embedding: np.ndarray, n_neighbors: int = 20) -> csr_matrix:
-    """
-    Define neighbors.
-    :param embedding: Embedding.
-    :param n_neighbors: Number of neighbors.
-    :return: Neighbors.
-    """
+    """Define neighbors.
+    
+    Parameters
+    ----------
+    embedding :
+        Embedding.
+    n_neighbors :
+        Number of neighbors.
+    
+    Returns
+    -------
+    Neighbors."""
 
     #TODO: n_neighbors should be less than the number of cells in each sample.
 
@@ -76,14 +97,22 @@ def perform_umap(embedding: np.ndarray,
                  n_neighbors: int = 20,
                  min_dist: float = 0.5,
                  n_components: int = 2) -> np.ndarray:
-    """
-    Perform UMAP on the embedding.
-    :param embedding: Embedding.
-    :param n_neighbors: Number of neighbors.
-    :param min_dist: Minimum distance.
-    :param n_components: Number of components.
-    :return: UMAP result.
-    """
+    """Perform UMAP on the embedding.
+    
+    Parameters
+    ----------
+    embedding :
+        Embedding.
+    n_neighbors :
+        Number of neighbors.
+    min_dist :
+        Minimum distance.
+    n_components :
+        Number of components.
+    
+    Returns
+    -------
+    UMAP result."""
 
     import umap
 
@@ -93,12 +122,18 @@ def perform_umap(embedding: np.ndarray,
 
 
 def perform_leiden(connectivities: csr_matrix, resolution: float = 1.0) -> List[int]:
-    """
-    Perform Leiden algorithm.
-    :param connectivities: Connectivities.
-    :param resolution: Resolution.
-    :return: Leiden result.
-    """
+    """Perform Leiden algorithm.
+    
+    Parameters
+    ----------
+    connectivities :
+        Connectivities.
+    resolution :
+        Resolution.
+    
+    Returns
+    -------
+    Leiden result."""
 
     import igraph as ig
     import leidenalg

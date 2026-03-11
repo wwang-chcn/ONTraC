@@ -118,6 +118,7 @@ def test_ontrac_analysis_ioc() -> None:
 
 
 def test_io_options():
+    """Run all IO option collection tests in one convenience entrypoint."""
 
     test_ontrac_ioc()
     test_ontrac_nn_ioc()

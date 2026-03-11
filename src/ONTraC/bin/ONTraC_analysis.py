@@ -1,3 +1,5 @@
+"""This module contains the main function for the `ONTraC_analysis` command-line entrypoint, which executes the full post-analysis visualization workflow."""
+
 from optparse import Values
 
 from ..analysis.cell_type import cell_type_visualization
@@ -17,9 +19,14 @@ from ..version import __version__
 # Functions
 # ------------------------------------
 def analysis_pipeline(options: Values) -> None:
-    """
-    ONTraC analysis pipeline
-    """
+    """Execute the full post-analysis visualization workflow.
+    
+        Parameters
+        ----------
+    options :
+        Values
+            Parsed CLI options validated by ``opt_analysis_validate``.
+        """
 
     info('-------------- Analysis pipeline start -------------- ')
     step_index = 0
@@ -65,9 +72,7 @@ def analysis_pipeline(options: Values) -> None:
 
 
 def main():
-    """
-    The main function
-    """
+    """Run the `ONTraC_analysis` command-line entrypoint."""
 
     # write version information
     write_version_info()

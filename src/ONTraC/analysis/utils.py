@@ -1,3 +1,5 @@
+"""This module contains utility functions for ONTraC analysis."""
+
 from typing import Dict, List, Tuple, Union
 
 import matplotlib as mpl
@@ -9,13 +11,18 @@ from .data import AnaData
 
 
 def saptial_figsize(sample_df, scaling_factor: Union[int, float] = 1) -> Tuple[int, int]:
-    """
-    Calculate the figure size for spatial-based plot according to the points and the span of x and y.
-    :param sample_df: pd.DataFrame, the sample data.
-    :param scale_factor: float, the scale factor control the size of spatial-based plots. The larger the scale factor,
-    the larger the figure size.
-    :return: tuple[int, int], the figure size.
-    """
+    """Calculate the figure size for spatial-based plot according to the points and the span of x and y.
+    
+    Parameters
+    ----------
+    sample_df :
+        pd.DataFrame, the sample data.
+    scale_factor :
+        float, the scale factor control the size of spatial-based plots. The larger the scale factor, the larger the figure size.
+    
+    Returns
+    -------
+    tuple[int, int], the figure size."""
 
     n_points = sample_df[['x', 'y']].dropna().shape[0]
     # debug(f'n_points: {n_points}')
@@ -41,9 +48,15 @@ def saptial_figsize(sample_df, scaling_factor: Union[int, float] = 1) -> Tuple[i
 
 def gini(array: Union[np.ndarray, pd.Series]) -> float:
     """Calculate the Gini coefficient of a numpy array.
-    :param array: np.ndarray or pd.Series, the array for calculating Gini coefficient.
-    :return: float, the Gini coefficient.
-    """
+    
+    Parameters
+    ----------
+    array :
+        np.ndarray or pd.Series, the array for calculating Gini coefficient.
+    
+    Returns
+    -------
+    float, the Gini coefficient."""
     #
     # from:
     # http://www.statsdirect.com/help/default.htm#nonparametric_methods/gini.htm
@@ -68,29 +81,30 @@ def gini(array: Union[np.ndarray, pd.Series]) -> float:
 
 def get_n_colors(n: int) -> List[str]:
     """Get n colors.
+        
+        Parameters
+        ----------
+    n :
+        int
+            The number of colors.
     
-    Parameters
-    ----------
-    n : int
-        The number of colors.
-
-    Returns
-    -------
-    list
-        The list of colors.
-
-    Examples
-    --------
-    >>> get_n_colors(10)
-    ['C0', 'C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C9']
-    >>> get_n_colors(20)
-    ['#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c', '#98df8a', '#d62728', '#ff9896', '#9467bd', '#c5b0d5',
-    '#8c564b', '#c49c94', '#e377c2', '#f7b6d2', '#7f7f7f', '#c7c7c7', '#bcbd22', '#dbdb8d', '#17becf', '#9edae5']
-    >>> get_n_colors(30)
-    ['#30123b', '#392a73', '#4143a7', '#455ccf', '#4773eb', '#458afc', '#3d9efe', '#2eb4f2', '#1fc9dd', '#18dbc5',
-    '#1fe9af', '#35f394', '#52fa7a', '#75fe5c', '#96fe44', '#affa37', '#c6f034', '#dbe236', '#ebd339', '#f7c13a',
-    '#fdac34', '#fe932a', '#f9781e', '#f15d13', '#e7490c', '#d83706', '#c52603', '#af1801', '#950d01', '#7a0403']
-    """
+        Returns
+        -------
+        list
+            The list of colors.
+    
+        Examples
+        --------
+        >>> get_n_colors(10)
+        ['C0', 'C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C9']
+        >>> get_n_colors(20)
+        ['#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c', '#98df8a', '#d62728', '#ff9896', '#9467bd', '#c5b0d5',
+        '#8c564b', '#c49c94', '#e377c2', '#f7b6d2', '#7f7f7f', '#c7c7c7', '#bcbd22', '#dbdb8d', '#17becf', '#9edae5']
+        >>> get_n_colors(30)
+        ['#30123b', '#392a73', '#4143a7', '#455ccf', '#4773eb', '#458afc', '#3d9efe', '#2eb4f2', '#1fc9dd', '#18dbc5',
+        '#1fe9af', '#35f394', '#52fa7a', '#75fe5c', '#96fe44', '#affa37', '#c6f034', '#dbe236', '#ebd339', '#f7c13a',
+        '#fdac34', '#fe932a', '#f9781e', '#f15d13', '#e7490c', '#d83706', '#c52603', '#af1801', '#950d01', '#7a0403']
+        """
 
     if n <= 10:  # use default colormaps to generate colors
         return [f'C{i}' for i in range(n)]
@@ -104,29 +118,35 @@ def get_n_colors(n: int) -> List[str]:
 
 def get_palette_for_cell_types(cell_types: List[str]) -> Dict[str, str]:
     """
-    Get the color palette for cell types.
-
-    Parameters
-    ----------
-    cell_types : list
-        The list of cell types.
-
-    Returns
-    -------
-    list
-        The list of colors.
-
-    Examples
-    --------
-    >>> get_palette_for_cell_types(['A', 'B', 'C'])
-    {'A': 'C0', 'B': 'C1', 'C': 'C2'}
-    >>> get_palette_for_cell_types(['ct1', 'ct2', 'ct3', 'ct4', 'ct5', 'ct6', 'ct7', 'ct8', 'ct9', 'ct10', 'ct11',
-    'ct12', 'ct13', 'ct14', 'ct15', 'ct16', 'ct17', 'ct18', 'ct19', 'ct20'])
-    {'ct1': '#1f77b4', 'ct2': '#aec7e8', 'ct3': '#ff7f0e', 'ct4': '#ffbb78', 'ct5': '#2ca02c', 'ct6': '#98df8a',
-    'ct7': '#d62728', 'ct8': '#ff9896', 'ct9': '#9467bd', 'ct10': '#c5b0d5', 'ct11': '#8c564b', 'ct12': '#c49c94',
-    'ct13': '#e377c2', 'ct14': '#f7b6d2', 'ct15': '#7f7f7f', 'ct16': '#c7c7c7', 'ct17': '#bcbd22', 'ct18': '#dbdb8d',
-    'ct19': '#17becf', 'ct20': '#9edae5'}
-    """
+        Get the color palette for cell types.
+    
+        Parameters
+        ----------
+    cell_types :
+        list
+            The list of cell types.
+    
+        Returns
+        -------
+        list
+            The list of colors.
+    
+        Examples
+        --------
+        >>> get_palette_for_cell_types(['A', 'B', 'C'])
+    {'A'
+        'C0', 'B': 'C1', 'C': 'C2'}
+        >>> get_palette_for_cell_types(['ct1', 'ct2', 'ct3', 'ct4', 'ct5', 'ct6', 'ct7', 'ct8', 'ct9', 'ct10', 'ct11',
+        'ct12', 'ct13', 'ct14', 'ct15', 'ct16', 'ct17', 'ct18', 'ct19', 'ct20'])
+    {'ct1'
+        '#1f77b4', 'ct2': '#aec7e8', 'ct3': '#ff7f0e', 'ct4': '#ffbb78', 'ct5': '#2ca02c', 'ct6': '#98df8a',
+    'ct7'
+        '#d62728', 'ct8': '#ff9896', 'ct9': '#9467bd', 'ct10': '#c5b0d5', 'ct11': '#8c564b', 'ct12': '#c49c94',
+    'ct13'
+        '#e377c2', 'ct14': '#f7b6d2', 'ct15': '#7f7f7f', 'ct16': '#c7c7c7', 'ct17': '#bcbd22', 'ct18': '#dbdb8d',
+    'ct19'
+        '#17becf', 'ct20': '#9edae5'}
+        """
 
     return dict(zip(cell_types, get_n_colors(len(cell_types))))
 
@@ -134,29 +154,35 @@ def get_palette_for_cell_types(cell_types: List[str]) -> Dict[str, str]:
 def validate_cell_type_palette(cell_types: List[str],
                                palette: Union[List[str], Dict[str, str], None] = None) -> Dict[str, str]:
     """
-    Validate given cell type palette.
-
-    Parameters
-    ----------
-    cell_types : list
-        The list of cell types.
-    palette : list or dict or None
-        The given palette. Should cover all cell types.
-
-    Returns
-    -------
-    dict
-        The validated palette.
-
-    Examples
-    --------
-    >>> validate_cell_type_palette(['A', 'B', 'C'], ['C0', 'C1', 'C2'])
-    {'A': 'C0', 'B': 'C1', 'C': 'C2'}
-    >>> validate_cell_type_palette(['ct1', 'ct2', 'ct3'], {'ct1': '#1f77b4', 'ct2': '#aec7e8', 'ct3': '#ff7f0e'})
-    {'ct1': '#1f77b4', 'ct2': '#aec7e8', 'ct3': '#ff7f0e'}
-    >>> validate_cell_type_palette(['ct1', 'ct2', 'ct3'], None)
-    {'ct1': 'C0', 'ct2': 'C1', 'ct3': 'C2'}
-    """
+        Validate given cell type palette.
+    
+        Parameters
+        ----------
+    cell_types :
+        list
+            The list of cell types.
+    palette :
+        list or dict or None
+            The given palette. Should cover all cell types.
+    
+        Returns
+        -------
+        dict
+            The validated palette.
+    
+        Examples
+        --------
+        >>> validate_cell_type_palette(['A', 'B', 'C'], ['C0', 'C1', 'C2'])
+    {'A'
+        'C0', 'B': 'C1', 'C': 'C2'}
+    >>> validate_cell_type_palette(['ct1', 'ct2', 'ct3'], {'ct1'
+        '#1f77b4', 'ct2': '#aec7e8', 'ct3': '#ff7f0e'})
+    {'ct1'
+        '#1f77b4', 'ct2': '#aec7e8', 'ct3': '#ff7f0e'}
+        >>> validate_cell_type_palette(['ct1', 'ct2', 'ct3'], None)
+    {'ct1'
+        'C0', 'ct2': 'C1', 'ct3': 'C2'}
+        """
 
     if palette is None:
         return get_palette_for_cell_types(cell_types)
@@ -179,18 +205,19 @@ def validate_cell_type_palette(cell_types: List[str],
 
 def cal_niche_level_raw_cell_type_counts_from_anadata(ana_data: AnaData) -> pd.DataFrame:
     """
-    Calculate the raw cell type counts for each niche level from AnaData.
-
-    Parameters
-    ----------
-    ana_data : AnaData
-        The AnaData object containing the data.
-
-    Returns
-    -------
-    pd.DataFrame
-        A DataFrame with niche levels as index and cell types as columns, containing raw cell type counts.
-    """
+        Calculate the raw cell type counts for each niche level from AnaData.
+    
+        Parameters
+        ----------
+    ana_data :
+        AnaData
+            The AnaData object containing the data.
+    
+        Returns
+        -------
+        pd.DataFrame
+            A DataFrame with niche levels as index and cell types as columns, containing raw cell type counts.
+        """
 
     # if cell type codes not None, they Cell_Type column in meta_data_df should already be converted to Categorical
     if ana_data.cell_type_codes is None:

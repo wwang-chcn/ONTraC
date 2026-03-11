@@ -1,3 +1,5 @@
+"""This module contains loss functions for training the GNN model in ONTraC."""
+
 import torch
 from torch import Tensor
 
@@ -5,14 +7,21 @@ from ..log import debug
 
 
 def moran_I_features(X: Tensor, W: Tensor, mask: Tensor) -> Tensor:
-    r"""
-    Calculate Moran's I.
-    :math:`I = \frac{n}{\sum_{i=1}^n\sum_{j=1}^n w_{ij}}\frac{(X-\bar{X})^T W (X-\bar{X})}{\sum_{i=1}^n (X_i-\bar{X})^2}`
-    :param X: Tensor, shape: (N, F).
-    :param W: Tensor, shape: (N, N).
-    :param mask: Tensor, shape: (N, ).
-    :return: moran_I: Tensor, shape: (F, ).
-    """
+    """Calculate Moran's I.
+        :math:`I = \\frac{n}{\\sum_{i=1}^n\\sum_{j=1}^n w_{ij}}\\frac{(X-\\bar{X})^T W (X-\\bar{X})}{\\sum_{i=1}^n (X_i-\\bar{X})^2}`
+    
+    Parameters
+    ----------
+    X :
+        Tensor, shape: (N, F).
+    W :
+        Tensor, shape: (N, N).
+    mask :
+        Tensor, shape: (N, ).
+    
+    Returns
+    -------
+    moran_I: Tensor, shape: (F, )."""
     # --- input shape check ---
     X = X.unsqueeze(1) if X.dim() == 1 else X
 
@@ -41,20 +50,21 @@ def moran_I_features(X: Tensor, W: Tensor, mask: Tensor) -> Tensor:
 
 
 def graph_smooth_loss(z: Tensor, adj: Tensor, mask: Tensor) -> Tensor:
-    r"""
-    Graph smooth loss using -1 * moran's I.
-    :math: `L_{smooth} = \frac{1}{2}\sum_{i=1}^{N}\sum_{j=1}^{N}w_{ij}(z_i - z_j)^2`
+    """Graph smooth loss using -1 * moran's I.
+        :math: `L_{smooth} = \\frac{1}{2}\\sum_{i=1}^{N}\\sum_{j=1}^{N}w_{ij}(z_i - z_j)^2`
     
-    :param z: hidden embedding tensor
-        :math:`\mathbf{Z} \in \mathbb{R}^{B \times N \times F}`, with
-        batch-size :math:`B`, (maximum) number of nodes :math:`N` for
-        each graph, and feature dimension :math:`F`.
-    :param adj: adjacency tensor
-        :math:`\mathbf{A} \in \mathbb{R}^{B \times N \times N}`.
-    :param mask: mask tensor
-        :math:`\mathbf{M} \in {\{ 0, 1 \}}^{B \times N}`.
-    :return: loss tensor.
-    """
+    Parameters
+    ----------
+    z :
+        hidden embedding tensor :math:`\\mathbf{Z} \\in \\mathbb{R}^{B \\times N \\times F}`, with batch-size :math:`B`, (maximum) number of nodes :math:`N` for each graph, and feature dimension :math:`F`.
+    adj :
+        adjacency tensor :math:`\\mathbf{A} \\in \\mathbb{R}^{B \\times N \\times N}`.
+    mask :
+        mask tensor :math:`\\mathbf{M} \\in {\\{ 0, 1 \\}}^{B \\times N}`.
+    
+    Returns
+    -------
+    loss tensor."""
     # --- inputs shape check ---
     z = z.unsqueeze(0) if z.dim() == 2 else z  # B x N x F
     adj = adj.unsqueeze(0) if adj.dim() == 2 else adj  # B x N x N
@@ -74,14 +84,20 @@ def graph_smooth_loss(z: Tensor, adj: Tensor, mask: Tensor) -> Tensor:
 
 def within_cluster_variance_loss(x: Tensor, s: Tensor, mask: Tensor) -> Tensor:
     """
-    Calculate within cluster variance loss.
-    Args:
-        x: input tensor, shape: (B, N, F).
-        s: soft cluster assignment matrix, shape: (B, N, C).
-        mask: mask tensor, shape: (B, N).
-    Returns:
-        loss: within cluster variance loss.
-    """
+        Calculate within cluster variance loss.
+    Parameters
+    ----------
+    x :
+        input tensor, shape: (B, N, F).
+    s :
+        soft cluster assignment matrix, shape: (B, N, C).
+    mask :
+        mask tensor, shape: (B, N).
+    Returns
+    -------
+    loss
+        within cluster variance loss.
+        """
 
     # --- Extend mask to match the dimensions of x and s ---
     mask_extended_x = mask.unsqueeze(-1).expand_as(x)  # B x N x F
@@ -108,12 +124,16 @@ def within_cluster_variance_loss(x: Tensor, s: Tensor, mask: Tensor) -> Tensor:
 
 def masked_variance(x, mask):
     """
-    Args:
-        x: input tensor, shape: (B, N, F).
-        mask: mask tensor, shape: (B, N).
-    Returns:
-        variance.
-    """
+    Parameters
+    ----------
+    x :
+        input tensor, shape: (B, N, F).
+    mask :
+        mask tensor, shape: (B, N).
+    Returns
+    -------
+            variance.
+        """
 
     # Apply the mask
     x_masked = x * mask.unsqueeze(-1)

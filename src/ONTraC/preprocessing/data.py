@@ -1,3 +1,5 @@
+"""This module contains functions for IO in pre-processing step."""
+
 from pathlib import Path
 from typing import Union
 
@@ -7,26 +9,31 @@ from ..log import warning
 
 
 def read_meta_data(meta_data_file: Union[str, Path]) -> pd.DataFrame:
-    """
-    Read meta data file.
-    :param meta_data_file: str or Path, meta data file path.
-    :return: pd.DataFrame, meta data.
-    """
+    """Read meta data file.
+    
+    Parameters
+    ----------
+    meta_data_file :
+        str or Path, meta data file path.
+    
+    Returns
+    -------
+    pd.DataFrame, meta data."""
 
     return pd.read_csv(meta_data_file, header=0, index_col=False, sep=',')
 
 
 def valid_meta_data(meta_data_df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Validate original data.
-    :param meta_data_df: pd.DataFrame, original data.
-    :return: pd.DataFrame, original data.
-
-    1) check if Cell_ID/Spot_ID, Sample, x, and y columns in the original data
-    2) check if there any duplicated Cell_ID/Spot_ID in the original data
-    2) make the Cell_Type column categorical (if exists)
-    3) return original data with Cell_ID/Spot_ID, Sample, x, and y columns
-    """
+    """Validate original data.
+    
+    Parameters
+    ----------
+    meta_data_df :
+        pd.DataFrame, original data.
+    
+    Returns
+    -------
+    pd.DataFrame, original data. 1) check if Cell_ID/Spot_ID, Sample, x, and y columns in the original data 2) check if there any duplicated Cell_ID/Spot_ID in the original data 2) make the Cell_Type column categorical (if exists) 3) return original data with Cell_ID/Spot_ID, Sample, x, and y columns"""
 
     # check if Cell_ID, Sample, Cell_Type, x, and y columns in the original data
     id_name = meta_data_df.columns[0]
@@ -68,12 +75,18 @@ def valid_meta_data(meta_data_df: pd.DataFrame) -> pd.DataFrame:
 
 
 def save_cell_type_code(save_dir: Union[str, Path], cell_types: pd.Series) -> None:
-    """
-    Save mappings of the categorical data.
-    :param save_dir: str or Path, save directory.
-    :param cell_types: pd.Series, cell types.
-    :return: None.
-    """
+    """Save mappings of the categorical data.
+    
+    Parameters
+    ----------
+    save_dir :
+        str or Path, save directory.
+    cell_types :
+        pd.Series, cell types.
+    
+    Returns
+    -------
+    None."""
 
     # check if the cell type is categorical
     if not pd.api.types.is_categorical_dtype(cell_types):  # type: ignore
@@ -85,22 +98,33 @@ def save_cell_type_code(save_dir: Union[str, Path], cell_types: pd.Series) -> No
 
 
 def save_meta_data(save_dir: Union[str, Path], meta_data_df: pd.DataFrame) -> None:
-    """
-    Save meta data.
-    :param save_dir: str or Path, save directory.
-    :param meta_data_df: pd.DataFrame, meta data.
-    :return: None.
-    """
+    """Save meta data.
+    
+    Parameters
+    ----------
+    save_dir :
+        str or Path, save directory.
+    meta_data_df :
+        pd.DataFrame, meta data.
+    
+    Returns
+    -------
+    None."""
 
     meta_data_df.to_csv(f'{save_dir}/meta_data.csv.gz', index=False)
 
 
 def load_meta_data(save_dir: Union[str, Path], meta_data_file: Union[str, Path]) -> pd.DataFrame:
-    """
-    Load original data.
-    :param save_dir: str or Path, save directory.
-    :return: pd.DataFrame, original data.
-    """
+    """Load original data.
+    
+    Parameters
+    ----------
+    save_dir :
+        str or Path, save directory.
+    
+    Returns
+    -------
+    pd.DataFrame, original data."""
 
     # read original data file
     meta_data_df = read_meta_data(meta_data_file=meta_data_file)

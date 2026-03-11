@@ -10,4 +10,5 @@ except ImportError:
 
 @pytest.mark.skipif(not seaborn_imported, reason="seaborn is not installed")
 def test_XXX():
+    """Placeholder smoke test for analysis dependencies."""
     pass

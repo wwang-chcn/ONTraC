@@ -1,3 +1,5 @@
+"""This module contains functions for inspecting the training process of ONTraC, including recording loss, hidden embeddings, assignments, outputs, and calculating Moran's I."""
+
 from typing import Callable, Optional
 
 import numpy as np
@@ -10,14 +12,22 @@ from ..utils.decorators import epoch_filter_decorator, selective_args_decorator
 
 
 def loss_record(epoch: int, batch: int, loss: Tensor, **kwargs):
-    """
-    Loss record function.
-    :param epoch: epoch number.
-    :param loss: loss tensor.
-    :param r_loss: reconstruction loss tensor.
-    :param g_loss: graph smooth loss tensor.
-    :return: None.
-    """
+    """Loss record function.
+    
+    Parameters
+    ----------
+    epoch :
+        epoch number.
+    loss :
+        loss tensor.
+    r_loss :
+        reconstruction loss tensor.
+    g_loss :
+        graph smooth loss tensor.
+    
+    Returns
+    -------
+    None."""
     other_loss_text = ''
     for key, value in kwargs.items():
         if 'loss' in key:
@@ -26,14 +36,21 @@ def loss_record(epoch: int, batch: int, loss: Tensor, **kwargs):
 
 
 def _moran_I_factor_tensor(X: Tensor, W: Tensor, mask: Tensor) -> Tensor:
-    r"""
-    Calculate Moran's I.
-    :math:`I = \frac{n}{\sum_{i=1}^n\sum_{j=1}^n w_{ij}}\frac{(X-\bar{X})^T W (X-\bar{X})}{\sum_{i=1}^n (X_i-\bar{X})^2}`
-    :param X: np.ndarray, shape: (N, F).
-    :param W: np.ndarray, shape: (N, N).
-    :param mask: np.ndarray, shape: (N, ).
-    :return: moran_I.
-    """
+    """Calculate Moran's I.
+        :math:`I = \\frac{n}{\\sum_{i=1}^n\\sum_{j=1}^n w_{ij}}\\frac{(X-\\bar{X})^T W (X-\\bar{X})}{\\sum_{i=1}^n (X_i-\\bar{X})^2}`
+    
+    Parameters
+    ----------
+    X :
+        np.ndarray, shape: (N, F).
+    W :
+        np.ndarray, shape: (N, N).
+    mask :
+        np.ndarray, shape: (N, ).
+    
+    Returns
+    -------
+    moran_I."""
     # --- input shape check ---
     X = X.unsqueeze(1) if X.dim() == 1 else X
 
@@ -64,13 +81,20 @@ def _moran_I_factor_tensor(X: Tensor, W: Tensor, mask: Tensor) -> Tensor:
 
 @selective_args_decorator
 def moran_I(output_dir: str, step: int, epoch: int, data: Data, z: Tensor) -> None:
-    """
-    Moran's I record function.
-    :param epoch: epoch number.
-    :param data: torch_geometric.data.Data.
-    :param z: hidden embedding tensor.
-    :return: None.
-    """
+    """Moran's I record function.
+    
+    Parameters
+    ----------
+    epoch :
+        epoch number.
+    data :
+        torch_geometric.data.Data.
+    z :
+        hidden embedding tensor.
+    
+    Returns
+    -------
+    None."""
 
     # --- check if epoch is multiple of step ---
     if epoch % step != 0:
@@ -93,13 +117,20 @@ def moran_I(output_dir: str, step: int, epoch: int, data: Data, z: Tensor) -> No
 @selective_args_decorator
 @epoch_filter_decorator
 def z_record(output_dir: str, epoch: int, z: Tensor, data: Batch) -> None:
-    """
-    Hidden embedding record function.
-    :param epoch: epoch number.
-    :param batch: batch number.
-    :param z: hidden embedding tensor.
-    :return: None.
-    """
+    """Hidden embedding record function.
+    
+    Parameters
+    ----------
+    epoch :
+        epoch number.
+    batch :
+        batch number.
+    z :
+        hidden embedding tensor.
+    
+    Returns
+    -------
+    None."""
     # --- check whether record ---
 
     # --- inputs shape check ---
@@ -116,13 +147,20 @@ def z_record(output_dir: str, epoch: int, z: Tensor, data: Batch) -> None:
 @selective_args_decorator
 @epoch_filter_decorator
 def s_record(output_dir: str, epoch: int, s: Tensor, data: Batch) -> None:
-    """
-    Assignment record function.
-    :param epoch: epoch number.
-    :param batch: batch number.
-    :param s: assignment tensor.
-    :return: None.
-    """
+    """Assignment record function.
+    
+    Parameters
+    ----------
+    epoch :
+        epoch number.
+    batch :
+        batch number.
+    s :
+        assignment tensor.
+    
+    Returns
+    -------
+    None."""
     # --- check whether record ---
 
     # --- inputs shape check ---
@@ -139,13 +177,20 @@ def s_record(output_dir: str, epoch: int, s: Tensor, data: Batch) -> None:
 @selective_args_decorator
 @epoch_filter_decorator
 def out_record(output_dir: str, epoch: int, out: Tensor, data: Batch) -> None:
-    """
-    Output record function.
-    :param epoch: epoch number.
-    :param batch: batch number.
-    :param out: output tensor.
-    :return: None.
-    """
+    """Output record function.
+    
+    Parameters
+    ----------
+    epoch :
+        epoch number.
+    batch :
+        batch number.
+    out :
+        output tensor.
+    
+    Returns
+    -------
+    None."""
     # --- check whether record ---
 
     # --- inputs shape check ---
@@ -162,13 +207,20 @@ def out_record(output_dir: str, epoch: int, out: Tensor, data: Batch) -> None:
 @selective_args_decorator
 @epoch_filter_decorator
 def out_adj_record(output_dir: str, epoch: int, out_adj: Tensor, data: Batch) -> None:
-    """
-    Output adj record function.
-    :param epoch: epoch number.
-    :param batch: batch number.
-    :param out_adj: output adj tensor.
-    :return: None.
-    """
+    """Output adj record function.
+    
+    Parameters
+    ----------
+    epoch :
+        epoch number.
+    batch :
+        batch number.
+    out_adj :
+        output adj tensor.
+    
+    Returns
+    -------
+    None."""
     # --- check whether record ---
 
     # --- inputs shape check ---
@@ -183,8 +235,9 @@ def out_adj_record(output_dir: str, epoch: int, out_adj: Tensor, data: Batch) ->
 
 
 def get_inspect_funcs() -> Optional[list[Callable]]:
-    """
-    Inspect function list.
-    :return: list of inspect functions
-    """
+    """Inspect function list.
+    
+    Returns
+    -------
+    list of inspect functions"""
     return [loss_record]

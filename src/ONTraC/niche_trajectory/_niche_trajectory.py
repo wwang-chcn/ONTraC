@@ -1,3 +1,5 @@
+"""This module contains functions for niche trajectory construction in ONTraC, including finding niche trajectory path, converting niche trajectory path to NTScore, projecting NTScore from niche-level to cell-level, and generating NTScore table."""
+
 from pathlib import Path
 from typing import Dict, List, Tuple, Union
 
@@ -12,12 +14,18 @@ from .algorithm import brute_force
 
 
 def get_niche_trajectory_path(trajectory_construct_method: str, niche_adj_matrix: ndarray) -> List[int]:
-    """
-    Get niche trajectory path
-    :param trajectory_construct_method: str, the method to construct trajectory
-    :param adj_matrix: non-negative ndarray, adjacency matrix of the graph
-    :return: List[int], the niche trajectory
-    """
+    """Get niche trajectory path
+    
+    Parameters
+    ----------
+    trajectory_construct_method :
+        str, the method to construct trajectory
+    adj_matrix :
+        non-negative ndarray, adjacency matrix of the graph
+    
+    Returns
+    -------
+    List[int], the niche trajectory"""
 
     niche_adj_matrix = (niche_adj_matrix + niche_adj_matrix.T) / 2
 
@@ -31,13 +39,20 @@ def get_niche_trajectory_path(trajectory_construct_method: str, niche_adj_matrix
 
 def trajectory_path_to_NC_score(niche_trajectory_path: List[int],
                                 niche_clustering_sum: ndarray) -> ndarray:
-    """
-    Convert niche cluster trajectory path to NTScore
-    :param niche_trajectory_path: List[int], the niche trajectory path
-    :param niche_clustering_sum: ndarray, the sum of each niche cluster
-    :param equal_space: bool, whether the niche clusters are equally spaced in the trajectory
-    :return: ndarray, the NTScore
-    """
+    """Convert niche cluster trajectory path to NTScore
+    
+    Parameters
+    ----------
+    niche_trajectory_path :
+        List[int], the niche trajectory path
+    niche_clustering_sum :
+        ndarray, the sum of each niche cluster
+    equal_space :
+        bool, whether the niche clusters are equally spaced in the trajectory
+    
+    Returns
+    -------
+    ndarray, the NTScore"""
 
     info('Calculating NTScore for each niche cluster based on the trajectory path.')
 
@@ -53,13 +68,20 @@ def trajectory_path_to_NC_score(niche_trajectory_path: List[int],
 def get_niche_NTScore(trajectory_construct_method: str,
                       niche_level_niche_cluster_assign_df: DataFrame,
                       niche_adj_matrix: ndarray) -> Tuple[ndarray, DataFrame]:
-    """
-    Get niche-level niche trajectory and cell-level niche trajectory
-    :param trajectory_construct_method: str, the method to construct trajectory
-    :param niche_level_niche_cluster_assign_df: DataFrame, the niche-level niche cluster assignment. #niche x #niche_cluster
-    :param adj_matrix: ndarray, the adjacency matrix of the graph
-    :return: Tuple[ndarray, DataFrame], the niche-level niche trajectory and cell-level niche trajectory
-    """
+    """Get niche-level niche trajectory and cell-level niche trajectory
+    
+    Parameters
+    ----------
+    trajectory_construct_method :
+        str, the method to construct trajectory
+    niche_level_niche_cluster_assign_df :
+        DataFrame, the niche-level niche cluster assignment. #niche x #niche_cluster
+    adj_matrix :
+        ndarray, the adjacency matrix of the graph
+    
+    Returns
+    -------
+    Tuple[ndarray, DataFrame], the niche-level niche trajectory and cell-level niche trajectory"""
 
     info('Calculating NTScore for each niche.')
 
@@ -76,13 +98,20 @@ def get_niche_NTScore(trajectory_construct_method: str,
 
 
 def niche_to_cell_NTScore(meta_data_df: DataFrame, niche_level_NTScore_df: DataFrame, rel_params: Dict) -> DataFrame:
-    """
-    get cell-level NTScore
-    :param meta_data_df: DataFrame, the meta data
-    :param niche_level_NTScore_df: DataFrame, the niche-level NTScore
-    :param rel_params: Dict, relative paths
-    :return: DataFrame, cell-level NTScore
-    """
+    """get cell-level NTScore
+    
+    Parameters
+    ----------
+    meta_data_df :
+        DataFrame, the meta data
+    niche_level_NTScore_df :
+        DataFrame, the niche-level NTScore
+    rel_params :
+        Dict, relative paths
+    
+    Returns
+    -------
+    DataFrame, cell-level NTScore"""
 
     info('Projecting NTScore from niche-level to cell-level.')
 
@@ -122,15 +151,24 @@ def niche_to_cell_NTScore(meta_data_df: DataFrame, niche_level_NTScore_df: DataF
 
 def NTScore_table(save_dir: Union[str, Path], meta_data_df: DataFrame, niche_level_NTScore_df: DataFrame,
                   cell_level_NTScore_df: DataFrame, rel_params: Dict) -> None:
-    """
-    Generate NTScore table and save it
-    :param save_dir: Union[str, Path], the directory to save NTScore table
-    :param meta_data_df: DataFrame, the meta data
-    :param niche_level_NTScore_df: DataFrame, the niche-level NTScore
-    :param cell_level_NTScore_df: DataFrame, the cell-level NTScore
-    :param rel_params: Dict, relative paths
-    :return: None
-    """
+    """Generate NTScore table and save it
+    
+    Parameters
+    ----------
+    save_dir :
+        Union[str, Path], the directory to save NTScore table
+    meta_data_df :
+        DataFrame, the meta data
+    niche_level_NTScore_df :
+        DataFrame, the niche-level NTScore
+    cell_level_NTScore_df :
+        DataFrame, the cell-level NTScore
+    rel_params :
+        Dict, relative paths
+    
+    Returns
+    -------
+    None"""
 
     info('Output NTScore tables.')
 

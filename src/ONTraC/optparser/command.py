@@ -1,3 +1,5 @@
+"""This module contains functions for parsing command-line arguments and options for ONTraC, including preparing the optparser object, validating the parsed options, and writing the options memo to the log."""
+
 from optparse import OptionGroup, OptionParser, Values
 from typing import Dict, List
 
@@ -16,10 +18,11 @@ from ._train import *
 # ONTraC functions
 # ------------------------------------
 def prepare_ontrac_optparser() -> OptionParser:
-    """
-    Prepare optparser object. New options will be added in this function first.
-    :return: OptionParser object.
-    """
+    """Prepare optparser object. New options will be added in this function first.
+    
+    Returns
+    -------
+    OptionParser object."""
 
     # args
     io_options: Dict[str, List[str]] = IO_OPTIONS['ONTraC']  # type: ignore
@@ -59,12 +62,19 @@ def prepare_ontrac_optparser() -> OptionParser:
 
 def _opt_ontrac_validate(options: Values, io_options: Dict[str, List[str]], optparser: Optional[OptionParser] = None) -> Values:
     """Validate options from a OptParser object.
-
-    :param options: Options object.
-    :param io_options: I/O options.
-    :param optparser: OptionParser object.
-    :return: Values object.
-    """
+    
+    Parameters
+    ----------
+    options :
+        Options object.
+    io_options :
+        I/O options.
+    optparser :
+        OptionParser object.
+    
+    Returns
+    -------
+    Values object."""
 
     # IO
     validate_io_options(options=options, io_options=io_options, optparser=optparser)
@@ -95,10 +105,15 @@ def _opt_ontrac_validate(options: Values, io_options: Dict[str, List[str]], optp
 
 def opt_ontrac_validate(optparser) -> Values:
     """Validate options from a OptParser object.
-
-    :param optparser: OptionParser object.
-    :return: Values object.
-    """
+    
+    Parameters
+    ----------
+    optparser :
+        OptionParser object.
+    
+    Returns
+    -------
+    Values object."""
 
     # args
     io_options: Dict[str, List[str]] = IO_OPTIONS['ONTraC']  # type: ignore
@@ -114,10 +129,11 @@ def opt_ontrac_validate(optparser) -> Values:
 # ONTraC_NN functions
 # ------------------------------------
 def prepare_nn_optparser() -> OptionParser:
-    """
-    Prepare optparser object. New options will be added in thisfunction first.
-    :return: OptionParser object.
-    """
+    """Prepare optparser object. New options will be added in thisfunction first.
+    
+    Returns
+    -------
+    OptionParser object."""
 
     # args
     io_options: Dict[str, List[str]] = IO_OPTIONS['ONTraC_NN']  # type: ignore
@@ -149,21 +165,24 @@ def _opt_nn_validate(options: Values,
                      io_options: Dict[str, List[str]],
                      optparser: Optional[OptionParser] = None) -> Values:
     """Validate options from a OptParser object.
-
-    Parameters
-    ----------
-    options : Values
-        Options object.
-    io_options : Dict[str, List[str]]
-        I/O options.
-    optparser : Optional[OptionParser], optional
-        OptionParser object, by default None
-
-    Returns
-    -------
-    Values
-        Values object.
-    """
+    
+        Parameters
+        ----------
+    options :
+        Values
+            Options object.
+    io_options :
+        Dict[str, List[str]]
+            I/O options.
+    optparser :
+        Optional[OptionParser], optional
+            OptionParser object, by default None
+    
+        Returns
+        -------
+        Values
+            Values object.
+        """
 
     # IO
     validate_io_options(options=options, io_options=io_options, optparser=optparser)
@@ -181,10 +200,15 @@ def _opt_nn_validate(options: Values,
 
 def opt_nn_validate(optparser) -> Values:
     """Validate options from a OptParser object.
-
-    :param optparser: OptionParser object.
-    :return: Values object.
-    """
+    
+    Parameters
+    ----------
+    optparser :
+        OptionParser object.
+    
+    Returns
+    -------
+    Values object."""
 
     # args
     io_options: Dict[str, List[str]] = IO_OPTIONS['ONTraC_NN']  # type: ignore
@@ -200,10 +224,11 @@ def opt_nn_validate(optparser) -> Values:
 # ONTraC_GNN functions
 # ------------------------------------
 def prepare_gnn_optparser() -> OptionParser:
-    """
-    Prepare optparser object. New options will be added in thisfunction first.
-    :return: OptionParser object.
-    """
+    """Prepare optparser object. New options will be added in thisfunction first.
+    
+    Returns
+    -------
+    OptionParser object."""
 
     # args
     io_options: Dict[str, List[str]] = IO_OPTIONS['ONTraC_GNN']  # type: ignore
@@ -234,21 +259,24 @@ def _opt_gnn_validate(options: Values,
                       io_options: Dict[str, List[str]],
                       optparser: Optional[OptionParser] = None) -> Values:
     """Validate options from a OptParser object.
-
-    Parameters
-    ----------
-    options : Values
-        Options object.
-    io_options : Dict[str, List[str]]
-        I/O options.
-    optparser : Optional[OptionParser], optional
-        OptionParser object, by default None
-
-    Returns
-    -------
-    Values
-        Values object.
-    """
+    
+        Parameters
+        ----------
+    options :
+        Values
+            Options object.
+    io_options :
+        Dict[str, List[str]]
+            I/O options.
+    optparser :
+        Optional[OptionParser], optional
+            OptionParser object, by default None
+    
+        Returns
+        -------
+        Values
+            Values object.
+        """
 
     # IO
     validate_io_options(options=options, io_options=io_options, optparser=optparser)
@@ -270,10 +298,15 @@ def _opt_gnn_validate(options: Values,
 
 def opt_gnn_validate(optparser: OptionParser) -> Values:
     """Validate options from a OptParser object.
-
-    :param optparser: OptionParser object.
-    :return: Values object.
-    """
+    
+    Parameters
+    ----------
+    optparser :
+        OptionParser object.
+    
+    Returns
+    -------
+    Values object."""
 
     # args
     io_options: Dict[str, List[str]] = IO_OPTIONS['ONTraC_GNN']  # type: ignore
@@ -289,10 +322,11 @@ def opt_gnn_validate(optparser: OptionParser) -> Values:
 # ONTraC_NT functions
 # ------------------------------------
 def prepare_nt_optparser() -> OptionParser:
-    """
-    Prepare optparser object. New options will be added in thisfunction first.
-    :return: OptionParser object.
-    """
+    """Prepare optparser object. New options will be added in thisfunction first.
+    
+    Returns
+    -------
+    OptionParser object."""
 
     # args
     io_options: Dict[str, List[str]] = IO_OPTIONS['ONTraC_NT']  # type: ignore
@@ -315,21 +349,24 @@ def _opt_nt_validate(options: Values,
                      io_options: Dict[str, List[str]],
                      optparser: Optional[OptionParser] = None) -> Values:
     """Validate options from a OptParser object.
-
-    Parameters
-    ----------
-    options : Values
-        Options object.
-    io_options : Dict[str, List[str]]
-        I/O options.
-    optparser : Optional[OptionParser], optional
-        OptionParser object, by default None
-
-    Returns
-    -------
-    Values
-        Values object.
-    """
+    
+        Parameters
+        ----------
+    options :
+        Values
+            Options object.
+    io_options :
+        Dict[str, List[str]]
+            I/O options.
+    optparser :
+        Optional[OptionParser], optional
+            OptionParser object, by default None
+    
+        Returns
+        -------
+        Values
+            Values object.
+        """
 
     # IO
     validate_io_options(options=options, io_options=io_options, optparser=optparser)
@@ -347,10 +384,15 @@ def _opt_nt_validate(options: Values,
 
 def opt_nt_validate(optparser: OptionParser) -> Values:
     """Validate options from a OptParser object.
-
-    :param optparser: OptionParser object.
-    :return: Values object.
-    """
+    
+    Parameters
+    ----------
+    optparser :
+        OptionParser object.
+    
+    Returns
+    -------
+    Values object."""
 
     # args
     io_options: Dict[str, List[str]] = IO_OPTIONS['ONTraC_NT']  # type: ignore
@@ -366,10 +408,11 @@ def opt_nt_validate(optparser: OptionParser) -> Values:
 # ONTraC_GT functions
 # ------------------------------------
 def prepare_gt_optparser() -> OptionParser:
-    """
-    Prepare optparser object. New options will be added in thisfunction first.
-    :return: OptionParser object.
-    """
+    """Prepare optparser object. New options will be added in thisfunction first.
+    
+    Returns
+    -------
+    OptionParser object."""
 
     # args
     io_options: Dict[str, List[str]] = IO_OPTIONS['ONTraC_GT']  # type: ignore
@@ -403,21 +446,24 @@ def _opt_gt_validate(options: Values,
                      io_options: Dict[str, List[str]],
                      optparser: Optional[OptionParser] = None) -> Values:
     """Validate options from a OptParser object.
-
-    Parameters
-    ----------
-    options : Values
-        Options object.
-    io_options : Dict[str, List[str]]
-        I/O options.
-    optparser : Optional[OptionParser], optional
-        OptionParser object, by default None
-
-    Returns
-    -------
-    Values
-        Values object.
-    """
+    
+        Parameters
+        ----------
+    options :
+        Values
+            Options object.
+    io_options :
+        Dict[str, List[str]]
+            I/O options.
+    optparser :
+        Optional[OptionParser], optional
+            OptionParser object, by default None
+    
+        Returns
+        -------
+        Values
+            Values object.
+        """
 
     # IO
     validate_io_options(options=options, io_options=io_options, optparser=optparser)
@@ -442,10 +488,15 @@ def _opt_gt_validate(options: Values,
 
 def opt_gt_validate(optparser: OptionParser) -> Values:
     """Validate options from a OptParser object.
-
-    :param optparser: OptionParser object.
-    :return: Values object.
-    """
+    
+    Parameters
+    ----------
+    optparser :
+        OptionParser object.
+    
+    Returns
+    -------
+    Values object."""
 
     # args
     io_options: Dict[str, List[str]] = IO_OPTIONS['ONTraC_GT']  # type: ignore
@@ -461,10 +512,11 @@ def opt_gt_validate(optparser: OptionParser) -> Values:
 # ONTraC_analysis functions
 # ------------------------------------
 def prepare_analysis_optparser() -> OptionParser:
-    """
-    Prepare optparser object. New options will be added in thisfunction first.
-    :return: OptionParser object.
-    """
+    """Prepare optparser object. New options will be added in thisfunction first.
+    
+    Returns
+    -------
+    OptionParser object."""
 
     # args
     io_options: Dict[str, List[str]] = IO_OPTIONS['ONTraC_analysis']  # type: ignore
@@ -489,21 +541,24 @@ def _opt_analysis_validate(options: Values,
                            io_options: Dict[str, List[str]],
                            optparser: Optional[OptionParser] = None) -> Values:
     """Validate options from a OptParser object.
-
-    Parameters
-    ----------
-    options : Values
-        Options object.
-    io_options : Dict[str, List[str]]
-        I/O options.
-    optparser : Optional[OptionParser], optional
-        OptionParser object, by default None
-
-    Returns
-    -------
-    Values
-        Values object.
-    """
+    
+        Parameters
+        ----------
+    options :
+        Values
+            Options object.
+    io_options :
+        Dict[str, List[str]]
+            I/O options.
+    optparser :
+        Optional[OptionParser], optional
+            OptionParser object, by default None
+    
+        Returns
+        -------
+        Values
+            Values object.
+        """
 
     # IO
     validate_io_options(options=options, io_options=io_options, optparser=optparser)
@@ -523,10 +578,15 @@ def _opt_analysis_validate(options: Values,
 
 def opt_analysis_validate(optparser: OptionParser) -> Values:
     """Validate options from a OptParser object.
-
-    :param optparser: OptionParser object.
-    :return: Values object.
-    """
+    
+    Parameters
+    ----------
+    optparser :
+        OptionParser object.
+    
+    Returns
+    -------
+    Values object."""
 
     # args
     io_options: Dict[str, List[str]] = IO_OPTIONS['ONTraC_analysis']  # type: ignore

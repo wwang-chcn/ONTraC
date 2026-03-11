@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+"""This module contains the main function for the `ONTraC_GT` CLI pipeline (GNN + niche trajectory)."""
 
 import sys
 
@@ -15,9 +16,7 @@ from ..utils import write_version_info
 # Main Function
 # ------------------------------------
 def main() -> None:
-    """
-    The main function
-    """
+    """Run the `ONTraC_GT` CLI pipeline (GNN + niche trajectory)."""
 
     # write version information
     write_version_info()

@@ -1,3 +1,5 @@
+"""This module contains decorators for ONTraC."""
+
 import inspect
 import os
 from functools import wraps
@@ -8,13 +10,16 @@ from ..log import debug
 
 def get_default_args(func) -> dict:
     """Get default arguments of a function.
-
-    Args:
-        func (function): A function.
-
-    Returns:
-        dict: Default arguments of the function.
-    """
+    
+    Parameters
+    ----------
+            func (function): A function.
+    
+    Returns
+    -------
+    dict
+        Default arguments of the function.
+        """
     return {
         k: None if v.default is inspect.Parameter.empty else v.default
         for k, v in inspect.signature(func).parameters.items()
@@ -23,16 +28,24 @@ def get_default_args(func) -> dict:
 
 def selective_args_decorator(func) -> Callable:
     """Decorator that allows a function to accept only a subset of its arguments.
-
-    Args:
-        func (function): A function.
     
-    Returns:
-        function: A wrapper function that accepts only a subset of arguments.
-    """
+    Parameters
+    ----------
+            func (function): A function.
+        
+    Returns
+    -------
+    function
+        A wrapper function that accepts only a subset of arguments.
+        """
 
     @wraps(func)
     def wrapper(*args, **kwargs):
+        """Call ``func`` with only supported keyword arguments.
+
+        The wrapper fills optional parameters with defaults, keeps required
+        arguments strict, and ignores unrelated keyword entries.
+        """
         # debug(f'selective_args_decorator: args: {args}')
         # debug(f'selective_args_decorator: kwargs: {list(kwargs.keys())}')
         default_args = {}
@@ -58,14 +71,15 @@ def selective_args_decorator(func) -> Callable:
 
 
 def epoch_filter_decorator(func: Callable) -> Callable:
-    """
-    Epoch filter decorator.
-    :param func: function.
-    :return: function.
+    """Add epoch-based conditional execution to a callback.
+
+    The wrapped function receives a required ``epoch_filter`` callable. The
+    callback is executed only when ``epoch_filter(epoch)`` evaluates to ``True``.
     """
 
     @wraps(func)
     def wrapper(*args, epoch_filter: Callable, **kwargs) -> None:  # add epoch_filter argument
+        """Run callback only for epochs selected by ``epoch_filter``."""
         # debug(f'epoch_filter_decorator: args: {args}')
         # debug(f'epoch_filter_decorator: kwargs: {list(kwargs.keys())}')
         epoch: int = kwargs.get('epoch')  # type: ignore

@@ -1,3 +1,5 @@
+"""This module contains the main control function for running ONTraC, which integrates all the steps including NN, GNN, and NT."""
+
 from optparse import Values
 
 from ..constants import IO_OPTIONS
@@ -8,12 +10,18 @@ from ..run.processes import gnn, niche_network_construct, niche_trajectory_const
 
 
 def options_validate(options: Values, process='ONTraC') -> Values:
-    """
-    Validate options
-    :param options: options
-    :param process: str, process name
-    :return: options
-    """
+    """Validate options
+    
+    Parameters
+    ----------
+    options :
+        options
+    process :
+        str, process name
+    
+    Returns
+    -------
+    options"""
 
     # process should be a key in IO_OPTIONS
     if process not in IO_OPTIONS:
@@ -40,11 +48,16 @@ def options_validate(options: Values, process='ONTraC') -> Values:
 
 
 def run_ontrac(options: Values) -> None:
-    """
-    Run ONTraC
-    :param options: options
-    :return: None
-    """
+    """Run ONTraC
+    
+    Parameters
+    ----------
+    options :
+        options
+    
+    Returns
+    -------
+    None"""
 
     # ----- options validation -----
     options = options_validate(options=options)

@@ -1,3 +1,5 @@
+"""This module contains functions for niche cluster-based analysis."""
+
 from pathlib import Path
 from typing import List, Optional, Tuple, Union
 
@@ -29,13 +31,20 @@ from .utils import gini, saptial_figsize
 def cal_nc_scores(cell_level_niche_cluster_assign: pd.DataFrame,
                   reverse: bool = False,
                   niche_cluster_score: Optional[np.ndarray] = None) -> np.ndarray:
-    """
-    Calculate the score of each niche cluster.
-    :param cell_level_niche_cluster_assign: np.ndarray, the niche cluster assign data.
-    :param reverse: bool, whether to reverse the color.
-    :param niche_cluster_score: Optional[np.ndarray], the score of each niche cluster.
-    :return: np.ndarray.
-    """
+    """Calculate the score of each niche cluster.
+    
+    Parameters
+    ----------
+    cell_level_niche_cluster_assign :
+        np.ndarray, the niche cluster assign data.
+    reverse :
+        bool, whether to reverse the color.
+    niche_cluster_score :
+        Optional[np.ndarray], the score of each niche cluster.
+    
+    Returns
+    -------
+    np.ndarray."""
 
     if niche_cluster_score is not None:
         return niche_cluster_score if not reverse else 1 - niche_cluster_score
@@ -44,11 +53,16 @@ def cal_nc_scores(cell_level_niche_cluster_assign: pd.DataFrame,
 
 
 def cal_nc_colors(nc_scores: np.ndarray) -> List:
-    """
-    Calculate the color of each niche cluster.
-    :param nc_scores: np.ndarray, the score of each niche cluster.
-    :return: List.
-    """
+    """Calculate the color of each niche cluster.
+    
+    Parameters
+    ----------
+    nc_scores :
+        np.ndarray, the score of each niche cluster.
+    
+    Returns
+    -------
+    List."""
 
     norm = Normalize(vmin=0, vmax=1)
     sm = ScalarMappable(cmap=plt.cm.rainbow, norm=norm)  # type: ignore
@@ -58,54 +72,81 @@ def cal_nc_colors(nc_scores: np.ndarray) -> List:
 
 
 def cal_nc_palette(nc_colors: List) -> dict:
-    """
-    Calculate the color palette of each niche cluster.
-    :param nc_colors: List, the color of each niche cluster.
-    :return: dict.
-    """
+    """Calculate the color palette of each niche cluster.
+    
+    Parameters
+    ----------
+    nc_colors :
+        List, the color of each niche cluster.
+    
+    Returns
+    -------
+    dict."""
 
     nc_palette = {f'niche cluster {i}': nc_colors[i] for i in range(len(nc_colors))}
     return nc_palette
 
 
 def cal_nc_order_index(nc_scores: np.ndarray) -> np.ndarray:
-    """
-    Calculate the order index of each niche cluster.
-    :param nc_scores: np.ndarray, the score of each niche cluster.
-    :return: np.ndarray.
-    """
+    """Calculate the order index of each niche cluster.
+    
+    Parameters
+    ----------
+    nc_scores :
+        np.ndarray, the score of each niche cluster.
+    
+    Returns
+    -------
+    np.ndarray."""
 
     return nc_scores.argsort()
 
 
 def cal_nc_order(nc_order_index: np.ndarray) -> List:
-    """
-    Calculate the order of each niche cluster.
-    :param nc_order_index: np.ndarray, the order index of each niche cluster.
-    :return: List.
-    """
+    """Calculate the order of each niche cluster.
+    
+    Parameters
+    ----------
+    nc_order_index :
+        np.ndarray, the order index of each niche cluster.
+    
+    Returns
+    -------
+    List."""
 
     return [f'niche cluster {i}' for i in nc_order_index]
 
 
 def cal_nc_feat(nc_assign: pd.DataFrame, ctc: pd.DataFrame) -> pd.DataFrame:
-    """
-    Calculate the niche cluster feature (cell type composition) matrix.
-    :param nc_assign: pd.DataFrame, the niche level niche cluster assign data. # N (#niche) x C (#niche cluster)
-    :param ctc: pd.DataFrame, the niche level cell type composition data, aka X_0, the GNN input. # N (#niche) x F (#cell type)
-    :return: pd.DataFrame.
-    """
+    """Calculate the niche cluster feature (cell type composition) matrix.
+    
+    Parameters
+    ----------
+    nc_assign :
+        pd.DataFrame, the niche level niche cluster assign data. # N (#niche) x C (#niche cluster)
+    ctc :
+        pd.DataFrame, the niche level cell type composition data, aka X_0, the GNN input. # N (#niche) x F (#cell type)
+    
+    Returns
+    -------
+    pd.DataFrame."""
 
     return nc_assign.T @ ctc
 
 
 def cal_nc_feat_from_anadata(ana_data: AnaData, increment=True) -> Optional[pd.DataFrame]:
-    """
-    Calculate the niche cluster feature (cell type composition) matrix from AnaData.
-    :param ana_data: AnaData, the input data.
-    :param increment: bool, whether to increment the calculation.
-    :return: Optional[pd.DataFrame].
-    """
+    """Calculate the niche cluster feature (cell type composition) matrix from AnaData.
+    
+    Parameters
+    ----------
+    ana_data :
+        AnaData, the input data.
+    increment :
+        bool, whether to increment the calculation.
+    
+    Returns
+    -------
+    Optional[pd.DataFrame]."""
 
     if increment:
         # Incremental calculation
@@ -135,11 +176,16 @@ def cal_nc_feat_from_anadata(ana_data: AnaData, increment=True) -> Optional[pd.D
 
 
 def cal_nc_feat_similarity(nc_feat: pd.DataFrame) -> pd.DataFrame:
-    """
-    Calculate the niche cluster feature similarity.
-    :param nc_feat: pd.DataFrame, the niche cluster feature matrix.
-    :return: pd.DataFrame.
-    """
+    """Calculate the niche cluster feature similarity.
+    
+    Parameters
+    ----------
+    nc_feat :
+        pd.DataFrame, the niche cluster feature matrix.
+    
+    Returns
+    -------
+    pd.DataFrame."""
 
     return pd.DataFrame(data=1 - distance.cdist(XA=nc_feat, XB=nc_feat, metric='cosine'),
                         index=nc_feat.index,
@@ -156,17 +202,26 @@ def plot_niche_cluster_connectivity(
         reverse: bool = False,
         figsize_scale: Optional[float] = None,
         output_file_path: Optional[Union[str, Path]] = None) -> Optional[Tuple[plt.Figure, List[plt.Axes]]]:
-    """
-    Plot niche cluster connectivity.
-    :param niche_cluster_connectivity: np.ndarray, the connectivity matrix.
-    :param niche_cluster_score: Optional[np.ndarray], the score of each niche cluster.
-    :param niche_cluster_size: Optional[np.ndarray], the size of each niche cluster.
-    :param reverse: bool, whether to reverse the color.
-    :param figsize_scale: float, the scale factor for the figure size. Default is None.
-    If None, the scale factor is calculated based on the number of niche cluster in the data.
-    :param output_file_path: Optional[Union[str, Path]], the output file path.
-    :return: None or Tuple[plt.Figure, plt.Axes].
-    """
+    """Plot niche cluster connectivity.
+    
+    Parameters
+    ----------
+    niche_cluster_connectivity :
+        np.ndarray, the connectivity matrix.
+    niche_cluster_score :
+        Optional[np.ndarray], the score of each niche cluster.
+    niche_cluster_size :
+        Optional[np.ndarray], the size of each niche cluster.
+    reverse :
+        bool, whether to reverse the color.
+    figsize_scale :
+        float, the scale factor for the figure size. Default is None. If None, the scale factor is calculated based on the number of niche cluster in the data.
+    output_file_path :
+        Optional[Union[str, Path]], the output file path.
+    
+    Returns
+    -------
+    None or Tuple[plt.Figure, plt.Axes]."""
 
     # preprocessing
     ## set diagonal to 0
@@ -307,11 +362,16 @@ def plot_niche_cluster_connectivity(
 
 
 def plot_niche_cluster_connectivity_from_anadata(ana_data: AnaData) -> Optional[Tuple[plt.Figure, List[plt.Axes]]]:
-    """
-    Plot niche cluster connectivity.
-    :param ana_data: AnaData, the data for analysis.
-    :return: None or Tuple[plt.Figure, plt.Axes].
-    """
+    """Plot niche cluster connectivity.
+    
+    Parameters
+    ----------
+    ana_data :
+        AnaData, the data for analysis.
+    
+    Returns
+    -------
+    None or Tuple[plt.Figure, plt.Axes]."""
 
     if ana_data.niche_cluster_connectivity is None:
         warning("No niche cluster connectivity data found. Skip niche cluster connectivity plot.")
@@ -333,11 +393,16 @@ def plot_niche_cluster_connectivity_from_anadata(ana_data: AnaData) -> Optional[
 
 
 def plot_niche_cluster_connectivity_bysample_from_anadata(ana_data: AnaData) -> None:
-    """
-    Plot niche cluster connectivity by sample.
-    :param ana_data: AnaData, the data for analysis.
-    :return: None.
-    """
+    """Plot niche cluster connectivity by sample.
+    
+    Parameters
+    ----------
+    ana_data :
+        AnaData, the data for analysis.
+    
+    Returns
+    -------
+    None."""
 
     if ana_data.niche_cluster_connectivity is None:
         warning("No niche cluster connectivity data found. Skip niche cluster connectivity plot.")
@@ -369,17 +434,26 @@ def plot_graph_niche_cluster_feat_similarity(
         reverse: bool = False,
         figsize_scale: Optional[float] = None,
         output_file_path: Optional[Union[str, Path]] = None) -> Optional[Tuple[plt.Figure, List[plt.Axes]]]:
-    """
-    Plot niche cluster feature similarity.
-    :param niche_cluster_feat_similarity: np.ndarray, the feature similarity matrix. # N (#niche) x N (#niche)
-    :param niche_cluster_score: Optional[np.ndarray], the score of each niche cluster. # N (#niche)
-    :param niche_cluster_size: Optional[np.ndarray], the size of each niche cluster. # N (#niche)
-    :param reverse: bool, whether to reverse the color.
-    :param figsize_scale: float, the scale factor for the figure size. Default is None.
-    If None, the scale factor is calculated based on the number of niche cluster in the data.
-    :param output_file_path: Optional[Union[str, Path]], the output file path.
-    :return: None or Tuple[plt.Figure, plt.Axes].
-    """
+    """Plot niche cluster feature similarity.
+    
+    Parameters
+    ----------
+    niche_cluster_feat_similarity :
+        np.ndarray, the feature similarity matrix. # N (#niche) x N (#niche)
+    niche_cluster_score :
+        Optional[np.ndarray], the score of each niche cluster. # N (#niche)
+    niche_cluster_size :
+        Optional[np.ndarray], the size of each niche cluster. # N (#niche)
+    reverse :
+        bool, whether to reverse the color.
+    figsize_scale :
+        float, the scale factor for the figure size. Default is None. If None, the scale factor is calculated based on the number of niche cluster in the data.
+    output_file_path :
+        Optional[Union[str, Path]], the output file path.
+    
+    Returns
+    -------
+    None or Tuple[plt.Figure, plt.Axes]."""
 
     # preprocessing
     ## set diagonal to 0
@@ -521,11 +595,16 @@ def plot_graph_niche_cluster_feat_similarity(
 
 def plot_graph_niche_cluster_feat_similarity_from_anadata(
         ana_data: AnaData) -> Optional[Tuple[plt.Figure, List[plt.Axes]]]:
-    """
-    Plot graph niche cluster feature similarity from anadata.
-    :param ana_data: AnaData, the data for analysis.
-    :return: None or Tuple[plt.Figure, List[plt.Axes]].
-    """
+    """Plot graph niche cluster feature similarity from anadata.
+    
+    Parameters
+    ----------
+    ana_data :
+        AnaData, the data for analysis.
+    
+    Returns
+    -------
+    None or Tuple[plt.Figure, List[plt.Axes]]."""
 
     if ana_data.cell_type_composition is None:
         warning("No cell type composition data found. Skip niche cluster feature similarity plot.")
@@ -555,11 +634,16 @@ def plot_graph_niche_cluster_feat_similarity_from_anadata(
 
 
 def plot_graph_niche_cluster_feat_similarity_bysample_from_anadata(ana_data: AnaData) -> None:
-    """
-    Plot graph niche cluster feature similarity by sample.
-    :param ana_data: AnaData, the data for analysis.
-    :return: None.
-    """
+    """Plot graph niche cluster feature similarity by sample.
+    
+    Parameters
+    ----------
+    ana_data :
+        AnaData, the data for analysis.
+    
+    Returns
+    -------
+    None."""
 
     if ana_data.cell_type_composition is None:
         warning("No cell type composition data found.")
@@ -597,12 +681,18 @@ def plot_heatmap_niche_cluster_feat_similarity(
         niche_cluster_feat_similarity: pd.DataFrame,
         niche_cluster_order: List,
         output_file_path: Optional[Union[str, Path]] = None) -> Optional[Tuple[plt.Figure, plt.Axes]]:
-    """
-    Plot heatmap of niche cluster feature similarity.
-    :param niche_cluster_feat_similarity: pd.DataFrame, the feature similarity matrix.
-    :param output_file_path: Optional[Union[str, Path]], the output file path.
-    :return: None or Tuple[plt.Figure, plt.Axes].
-    """
+    """Plot heatmap of niche cluster feature similarity.
+    
+    Parameters
+    ----------
+    niche_cluster_feat_similarity :
+        pd.DataFrame, the feature similarity matrix.
+    output_file_path :
+        Optional[Union[str, Path]], the output file path.
+    
+    Returns
+    -------
+    None or Tuple[plt.Figure, plt.Axes]."""
 
     fig, ax = plt.subplots(figsize=(niche_cluster_feat_similarity.shape[0], niche_cluster_feat_similarity.shape[1]))
     sns.heatmap(niche_cluster_feat_similarity.loc[niche_cluster_order, niche_cluster_order],
@@ -623,11 +713,16 @@ def plot_heatmap_niche_cluster_feat_similarity(
 
 
 def plot_heatmap_niche_cluster_feat_similarity_from_anadata(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.Axes]]:
-    """
-    Plot heatmap of niche cluster feature similarity from anadata.
-    :param ana_data: AnaData, the data for analysis.
-    :return: None or Tuple[plt.Figure, plt.Axes].
-    """
+    """Plot heatmap of niche cluster feature similarity from anadata.
+    
+    Parameters
+    ----------
+    ana_data :
+        AnaData, the data for analysis.
+    
+    Returns
+    -------
+    None or Tuple[plt.Figure, plt.Axes]."""
 
     if ana_data.cell_type_composition is None:
         warning("No cell type composition data found. Skip niche cluster feature similarity plot.")
@@ -654,11 +749,16 @@ def plot_heatmap_niche_cluster_feat_similarity_from_anadata(ana_data: AnaData) -
 
 
 def plot_heatmap_niche_cluster_feat_similarity_by_sample_from_anadata(ana_data: AnaData) -> None:
-    """
-    Plot heatmap of niche cluster feature similarity by sample.
-    :param ana_data: AnaData, the data for analysis.
-    :return: None.
-    """
+    """Plot heatmap of niche cluster feature similarity by sample.
+    
+    Parameters
+    ----------
+    ana_data :
+        AnaData, the data for analysis.
+    
+    Returns
+    -------
+    None."""
 
     if ana_data.cell_type_composition is None:
         warning("No cell type composition data found. Skip niche cluster feature similarity plot.")
@@ -693,13 +793,20 @@ def plot_cluster_proportion(
         niche_cluster_loading: pd.Series,
         niche_cluster_colors: List,
         output_file_path: Optional[Union[str, Path]] = None) -> Optional[Tuple[plt.Figure, plt.Axes]]:
-    """
-    Plot the proportion of each cluster.
-    :param niche_cluster_loading: pd.Series, the loading of each niche cluster.
-    :param niche_cluster_colors: List, the color of each niche cluster.
-    :param output_file_path: Optional[Union[str, Path]], the output file path.
-    :return: None or Tuple[plt.Figure, plt.Axes].
-    """
+    """Plot the proportion of each cluster.
+    
+    Parameters
+    ----------
+    niche_cluster_loading :
+        pd.Series, the loading of each niche cluster.
+    niche_cluster_colors :
+        List, the color of each niche cluster.
+    output_file_path :
+        Optional[Union[str, Path]], the output file path.
+    
+    Returns
+    -------
+    None or Tuple[plt.Figure, plt.Axes]."""
 
     fig, ax = plt.subplots(figsize=(6, 6))
     ax.pie(niche_cluster_loading,
@@ -719,11 +826,16 @@ def plot_cluster_proportion(
 
 
 def plot_cluster_proportion_from_anadata(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.Axes]]:
-    """
-    Plot the proportion of each cluster.
-    :param ana_data: AnaData, the data for analysis.
-    :return: None or Tuple[plt.Figure, plt.Axes].
-    """
+    """Plot the proportion of each cluster.
+    
+    Parameters
+    ----------
+    ana_data :
+        AnaData, the data for analysis.
+    
+    Returns
+    -------
+    None or Tuple[plt.Figure, plt.Axes]."""
     if ana_data.niche_level_niche_cluster_assign is None or ana_data.cell_level_niche_cluster_assign is None:
         warning("No cluster assignment data found. Skip niche cluster proportion plot.")
         return None
@@ -747,14 +859,22 @@ def plot_niche_cluster_loadings_dataset(
     nc_scores: np.ndarray,
     output_file_path: Optional[Union[str,
                                      Path]] = None) -> Optional[Tuple[plt.Figure, Union[plt.Axes, List[plt.Axes]]]]:
-    """
-    Plot niche cluster loadings for each cell.
-    :param cell_level_niche_cluster_assign: pd.DataFrame, the niche cluster assign data.
-    :param meta_data_df: pd.DataFrame, the meta data.
-    :param nc_scores: np.ndarray, the score of each niche cluster, default is None.
-    :param output_file_path: Optional[Union[str, Path]], the output file path, default is None.
-    :return: None or Tuple[plt.Figure, plt.Axes].
-    """
+    """Plot niche cluster loadings for each cell.
+    
+    Parameters
+    ----------
+    cell_level_niche_cluster_assign :
+        pd.DataFrame, the niche cluster assign data.
+    meta_data_df :
+        pd.DataFrame, the meta data.
+    nc_scores :
+        np.ndarray, the score of each niche cluster, default is None.
+    output_file_path :
+        Optional[Union[str, Path]], the output file path, default is None.
+    
+    Returns
+    -------
+    None or Tuple[plt.Figure, plt.Axes]."""
 
     samples = meta_data_df['Sample'].unique()
     n_sample = len(samples)
@@ -787,11 +907,16 @@ def plot_niche_cluster_loadings_dataset(
 
 def plot_niche_cluster_loadings_dataset_from_anadata(
         ana_data: AnaData) -> Optional[Tuple[plt.Figure, Union[plt.Axes, List[plt.Axes]]]]:
-    """
-    Plot niche cluster loadings for each cell.
-    :param ana_data: AnaData, the data for analysis.
-    :return: None or Tuple[plt.Figure, Union[plt.Axes, List[plt.Axes]]].
-    """
+    """Plot niche cluster loadings for each cell.
+    
+    Parameters
+    ----------
+    ana_data :
+        AnaData, the data for analysis.
+    
+    Returns
+    -------
+    None or Tuple[plt.Figure, Union[plt.Axes, List[plt.Axes]]]."""
 
     if ana_data.cell_level_niche_cluster_assign is None:
         warning("No cluster assignment data found. Skip niche cluster loadings plot.")
@@ -813,15 +938,24 @@ def plot_niche_cluster_loadings_sample(
         nc_scores: np.ndarray,
         spatial_scaling_factor: float = 1.0,
         output_file_path: Optional[Union[str, Path]] = None) -> Optional[List[Tuple[plt.Figure, plt.Axes]]]:
-    """
-    Plot niche cluster loadings for each cell.
-    :param cell_level_niche_cluster_assign: pd.DataFrame, the niche cluster assign data.
-    :param meta_data_df: pd.DataFrame, the meta data.
-    :param nc_scores: np.ndarray, the score of each niche cluster, default is None.
-    :param spatial_scaling_factor: float, the scale factor control the size of spatial-based plots.
-    :param output_file_path: Optional[Union[str, Path]], the output file path, default is None.
-    :return: None or List[Tuple[plt.Figure, plt.Axes]].
-    """
+    """Plot niche cluster loadings for each cell.
+    
+    Parameters
+    ----------
+    cell_level_niche_cluster_assign :
+        pd.DataFrame, the niche cluster assign data.
+    meta_data_df :
+        pd.DataFrame, the meta data.
+    nc_scores :
+        np.ndarray, the score of each niche cluster, default is None.
+    spatial_scaling_factor :
+        float, the scale factor control the size of spatial-based plots.
+    output_file_path :
+        Optional[Union[str, Path]], the output file path, default is None.
+    
+    Returns
+    -------
+    None or List[Tuple[plt.Figure, plt.Axes]]."""
 
     samples = meta_data_df['Sample'].unique()
     n_niche_cluster = cell_level_niche_cluster_assign.shape[1]
@@ -853,11 +987,16 @@ def plot_niche_cluster_loadings_sample(
 
 
 def plot_niche_cluster_loadings_sample_from_anadata(ana_data: AnaData) -> Optional[List[Tuple[plt.Figure, plt.Axes]]]:
-    """
-    Plot niche cluster loadings for each cell.
-    :param ana_data: AnaData, the data for analysis.
-    :return: None or List[Tuple[plt.Figure, plt.Axes]].
-    """
+    """Plot niche cluster loadings for each cell.
+    
+    Parameters
+    ----------
+    ana_data :
+        AnaData, the data for analysis.
+    
+    Returns
+    -------
+    None or List[Tuple[plt.Figure, plt.Axes]]."""
 
     if ana_data.cell_level_niche_cluster_assign is None:
         warning("No cluster assign data found. Skip niche cluster loadings plot.")
@@ -877,11 +1016,16 @@ def plot_niche_cluster_loadings_sample_from_anadata(ana_data: AnaData) -> Option
 def plot_niche_cluster_loadings(
     ana_data: AnaData
 ) -> Optional[Union[List[Tuple[plt.Figure, plt.Axes]], Tuple[plt.Figure, Union[plt.Axes, List[plt.Axes]]]]]:
-    """
-    Plot niche cluster loadings for each cell.
-    :param ana_data: AnaData, the data for analysis.
-    :return: None or Union[List[Tuple[plt.Figure, plt.Axes]], Tuple[plt.Figure, Union[plt.Axes, List[plt.Axes]]]].
-    """
+    """Plot niche cluster loadings for each cell.
+    
+    Parameters
+    ----------
+    ana_data :
+        AnaData, the data for analysis.
+    
+    Returns
+    -------
+    None or Union[List[Tuple[plt.Figure, plt.Axes]], Tuple[plt.Figure, Union[plt.Axes, List[plt.Axes]]]]."""
     if getattr(ana_data.options, 'sample', False):
         return plot_niche_cluster_loadings_sample_from_anadata(ana_data=ana_data)
     else:
@@ -893,14 +1037,22 @@ def plot_max_niche_cluster_dataset(
         meta_data_df: pd.DataFrame,
         nc_scores: np.ndarray,
         output_file_path: Optional[Union[str, Path]] = None) -> Optional[Tuple[plt.Figure, plt.Axes]]:
-    """
-    Plot the maximum niche cluster for each cell.
-    :param cell_level_max_niche_cluster: pd.DataFrame, the maximum niche cluster data.
-    :param meta_data_df: pd.DataFrame, the meta data.
-    :param nc_scores: Optional[np.ndarray], the score of each niche cluster, default is None.
-    :param output_file_path: Optional[Union[str, Path]], the output file path, default is None.
-    :return: None or Tuple[plt.Figure, plt.Axes].
-    """
+    """Plot the maximum niche cluster for each cell.
+    
+    Parameters
+    ----------
+    cell_level_max_niche_cluster :
+        pd.DataFrame, the maximum niche cluster data.
+    meta_data_df :
+        pd.DataFrame, the meta data.
+    nc_scores :
+        Optional[np.ndarray], the score of each niche cluster, default is None.
+    output_file_path :
+        Optional[Union[str, Path]], the output file path, default is None.
+    
+    Returns
+    -------
+    None or Tuple[plt.Figure, plt.Axes]."""
 
     samples = meta_data_df['Sample'].unique()
     n_sample = len(samples)
@@ -935,11 +1087,16 @@ def plot_max_niche_cluster_dataset(
 
 
 def plot_max_niche_cluster_dataset_from_anadata(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.Axes]]:
-    """
-    Plot the maximum niche cluster for each cell.
-    :param ana_data: AnaData, the data for analysis.
-    :return: None or Tuple[plt.Figure, plt.Axes].
-    """
+    """Plot the maximum niche cluster for each cell.
+    
+    Parameters
+    ----------
+    ana_data :
+        AnaData, the data for analysis.
+    
+    Returns
+    -------
+    None or Tuple[plt.Figure, plt.Axes]."""
 
     if ana_data.cell_level_max_niche_cluster is None or ana_data.cell_level_niche_cluster_assign is None:
         warning("No cluster assignment data found. Skip max niche cluster plot.")
@@ -960,14 +1117,22 @@ def plot_max_niche_cluster_sample(
         meta_data_df: pd.DataFrame,
         nc_scores: np.ndarray,
         output_file_path: Optional[Union[str, Path]] = None) -> Optional[List[Tuple[plt.Figure, plt.Axes]]]:
-    """
-    Plot the maximum niche cluster for each cell.
-    :param cell_level_max_niche_cluster: pd.DataFrame, the maximum niche cluster data.
-    :param meta_data_df: pd.DataFrame, the meta data.
-    :param nc_scores: np.ndarray, the score of each niche cluster.
-    :param output_file_path: Optional[Union[str, Path]], the output file path.
-    :return: None or List[Tuple[plt.Figure, plt.Axes]].
-    """
+    """Plot the maximum niche cluster for each cell.
+    
+    Parameters
+    ----------
+    cell_level_max_niche_cluster :
+        pd.DataFrame, the maximum niche cluster data.
+    meta_data_df :
+        pd.DataFrame, the meta data.
+    nc_scores :
+        np.ndarray, the score of each niche cluster.
+    output_file_path :
+        Optional[Union[str, Path]], the output file path.
+    
+    Returns
+    -------
+    None or List[Tuple[plt.Figure, plt.Axes]]."""
 
     samples = meta_data_df['Sample'].unique()
     n_niche_cluster = len(nc_scores)
@@ -1003,11 +1168,16 @@ def plot_max_niche_cluster_sample(
 
 
 def plot_max_niche_cluster_sample_from_anadata(ana_data: AnaData) -> Optional[List[Tuple[plt.Figure, plt.Axes]]]:
-    """
-    Plot the maximum niche cluster for each cell.
-    :param ana_data: AnaData, the data for analysis.
-    :return: None or List[Tuple[plt.Figure, plt.Axes]].
-    """
+    """Plot the maximum niche cluster for each cell.
+    
+    Parameters
+    ----------
+    ana_data :
+        AnaData, the data for analysis.
+    
+    Returns
+    -------
+    None or List[Tuple[plt.Figure, plt.Axes]]."""
 
     if ana_data.cell_level_max_niche_cluster is None or ana_data.cell_level_niche_cluster_assign is None:
         warning("No cluster assignment data found. Skip max niche cluster plot.")
@@ -1025,11 +1195,16 @@ def plot_max_niche_cluster_sample_from_anadata(ana_data: AnaData) -> Optional[Li
 
 def plot_max_niche_cluster(
         ana_data: AnaData) -> Optional[Union[List[Tuple[plt.Figure, plt.Axes]], Tuple[plt.Figure, plt.Axes]]]:
-    """
-    Plot the maximum niche cluster for each cell.
-    :param ana_data: AnaData, the data for analysis.
-    :return: None or Tuple[plt.Figure, plt.Axes].
-    """
+    """Plot the maximum niche cluster for each cell.
+    
+    Parameters
+    ----------
+    ana_data :
+        AnaData, the data for analysis.
+    
+    Returns
+    -------
+    None or Tuple[plt.Figure, plt.Axes]."""
     if getattr(ana_data.options, 'sample', False):
         return plot_max_niche_cluster_sample_from_anadata(ana_data=ana_data)
     else:
@@ -1039,12 +1214,18 @@ def plot_max_niche_cluster(
 def plot_niche_cluster_gini(
         intra_cluster_gini_df: pd.DataFrame,
         output_file_path: Optional[Union[str, Path]] = None) -> Optional[Tuple[plt.Figure, plt.Axes]]:
-    """
-    Plot the Gini coefficient of each niche cluster.
-    :param intra_cluster_gini_df: pd.DataFrame, the Gini coefficient of each niche cluster.
-    :param output_file_path: Optional[Union[str, Path]], the output file path.
-    :return: None or Tuple[plt.Figure, plt.Axes].
-    """
+    """Plot the Gini coefficient of each niche cluster.
+    
+    Parameters
+    ----------
+    intra_cluster_gini_df :
+        pd.DataFrame, the Gini coefficient of each niche cluster.
+    output_file_path :
+        Optional[Union[str, Path]], the output file path.
+    
+    Returns
+    -------
+    None or Tuple[plt.Figure, plt.Axes]."""
 
     fig, ax = plt.subplots(figsize=(6, 4))
     sns.barplot(data=intra_cluster_gini_df, x='cluster', y='gini', ax=ax)
@@ -1061,11 +1242,16 @@ def plot_niche_cluster_gini(
 
 
 def plot_niche_cluster_gini_from_anadata(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.Axes]]:
-    """
-    Plot the Gini coefficient of each niche cluster.
-    :param ana_data: AnaData, the data for analysis.
-    :return: None or Tuple[plt.Figure, plt.Axes].
-    """
+    """Plot the Gini coefficient of each niche cluster.
+    
+    Parameters
+    ----------
+    ana_data :
+        AnaData, the data for analysis.
+    
+    Returns
+    -------
+    None or Tuple[plt.Figure, plt.Axes]."""
     if ana_data.cell_level_niche_cluster_assign is None:
         warning("No niche cluster assign data found. Skip niche cluster Gini plot.")
         return None
@@ -1090,11 +1276,16 @@ def plot_niche_cluster_gini_from_anadata(ana_data: AnaData) -> Optional[Tuple[pl
 
 
 def niche_cluster_visualization(ana_data: AnaData) -> None:
-    """
-    All spatial visualization will include here.
-    :param ana_data: AnaData, the data for analysis.
-    :return: None.
-    """
+    """All spatial visualization will include here.
+    
+    Parameters
+    ----------
+    ana_data :
+        AnaData, the data for analysis.
+    
+    Returns
+    -------
+    None."""
 
     # 1. plot niche cluster connectivity
     plot_niche_cluster_connectivity_from_anadata(ana_data=ana_data)

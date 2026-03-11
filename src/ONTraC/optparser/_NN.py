@@ -1,3 +1,5 @@
+"""This module contains functions for parsing command-line arguments and options for ONTraC, including adding niche network construction-related flags, validating the parsed options, and writing the options memo to the log."""
+
 import sys
 from optparse import OptionGroup, OptionParser, Values
 from typing import Optional
@@ -10,12 +12,18 @@ from ._IO import *
 # Functions
 # ------------------------------------
 def add_niche_net_constr_options_group(optparser: OptionParser) -> None:
-    """
-    Add niche network construction options group to optparser.
-    :param optparser: OptionParser object.
-    :param nn_options: Set of niche network construction options.
-    :return: OptionGroup object.
-    """
+    """Add niche network construction options group to optparser.
+    
+    Parameters
+    ----------
+    optparser :
+        OptionParser object.
+    nn_options :
+        Set of niche network construction options.
+    
+    Returns
+    -------
+    OptionGroup object."""
     # niche network construction options group
     group_niche = OptionGroup(optparser, "Niche Network Construction")
     group_niche.add_option('--n-cpu',
@@ -59,12 +67,18 @@ def add_niche_net_constr_options_group(optparser: OptionParser) -> None:
 
 
 def validate_niche_net_constr_options(options: Values, optparser: Optional[OptionParser] = None) -> None:
-    """
-    Validate niche network construction options.
-    :param options: Options object.
-    :param optparser: OptionParser object.
-    :return: None.
-    """
+    """Validate niche network construction options.
+    
+    Parameters
+    ----------
+    options :
+        Options object.
+    optparser :
+        OptionParser object.
+    
+    Returns
+    -------
+    None."""
 
     if getattr(options, 'n_cpu', None) is None:
         info('n_cpu is not set. Using default value 4.')
@@ -122,10 +136,15 @@ def validate_niche_net_constr_options(options: Values, optparser: Optional[Optio
 
 def write_niche_net_constr_memo(options: Values) -> None:
     """Write niche network construction memos to stdout.
-
-    :param options: Options object.
-    :return: None.
-    """
+    
+    Parameters
+    ----------
+    options :
+        Options object.
+    
+    Returns
+    -------
+    None."""
 
     # print parameters to stdout
     info('      -------- niche net constr options -------      ')

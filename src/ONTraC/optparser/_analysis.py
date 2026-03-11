@@ -1,3 +1,5 @@
+"""This module contains functions for parsing command-line arguments and options for ONTraC, including adding visualization-related flags, validating the parsed options, and writing the options memo to the log."""
+
 import sys
 from optparse import OptionGroup, OptionParser, Values
 from typing import Optional
@@ -6,6 +8,14 @@ from ..log import *
 
 
 def add_visualization_group(optparser: OptionParser) -> None:
+    """Register visualization-related CLI flags on an option parser.
+    
+        Parameters
+        ----------
+    optparser :
+        OptionParser
+            Parser instance that receives a ``Visualization options`` group.
+        """
     group_vis = OptionGroup(optparser, 'Visualization options')
     group_vis.add_option(
         '--embedding-adjust',
@@ -44,6 +54,14 @@ def add_visualization_group(optparser: OptionParser) -> None:
 
 
 def add_suppress_group(optparser: OptionParser) -> None:
+    """Register optional plotting-suppression flags.
+    
+        Parameters
+        ----------
+    optparser :
+        OptionParser
+            Parser instance that receives a ``Suppress options`` group.
+        """
     group = OptionGroup(optparser, 'Suppress options')
     group.add_option(
         '--suppress-cell-type-composition',
@@ -69,19 +87,21 @@ def add_suppress_group(optparser: OptionParser) -> None:
 
 def validate_visualization_options(options: Values, optparser: Optional[OptionParser] = None) -> None:
     """
-    Validate visualization options.
-
-    Parameters
-    ----------
-    options : Values
-        Options object.
-    optparser : Optional[OptionParser], optional
-        OptionParser object. The default is None.
-
-    Returns
-    -------
-    None
-    """
+        Validate visualization options.
+    
+        Parameters
+        ----------
+    options :
+        Values
+            Options object.
+    optparser :
+        Optional[OptionParser], optional
+            OptionParser object. The default is None.
+    
+        Returns
+        -------
+        None
+        """
 
     # reverse
     if getattr(options, 'reverse', None) is None:
@@ -124,19 +144,21 @@ def validate_visualization_options(options: Values, optparser: Optional[OptionPa
 
 def validate_suppress_options(options: Values, optparser: Optional[OptionParser] = None) -> None:
     """
-    Validate suppress options.
+        Validate suppress options.
+        
+        Parameters
+        ----------
+    options :
+        Values
+            Options object.
+    optparser :
+        Optional[OptionParser], optional
+            OptionParser object. The default is None.
     
-    Parameters
-    ----------
-    options : Values
-        Options object.
-    optparser : Optional[OptionParser], optional
-        OptionParser object. The default is None.
-
-    Returns
-    -------
-    None
-    """
+        Returns
+        -------
+        None
+        """
 
     # suppress_cell_type_composition
     if getattr(options, 'suppress_cell_type_composition', None) is None:
@@ -177,11 +199,16 @@ def validate_suppress_options(options: Values, optparser: Optional[OptionParser]
 
 
 def write_visualization_options_memo(options: Values) -> None:
-    """
-    Write visualization options memo.
-    :param options: Values object.
-    :return: None.
-    """
+    """Write visualization options memo.
+    
+    Parameters
+    ----------
+    options :
+        Values object.
+    
+    Returns
+    -------
+    None."""
 
     info(message='---------------- Visualization options ----------------')
     info(f'embedding_adjust: {options.embedding_adjust}')
@@ -193,11 +220,16 @@ def write_visualization_options_memo(options: Values) -> None:
 
 
 def write_suppress_options_memo(options: Values) -> None:
-    """
-    Write suppress options memo.
-    :param options: Values object.
-    :return: None.
-    """
+    """Write suppress options memo.
+    
+    Parameters
+    ----------
+    options :
+        Values object.
+    
+    Returns
+    -------
+    None."""
 
     info(message='---------------- Suppress options ----------------')
     info(message=f'Suppress the cell type composition visualization: {options.suppress_cell_type_composition}')

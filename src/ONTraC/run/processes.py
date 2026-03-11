@@ -1,3 +1,5 @@
+"""This module contains functions for the main processes of ONTraC."""
+
 from optparse import Values
 from pathlib import Path
 from typing import Callable, Dict
@@ -17,23 +19,34 @@ from ..utils import get_rel_params, read_yaml_file
 
 
 def load_parameters(opt_validate_func: Callable, prepare_optparser_func: Callable) -> Values:
-    """
-    Load parameters.
-    :param opt_validate_func: validate function.
-    :param prepare_optparser_func: prepare optparser function.
-    :return: options.
-    """
+    """Load parameters.
+    
+    Parameters
+    ----------
+    opt_validate_func :
+        validate function.
+    prepare_optparser_func :
+        prepare optparser function.
+    
+    Returns
+    -------
+    options."""
     options = opt_validate_func(prepare_optparser_func())
 
     return options
 
 
 def niche_network_construct(options: Values) -> None:
-    """
-    Niche network construct process.
-    :param options: options.
-    :return: None.
-    """
+    """Niche network construct process.
+    
+    Parameters
+    ----------
+    options :
+        options.
+    
+    Returns
+    -------
+    None."""
 
     info('------------- Niche network construct --------------- ')
 
@@ -78,11 +91,16 @@ def niche_network_construct(options: Values) -> None:
 
 
 def gnn(options: Values) -> None:
-    """
-    GNN training and prediction process.
-    :param options: options.
-    :return: None.
-    """
+    """GNN training and prediction process.
+    
+    Parameters
+    ----------
+    options :
+        options.
+    
+    Returns
+    -------
+    None."""
 
     info('------------------------ GNN ------------------------ ')
     # load data
@@ -134,11 +152,16 @@ def gnn(options: Values) -> None:
 
 
 def niche_trajectory_construct(options: Values) -> None:
-    """
-    Pseudotime calculateion process.
-    :param options: options.
-    :return: None.
-    """
+    """Pseudotime calculateion process.
+    
+    Parameters
+    ----------
+    options :
+        options.
+    
+    Returns
+    -------
+    None."""
 
     info('----------------- Niche trajectory ------------------ ')
     # load data

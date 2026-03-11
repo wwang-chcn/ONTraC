@@ -1,3 +1,5 @@
+"""This module contains functions for parsing command-line arguments and options for ONTraC, including adding preprocessing-related flags, validating the parsed options, and writing the options memo to the log."""
+
 # pre-processing options
 
 import sys
@@ -13,12 +15,18 @@ from ._IO import *
 # Functions
 # ------------------------------------
 def add_preprocessing_options_group(optparser: OptionParser) -> None:
-    """
-    Add preprocessing options group to optparser.
-    :param optparser: OptionParser object.
-    :param preprocessing_options: Set of preprocessing options.
-    :return: OptionGroup object.
-    """
+    """Add preprocessing options group to optparser.
+    
+    Parameters
+    ----------
+    optparser :
+        OptionParser object.
+    preprocessing_options :
+        Set of preprocessing options.
+    
+    Returns
+    -------
+    OptionGroup object."""
 
     # preprocessing options group
     group_preprocessing = OptionGroup(optparser, "Preprocessing")
@@ -44,12 +52,18 @@ def add_preprocessing_options_group(optparser: OptionParser) -> None:
 
 
 def validate_preprocessing_options(options: Values, optparser: Optional[OptionParser] = None) -> None:
-    """
-    Validate preprocessing options.
-    :param options: Options object.
-    :param optparser: OptionParser object.
-    :return: None
-    """
+    """Validate preprocessing options.
+    
+    Parameters
+    ----------
+    options :
+        Options object.
+    optparser :
+        OptionParser object.
+    
+    Returns
+    -------
+    None"""
 
     if not hasattr(options, 'resolution'):
         options.resolution = 10.0
@@ -74,10 +88,12 @@ def validate_preprocessing_options(options: Values, optparser: Optional[OptionPa
 
 def write_preprocessing_memo(options: Values):
     """Write preprocessing memos to stdout.
-
-    Args:
-        options: Options object.
-    """
+    
+    Parameters
+    ----------
+    options :
+        Options object.
+        """
 
     # print parameters to stdout
     info(message='      -------- preprocessing options -------      ')

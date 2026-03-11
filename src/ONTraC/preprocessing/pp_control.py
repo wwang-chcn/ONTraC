@@ -1,3 +1,5 @@
+"""This module contains functions for control the pre-processing step."""
+
 import os
 from pathlib import Path
 from typing import Dict, Optional, Tuple, Union
@@ -25,12 +27,18 @@ def load_input_data(
     deconvoluted_ct_composition: Optional[Union[str, Path]] = None,
     deconvoluted_exp_input: Optional[Union[str, Path]] = None,
 ) -> Dict[str, pd.DataFrame]:
-    """
-    Load data from original inputs.
-    :param meta_input: str or Path, meta data file.
-    :param NN_dir: str or Path, save directory.
-    :return: Dict[str, pd.DataFrame], loaded data.
-    """
+    """Load data from original inputs.
+    
+    Parameters
+    ----------
+    meta_input :
+        str or Path, meta data file.
+    NN_dir :
+        str or Path, save directory.
+    
+    Returns
+    -------
+    Dict[str, pd.DataFrame], loaded data."""
 
     output = {}
 
@@ -90,15 +98,24 @@ def perform_deconvolution(NN_dir: Union[str, Path],
                           exp_df: pd.DataFrame,
                           dc_ct_num: int,
                           gen_ct_embedding: bool = False) -> pd.DataFrame:
-    """
-    Perform deconvolution.
-    :param NN_dir: str or Path, save directory.
-    :param dc_method: str, deconvolution method.
-    :param exp_df: pd.DataFrame, expression matrix.  #gene x #spot
-    :param dc_ct_num: int, number of cell types.
-    :param gen_ct_embedding: Generate cell type embedding or not.
-    :return: np.ndarray, deconvoluted cell type matrix.  #spot x #cell_type
-    """
+    """Perform deconvolution.
+    
+    Parameters
+    ----------
+    NN_dir :
+        str or Path, save directory.
+    dc_method :
+        str, deconvolution method.
+    exp_df :
+        pd.DataFrame, expression matrix.  #gene x #spot
+    dc_ct_num :
+        int, number of cell types.
+    gen_ct_embedding :
+        Generate cell type embedding or not.
+    
+    Returns
+    -------
+    np.ndarray, deconvoluted cell type matrix.  #spot x #cell_type"""
 
     info(message='            -------- deconvolution -------           ')
 
@@ -120,8 +137,35 @@ def cal_cell_type_coding(
     dc_ct_num: Optional[int] = None,
     gen_ct_embedding: bool = False,
 ) -> Dict[str, pd.DataFrame]:
-    """
-    """
+    """Infer or load cell-type composition/coding matrix.
+    
+        Parameters
+        ----------
+    input_data :
+        dict[str, pd.DataFrame]
+            Loaded input tables returned by :func:`load_input_data`.
+    NN_dir :
+        str or Path
+            Output directory where intermediate and final artifacts are saved.
+    resolution :
+        float, optional
+            Leiden resolution used when cell types are inferred from embeddings.
+    dc_method :
+        str, optional
+            Deconvolution backend name for spot-level expression input.
+    dc_ct_num :
+        int, optional
+            Number of deconvolved cell types requested by the backend.
+    gen_ct_embedding :
+        bool, default=False
+            Whether to generate and save cell-type embeddings.
+    
+        Returns
+        -------
+        dict[str, pd.DataFrame]
+            Updated dictionary including ``ct_coding`` and potentially inferred
+            ``meta_data`` / ``embedding_data`` tables.
+        """
 
     meta_data_df = input_data['meta_data']
 
@@ -223,43 +267,58 @@ def preprocessing_nn(meta_input: Union[str, Path],
                      resolution: Optional[float] = None,
                      dc_method: Optional[str] = None,
                      dc_ct_num: Optional[int] = None) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    """
-    Preprocessing for niche network.
-
-    Possible input parameters combinations:
-    # class I: without embedding ajustment
-    1. meta_input, NN_dir (cell-level data with Cell_Type info in meta_data)
-    2. meta_input, NN_dir, exp_input, resolution (cell-level data with gene expression data)
-    3. meta_input, NN_dir, embedding_input (cell-level data with embedding info)
-    4. meta_input, NN_dir, low_res_exp_input, dc_method, dc_ct_num (spot-level data with original expression data)
-    5. meta_input, NN_dir, low_res_exp_input, deconvoluted_ct_composition (spot-level data with deconvoluted cell type composition)
-    # class II: with embedding ajustment
-    1. embedding_adjust, sigma, meta_input, NN_dir, exp_input, resolution  (cell-level data with gene expression data)
-    2. embedding_adjust, sigma, meta_input, NN_dir, embedding_input (cell-level data with embedding info)
-    3. meta_input, NN_dir, low_res_exp_input, dc_method, dc_ct_num (spot-level data with original expression data)
-    4. meta_input, NN_dir, low_res_exp_input, deconvoluted_ct_composition, deconvoluted_exp_input (spot-level data with deconvoluted cell type composition)
-
-    Steps:
-    1. define cell type
-    2. cell type coding matrix
-    3. embedding adjustment (optional)
-
-
-    :param meta_input: str or Path, meta data file.
-    :param NN_dir: str or Path, save directory.
-    :param exp_input: str or Path, expression data file.
-    :param embedding_input: str or Path, embedding data file.
-    :param low_res_exp_input: str or Path, low resolution expression data file.
-    :param gen_ct_embedding: bool, generate cell type embedding.
-    :param deconvoluted_ct_composition: str or Path, deconvoluted cell type composition file.
-    :param deconvoluted_exp_input: str or Path, deconvoluted expression data file.
-    :param resolution: float, resolution.
-    :param dc_method: str, deconvolution method.
-    :param dc_ct_num: int, deconvoluted cell type number.
-    :param embedding_adjust: bool, adjust embedding.
-    :param sigma: float, sigma.
-    :return: Tuple[pd.DataFrame, pd.DataFrame], meta data and cell type coding matrix.
-    """
+    """Preprocessing for niche network.
+    
+        Possible input parameters combinations:
+        # class I: without embedding ajustment
+        1. meta_input, NN_dir (cell-level data with Cell_Type info in meta_data)
+        2. meta_input, NN_dir, exp_input, resolution (cell-level data with gene expression data)
+        3. meta_input, NN_dir, embedding_input (cell-level data with embedding info)
+        4. meta_input, NN_dir, low_res_exp_input, dc_method, dc_ct_num (spot-level data with original expression data)
+        5. meta_input, NN_dir, low_res_exp_input, deconvoluted_ct_composition (spot-level data with deconvoluted cell type composition)
+        # class II: with embedding ajustment
+        1. embedding_adjust, sigma, meta_input, NN_dir, exp_input, resolution  (cell-level data with gene expression data)
+        2. embedding_adjust, sigma, meta_input, NN_dir, embedding_input (cell-level data with embedding info)
+        3. meta_input, NN_dir, low_res_exp_input, dc_method, dc_ct_num (spot-level data with original expression data)
+        4. meta_input, NN_dir, low_res_exp_input, deconvoluted_ct_composition, deconvoluted_exp_input (spot-level data with deconvoluted cell type composition)
+    
+        Steps:
+        1. define cell type
+        2. cell type coding matrix
+        3. embedding adjustment (optional)
+    
+    Parameters
+    ----------
+    meta_input :
+        str or Path, meta data file.
+    NN_dir :
+        str or Path, save directory.
+    exp_input :
+        str or Path, expression data file.
+    embedding_input :
+        str or Path, embedding data file.
+    low_res_exp_input :
+        str or Path, low resolution expression data file.
+    gen_ct_embedding :
+        bool, generate cell type embedding.
+    deconvoluted_ct_composition :
+        str or Path, deconvoluted cell type composition file.
+    deconvoluted_exp_input :
+        str or Path, deconvoluted expression data file.
+    resolution :
+        float, resolution.
+    dc_method :
+        str, deconvolution method.
+    dc_ct_num :
+        int, deconvoluted cell type number.
+    embedding_adjust :
+        bool, adjust embedding.
+    sigma :
+        float, sigma.
+    
+    Returns
+    -------
+    Tuple[pd.DataFrame, pd.DataFrame], meta data and cell type coding matrix."""
 
     input_data = load_input_data(meta_input=meta_input,
                                  NN_dir=NN_dir,
@@ -280,12 +339,18 @@ def preprocessing_nn(meta_input: Union[str, Path],
 
 
 def load_data(NN_dir: Union[str, Path], batch_size: int = 0) -> Tuple[SpatailOmicsDataset, DenseDataLoader]:
-    """
-    Load data and create sample loader.
-    :param NN_dir: str or Path, save directory.
-    :param batch_size: int, batch size.
-    :return: Tuple[SpatailOmicsDataset, DenseDataLoader], dataset and sample loader.
-    """
+    """Load data and create sample loader.
+    
+    Parameters
+    ----------
+    NN_dir :
+        str or Path, save directory.
+    batch_size :
+        int, batch size.
+    
+    Returns
+    -------
+    Tuple[SpatailOmicsDataset, DenseDataLoader], dataset and sample loader."""
 
     info('Loading dataset.')
 
@@ -298,12 +363,18 @@ def load_data(NN_dir: Union[str, Path], batch_size: int = 0) -> Tuple[SpatailOmi
 
 def preprocessing_gnn(NN_dir: Union[str, Path],
                       batch_size: int = 0) -> Tuple[SpatailOmicsDataset, DenseDataLoader, pd.DataFrame]:
-    """
-    Preprocessing for GNN.
-    :param NN_dir: str or Path, save directory.
-    :param batch_size: int, batch size.
-    :return: Tuple[SpatailOmicsDataset, DenseDataLoader, pd.DataFrame], dataset, sample loader, and meta data.
-    """
+    """Preprocessing for GNN.
+    
+    Parameters
+    ----------
+    NN_dir :
+        str or Path, save directory.
+    batch_size :
+        int, batch size.
+    
+    Returns
+    -------
+    Tuple[SpatailOmicsDataset, DenseDataLoader, pd.DataFrame], dataset, sample loader, and meta data."""
 
     # meta data
     meta_data_df = pd.read_csv(get_meta_data_file(NN_dir), header=0)
@@ -318,12 +389,18 @@ def preprocessing_gnn(NN_dir: Union[str, Path],
 
 
 def preprocessing_nt(NN_dir: Union[str, Path], GNN_dir: Union[str, Path]) -> Tuple[DataFrame, DataFrame, ndarray]:
-    """
-    Preprocessing for niche trajectory.
-    :param NN_dir: str or Path, save directory.
-    :param GNN_dir: str or Path, save directory.
-    :return: Tuple[DataFrame, DataFrame, ndarray], meta data, niche-level niche cluster assign, and consolidate out_adj.
-    """
+    """Preprocessing for niche trajectory.
+    
+    Parameters
+    ----------
+    NN_dir :
+        str or Path, save directory.
+    GNN_dir :
+        str or Path, save directory.
+    
+    Returns
+    -------
+    Tuple[DataFrame, DataFrame, ndarray], meta data, niche-level niche cluster assign, and consolidate out_adj."""
 
     # params
     niche_level_niche_cluster_file = Path(f'{GNN_dir}/niche_level_niche_cluster.csv.gz')

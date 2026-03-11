@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+"""This module contains the main function for the `ONTraC_GP` compatibility pipeline, which will be deprecated in favor of `ONTraC_GT`."""
 
 import sys
 
@@ -16,9 +17,7 @@ from ..utils import write_version_info
 # Main Function
 # ------------------------------------
 def main() -> None:
-    """
-    The main function
-    """
+    """Run deprecated `ONTraC_GP` compatibility pipeline (use `ONTraC_GT`)."""
 
     # write version information
     write_version_info()

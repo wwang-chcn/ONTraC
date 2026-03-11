@@ -1,3 +1,5 @@
+"""This module contains functions for parsing command-line arguments and options for ONTraC, including adding I/O-related flags, validating the parsed options, and writing the options memo to the log."""
+
 import os
 import sys
 from optparse import OptionGroup, OptionParser, Values
@@ -7,27 +9,41 @@ from ..log import *
 
 
 class IOOption:
+    """Descriptor for one logical CLI I/O option.
+    
+        Attributes
+        ----------
+    name
+        str
+            Canonical option key (for example ``NN_dir`` or ``meta_input``).
+    attr
+        str
+            Requirement level, such as ``required``, ``optional``, or ``overwrite``.
+        """
 
     def __init__(self, name: str, attr: str):
         """
-        I/O option class.
+                I/O option class.
+                
+                Parameters
+                ----------
+        name :
+            str
+                    Name of the I/O option.
+        attr :
+            str
+                    Attribute of the I/O option.
         
-        Parameters
-        ----------
-        name: str
-            Name of the I/O option.
-        attr: str
-            Attribute of the I/O option.
-
-        Returns
-        -------
-        None
-        """
+                Returns
+                -------
+                None
+                """
         self.name = name
         self.attr = attr
 
 
 class IOOptionsCollection:
+    """Container that tracks and validates available I/O option descriptors."""
 
     def __init__(self):
         """
@@ -45,51 +61,54 @@ class IOOptionsCollection:
 
     def add(self, io_option: IOOption) -> None:
         """
-        Add an I/O option.
+                Add an I/O option.
+                
+                Parameters
+                ----------
+        io_option :
+            IOOption
+                    I/O option instance.
         
-        Parameters
-        ----------
-        io_option: IOOption
-            I/O option instance.
-
-        Returns
-        -------
-        None
-        """
+                Returns
+                -------
+                None
+                """
         if io_option.name in self._iooptions:
             raise ValueError(f'{io_option.name} already exists.')
         self._iooptions[io_option.name] = io_option
 
     def has_io_option(self, name: str) -> bool:
         """
-        Check if an I/O option exists.
+                Check if an I/O option exists.
+                
+                Parameters
+                ----------
+        name :
+            str
+                    Name of the I/O option.
         
-        Parameters
-        ----------
-        name: str
-            Name of the I/O option.
-
-        Returns
-        -------
-        bool
-            True if the I/O option exists, False otherwise.
-        """
+                Returns
+                -------
+                bool
+                    True if the I/O option exists, False otherwise.
+                """
         return name in self._iooptions
 
     def get_io_option_attr(self, name: str) -> str:
         """
-        Get the attribute of an I/O option.
-
-        Parameters
-        ----------
-        name: str
-            Name of the I/O option.
-
-        Returns
-        -------
-        str
-            Attribute of the I/O option.
-        """
+                Get the attribute of an I/O option.
+        
+                Parameters
+                ----------
+        name :
+            str
+                    Name of the I/O option.
+        
+                Returns
+                -------
+                str
+                    Attribute of the I/O option.
+                """
         if name not in self._iooptions:
             raise ValueError(f'{name} does not exist.')
         return self._iooptions[name].attr
@@ -97,18 +116,19 @@ class IOOptionsCollection:
 
 def io_dicts_to_io_options_collection(io_dicts: Dict[str, List[str]]) -> IOOptionsCollection:
     """
-    Convert a dictionary of I/O options to an IOOptionsCollection instance.
-
-    Parameters
-    ----------
-    io_dicts: Dict[str, List[str]]
-        Dictionary of I/O options.
-
-    Returns
-    -------
-    IOOptionsCollection
-        I/O options collection instance.
-    """
+        Convert a dictionary of I/O options to an IOOptionsCollection instance.
+    
+        Parameters
+        ----------
+    io_dicts :
+        Dict[str, List[str]]
+            Dictionary of I/O options.
+    
+        Returns
+        -------
+        IOOptionsCollection
+            I/O options collection instance.
+        """
     ioc = IOOptionsCollection()
     for module, io_options in io_dicts.items():
         for io_option in io_options:
@@ -118,19 +138,21 @@ def io_dicts_to_io_options_collection(io_dicts: Dict[str, List[str]]) -> IOOptio
 
 def add_IO_options_group(optparser: OptionParser, io_options: Optional[Dict[str, List[str]]]) -> None:
     """
-    Add I/O options group to optparser.
-
-    Parameters
-    ----------
-    optparser: OptionParser
-        OptionParser object.
-    io_options: Dict[str, List[str]]
-        List of I/O options.
-
-    Returns
-    -------
-    None
-    """
+        Add I/O options group to optparser.
+    
+        Parameters
+        ----------
+    optparser :
+        OptionParser
+            OptionParser object.
+    io_options :
+        Dict[str, List[str]]
+            List of I/O options.
+    
+        Returns
+        -------
+        None
+        """
     if io_options is None:
         return
     else:  # only list of I/O options needed
@@ -228,20 +250,23 @@ def validate_io_options(options: Values,
                         io_options: Optional[Dict[str, List[str]]] = None,
                         optparser: Optional[OptionParser] = None) -> None:
     """Validate IO options from a OptParser object.
-
-    Parameters
-    ----------
-    options: Values
-        Options object.
-    io_options: Dict[str, List[str]]
-        List of I/O options.
-    optparser: OptionParser
-        OptionParser object.
-
-    Returns
-    -------
-    None
-    """
+    
+        Parameters
+        ----------
+    options :
+        Values
+            Options object.
+    io_options :
+        Dict[str, List[str]]
+            List of I/O options.
+    optparser :
+        OptionParser
+            OptionParser object.
+    
+        Returns
+        -------
+        None
+        """
 
     if io_options is None:
         return
@@ -449,18 +474,20 @@ def validate_io_options(options: Values,
 
 def write_io_options_memo(options: Values, io_options: Optional[Dict[str, List[str]]]) -> None:
     """Write IO options to stdout.
-
-    Parameters
-    ----------
-    options: Values
-        Options object.
-    io_options: Dict[str, List[str]]
-        List of I/O options.
-
-    Returns
-    -------
-    None
-    """
+    
+        Parameters
+        ----------
+    options :
+        Values
+            Options object.
+    io_options :
+        Dict[str, List[str]]
+            List of I/O options.
+    
+        Returns
+        -------
+        None
+        """
     if io_options is None:
         return
     else:

@@ -1,3 +1,5 @@
+"""This module contains functions for parsing model training command-line arguments and options for ONTraC, including adding training-related flags, validating the parsed options, and writing the options memo to the log."""
+
 import sys
 from optparse import OptionGroup, OptionParser, Values
 from random import randint
@@ -9,11 +11,16 @@ from ..log import *
 
 
 def add_train_options_group(optparser: OptionParser) -> OptionGroup:
-    """
-    Add train options group to optparser.
-    :param optparser: OptionParser object.
-    :return: OptionGroup object.
-    """
+    """Add train options group to optparser.
+    
+    Parameters
+    ----------
+    optparser :
+        OptionParser object.
+    
+    Returns
+    -------
+    OptionGroup object."""
     # overall train options group
     group_train = OptionGroup(optparser, "Options for GNN training")
     optparser.add_option_group(group_train)
@@ -56,11 +63,16 @@ def add_train_options_group(optparser: OptionParser) -> OptionGroup:
 
 
 def add_GCN_options_group(group_train: OptionGroup) -> None:
-    """
-    Add GCN options group to optparser.
-    :param optparser: OptionParser object.
-    :return: None.
-    """
+    """Add GCN options group to optparser.
+    
+    Parameters
+    ----------
+    optparser :
+        OptionParser object.
+    
+    Returns
+    -------
+    None."""
 
     # GCN options group
     group_train.add_option('--hidden-feats',
@@ -76,11 +88,16 @@ def add_GCN_options_group(group_train: OptionGroup) -> None:
 
 
 def add_GP_options_group(group_train: OptionGroup) -> None:
-    """
-    Add Graph Pooling options group to optparser.
-    :param optparser: OptionParser object.
-    :return: None.
-    """
+    """Add Graph Pooling options group to optparser.
+    
+    Parameters
+    ----------
+    optparser :
+        OptionParser object.
+    
+    Returns
+    -------
+    None."""
 
     # NP options group
     group_train.add_option('-k',
@@ -113,19 +130,21 @@ def add_GP_options_group(group_train: OptionGroup) -> None:
 
 def validate_train_options(options: Values, optparser: Optional[OptionParser] = None) -> None:
     """
-    Validate train options.
+        Validate train options.
+        
+        Parameters
+        ----------
+    options :
+        Values
+            Options object.
+    optparser :
+        Optional[OptionParser], optional
+            OptionParser object. The default is None.
     
-    Parameters
-    ----------
-    options : Values
-        Options object.
-    optparser : Optional[OptionParser], optional
-        OptionParser object. The default is None.
-
-    Returns
-    -------
-    None
-    """
+        Returns
+        -------
+        None
+        """
 
     # device
     if getattr(options, 'device', None) is None:
@@ -230,19 +249,21 @@ def validate_train_options(options: Values, optparser: Optional[OptionParser] = 
 
 def validate_GCN_options(options: Values, optparser: Optional[OptionParser] = None) -> None:
     """
-    Validate GCN options.
+        Validate GCN options.
+        
+        Parameters
+        ----------
+    options :
+        Values
+            Options object.
+    optparser :
+        Optional[OptionParser], optional
+            Option
     
-    Parameters
-    ----------
-    options : Values
-        Options object.
-    optparser : Optional[OptionParser], optional
-        Option
-
-    Returns
-    -------
-    None
-    """
+        Returns
+        -------
+        None
+        """
 
     # check hidden_feats
     if getattr(options, 'hidden_feats', None) is None:
@@ -265,20 +286,22 @@ def validate_GCN_options(options: Values, optparser: Optional[OptionParser] = No
 
 def validate_GP_options(options: Values, optparser: Optional[OptionParser] = None) -> None:
     """
-    Validate Graph Pooling options.
+        Validate Graph Pooling options.
+        
+        
+        Parameters
+        ----------
+    options :
+        Values
+            Options object.
+    optparser :
+        Optional[OptionParser], optional
+            OptionParser object. The default is None.
     
-    
-    Parameters
-    ----------
-    options : Values
-        Options object.
-    optparser : Optional[OptionParser], optional
-        OptionParser object. The default is None.
-
-    Returns
-    -------
-    None
-    """
+        Returns
+        -------
+        None
+        """
 
     # check k
     if getattr(options, 'k', None) is None:
@@ -353,11 +376,16 @@ def validate_GP_options(options: Values, optparser: Optional[OptionParser] = Non
 
 
 def write_train_options_memo(options: Values) -> None:
-    """
-    Write train options memo to stdout.
-    :param options: Options object.
-    :return: None.
-    """
+    """Write train options memo to stdout.
+    
+    Parameters
+    ----------
+    options :
+        Options object.
+    
+    Returns
+    -------
+    None."""
 
     info('           -------- train options -------            ')
     info(f'device:  {options.device}')
@@ -371,22 +399,32 @@ def write_train_options_memo(options: Values) -> None:
 
 
 def write_GCN_options_memo(options: Values) -> None:
-    """
-    Write GCN options memo to stdout.
-    :param options: Options object.
-    :return: None.
-    """
+    """Write GCN options memo to stdout.
+    
+    Parameters
+    ----------
+    options :
+        Options object.
+    
+    Returns
+    -------
+    None."""
 
     info(f'hidden_feats:  {options.hidden_feats}')
     info(f'n_gcn_layers:  {options.n_gcn_layers}')
 
 
 def write_GP_options_memo(options: Values) -> None:
-    """
-    Write Graph Pooling options memo to stdout.
-    :param options: Options object.
-    :return: None.
-    """
+    """Write Graph Pooling options memo to stdout.
+    
+    Parameters
+    ----------
+    options :
+        Options object.
+    
+    Returns
+    -------
+    None."""
 
     info(f'k:  {options.k}')
     info(f'modularity_loss_weight:  {options.modularity_loss_weight}')

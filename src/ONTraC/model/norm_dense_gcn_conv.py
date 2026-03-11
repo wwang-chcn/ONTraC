@@ -1,3 +1,5 @@
+"""This module contains normalized dense GCN convolution layer for ONTraC, which is used in the GNN of ONTraC."""
+
 import torch
 from torch import Tensor
 from torch.nn import Parameter
@@ -10,7 +12,11 @@ from ..log import *
 
 
 class NormDenseGCNConv(torch.nn.Module):
-    r"""See :class:`torch_geometric.nn.conv.GCNConv`."""
+    r"""Dense GCN layer with explicit normalized adjacency construction.
+
+    This layer mirrors :class:`torch_geometric.nn.conv.GCNConv` semantics for
+    dense adjacency tensors and is used in ONTraC graph encoders.
+    """
 
     def __init__(
         self,
@@ -19,6 +25,23 @@ class NormDenseGCNConv(torch.nn.Module):
         improved: bool = False,
         bias: bool = True,
     ):
+        """Initialize the dense GCN layer.
+        
+                Parameters
+                ----------
+        in_channels :
+            int
+                    Input feature dimension.
+        out_channels :
+            int
+                    Output feature dimension.
+        improved :
+            bool, default=False
+                    Whether to use ``A + 2I`` instead of ``A + I``.
+        bias :
+            bool, default=True
+                    Whether to add a learnable bias after message passing.
+                """
         super().__init__()
 
         self.in_channels = in_channels
@@ -40,23 +63,24 @@ class NormDenseGCNConv(torch.nn.Module):
         zeros(self.bias)
 
     def forward(self, x: Tensor, adj: Tensor, mask: OptTensor = None) -> Tensor:
-        r"""
-        :math: `\mathbf{\hat{L}}X\mathbf{\Theta}`, with
-               `\mathbf{\hat{L}} = \mathbf{D}^{-1/2}\mathbf{A}\mathbf{D}^{-1/2} + I`
-
-        Args:
-            x (torch.Tensor): Node feature tensor
-                :math:`\mathbf{X} \in \mathbb{R}^{B \times N \times F}`, with
-                batch-size :math:`B`, (maximum) number of nodes :math:`N` for
-                each graph, and feature dimension :math:`F`.
-            adj (torch.Tensor): Adjacency tensor
-                :math:`\mathbf{A} \in \mathbb{R}^{B \times N \times N}`.
-                The adjacency tensor is broadcastable in the batch dimension,
-                resulting in a shared adjacency matrix for the complete batch.
-            mask (torch.Tensor, optional): Mask matrix
-                :math:`\mathbf{M} \in {\{ 0, 1 \}}^{B \times N}` indicating
-                the valid nodes for each graph. (default: :obj:`None`)
         """
+                :math: `\\mathbf{\\hat{L}}X\\mathbf{\\Theta}`, with
+                       `\\mathbf{\\hat{L}} = \\mathbf{D}^{-1/2}\\mathbf{A}\\mathbf{D}^{-1/2} + I`
+        
+        Parameters
+        ----------
+                    x (torch.Tensor): Node feature tensor
+                        :math:`\\mathbf{X} \\in \\mathbb{R}^{B \\times N \\times F}`, with
+                        batch-size :math:`B`, (maximum) number of nodes :math:`N` for
+                        each graph, and feature dimension :math:`F`.
+                    adj (torch.Tensor): Adjacency tensor
+                        :math:`\\mathbf{A} \\in \\mathbb{R}^{B \\times N \\times N}`.
+                        The adjacency tensor is broadcastable in the batch dimension,
+                        resulting in a shared adjacency matrix for the complete batch.
+                    mask (torch.Tensor, optional): Mask matrix
+                        :math:`\\mathbf{M} \\in {\\{ 0, 1 \\}}^{B \\times N}` indicating
+                        the valid nodes for each graph. (default: :obj:`None`)
+                """
 
         # inputs shape check
         x = x.unsqueeze(0) if x.dim() == 2 else x
@@ -84,5 +108,6 @@ class NormDenseGCNConv(torch.nn.Module):
         return out
 
     def __repr__(self) -> str:
+        """Return compact layer summary for debugging."""
         return (f'{self.__class__.__name__}({self.in_channels}, '
                 f'{self.out_channels})')

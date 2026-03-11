@@ -1,3 +1,5 @@
+"""This module contains functions for niche trajectory construction algorithms in ONTraC"""
+
 import itertools
 from typing import List
 

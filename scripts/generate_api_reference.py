@@ -42,8 +42,10 @@ class ModuleDoc:
 
     name: str
     docstring: str
+    is_package: bool = False
     functions: list[FunctionDoc] = field(default_factory=list)
     classes: list[ClassDoc] = field(default_factory=list)
+    submodules: list[str] = field(default_factory=list)
 
 
 def parse_args() -> argparse.Namespace:
@@ -75,11 +77,12 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def clean_docstring(docstring: str | None) -> str:
+def clean_docstring(docstring: str | None, fallback: str) -> str:
     """Normalize docstring text for Markdown output."""
     if not docstring:
-        return "_No docstring provided._"
-    return dedent(docstring).strip()
+        return fallback
+    text = dedent(docstring).strip()
+    return text if text else fallback
 
 
 def should_skip_name(name: str, hide_private: bool) -> bool:
@@ -148,7 +151,13 @@ def is_property_method(node: ast.FunctionDef | ast.AsyncFunctionDef) -> bool:
 
 def parse_class(node: ast.ClassDef, hide_private: bool) -> ClassDoc:
     """Parse class docs and contained methods from AST."""
-    class_doc = ClassDoc(name=node.name, docstring=clean_docstring(ast.get_docstring(node)))
+    class_doc = ClassDoc(
+        name=node.name,
+        docstring=clean_docstring(
+            ast.get_docstring(node),
+            fallback=f"API reference entry for class `{node.name}`.",
+        ),
+    )
     for child in node.body:
         if not isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef)):
             continue
@@ -157,7 +166,10 @@ def parse_class(node: ast.ClassDef, hide_private: bool) -> ClassDoc:
         method_doc = FunctionDoc(
             name=child.name,
             signature=format_signature(child),
-            docstring=clean_docstring(ast.get_docstring(child)),
+            docstring=clean_docstring(
+                ast.get_docstring(child),
+                fallback=f"API reference entry for `{node.name}.{child.name}`.",
+            ),
             is_property=is_property_method(child),
         )
         class_doc.methods.append(method_doc)
@@ -187,9 +199,19 @@ def iter_python_files(src_dir: Path, excluded_dir_names: Sequence[str]) -> Itera
 def parse_module(path: Path, src_root: Path, hide_private: bool) -> ModuleDoc:
     """Parse one Python module into a structured documentation object."""
     tree = ast.parse(path.read_text(encoding="utf-8"))
+    module_name = module_name_from_path(path, src_root)
+    top_functions = [node for node in tree.body if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))]
+    top_classes = [node for node in tree.body if isinstance(node, ast.ClassDef)]
+    is_package = path.name == "__init__.py"
+    module_fallback = (
+        f"Auto-generated API reference for module `{module_name}`.\n\n"
+        f"This module defines {len(top_functions)} top-level function(s) and "
+        f"{len(top_classes)} class(es)."
+    )
     module_doc = ModuleDoc(
-        name=module_name_from_path(path, src_root),
-        docstring=clean_docstring(ast.get_docstring(tree)),
+        name=module_name,
+        docstring=clean_docstring(ast.get_docstring(tree), fallback=module_fallback),
+        is_package=is_package,
     )
 
     for node in tree.body:
@@ -200,7 +222,10 @@ def parse_module(path: Path, src_root: Path, hide_private: bool) -> ModuleDoc:
                 FunctionDoc(
                     name=node.name,
                     signature=format_signature(node),
-                    docstring=clean_docstring(ast.get_docstring(node)),
+                    docstring=clean_docstring(
+                        ast.get_docstring(node),
+                        fallback=f"API reference entry for function `{node.name}`.",
+                    ),
                 ))
         elif isinstance(node, ast.ClassDef):
             if should_skip_name(node.name, hide_private):
@@ -224,6 +249,12 @@ def render_function(item: FunctionDoc, class_name: str | None = None) -> list[st
 def render_module(module_doc: ModuleDoc) -> str:
     """Render one module API page to Markdown text."""
     lines: list[str] = [f"# `{module_doc.name}`", "", module_doc.docstring, ""]
+
+    if module_doc.is_package and module_doc.submodules:
+        lines.extend(["## Submodules", ""])
+        for child in module_doc.submodules:
+            lines.append(f"- [{child}]({child}.md)")
+        lines.append("")
 
     if module_doc.functions:
         lines.extend(["## Functions", ""])
@@ -352,6 +383,23 @@ def main() -> None:
     for py_file in iter_python_files(src_dir=src_dir, excluded_dir_names=args.exclude_dir):
         module_doc = parse_module(path=py_file, src_root=src_dir, hide_private=args.hide_private)
         modules.append(module_doc)
+
+    by_name = {module.name: module for module in modules}
+    all_names = set(by_name.keys())
+    for module in modules:
+        if not module.is_package:
+            continue
+        prefix = f"{module.name}."
+        direct_children = []
+        for candidate in all_names:
+            if not candidate.startswith(prefix):
+                continue
+            suffix = candidate[len(prefix):]
+            if suffix and "." not in suffix:
+                direct_children.append(candidate)
+        module.submodules = sorted(direct_children)
+
+    for module_doc in modules:
         (out_dir / f"{module_doc.name}.md").write_text(render_module(module_doc), encoding="utf-8")
 
     modules.sort(key=lambda x: x.name)

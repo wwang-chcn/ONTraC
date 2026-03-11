@@ -1,3 +1,5 @@
+"""This module contains constants for ONTraC, including I/O options for different ONTraC modules."""
+
 from typing import Dict, List
 
 # I/O options for different ONTraC modules

@@ -1,3 +1,5 @@
+"""This module contains the main substeps in GNN step of ONTraC, including training, evaluation, and prediction."""
+
 import random
 from pathlib import Path
 from typing import Callable, Dict, List, Optional, Tuple, Type, Union
@@ -15,11 +17,16 @@ from ..train import SubBatchTrainProtocol
 
 
 def set_seed(seed: int) -> None:
-    """
-    Set seed.
-    :param seed: seed.
-    :return: None.
-    """
+    """Set seed.
+    
+    Parameters
+    ----------
+    seed :
+        seed.
+    
+    Returns
+    -------
+    None."""
 
     random.seed(seed)
     torch.manual_seed(seed)
@@ -38,21 +45,34 @@ def train(nn_model: torch.nn.Module,
           save_dir: Union[str, Path],
           inspect_funcs: Optional[List[Callable]] = None,
           **kwargs) -> SubBatchTrainProtocol:
-    """
-    GNN training process.
-    :param nn_model: nn model.
-    :param BatchTrain: Type[SubBatchTrainProtocol], batch train.
-    :param sample_loader: DenseDataLoader, sample loader.
-    :param device: torch.device, device.
-    :param max_epochs: int, max epochs.
-    :param max_patience: int, max patience.
-    :param min_delta: float, min delta.
-    :param min_epochs: int, min epochs.
-    :param lr: float, learning rate.
-    :param save_dir: Union[str, Path], save directory.
-    :param inspect_funcs: Optional[List[Callable]], inspect functions.
-    :param kwargs: dict, loss weight arguments.
-    """
+    """GNN training process.
+    
+    Parameters
+    ----------
+    nn_model :
+        nn model.
+    BatchTrain :
+        Type[SubBatchTrainProtocol], batch train.
+    sample_loader :
+        DenseDataLoader, sample loader.
+    device :
+        torch.device, device.
+    max_epochs :
+        int, max epochs.
+    max_patience :
+        int, max patience.
+    min_delta :
+        float, min delta.
+    min_epochs :
+        int, min epochs.
+    lr :
+        float, learning rate.
+    save_dir :
+        Union[str, Path], save directory.
+    inspect_funcs :
+        Optional[List[Callable]], inspect functions.
+    kwargs :
+        dict, loss weight arguments."""
     optimizer = torch.optim.Adam(nn_model.parameters(), lr=lr)
     batch_train = BatchTrain(model=nn_model, device=torch.device(device), data_loader=sample_loader)  # type: ignore
     batch_train.save(path=f'{save_dir}/epoch_0.pt')
@@ -73,11 +93,12 @@ def train(nn_model: torch.nn.Module,
 
 
 def evaluate(batch_train: SubBatchTrainProtocol) -> None:
-    """
-    Evaluate the performance of ONTraC model on data.
-    :param batch_train: SubBatchTrainProtocol, batch train.
-    :return
-    """
+    """Evaluate the performance of ONTraC model on data.
+    
+    Parameters
+    ----------
+    batch_train :
+        SubBatchTrainProtocol, batch train."""
     info(message=f'Evaluating process start.')
     loss_dict: Dict[str, np.floating] = batch_train.evaluate()  # type: ignore
     info(message=f'Evaluation loss, {repr(loss_dict)}')
@@ -86,13 +107,20 @@ def evaluate(batch_train: SubBatchTrainProtocol) -> None:
 
 def predict(output_dir: str, batch_train: SubBatchTrainProtocol,
             dataset: SpatailOmicsDataset) -> Tuple[Optional[np.ndarray], Optional[np.ndarray], Optional[np.ndarray]]:
-    """
-    Predict the results of ONTraC model on data.
-    :param output_dir: str, output directory.
-    :param batch_train: SubBatchTrainProtocol, batch train.
-    :param dataset: SpatailOmicsDataset, dataset.
-    :return: consolidate_s_array, consolidate_out_adj_array.
-    """
+    """Predict the results of ONTraC model on data.
+    
+    Parameters
+    ----------
+    output_dir :
+        str, output directory.
+    batch_train :
+        SubBatchTrainProtocol, batch train.
+    dataset :
+        SpatailOmicsDataset, dataset.
+    
+    Returns
+    -------
+    consolidate_s_array, consolidate_out_adj_array."""
     info(f'Predicting process start.')
     each_sample_loader = DenseDataLoader(dataset, batch_size=1)
     consolidate_flag = False
@@ -158,16 +186,26 @@ def predict(output_dir: str, batch_train: SubBatchTrainProtocol,
 def save_graph_pooling_results(meta_data_df: pd.DataFrame, dataset: SpatailOmicsDataset, rel_params: Dict,
                                consolidate_z_array: np.ndarray, consolidate_s_array: np.ndarray,
                                output_dir: str) -> None:
-    """
-    Save graph pooling results as the Niche cluster (max probability for each niche & cell).
-    :param meta_data_df: pd.DataFrame, original data. Sample and Cell_ID columns are used.
-    :param dataset: SpatailOmicsDataset, dataset.
-    :param rel_params: dict, relative parameters.
-    :param consolidate_z_array: np.ndarray, consolidate z array.
-    :param consolidate_s_array: np.ndarray, consolidate s array.
-    :param output_dir: str, output directory.
-    :return: None.
-    """
+    """Save graph pooling results as the Niche cluster (max probability for each niche & cell).
+    
+    Parameters
+    ----------
+    meta_data_df :
+        pd.DataFrame, original data. Sample and Cell_ID columns are used.
+    dataset :
+        SpatailOmicsDataset, dataset.
+    rel_params :
+        dict, relative parameters.
+    consolidate_z_array :
+        np.ndarray, consolidate z array.
+    consolidate_s_array :
+        np.ndarray, consolidate s array.
+    output_dir :
+        str, output directory.
+    
+    Returns
+    -------
+    None."""
 
     id_name: str = meta_data_df.columns[0]
 
