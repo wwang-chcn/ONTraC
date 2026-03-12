@@ -156,7 +156,7 @@ def add_IO_options_group(optparser: OptionParser, io_options: Optional[Dict[str,
                 dest='meta_input',
                 type='string',
                 help=
-                'Meta data file in csv format. Each row is a cell. The first column should be the cell name with column name Cell_ID. Coordinates (x, y) and sample should be included. Cell type is required for cell-level data.'
+                'Metadata file in csv format. Each row is a cell. The first column should be the cell name with column name Cell_ID. Coordinates (x, y) and sample should be included. Cell type is required for cell-level data.'
             )
         elif ioc.get_io_option_attr('input') == 'deprecated':
             group_io.add_option(
@@ -164,7 +164,7 @@ def add_IO_options_group(optparser: OptionParser, io_options: Optional[Dict[str,
                 dest='meta_input',
                 type='string',
                 help=
-                'Meta data file are no longer required for ONTraC analysis. This options will be deprecated from v2.0.'
+                'Metadata file is no longer required for ONTraC analysis. This options will be deprecated from v2.0.'
             )
     if ioc.has_io_option('log'):
         group_io.add_option('-l', '--log', dest='log', type='string', help='Log file.')
@@ -174,18 +174,18 @@ def add_IO_options_group(optparser: OptionParser, io_options: Optional[Dict[str,
         group_io.add_option('--preprocessing-dir',
                             dest='preprocessing_dir',
                             type='string',
-                            help='This options will be deprecated from v3.0. Please use --NN-dir instead.')
+                            help='This option will be deprecated from v3.0. Please use --NN-dir instead.')
     if ioc.has_io_option('NT_dir'):
         group_io.add_option('--NTScore-dir',
                             dest='NTScore_dir',
                             type='string',
-                            help='This options will be deprecated from v3.0. Please use --NT-dir instead.')
+                            help='This option will be deprecated from v3.0. Please use --NT-dir instead.')
     if ioc.has_io_option('input') and ioc.get_io_option_attr('input') != 'deprecated':
         group_io.add_option('-d',
                             '--dataset',
                             dest='dataset',
                             type='string',
-                            help='This options will be deprecated from v3.0. Please use --meta-input instead.')
+                            help='This option will be deprecated from v3.0. Please use --meta-input instead.')
 
     optparser.add_option_group(group_io)
 

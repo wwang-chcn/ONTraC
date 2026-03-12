@@ -1,5 +1,11 @@
 # Change log
 
+## [1.2.3.post1] - 2026-Mar-12
+
+Fix:
+
+- typos
+
 ## [1.2.3] - 2025-Sep-23
 
 Added:
