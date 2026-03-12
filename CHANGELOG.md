@@ -6,6 +6,10 @@ Added:
 
 - Automatically generate website ready API reference markdown files
 
+Changed:
+
+- More detail and structured docstrings for API refereces
+
 ## [2.0.8] - 2025-Dec-11
 
 Changed:
