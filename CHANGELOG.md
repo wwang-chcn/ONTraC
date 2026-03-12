@@ -87,6 +87,12 @@ Changed:
 - Default value of `PURITY_LOSS_WEIGHT` changed to 30
 - Default value of `BETA` changed to 0.3
 
+## [1.2.3.post1] - 2026-Mar-12
+
+Fix:
+
+- typos
+
 ## [1.2.3] - 2025-Sep-23
 
 Added:

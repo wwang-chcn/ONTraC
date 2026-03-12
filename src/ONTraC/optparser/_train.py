@@ -30,7 +30,7 @@ def add_train_options_group(optparser: OptionParser) -> OptionGroup:
                            dest='patience',
                            type='int',
                            default=100,
-                           help='Number of epochs wait for better result. Default is 100.')
+                           help='Number of epochs to wait for better result. Default is 100.')
     group_train.add_option('--min-delta',
                            dest='min_delta',
                            type='float',
@@ -108,7 +108,7 @@ def add_GP_options_group(group_train: OptionGroup) -> None:
                            dest='beta',
                            type='float',
                            default=0.3,
-                           help='Beta value control niche cluster assignment matrix. Default is 0.3.')
+                           help='Beta value controls the niche cluster assignment matrix. Default is 0.3.')
 
 
 def validate_train_options(options: Values, optparser: Optional[OptionParser] = None) -> None:

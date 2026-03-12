@@ -39,7 +39,7 @@ def add_visualization_group(optparser: OptionParser) -> None:
                          dest='scale_factor',
                          type='float',
                          default=1.0,
-                         help='Scale factor control the size of spatial-based plots.')
+                         help='Scale factor controls the size of spatial-based plots.')
     optparser.add_option_group(group_vis)
 
 
