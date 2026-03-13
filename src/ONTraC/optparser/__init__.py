@@ -1,3 +1,10 @@
+"""
+Command-line option parsing utilities for ONTraC.
+
+This module assembles CLI argument groups, command builders, and validation
+routines used by all ONTraC entry points.
+"""
+
 from .command import *
 
 # This part is designed as follows:

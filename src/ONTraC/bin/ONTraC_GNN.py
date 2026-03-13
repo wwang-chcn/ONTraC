@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+"""This module contains the main function for the `ONTraC_GNN` CLI pipeline for graph clustering."""
 
 import sys
 
@@ -11,9 +12,7 @@ from ..utils import write_version_info
 # Main Function
 # ------------------------------------
 def main() -> None:
-    """
-    The main function
-    """
+    """Run the `ONTraC_GNN` CLI pipeline for graph clustering."""
 
     # write version information
     write_version_info()
@@ -28,7 +27,7 @@ def main() -> None:
 # ------------------------------------
 # Program running
 # ------------------------------------
-if __name__ == '__main__':
+if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:

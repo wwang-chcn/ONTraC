@@ -1,3 +1,5 @@
+"""This module contains functions for niche trajectory construction algorithms in ONTraC"""
+
 import itertools
 from typing import List
 
@@ -8,7 +10,7 @@ def brute_force(conn_matrix: np.ndarray) -> List[int]:
     """
     Brute force method to find the optimal path with the highest connectivity.
     """
-    max_connectivity = float('-inf')
+    max_connectivity = float("-inf")
     optimal_path = []
     for path in itertools.permutations(range(len(conn_matrix))):
         connectivity = 0

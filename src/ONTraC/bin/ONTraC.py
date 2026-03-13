@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+"""Entrypoint for the `ONTraC` CLI pipeline."""
 
 import sys
 
@@ -11,9 +12,7 @@ from ..utils import write_version_info
 # Main Function
 # ------------------------------------
 def main() -> None:
-    """
-    The main function
-    """
+    """Run end-to-end ONTraC pipeline (NN preprocessing + GNN + NT)."""
 
     # write version information
     write_version_info()
@@ -34,7 +33,7 @@ def main() -> None:
 # ------------------------------------
 # Program running
 # ------------------------------------
-if __name__ == '__main__':
+if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
