@@ -61,7 +61,7 @@ def apply_STdeconvolve(
             print("R script stderr:", e.stderr)
 
     # handle deconvoluted results
-    # 1) The first column name missing STdeconvolve outputed csv file
+    # 1) The first output column from STdeconvolve is missing a header
     # 2) "-" in spot_id will be converted to "."
     # SECTION: Normalize spot_x_cell_type_file output
     spot_x_cell_type_df = pd.read_csv(Path(NN_dir).joinpath(spot_x_cell_type_file))

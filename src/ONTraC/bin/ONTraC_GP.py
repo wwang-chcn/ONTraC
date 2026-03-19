@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Entrypoint for the `ONTraC_GP` compatibility pipeline."""
+"""Entrypoint for the deprecated `ONTraC_GP` pipeline."""
 
 import sys
 
@@ -17,7 +17,10 @@ from ..utils import write_version_info
 # Main Function
 # ------------------------------------
 def main() -> None:
-    """Run deprecated `ONTraC_GP` compatibility pipeline (use `ONTraC_GT`)."""
+    """Run the deprecated `ONTraC_GP` pipeline.
+
+    Use `ONTraC_GT` for the supported replacement.
+    """
 
     # write version information
     write_version_info()

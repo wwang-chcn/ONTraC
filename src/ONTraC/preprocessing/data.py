@@ -51,11 +51,9 @@ def valid_meta_data(meta_data_df: pd.DataFrame) -> pd.DataFrame:
     if "y" not in meta_data_df.columns:
         raise ValueError("y column is missing in the original data.")
 
-    # check if there any duplicated Cell_ID/Spot_ID in the original data
+    # check for duplicated Cell_ID/Spot_ID values in the original data
     if meta_data_df[id_name].duplicated().any():
-        warning(
-            f"Duplicated {id_name} found; sample names will be prepended to make IDs unique."
-        )
+        warning(f"Duplicated {id_name} found; sample names will be prepended to make IDs unique.")
         meta_data_df[id_name] = meta_data_df["Sample"] + "_" + meta_data_df[id_name]
     if meta_data_df[id_name].isnull().any():
         raise ValueError(f"Duplicated {id_name} within same sample found!")

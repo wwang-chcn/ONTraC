@@ -137,7 +137,7 @@ def opt_ontrac_validate(optparser) -> Values:
 # ONTraC_NN functions
 # ------------------------------------
 def prepare_nn_optparser() -> OptionParser:
-    """Prepare optparser object. New options will be added in thisfunction first.
+    """Prepare the CLI parser for `ONTraC_NN`.
 
     Returns
     -------
@@ -232,7 +232,7 @@ def opt_nn_validate(optparser) -> Values:
 # ONTraC_GNN functions
 # ------------------------------------
 def prepare_gnn_optparser() -> OptionParser:
-    """Prepare optparser object. New options will be added in thisfunction first.
+    """Prepare the CLI parser for `ONTraC_GNN`.
 
     Returns
     -------
@@ -330,7 +330,7 @@ def opt_gnn_validate(optparser: OptionParser) -> Values:
 # ONTraC_NT functions
 # ------------------------------------
 def prepare_nt_optparser() -> OptionParser:
-    """Prepare optparser object. New options will be added in thisfunction first.
+    """Prepare the CLI parser for `ONTraC_NT`.
 
     Returns
     -------
@@ -343,8 +343,7 @@ def prepare_nt_optparser() -> OptionParser:
     usage = f"""USAGE: %prog <--NN-dir NN_DIR> <--GNN-dir GNN_DIR> <--NT-dir NT_DIR>
             [--trajectory-construct TRAJECTORY_CONSTRUCT] [--equal-space]"""
     description = (
-        "ONTraC_NT: construct niche trajectory for niche clusters and "
-        "project NT scores to cells. (Step 4 of ONTraC)"
+        "ONTraC_NT: construct niche trajectory for niche clusters and project NT scores to cells. (Step 4 of ONTraC)"
     )
 
     # option processor
@@ -419,7 +418,7 @@ def opt_nt_validate(optparser: OptionParser) -> Values:
 # ONTraC_GT functions
 # ------------------------------------
 def prepare_gt_optparser() -> OptionParser:
-    """Prepare optparser object. New options will be added in thisfunction first.
+    """Prepare the CLI parser for `ONTraC_GT`.
 
     Returns
     -------
@@ -524,7 +523,7 @@ def opt_gt_validate(optparser: OptionParser) -> Values:
 # ONTraC_analysis functions
 # ------------------------------------
 def prepare_analysis_optparser() -> OptionParser:
-    """Prepare optparser object. New options will be added in thisfunction first.
+    """Prepare the CLI parser for `ONTraC_analysis`.
 
     Returns
     -------

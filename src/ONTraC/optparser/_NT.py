@@ -41,7 +41,7 @@ def add_NT_options_group(optparser: OptionParser) -> None:
         dest="equal_space",
         default=True,
         action="store_true",
-        help="This options will be deprecated from v3.0. Always set to True.",
+        help="This option will be deprecated from v3.0. It is always treated as True.",
     )
 
 

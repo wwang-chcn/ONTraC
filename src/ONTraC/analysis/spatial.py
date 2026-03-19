@@ -172,13 +172,11 @@ def _validate_nt_layers(background_layer: str, foreground_layer: Optional[str]) 
     foreground_layer = _normalize_foreground_layer(foreground_layer)
     if background_layer not in valid_background_layers:
         raise ValueError(
-            f"Unsupported background layer `{background_layer}`. "
-            f"Use one of {sorted(valid_background_layers)}."
+            f"Unsupported background layer `{background_layer}`. Use one of {sorted(valid_background_layers)}."
         )
     if foreground_layer not in valid_foreground_layers:
         raise ValueError(
-            f"Unsupported foreground layer `{foreground_layer}`. "
-            "Use one of `None`, `quiver`, or `stream`."
+            f"Unsupported foreground layer `{foreground_layer}`. Use one of `None`, `quiver`, or `stream`."
         )
     return foreground_layer
 
@@ -387,10 +385,26 @@ def _plot_nt_score_layered_field(
         )
 
     if foreground_layer == "quiver":
-        if _plot_nt_score_quiver_overlay(ax=ax, sample_df=sample_df, score_column=score_column, reverse=reverse) is None:
+        if (
+            _plot_nt_score_quiver_overlay(
+                ax=ax,
+                sample_df=sample_df,
+                score_column=score_column,
+                reverse=reverse,
+            )
+            is None
+        ):
             warning(f"Cannot build a quiver overlay for {score_title}.")
     elif foreground_layer == "stream":
-        if _plot_nt_score_stream_overlay(ax=ax, sample_df=sample_df, score_column=score_column, reverse=reverse) is None:
+        if (
+            _plot_nt_score_stream_overlay(
+                ax=ax,
+                sample_df=sample_df,
+                score_column=score_column,
+                reverse=reverse,
+            )
+            is None
+        ):
             warning(f"Cannot build a stream overlay for {score_title}.")
 
     _style_nt_score_axis(ax=ax, score_title=score_title)

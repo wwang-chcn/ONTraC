@@ -10,7 +10,7 @@ from numpy import ndarray
 from pandas import DataFrame
 from torch_geometric.loader import DenseDataLoader
 
-from ..data import SpatailOmicsDataset, load_dataset
+from ..data import SpatialOmicsDataset, load_dataset
 from ..external.deconvolution import apply_STdeconvolve
 from ..log import error, info
 from ..utils import get_meta_data_file
@@ -57,13 +57,13 @@ def load_input_data(
             embedding_df = pd.read_csv(embedding_input, index_col=0)
             # TODO: error message module
             if embedding_df.index.tolist() != ids:
-                raise ValueError("The first column of embedding input should be same as the first column of meta_data.")
+                raise ValueError("The first column of embedding input should match the first column of meta_data.")
             output["embedding_data"] = embedding_df  # N x #embedding
         elif exp_input is not None:
             exp_df = pd.read_csv(exp_input, index_col=0)
             # TODO: error message module
             if exp_df.index.tolist() != ids:
-                raise ValueError("The first column of exp input should be same as the first column of meta_data.")
+                raise ValueError("The first column of exp input should match the first column of meta_data.")
             output["exp_data"] = exp_df  # N x #gene
     else:
         if low_res_exp_input is not None:
@@ -178,9 +178,7 @@ def cal_cell_type_coding(
             meta_data_df["Cell_Type"] = meta_data_df["Cell_Type"].astype("category")
             if gen_ct_embedding and input_data.get("embedding_data", None) is None:  # generate cell type embedding
                 if input_data.get("exp_data", None) is None:
-                    raise ValueError(
-                        "exp_data or embedding_data is required for cell-level embedding generation."
-                    )
+                    raise ValueError("exp_data or embedding_data is required for cell-level embedding generation.")
                 else:
                     pca_embedding = perform_pca(input_data["exp_data"])
                     if "Batch" in meta_data_df.columns and meta_data_df["Batch"].nunique() > 1:
@@ -214,9 +212,7 @@ def cal_cell_type_coding(
             np.savetxt(Path(NN_dir).joinpath("PCA_embedding.csv"), pca_embedding, delimiter=",")
 
             if resolution is None:
-                raise ValueError(
-                    "resolution is required for cell-level input without Cell_Type in meta data."
-                )
+                raise ValueError("resolution is required for cell-level input without Cell_Type in meta data.")
 
             connectivities = define_neighbors(pca_embedding)
             leiden_result = perform_leiden(connectivities, resolution=resolution)
@@ -286,14 +282,14 @@ def preprocessing_nn(
     """Preprocessing for niche network.
 
         Possible input parameters combinations:
-        # class I: without embedding ajustment
+        # class I: without embedding adjustment
         1. meta_input, NN_dir (cell-level data with Cell_Type info in meta_data)
         2. meta_input, NN_dir, exp_input, resolution (cell-level data with gene expression data)
         3. meta_input, NN_dir, embedding_input (cell-level data with embedding info)
         4. meta_input, NN_dir, low_res_exp_input, dc_method, dc_ct_num (spot-level data with original expression data)
         5. meta_input, NN_dir, low_res_exp_input, deconvoluted_ct_composition
            (spot-level data with deconvoluted cell type composition)
-        # class II: with embedding ajustment
+        # class II: with embedding adjustment
         1. embedding_adjust, sigma, meta_input, NN_dir, exp_input, resolution
            (cell-level data with gene expression data)
         2. embedding_adjust, sigma, meta_input, NN_dir, embedding_input (cell-level data with embedding info)
@@ -361,7 +357,7 @@ def preprocessing_nn(
     return input_data["meta_data"], input_data["embedding_data"], input_data["ct_coding"]
 
 
-def load_data(NN_dir: Union[str, Path], batch_size: int = 0) -> Tuple[SpatailOmicsDataset, DenseDataLoader]:
+def load_data(NN_dir: Union[str, Path], batch_size: int = 0) -> Tuple[SpatialOmicsDataset, DenseDataLoader]:
     """Load data and create sample loader.
 
     Parameters
@@ -373,7 +369,7 @@ def load_data(NN_dir: Union[str, Path], batch_size: int = 0) -> Tuple[SpatailOmi
 
     Returns
     -------
-    Tuple[SpatailOmicsDataset, DenseDataLoader], dataset and sample loader."""
+    Tuple[SpatialOmicsDataset, DenseDataLoader], dataset and sample loader."""
 
     info("Loading dataset.")
 
@@ -386,7 +382,7 @@ def load_data(NN_dir: Union[str, Path], batch_size: int = 0) -> Tuple[SpatailOmi
 
 def preprocessing_gnn(
     NN_dir: Union[str, Path], batch_size: int = 0
-) -> Tuple[SpatailOmicsDataset, DenseDataLoader, pd.DataFrame]:
+) -> Tuple[SpatialOmicsDataset, DenseDataLoader, pd.DataFrame]:
     """Preprocessing for GNN.
 
     Parameters
@@ -398,7 +394,7 @@ def preprocessing_gnn(
 
     Returns
     -------
-    Tuple[SpatailOmicsDataset, DenseDataLoader, pd.DataFrame], dataset, sample loader, and meta data."""
+    Tuple[SpatialOmicsDataset, DenseDataLoader, pd.DataFrame], dataset, sample loader, and meta data."""
 
     # meta data
     meta_data_df = pd.read_csv(get_meta_data_file(NN_dir), header=0)

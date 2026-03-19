@@ -178,9 +178,8 @@ def add_IO_options_group(optparser: OptionParser, io_options: Optional[Dict[str,
                 dest="meta_input",
                 type="string",
                 help=(
-                    "Metadata file in csv format. Each row is a cell. "
-                    "The first column should be cell name with column name Cell_ID. "
-                    "Coordinates (x, y) and sample should be included. Cell type is required for cell-level data."
+                    "Metadata CSV. Each row is a cell and the first column should be "
+                    "Cell_ID. Coordinates x/y and Sample are required."
                 ),
             )
             group_io.add_option(
@@ -212,9 +211,7 @@ def add_IO_options_group(optparser: OptionParser, io_options: Optional[Dict[str,
                 dest="deconvoluted_ct_composition",
                 type="string",
                 default=None,
-                help=(
-                    "Deconvoluted spot-by-cell-type composition CSV with Spot_ID in the first column."
-                ),
+                help=("Deconvoluted spot-by-cell-type composition CSV with Spot_ID in the first column."),
             )
             group_io.add_option(
                 "--deconvoluted-exp-input",
@@ -231,7 +228,7 @@ def add_IO_options_group(optparser: OptionParser, io_options: Optional[Dict[str,
                 "--meta-input",
                 dest="meta_input",
                 type="string",
-                help="This options are not required anymore and will be removed from v3.0.",
+                help="This option is no longer required and will be removed in v3.0.",
             )
 
     if ioc.has_io_option("log"):
@@ -243,14 +240,14 @@ def add_IO_options_group(optparser: OptionParser, io_options: Optional[Dict[str,
             "--preprocessing-dir",
             dest="preprocessing_dir",
             type="string",
-            help="This options will be deprecated from v3.0. Please use --NN-dir instead.",
+            help="This option will be deprecated from v3.0. Please use --NN-dir instead.",
         )
     if ioc.has_io_option("NT_dir"):
         group_io.add_option(
             "--NTScore-dir",
             dest="NTScore_dir",
             type="string",
-            help="This options will be deprecated from v3.0. Please use --NT-dir instead.",
+            help="This option will be deprecated from v3.0. Please use --NT-dir instead.",
         )
     if ioc.has_io_option("input"):
         group_io.add_option(
@@ -258,7 +255,7 @@ def add_IO_options_group(optparser: OptionParser, io_options: Optional[Dict[str,
             "--dataset",
             dest="dataset",
             type="string",
-            help="This options will be deprecated from v3.0. Please use --meta-input instead.",
+            help="This option will be deprecated from v3.0. Please use --meta-input instead.",
         )
 
     optparser.add_option_group(group_io)
@@ -431,16 +428,12 @@ def validate_io_options(
                 options.low_res_exp_input = None
             elif getattr(options, "low_res_exp_input", None) is not None:
                 if not os.path.isfile(options.low_res_exp_input):
-                    error(
-                        f"Low-resolution expression file ({options.low_res_exp_input}) does not exist."
-                    )
+                    error(f"Low-resolution expression file ({options.low_res_exp_input}) does not exist.")
                     if optparser is not None:
                         optparser.print_help()
                     sys.exit(1)
                 if not options.low_res_exp_input.endswith(("csv", "csv.gz")):
-                    error(
-                        f"Low-resolution expression file ({options.low_res_exp_input}) must be csv/csv.gz."
-                    )
+                    error(f"Low-resolution expression file ({options.low_res_exp_input}) must be csv/csv.gz.")
                     if optparser is not None:
                         optparser.print_help()
                     sys.exit(1)
@@ -469,25 +462,18 @@ def validate_io_options(
             elif getattr(options, "deconvoluted_exp_input", None) is not None:
                 if getattr(options, "deconvoluted_ct_composition", None) is None:
                     error(
-                        message=(
-                            "To use deconvolution outputs as input, "
-                            "deconvoluted_ct_composition is required."
-                        )
+                        message=("To use deconvolution outputs as input, deconvoluted_ct_composition is required.")
                     )
                     if optparser is not None:
                         optparser.print_help()
                     sys.exit(1)
                 if not os.path.isfile(options.deconvoluted_exp_input):
-                    error(
-                        f"Deconvoluted expression file ({options.deconvoluted_exp_input}) does not exist."
-                    )
+                    error(f"Deconvoluted expression file ({options.deconvoluted_exp_input}) does not exist.")
                     if optparser is not None:
                         optparser.print_help()
                     sys.exit(1)
                 if not options.deconvoluted_exp_input.endswith(("csv", "csv.gz")):
-                    error(
-                        f"Deconvoluted expression file ({options.deconvoluted_exp_input}) must be csv/csv.gz."
-                    )
+                    error(f"Deconvoluted expression file ({options.deconvoluted_exp_input}) must be csv/csv.gz.")
                     if optparser is not None:
                         optparser.print_help()
                     sys.exit(1)
@@ -554,9 +540,9 @@ def write_io_options_memo(options: Values, io_options: Optional[Dict[str, List[s
         if getattr(options, "low_res_exp_input", None) is not None:
             info(f"low-resolution expression data file:  {options.low_res_exp_input}")
         if getattr(options, "deconvoluted_ct_composition", None) is not None:
-            info(f"deconvoluted outputed cell type composition file:  {options.deconvoluted_ct_composition}")
+            info(f"Deconvoluted cell type composition file:  {options.deconvoluted_ct_composition}")
         if getattr(options, "deconvoluted_exp_input", None) is not None:
-            info(f"decomposition outputed expression file:  {options.deconvoluted_exp_input}")
+            info(f"Deconvoluted expression file:  {options.deconvoluted_exp_input}")
     if (
         ioc.has_io_option(name="log") and getattr(options, "log", None) is not None
     ):  # this is a optional option (ONTraC_analysis only)

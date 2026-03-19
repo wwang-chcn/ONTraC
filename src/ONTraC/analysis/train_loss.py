@@ -1,28 +1,31 @@
-"""This module contains functions for training loss visualization."""
+"""Training loss visualization helpers."""
 
-from .data import AnaData
-import seaborn as sns
-import matplotlib.pyplot as plt
 from typing import Optional, Tuple
 
 import matplotlib as mpl
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+from .data import AnaData
 
 mpl.rcParams["pdf.fonttype"] = 42
 mpl.rcParams["ps.fonttype"] = 42
 mpl.rcParams["font.family"] = "Arial"
 
 
-def train_loss_visualiztion(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.Axes]]:
-    """Train loss visualization.
+def train_loss_visualization(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.Axes]]:
+    """Plot training-loss curves from analysis data.
 
     Parameters
     ----------
     ana_data :
-        AnaData.
+        Analysis container with parsed training-loss tables.
 
     Returns
     -------
-    None or (fig, axes)."""
+    tuple[plt.Figure, plt.Axes] or None
+        Figure and axes when plotting in-memory, otherwise ``None`` if saved.
+    """
 
     if ana_data.train_loss is None:
         return None
@@ -49,3 +52,7 @@ def train_loss_visualiztion(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt
         return None
     else:
         return fig, axes
+
+
+# Backward-compatible alias for the historical misspelling.
+train_loss_visualiztion = train_loss_visualization

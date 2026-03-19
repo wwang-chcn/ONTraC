@@ -5,7 +5,7 @@ import torch
 from torch_geometric.loader import DenseDataLoader
 
 from ONTraC.data import load_dataset
-from ONTraC.GNN._GNN import SpatailOmicsDataset
+from ONTraC.GNN._GNN import SpatialOmicsDataset
 from ONTraC.model import GNN
 from ONTraC.train import GNNBatchTrain
 
@@ -29,13 +29,13 @@ def options() -> Values:
 
 
 @pytest.fixture()
-def dataset(options: Values) -> SpatailOmicsDataset:
+def dataset(options: Values) -> SpatialOmicsDataset:
     """Load the reference toy dataset."""
     return load_dataset(NN_dir=options.NN_dir)
 
 
 @pytest.fixture()
-def sample_loader(options: Values, dataset: SpatailOmicsDataset) -> DenseDataLoader:
+def sample_loader(options: Values, dataset: SpatialOmicsDataset) -> DenseDataLoader:
     """Create dense mini-batch loader for the toy dataset."""
     batch_size = options.batch_size if options.batch_size > 0 else len(dataset)
     sample_loader = DenseDataLoader(dataset, batch_size=batch_size)
@@ -43,7 +43,7 @@ def sample_loader(options: Values, dataset: SpatailOmicsDataset) -> DenseDataLoa
 
 
 @pytest.fixture()
-def nn_model(options: Values, dataset: SpatailOmicsDataset) -> torch.nn.Module:
+def nn_model(options: Values, dataset: SpatialOmicsDataset) -> torch.nn.Module:
     """Instantiate and initialize the GNN model with checkpoint weights."""
     model = GNN(input_feats=dataset.num_features, hidden_feats=options.hidden_feats, k=options.k, exponent=options.beta)
     model.load_state_dict(torch.load(f"{options.GNN_dir}/epoch_0.pt", map_location=torch.device("cpu")))

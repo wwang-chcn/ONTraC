@@ -7,7 +7,7 @@ from ..analysis.data import AnaData
 from ..analysis.niche_cluster import niche_cluster_visualization
 from ..analysis.niche_net import clustering_visualization_from_anadata, embedding_adjust_visualization_from_anadata
 from ..analysis.spatial import spatial_visualization
-from ..analysis.train_loss import train_loss_visualiztion
+from ..analysis.train_loss import train_loss_visualization
 from ..log import *
 from ..optparser import opt_analysis_validate, prepare_analysis_optparser
 from ..run.processes import load_parameters
@@ -50,7 +50,7 @@ def analysis_pipeline(options: Values) -> None:
 
     # part 3: train loss
     info(message=f"Analysis pipeline step {step_index}: train loss visualization.")
-    train_loss_visualiztion(ana_data=ana_data)
+    train_loss_visualization(ana_data=ana_data)
     step_index += 1
 
     # part 4: spatial based output

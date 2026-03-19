@@ -1,7 +1,7 @@
 """Data loading and dataset helpers for ONTraC."""
 
-from typing import Dict, List, Union
 from pathlib import Path
+from typing import Dict, List, Union
 
 import numpy as np
 import pandas as pd
@@ -16,7 +16,7 @@ from .utils import count_lines, get_rel_params, read_yaml_file
 # ------------------------------------
 # Classes
 # ------------------------------------
-class SpatailOmicsDataset(InMemoryDataset):
+class SpatialOmicsDataset(InMemoryDataset):
     """In-memory PyG dataset for ONTraC sample-level graph inputs.
 
     The dataset expects preprocessed ONTraC outputs where each sample provides:
@@ -31,23 +31,23 @@ class SpatailOmicsDataset(InMemoryDataset):
     def __init__(self, root, params: Dict, transform=None, pre_transform=None):
         """Initialize the dataset container.
 
-                Parameters
-                ----------
+        Parameters
+        ----------
         root :
             str or Path
-                    Root directory used by :class:`~torch_geometric.data.InMemoryDataset`.
+            Root directory used by :class:`~torch_geometric.data.InMemoryDataset`.
         params :
             Dict
-                    Parsed ``samples.yaml`` content with relative file paths resolved.
+            Parsed ``samples.yaml`` content with relative file paths resolved.
         transform :
             callable, optional
-                    Transform applied on access.
+            Transform applied on access.
         pre_transform :
             callable, optional
-                    Transform applied before serialization.
+            Transform applied before serialization.
         """
         self.params = params
-        super(SpatailOmicsDataset, self).__init__(root, transform, pre_transform)
+        super().__init__(root, transform, pre_transform)
 
     @property
     def raw_file_names(self):  # required by InMemoryDataset
@@ -104,16 +104,16 @@ class SpatailOmicsDataset(InMemoryDataset):
 def max_nodes(samples: List[Dict[str, str]]) -> int:
     """Compute the maximum number of cells/spots among input samples.
 
-        Parameters
-        ----------
+    Parameters
+    ----------
     samples :
         list[dict[str, str]]
-            Sample records from ``samples.yaml``.
+        Sample records from ``samples.yaml``.
 
-        Returns
-        -------
-        int
-            Largest row count across all coordinate files.
+    Returns
+    -------
+    int
+        Largest row count across all coordinate files.
     """
     max_nodes = 0
     for sample in samples:
@@ -121,19 +121,19 @@ def max_nodes(samples: List[Dict[str, str]]) -> int:
     return max_nodes
 
 
-def load_dataset(NN_dir: Union[str, Path]) -> SpatailOmicsDataset:
+def load_dataset(NN_dir: Union[str, Path]) -> SpatialOmicsDataset:
     """Load ONTraC graph dataset from a preprocessing directory.
 
-        Parameters
-        ----------
+    Parameters
+    ----------
     NN_dir :
         str or Path
-            Directory that contains ``samples.yaml`` and per-sample CSV artifacts.
+        Directory that contains ``samples.yaml`` and per-sample CSV artifacts.
 
-        Returns
-        -------
-        SpatailOmicsDataset
-            Processed dense-graph dataset ready for GNN training.
+    Returns
+    -------
+    SpatialOmicsDataset
+        Processed dense-graph dataset ready for GNN training.
     """
     params = read_yaml_file(f"{NN_dir}/samples.yaml")
     rel_params = get_rel_params(NN_dir=NN_dir, params=params)
@@ -144,23 +144,22 @@ def load_dataset(NN_dir: Union[str, Path]) -> SpatailOmicsDataset:
 # ------------------------------------
 # Flow control functions
 # ------------------------------------
-def create_torch_dataset(NN_dir: Union[str, Path], params: Dict) -> SpatailOmicsDataset:
+def create_torch_dataset(NN_dir: Union[str, Path], params: Dict) -> SpatialOmicsDataset:
     """Build a dense PyG dataset with a uniform node budget.
 
-        Parameters
-        ----------
+    Parameters
+    ----------
     NN_dir :
         str or Path
-            Output directory used for dataset artifacts.
+        Output directory used for dataset artifacts.
     params :
         Dict
-            Resolved sample configuration, typically from ``samples.yaml``.
+        Resolved sample configuration, typically from ``samples.yaml``.
 
-        Returns
-        -------
-        SpatailOmicsDataset
-    Dataset transformed with
-        class:`torch_geometric.transforms.ToDense`.
+    Returns
+    -------
+    SpatialOmicsDataset
+        Dataset transformed with :class:`torch_geometric.transforms.ToDense`.
     """
 
     # Step 1: Get the maximum number of nodes
@@ -170,8 +169,12 @@ def create_torch_dataset(NN_dir: Union[str, Path], params: Dict) -> SpatailOmics
     info(f"Maximum number of cell in one sample is: {m_nodes}.")
 
     # Step 2: Create torch dataset
-    dataset = SpatailOmicsDataset(
+    dataset = SpatialOmicsDataset(
         root=NN_dir, params=params, transform=T.ToDense(m_nodes)
     )  # transform edge_index to adj matrix
     dataset.process()
     return dataset
+
+
+# Backward-compatible alias for the historical misspelling.
+SpatailOmicsDataset = SpatialOmicsDataset

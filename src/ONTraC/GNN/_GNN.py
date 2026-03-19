@@ -11,7 +11,7 @@ from scipy.sparse import load_npz
 from torch import Tensor
 from torch_geometric.loader import DenseDataLoader
 
-from ..data import SpatailOmicsDataset
+from ..data import SpatialOmicsDataset
 from ..log import info
 from ..train import SubBatchTrainProtocol
 
@@ -110,7 +110,7 @@ def evaluate(batch_train: SubBatchTrainProtocol) -> None:
 
 
 def predict(
-    output_dir: str, batch_train: SubBatchTrainProtocol, dataset: SpatailOmicsDataset
+    output_dir: str, batch_train: SubBatchTrainProtocol, dataset: SpatialOmicsDataset
 ) -> Tuple[Optional[np.ndarray], Optional[np.ndarray], Optional[np.ndarray]]:
     """Predict the results of ONTraC model on data.
 
@@ -121,7 +121,7 @@ def predict(
     batch_train :
         SubBatchTrainProtocol, batch train.
     dataset :
-        SpatailOmicsDataset, dataset.
+        SpatialOmicsDataset, dataset.
 
     Returns
     -------
@@ -197,7 +197,7 @@ def predict(
 
 def save_graph_pooling_results(
     meta_data_df: pd.DataFrame,
-    dataset: SpatailOmicsDataset,
+    dataset: SpatialOmicsDataset,
     rel_params: Dict,
     consolidate_z_array: np.ndarray,
     consolidate_s_array: np.ndarray,
@@ -210,7 +210,7 @@ def save_graph_pooling_results(
     meta_data_df :
         pd.DataFrame, original data. Sample and Cell_ID columns are used.
     dataset :
-        SpatailOmicsDataset, dataset.
+        SpatialOmicsDataset, dataset.
     rel_params :
         dict, relative parameters.
     consolidate_z_array :
