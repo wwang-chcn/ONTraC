@@ -76,53 +76,6 @@ def _get_typical_spatial_spacing(x: np.ndarray, y: np.ndarray) -> float:
     return typical_spacing
 
 
-def _plot_nt_score_fluid_field(
-    ax: Axes,
-    sample_df: pd.DataFrame,
-    score_column: str,
-    score_title: str,
-    reverse: bool = False,
-):
-    """Plot NT score as a smooth contour field with isolines."""
-
-    if sample_df.empty:
-        warning(f"No valid coordinates found for {score_title}.")
-        ax.text(0.5, 0.5, "No valid data", ha="center", va="center", transform=ax.transAxes)
-        ax.set_xticks([])
-        ax.set_yticks([])
-        return None
-
-    x = sample_df["x"].to_numpy(dtype=float)
-    y = sample_df["y"].to_numpy(dtype=float)
-    scores = sample_df[score_column].to_numpy(dtype=float)
-    if reverse:
-        scores = 1 - scores
-    scores = np.clip(scores, 0, 1)
-
-    cmap = mpl.colormaps.get_cmap("turbo")
-    mappable = None
-    if x.size >= 3 and np.unique(x).size >= 2 and np.unique(y).size >= 2:
-        triangulation = Triangulation(x, y)
-        _mask_sparse_triangles(triangulation=triangulation, x=x, y=y)
-        contour_levels = np.linspace(0, 1, 21)
-        line_levels = np.linspace(0, 1, 11)
-        mappable = ax.tricontourf(triangulation, scores, levels=contour_levels, cmap=cmap, vmin=0, vmax=1)
-        ax.tricontour(triangulation, scores, levels=line_levels, colors="black", linewidths=0.3, alpha=0.35)
-        ax.scatter(x, y, c=scores, cmap=cmap, vmin=0, vmax=1, s=1, alpha=0.12, linewidths=0)
-    else:
-        mappable = ax.scatter(x, y, c=scores, cmap=cmap, vmin=0, vmax=1, s=2, linewidths=0)
-
-    ax.set_title(score_title)
-    ax.set_xticks([])
-    ax.set_yticks([])
-    ax.set_aspect("equal", adjustable="box")
-    ax.set_facecolor("#f7f7f7")
-    for spine in ax.spines.values():
-        spine.set_visible(False)
-
-    return mappable
-
-
 def _estimate_nt_grid_shape(
     x: np.ndarray,
     y: np.ndarray,
@@ -203,134 +156,123 @@ def _style_nt_score_axis(ax: Axes, score_title: str) -> None:
         spine.set_visible(False)
 
 
-def _plot_nt_score_fluid_dataset(
-    NT_score: pd.DataFrame,
-    meta_data_df: pd.DataFrame,
-    score_column: str,
-    score_label: str,
-    output_stem: str,
-    reverse: bool = False,
-    output_file_path: Optional[Union[str, Path]] = None,
-) -> Optional[Tuple[Figure, Union[Axes, np.ndarray]]]:
-    """Plot a CFD-style NT-score field for all samples in one figure."""
+def _normalize_foreground_layer(foreground_layer: Optional[str]) -> Optional[str]:
+    """Normalize the front-layer selector."""
 
-    samples: List[str] = meta_data_df["Sample"].unique().tolist()
-
-    N = len(samples)
-    fig, axes = plt.subplots(1, N, figsize=(4.2 * N, 3.4), squeeze=False, constrained_layout=True)
-    axes_flat = axes.ravel()
-    mappable = None
-    for i, sample in enumerate(samples):
-        sample_df = _prepare_nt_score_sample_df(
-            NT_score=NT_score,
-            meta_data_df=meta_data_df,
-            sample=sample,
-            score_column=score_column,
-        )
-        rendered = _plot_nt_score_fluid_field(
-            ax=axes_flat[i],
-            sample_df=sample_df,
-            score_column=score_column,
-            score_title=f"{sample} {score_label}",
-            reverse=reverse,
-        )
-        if rendered is not None:
-            mappable = rendered
-
-    if mappable is not None:
-        colorbar = fig.colorbar(mappable, ax=axes_flat.tolist(), fraction=0.02, pad=0.02)
-        colorbar.set_label("NT score")
-    if output_file_path is not None:
-        fig.savefig(f"{output_file_path}/{output_stem}.pdf", transparent=True)
-        plt.close(fig)
+    if foreground_layer in (None, "none"):
         return None
-    return fig, axes_flat[0] if N == 1 else axes_flat
+    return foreground_layer
 
 
-def _plot_nt_score_fluid_sample(
-    NT_score: pd.DataFrame,
-    meta_data_df: pd.DataFrame,
+def _validate_nt_layers(background_layer: str, foreground_layer: Optional[str]) -> Optional[str]:
+    """Validate supported NT-score layer combinations."""
+
+    valid_background_layers = {"scatter", "fluid"}
+    valid_foreground_layers = {None, "quiver", "stream"}
+    foreground_layer = _normalize_foreground_layer(foreground_layer)
+    if background_layer not in valid_background_layers:
+        raise ValueError(
+            f"Unsupported background layer `{background_layer}`. "
+            f"Use one of {sorted(valid_background_layers)}."
+        )
+    if foreground_layer not in valid_foreground_layers:
+        raise ValueError(
+            f"Unsupported foreground layer `{foreground_layer}`. "
+            "Use one of `None`, `quiver`, or `stream`."
+        )
+    return foreground_layer
+
+
+def _get_nt_score_arrays(
+    sample_df: pd.DataFrame,
     score_column: str,
-    score_label: str,
-    output_stem: str,
     reverse: bool = False,
-    spatial_scaling_factor: float = 1.0,
-    output_file_path: Optional[Union[str, Path]] = None,
-) -> Optional[List[Tuple[Figure, Axes]]]:
-    """Plot one CFD-style NT-score field per sample."""
+) -> Optional[Tuple[np.ndarray, np.ndarray, np.ndarray]]:
+    """Extract x/y coordinates and NT scores for one sample."""
 
-    samples: List[str] = meta_data_df["Sample"].unique().tolist()
+    if sample_df.empty:
+        return None
 
-    output: List[Tuple[Figure, Axes]] = []
-    for sample in samples:
-        sample_df = _prepare_nt_score_sample_df(
-            NT_score=NT_score,
-            meta_data_df=meta_data_df,
-            sample=sample,
-            score_column=score_column,
-        )
-        if sample_df.empty:
-            warning(f"No valid coordinates found for sample {sample}. Skip {score_label} fluid plot.")
-            continue
-
-        fig_width, fig_height = saptial_figsize(sample_df, scaling_factor=spatial_scaling_factor)
-        fig, ax = plt.subplots(
-            1,
-            1,
-            figsize=(max(fig_width + 0.8, 3.5), max(fig_height + 0.4, 3.0)),
-            constrained_layout=True,
-        )
-        mappable = _plot_nt_score_fluid_field(
-            ax=ax,
-            sample_df=sample_df,
-            score_column=score_column,
-            score_title=f"{sample} {score_label}",
-            reverse=reverse,
-        )
-        if mappable is not None:
-            colorbar = fig.colorbar(mappable, ax=ax, fraction=0.04, pad=0.02)
-            colorbar.set_label("NT score")
-        if output_file_path is not None:
-            fig.savefig(f"{output_file_path}/{sample}_{output_stem}.pdf", transparent=True)
-            plt.close(fig)
-        else:
-            output.append((fig, ax))
-
-    return output if len(output) > 0 else None
+    x = sample_df["x"].to_numpy(dtype=float)
+    y = sample_df["y"].to_numpy(dtype=float)
+    scores = sample_df[score_column].to_numpy(dtype=float)
+    if reverse:
+        scores = 1 - scores
+    return x, y, np.clip(scores, 0, 1)
 
 
-def _plot_nt_score_quiver_field(
+def _plot_nt_score_scatter_background(
     ax: Axes,
     sample_df: pd.DataFrame,
     score_column: str,
-    score_title: str,
     reverse: bool = False,
 ):
-    """Plot NT-score gradient as a quiver field over the interpolated scalar field."""
+    """Plot the original scatter-style NT-score background."""
+
+    sample_arrays = _get_nt_score_arrays(sample_df=sample_df, score_column=score_column, reverse=reverse)
+    if sample_arrays is None:
+        return None
+    x, y, scores = sample_arrays
+    point_size = 1 if x.size > 200 else 2
+    return ax.scatter(x, y, c=scores, cmap="rainbow", vmin=0, vmax=1, s=point_size, linewidths=0)
+
+
+def _plot_nt_score_fluid_background(
+    ax: Axes,
+    sample_df: pd.DataFrame,
+    score_column: str,
+    reverse: bool = False,
+):
+    """Plot the smooth fluid-style NT-score background."""
+
+    sample_arrays = _get_nt_score_arrays(sample_df=sample_df, score_column=score_column, reverse=reverse)
+    if sample_arrays is None:
+        return None
+    x, y, scores = sample_arrays
+
+    cmap = mpl.colormaps.get_cmap("turbo")
+    if x.size >= 3 and np.unique(x).size >= 2 and np.unique(y).size >= 2:
+        triangulation = Triangulation(x, y)
+        _mask_sparse_triangles(triangulation=triangulation, x=x, y=y)
+        contour_levels = np.linspace(0, 1, 21)
+        line_levels = np.linspace(0, 1, 11)
+        background = ax.tricontourf(triangulation, scores, levels=contour_levels, cmap=cmap, vmin=0, vmax=1)
+        ax.tricontour(triangulation, scores, levels=line_levels, colors="black", linewidths=0.3, alpha=0.35)
+        ax.scatter(x, y, c=scores, cmap=cmap, vmin=0, vmax=1, s=1, alpha=0.12, linewidths=0)
+        return background
+    return ax.scatter(x, y, c=scores, cmap=cmap, vmin=0, vmax=1, s=2, linewidths=0)
+
+
+def _plot_nt_score_quiver_overlay(
+    ax: Axes,
+    sample_df: pd.DataFrame,
+    score_column: str,
+    reverse: bool = False,
+):
+    """Overlay a quiver plot of the NT-score gradient."""
 
     field = _build_nt_score_vector_field(sample_df=sample_df, score_column=score_column, reverse=reverse)
     if field is None:
-        warning(f"Cannot build a vector field for {score_title}.")
-        ax.text(0.5, 0.5, "Insufficient data", ha="center", va="center", transform=ax.transAxes)
-        _style_nt_score_axis(ax=ax, score_title=score_title)
         return None
 
-    grid_x, grid_y, score_grid, grad_x, grad_y, valid_mask = field
-    cmap = mpl.colormaps.get_cmap("turbo")
-    background = ax.contourf(grid_x, grid_y, score_grid, levels=np.linspace(0, 1, 21), cmap=cmap, vmin=0, vmax=1)
-    ax.contour(grid_x, grid_y, score_grid, levels=np.linspace(0, 1, 11), colors="black", linewidths=0.25, alpha=0.25)
-
+    grid_x, grid_y, _, grad_x, grad_y, valid_mask = field
     stride_x = max(1, grid_x.shape[1] // 24)
     stride_y = max(1, grid_x.shape[0] // 24)
     grid_slice = (slice(None, None, stride_y), slice(None, None, stride_x))
     qx = np.ma.array(grad_x[grid_slice], mask=~valid_mask[grid_slice])
     qy = np.ma.array(grad_y[grid_slice], mask=~valid_mask[grid_slice])
-    magnitude = np.ma.sqrt(qx**2 + qy**2)
-    quiver = ax.quiver(
-        grid_x[grid_slice],
-        grid_y[grid_slice],
-        qx,
-        qy,
+    mask = np.ma.getmaskarray(qx) | np.ma.getmaskarray(qy)
+    if np.all(mask):
+        return None
+
+    qx_data = qx.filled(np.nan)[~mask]
+    qy_data = qy.filled(np.nan)[~mask]
+    magnitude = np.hypot(qx_data, qy_data)
+    return ax.quiver(
+        grid_x[grid_slice][~mask],
+        grid_y[grid_slice][~mask],
+        qx_data,
+        qy_data,
         magnitude,
         cmap="Greys",
         angles="xy",
@@ -342,44 +284,37 @@ def _plot_nt_score_quiver_field(
         headaxislength=3.8,
         alpha=0.85,
     )
-    _style_nt_score_axis(ax=ax, score_title=score_title)
-    return background, quiver
 
 
-def _plot_nt_score_stream_field(
+def _plot_nt_score_stream_overlay(
     ax: Axes,
     sample_df: pd.DataFrame,
     score_column: str,
-    score_title: str,
     reverse: bool = False,
 ):
-    """Plot NT-score gradient as streamlines over the interpolated scalar field."""
+    """Overlay streamlines of the NT-score gradient."""
 
     field = _build_nt_score_vector_field(sample_df=sample_df, score_column=score_column, reverse=reverse)
     if field is None:
-        warning(f"Cannot build a stream field for {score_title}.")
-        ax.text(0.5, 0.5, "Insufficient data", ha="center", va="center", transform=ax.transAxes)
-        _style_nt_score_axis(ax=ax, score_title=score_title)
         return None
 
-    grid_x, grid_y, score_grid, grad_x, grad_y, valid_mask = field
-    cmap = mpl.colormaps.get_cmap("turbo")
-    background = ax.contourf(grid_x, grid_y, score_grid, levels=np.linspace(0, 1, 21), cmap=cmap, vmin=0, vmax=1)
-    ax.contour(grid_x, grid_y, score_grid, levels=np.linspace(0, 1, 11), colors="black", linewidths=0.2, alpha=0.2)
-
+    grid_x, grid_y, _, grad_x, grad_y, valid_mask = field
     speed = np.ma.sqrt(grad_x**2 + grad_y**2)
+    speed_values = speed.filled(0.0)
+    speed_scale = float(np.nanpercentile(speed_values, 95)) if np.any(np.isfinite(speed_values)) else 0.0
+    if not np.isfinite(speed_scale) or speed_scale <= 0:
+        speed_scale = 1.0
+    linewidth = 0.4 + 1.6 * np.clip(speed_values / speed_scale, 0, 1)
+
     u = np.ma.array(grad_x, mask=~valid_mask).filled(0.0)
     v = np.ma.array(grad_y, mask=~valid_mask).filled(0.0)
-    linewidth = 0.4 + 1.6 * np.clip(speed.filled(0.0), 0, np.nanpercentile(speed.filled(0.0), 95) or 1.0)
-    if np.nanmax(linewidth) > 0:
-        linewidth = linewidth / np.nanmax(linewidth) * 2.0
-    stream = ax.streamplot(
+    return ax.streamplot(
         grid_x[0],
         grid_y[:, 0],
         u,
         v,
         density=1.1,
-        color=speed.filled(0.0),
+        color=speed_values,
         cmap="Greys",
         linewidth=linewidth,
         arrowsize=0.8,
@@ -387,26 +322,100 @@ def _plot_nt_score_stream_field(
         maxlength=4.0,
         broken_streamlines=True,
     )
+
+
+def _compose_nt_score_title(
+    sample: str,
+    score_label: str,
+    background_layer: str,
+    foreground_layer: Optional[str],
+) -> str:
+    """Build a descriptive title for the selected NT-score layers."""
+
+    layer_suffix = background_layer if foreground_layer is None else f"{background_layer} + {foreground_layer}"
+    return f"{sample} {score_label} ({layer_suffix})"
+
+
+def _compose_nt_output_stem(
+    score_prefix: str,
+    background_layer: str,
+    foreground_layer: Optional[str],
+) -> str:
+    """Build the output filename stem from selected layers."""
+
+    foreground_layer = _normalize_foreground_layer(foreground_layer)
+    if background_layer == "scatter" and foreground_layer is None:
+        return score_prefix
+    if foreground_layer is None:
+        return f"{score_prefix}_{background_layer}"
+    if background_layer == "scatter":
+        return f"{score_prefix}_{foreground_layer}"
+    return f"{score_prefix}_{background_layer}_{foreground_layer}"
+
+
+def _plot_nt_score_layered_field(
+    ax: Axes,
+    sample_df: pd.DataFrame,
+    score_column: str,
+    score_title: str,
+    background_layer: str = "scatter",
+    foreground_layer: Optional[str] = None,
+    reverse: bool = False,
+):
+    """Plot an NT-score view using configurable background and foreground layers."""
+
+    foreground_layer = _validate_nt_layers(background_layer=background_layer, foreground_layer=foreground_layer)
+    if sample_df.empty:
+        warning(f"No valid coordinates found for {score_title}.")
+        ax.text(0.5, 0.5, "No valid data", ha="center", va="center", transform=ax.transAxes)
+        _style_nt_score_axis(ax=ax, score_title=score_title)
+        return None
+
+    if background_layer == "fluid":
+        mappable = _plot_nt_score_fluid_background(
+            ax=ax,
+            sample_df=sample_df,
+            score_column=score_column,
+            reverse=reverse,
+        )
+    else:
+        mappable = _plot_nt_score_scatter_background(
+            ax=ax,
+            sample_df=sample_df,
+            score_column=score_column,
+            reverse=reverse,
+        )
+
+    if foreground_layer == "quiver":
+        if _plot_nt_score_quiver_overlay(ax=ax, sample_df=sample_df, score_column=score_column, reverse=reverse) is None:
+            warning(f"Cannot build a quiver overlay for {score_title}.")
+    elif foreground_layer == "stream":
+        if _plot_nt_score_stream_overlay(ax=ax, sample_df=sample_df, score_column=score_column, reverse=reverse) is None:
+            warning(f"Cannot build a stream overlay for {score_title}.")
+
     _style_nt_score_axis(ax=ax, score_title=score_title)
-    return background, stream
+    return mappable
 
 
-def _plot_nt_score_vector_dataset(
+def _plot_nt_score_dataset(
     NT_score: pd.DataFrame,
     meta_data_df: pd.DataFrame,
     score_column: str,
     score_label: str,
-    output_stem: str,
-    field_plotter,
+    score_prefix: str,
+    background_layer: str = "scatter",
+    foreground_layer: Optional[str] = None,
     reverse: bool = False,
     output_file_path: Optional[Union[str, Path]] = None,
 ) -> Optional[Tuple[Figure, Union[Axes, np.ndarray]]]:
-    """Plot a vector-style NT-score view for all samples in one figure."""
+    """Plot a layered NT-score view for all samples in one figure."""
 
+    foreground_layer = _validate_nt_layers(background_layer=background_layer, foreground_layer=foreground_layer)
     samples: List[str] = meta_data_df["Sample"].unique().tolist()
+
     fig, axes = plt.subplots(1, len(samples), figsize=(4.2 * len(samples), 3.4), squeeze=False, constrained_layout=True)
     axes_flat = axes.ravel()
-    background = None
+    mappable = None
     for i, sample in enumerate(samples):
         sample_df = _prepare_nt_score_sample_df(
             NT_score=NT_score,
@@ -414,41 +423,60 @@ def _plot_nt_score_vector_dataset(
             sample=sample,
             score_column=score_column,
         )
-        rendered = field_plotter(
+        rendered = _plot_nt_score_layered_field(
             ax=axes_flat[i],
             sample_df=sample_df,
             score_column=score_column,
-            score_title=f"{sample} {score_label}",
+            score_title=_compose_nt_score_title(
+                sample=sample,
+                score_label=score_label,
+                background_layer=background_layer,
+                foreground_layer=foreground_layer,
+            ),
+            background_layer=background_layer,
+            foreground_layer=foreground_layer,
             reverse=reverse,
         )
         if rendered is not None:
-            background = rendered[0]
+            mappable = rendered
 
-    if background is not None:
-        colorbar = fig.colorbar(background, ax=axes_flat.tolist(), fraction=0.02, pad=0.02)
+    if mappable is not None:
+        colorbar = fig.colorbar(mappable, ax=axes_flat.tolist(), fraction=0.02, pad=0.02)
         colorbar.set_label("NT score")
     if output_file_path is not None:
+        output_stem = _compose_nt_output_stem(
+            score_prefix=score_prefix,
+            background_layer=background_layer,
+            foreground_layer=foreground_layer,
+        )
         fig.savefig(f"{output_file_path}/{output_stem}.pdf", transparent=True)
         plt.close(fig)
         return None
     return fig, axes_flat[0] if len(samples) == 1 else axes_flat
 
 
-def _plot_nt_score_vector_sample(
+def _plot_nt_score_sample(
     NT_score: pd.DataFrame,
     meta_data_df: pd.DataFrame,
     score_column: str,
     score_label: str,
-    output_stem: str,
-    field_plotter,
+    score_prefix: str,
+    background_layer: str = "scatter",
+    foreground_layer: Optional[str] = None,
     reverse: bool = False,
     spatial_scaling_factor: float = 1.0,
     output_file_path: Optional[Union[str, Path]] = None,
 ) -> Optional[List[Tuple[Figure, Axes]]]:
-    """Plot one vector-style NT-score view per sample."""
+    """Plot one layered NT-score view per sample."""
 
+    foreground_layer = _validate_nt_layers(background_layer=background_layer, foreground_layer=foreground_layer)
     samples: List[str] = meta_data_df["Sample"].unique().tolist()
     output: List[Tuple[Figure, Axes]] = []
+    output_stem = _compose_nt_output_stem(
+        score_prefix=score_prefix,
+        background_layer=background_layer,
+        foreground_layer=foreground_layer,
+    )
     for sample in samples:
         sample_df = _prepare_nt_score_sample_df(
             NT_score=NT_score,
@@ -457,7 +485,7 @@ def _plot_nt_score_vector_sample(
             score_column=score_column,
         )
         if sample_df.empty:
-            warning(f"No valid coordinates found for sample {sample}. Skip {score_label} vector plot.")
+            warning(f"No valid coordinates found for sample {sample}. Skip {score_label} plot.")
             continue
 
         fig_width, fig_height = saptial_figsize(sample_df, scaling_factor=spatial_scaling_factor)
@@ -467,15 +495,22 @@ def _plot_nt_score_vector_sample(
             figsize=(max(fig_width + 0.8, 3.5), max(fig_height + 0.4, 3.0)),
             constrained_layout=True,
         )
-        rendered = field_plotter(
+        rendered = _plot_nt_score_layered_field(
             ax=ax,
             sample_df=sample_df,
             score_column=score_column,
-            score_title=f"{sample} {score_label}",
+            score_title=_compose_nt_score_title(
+                sample=sample,
+                score_label=score_label,
+                background_layer=background_layer,
+                foreground_layer=foreground_layer,
+            ),
+            background_layer=background_layer,
+            foreground_layer=foreground_layer,
             reverse=reverse,
         )
         if rendered is not None:
-            colorbar = fig.colorbar(rendered[0], ax=ax, fraction=0.04, pad=0.02)
+            colorbar = fig.colorbar(rendered, ax=ax, fraction=0.04, pad=0.02)
             colorbar.set_label("NT score")
         if output_file_path is not None:
             fig.savefig(f"{output_file_path}/{sample}_{output_stem}.pdf", transparent=True)
@@ -754,9 +789,11 @@ def plot_adjust_cell_type_composition(
 def plot_niche_NT_score_dataset(
     NT_score: pd.DataFrame,
     meta_data_df: pd.DataFrame,
+    background_layer: str = "scatter",
+    foreground_layer: Optional[str] = None,
     reverse: bool = False,
     output_file_path: Optional[Union[str, Path]] = None,
-) -> Optional[Tuple[plt.Figure, plt.Axes]]:
+) -> Optional[Tuple[Figure, Union[Axes, np.ndarray]]]:
     """Plot spatial distribution of niche NT score.
 
     Parameters
@@ -774,30 +811,24 @@ def plot_niche_NT_score_dataset(
     -------
     None or Tuple[plt.Figure, plt.Axes]."""
 
-    samples: List[str] = meta_data_df["Sample"].unique().tolist()
-
-    N = len(samples)
-    fig, axes = plt.subplots(1, N, figsize=(3.5 * N, 3))
-    for i, sample in enumerate(samples):
-        sample_df = NT_score.loc[meta_data_df[meta_data_df["Sample"] == sample].index]
-        ax: plt.Axes = axes[i] if N > 1 else axes  # type: ignore
-        NT_score_values = sample_df["Niche_NTScore"] if not reverse else 1 - sample_df["Niche_NTScore"]
-        scatter = ax.scatter(sample_df["x"], sample_df["y"], c=NT_score_values, cmap="rainbow", vmin=0, vmax=1, s=1)
-        ax.set_xticks([])
-        ax.set_yticks([])
-        plt.colorbar(scatter)
-        ax.set_title(f"{sample} Niche-level NT Score")
-
-    fig.tight_layout()
-    if output_file_path is not None:
-        fig.savefig(f"{output_file_path}/niche_NT_score.pdf", transparent=True)
-        plt.close(fig)
-        return None
-    else:
-        return fig, axes
+    return _plot_nt_score_dataset(
+        NT_score=NT_score,
+        meta_data_df=meta_data_df,
+        score_column="Niche_NTScore",
+        score_label="Niche-level NT Score",
+        score_prefix="niche_NT_score",
+        background_layer=background_layer,
+        foreground_layer=foreground_layer,
+        reverse=reverse,
+        output_file_path=output_file_path,
+    )
 
 
-def plot_niche_NT_score_dataset_from_anadata(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.Axes]]:
+def plot_niche_NT_score_dataset_from_anadata(
+    ana_data: AnaData,
+    background_layer: str = "scatter",
+    foreground_layer: Optional[str] = None,
+) -> Optional[Tuple[Figure, Union[Axes, np.ndarray]]]:
     """Plot spatial distribution of niche NT score.
 
     Parameters
@@ -823,6 +854,8 @@ def plot_niche_NT_score_dataset_from_anadata(ana_data: AnaData) -> Optional[Tupl
     return plot_niche_NT_score_dataset(
         NT_score=ana_data.NT_score,
         meta_data_df=ana_data.meta_data_df,
+        background_layer=background_layer,
+        foreground_layer=foreground_layer,
         reverse=ana_data.options.reverse,
         output_file_path=ana_data.options.output,
     )
@@ -831,10 +864,12 @@ def plot_niche_NT_score_dataset_from_anadata(ana_data: AnaData) -> Optional[Tupl
 def plot_niche_NT_score_sample(
     NT_score: pd.DataFrame,
     meta_data_df: pd.DataFrame,
+    background_layer: str = "scatter",
+    foreground_layer: Optional[str] = None,
     reverse: bool = False,
     spatial_scaling_factor: float = 1.0,
     output_file_path: Optional[Union[str, Path]] = None,
-) -> Optional[List[Tuple[plt.Figure, plt.Axes]]]:
+) -> Optional[List[Tuple[Figure, Axes]]]:
     """Plot spatial distribution of niche NT score.
 
     Parameters
@@ -854,30 +889,25 @@ def plot_niche_NT_score_sample(
     -------
     None or Tuple[plt.Figure, plt.Axes]."""
 
-    samples: List[str] = meta_data_df["Sample"].unique().tolist()
-
-    output = []
-    for sample in samples:
-        sample_df = NT_score.loc[meta_data_df[meta_data_df["Sample"] == sample].index]
-        fig_width, fig_height = saptial_figsize(sample_df, scaling_factor=spatial_scaling_factor)
-        fig, ax = plt.subplots(1, 1, figsize=(fig_width, fig_height))
-        NT_score_values = sample_df["Niche_NTScore"] if not reverse else 1 - sample_df["Niche_NTScore"]
-        scatter = ax.scatter(sample_df["x"], sample_df["y"], c=NT_score_values, cmap="rainbow", vmin=0, vmax=1, s=1)
-        ax.set_xticks([])
-        ax.set_yticks([])
-        plt.colorbar(scatter)
-        ax.set_title(f"{sample} Niche-level NT Score")
-        fig.tight_layout()
-        if output_file_path is not None:
-            fig.savefig(f"{output_file_path}/{sample}_niche_NT_score.pdf", transparent=True)
-            plt.close(fig)
-        else:
-            output.append((fig, ax))
-
-    return output if len(output) > 0 else None
+    return _plot_nt_score_sample(
+        NT_score=NT_score,
+        meta_data_df=meta_data_df,
+        score_column="Niche_NTScore",
+        score_label="Niche-level NT Score",
+        score_prefix="niche_NT_score",
+        background_layer=background_layer,
+        foreground_layer=foreground_layer,
+        reverse=reverse,
+        spatial_scaling_factor=spatial_scaling_factor,
+        output_file_path=output_file_path,
+    )
 
 
-def plot_niche_NT_score_sample_from_anadata(ana_data: AnaData) -> Optional[List[Tuple[plt.Figure, plt.Axes]]]:
+def plot_niche_NT_score_sample_from_anadata(
+    ana_data: AnaData,
+    background_layer: str = "scatter",
+    foreground_layer: Optional[str] = None,
+) -> Optional[List[Tuple[Figure, Axes]]]:
     """Plot spatial distribution of niche NT score.
 
     Parameters
@@ -903,6 +933,8 @@ def plot_niche_NT_score_sample_from_anadata(ana_data: AnaData) -> Optional[List[
     return plot_niche_NT_score_sample(
         NT_score=ana_data.NT_score,
         meta_data_df=ana_data.meta_data_df,
+        background_layer=background_layer,
+        foreground_layer=foreground_layer,
         reverse=ana_data.options.reverse,
         spatial_scaling_factor=ana_data.options.scale_factor,
         output_file_path=ana_data.options.output,
@@ -911,7 +943,9 @@ def plot_niche_NT_score_sample_from_anadata(ana_data: AnaData) -> Optional[List[
 
 def plot_niche_NT_score(
     ana_data: AnaData,
-) -> Optional[Union[List[Tuple[plt.Figure, plt.Axes]], Tuple[plt.Figure, plt.Axes]]]:
+    background_layer: str = "scatter",
+    foreground_layer: Optional[str] = None,
+) -> Optional[Union[List[Tuple[Figure, Axes]], Tuple[Figure, Union[Axes, np.ndarray]]]]:
     """Plot spatial distribution of niche NT score.
 
     Parameters
@@ -924,17 +958,27 @@ def plot_niche_NT_score(
     None or Tuple[plt.Figure, plt.Axes]."""
 
     if getattr(ana_data.options, "sample", False):
-        return plot_niche_NT_score_sample_from_anadata(ana_data=ana_data)
+        return plot_niche_NT_score_sample_from_anadata(
+            ana_data=ana_data,
+            background_layer=background_layer,
+            foreground_layer=foreground_layer,
+        )
     else:
-        return plot_niche_NT_score_dataset_from_anadata(ana_data=ana_data)
+        return plot_niche_NT_score_dataset_from_anadata(
+            ana_data=ana_data,
+            background_layer=background_layer,
+            foreground_layer=foreground_layer,
+        )
 
 
 def plot_cell_NT_score_dataset(
     NT_score: pd.DataFrame,
     meta_data_df: pd.DataFrame,
+    background_layer: str = "scatter",
+    foreground_layer: Optional[str] = None,
     reverse: bool = False,
     output_file_path: Optional[Union[str, Path]] = None,
-) -> Optional[Tuple[plt.Figure, plt.Axes]]:
+) -> Optional[Tuple[Figure, Union[Axes, np.ndarray]]]:
     """Plot spatial distribution of cell NT score.
 
     Parameters
@@ -952,30 +996,24 @@ def plot_cell_NT_score_dataset(
     -------
     None or Tuple[plt.Figure, plt.Axes]."""
 
-    samples: List[str] = meta_data_df["Sample"].unique().tolist()
-
-    N = len(samples)
-    fig, axes = plt.subplots(1, N, figsize=(3.5 * N, 3))
-    for i, sample in enumerate(samples):
-        sample_df = NT_score.loc[meta_data_df[meta_data_df["Sample"] == sample].index]
-        ax: plt.Axes = axes[i] if N > 1 else axes  # type: ignore
-        NT_score_values = sample_df["Cell_NTScore"] if not reverse else 1 - sample_df["Cell_NTScore"]
-        scatter = ax.scatter(sample_df["x"], sample_df["y"], c=NT_score_values, cmap="rainbow", vmin=0, vmax=1, s=1)
-        ax.set_xticks([])
-        ax.set_yticks([])
-        plt.colorbar(scatter)
-        ax.set_title(f"{sample} Cell-level NT Score")
-
-    fig.tight_layout()
-    if output_file_path is not None:
-        fig.savefig(f"{output_file_path}/cell_NT_score.pdf", transparent=True)
-        plt.close(fig)
-        return None
-    else:
-        return fig, axes
+    return _plot_nt_score_dataset(
+        NT_score=NT_score,
+        meta_data_df=meta_data_df,
+        score_column="Cell_NTScore",
+        score_label="Cell-level NT Score",
+        score_prefix="cell_NT_score",
+        background_layer=background_layer,
+        foreground_layer=foreground_layer,
+        reverse=reverse,
+        output_file_path=output_file_path,
+    )
 
 
-def plot_cell_NT_score_dataset_from_anadata(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.Axes]]:
+def plot_cell_NT_score_dataset_from_anadata(
+    ana_data: AnaData,
+    background_layer: str = "scatter",
+    foreground_layer: Optional[str] = None,
+) -> Optional[Tuple[Figure, Union[Axes, np.ndarray]]]:
     """Plot spatial distribution of cell NT score.
 
     Parameters
@@ -1001,6 +1039,8 @@ def plot_cell_NT_score_dataset_from_anadata(ana_data: AnaData) -> Optional[Tuple
     return plot_cell_NT_score_dataset(
         NT_score=ana_data.NT_score,
         meta_data_df=ana_data.meta_data_df,
+        background_layer=background_layer,
+        foreground_layer=foreground_layer,
         reverse=ana_data.options.reverse,
         output_file_path=ana_data.options.output,
     )
@@ -1009,10 +1049,12 @@ def plot_cell_NT_score_dataset_from_anadata(ana_data: AnaData) -> Optional[Tuple
 def plot_cell_NT_score_sample(
     NT_score: pd.DataFrame,
     meta_data_df: pd.DataFrame,
+    background_layer: str = "scatter",
+    foreground_layer: Optional[str] = None,
     reverse: bool = False,
     spatial_scaling_factor: float = 1.0,
     output_file_path: Optional[Union[str, Path]] = None,
-) -> Optional[List[Tuple[plt.Figure, plt.Axes]]]:
+) -> Optional[List[Tuple[Figure, Axes]]]:
     """Plot spatial distribution of cell NT score.
 
     Parameters
@@ -1032,30 +1074,25 @@ def plot_cell_NT_score_sample(
     -------
     None or Tuple[plt.Figure, plt.Axes]."""
 
-    samples: List[str] = meta_data_df["Sample"].unique().tolist()
-
-    output = []
-    for sample in samples:
-        sample_df = NT_score.loc[meta_data_df[meta_data_df["Sample"] == sample].index]
-        fig_width, fig_height = saptial_figsize(sample_df, scaling_factor=spatial_scaling_factor)
-        fig, ax = plt.subplots(1, 1, figsize=(fig_width, fig_height))
-        NT_score_values = sample_df["Cell_NTScore"] if not reverse else 1 - sample_df["Cell_NTScore"]
-        scatter = ax.scatter(sample_df["x"], sample_df["y"], c=NT_score_values, cmap="rainbow", vmin=0, vmax=1, s=1)
-        ax.set_xticks([])
-        ax.set_yticks([])
-        plt.colorbar(scatter)
-        ax.set_title(f"{sample} Cell-level NT Score")
-        fig.tight_layout()
-        if output_file_path is not None:
-            fig.savefig(f"{output_file_path}/{sample}_cell_NT_score.pdf", transparent=True)
-            plt.close(fig)
-        else:
-            output.append((fig, ax))
-
-    return output if len(output) > 0 else None
+    return _plot_nt_score_sample(
+        NT_score=NT_score,
+        meta_data_df=meta_data_df,
+        score_column="Cell_NTScore",
+        score_label="Cell-level NT Score",
+        score_prefix="cell_NT_score",
+        background_layer=background_layer,
+        foreground_layer=foreground_layer,
+        reverse=reverse,
+        spatial_scaling_factor=spatial_scaling_factor,
+        output_file_path=output_file_path,
+    )
 
 
-def plot_cell_NT_score_sample_from_anadata(ana_data: AnaData) -> Optional[List[Tuple[plt.Figure, plt.Axes]]]:
+def plot_cell_NT_score_sample_from_anadata(
+    ana_data: AnaData,
+    background_layer: str = "scatter",
+    foreground_layer: Optional[str] = None,
+) -> Optional[List[Tuple[Figure, Axes]]]:
     """Plot spatial distribution of cell NT score.
 
     Parameters
@@ -1081,6 +1118,8 @@ def plot_cell_NT_score_sample_from_anadata(ana_data: AnaData) -> Optional[List[T
     return plot_cell_NT_score_sample(
         NT_score=ana_data.NT_score,
         meta_data_df=ana_data.meta_data_df,
+        background_layer=background_layer,
+        foreground_layer=foreground_layer,
         reverse=ana_data.options.reverse,
         spatial_scaling_factor=ana_data.options.scale_factor,
         output_file_path=ana_data.options.output,
@@ -1089,7 +1128,9 @@ def plot_cell_NT_score_sample_from_anadata(ana_data: AnaData) -> Optional[List[T
 
 def plot_cell_NT_score(
     ana_data: AnaData,
-) -> Optional[Union[List[Tuple[plt.Figure, plt.Axes]], Tuple[plt.Figure, plt.Axes]]]:
+    background_layer: str = "scatter",
+    foreground_layer: Optional[str] = None,
+) -> Optional[Union[List[Tuple[Figure, Axes]], Tuple[Figure, Union[Axes, np.ndarray]]]]:
     """Plot spatial distribution of cell NT score.
 
     Parameters
@@ -1102,245 +1143,17 @@ def plot_cell_NT_score(
     None or Tuple[plt.Figure, plt.Axes]."""
 
     if getattr(ana_data.options, "sample", None):
-        return plot_cell_NT_score_sample_from_anadata(ana_data=ana_data)
+        return plot_cell_NT_score_sample_from_anadata(
+            ana_data=ana_data,
+            background_layer=background_layer,
+            foreground_layer=foreground_layer,
+        )
     else:
-        return plot_cell_NT_score_dataset_from_anadata(ana_data=ana_data)
-
-
-def plot_niche_NT_score_fluid(
-    ana_data: AnaData,
-) -> Optional[Union[List[Tuple[Figure, Axes]], Tuple[Figure, Union[Axes, np.ndarray]]]]:
-    """Plot niche-level NT score as a smooth contour field."""
-
-    try:
-        if ana_data.NT_score is None:
-            warning("No NT score data found. Skip niche-level NT score fluid visualization.")
-            return None
-        if "Niche_NTScore" not in ana_data.NT_score.columns:
-            warning("Niche_NTScore not found in the NT score data. Skip niche-level NT score fluid visualization.")
-            return None
-    except FileNotFoundError as e:
-        warning(str(e))
-        return None
-
-    if getattr(ana_data.options, "sample", False):
-        return _plot_nt_score_fluid_sample(
-            NT_score=ana_data.NT_score,
-            meta_data_df=ana_data.meta_data_df,
-            score_column="Niche_NTScore",
-            score_label="Niche-level NT Score",
-            output_stem="niche_NT_score_fluid",
-            reverse=ana_data.options.reverse,
-            spatial_scaling_factor=ana_data.options.scale_factor,
-            output_file_path=ana_data.options.output,
+        return plot_cell_NT_score_dataset_from_anadata(
+            ana_data=ana_data,
+            background_layer=background_layer,
+            foreground_layer=foreground_layer,
         )
-    return _plot_nt_score_fluid_dataset(
-        NT_score=ana_data.NT_score,
-        meta_data_df=ana_data.meta_data_df,
-        score_column="Niche_NTScore",
-        score_label="Niche-level NT Score",
-        output_stem="niche_NT_score_fluid",
-        reverse=ana_data.options.reverse,
-        output_file_path=ana_data.options.output,
-    )
-
-
-def plot_cell_NT_score_fluid(
-    ana_data: AnaData,
-) -> Optional[Union[List[Tuple[Figure, Axes]], Tuple[Figure, Union[Axes, np.ndarray]]]]:
-    """Plot cell-level NT score as a smooth contour field."""
-
-    try:
-        if ana_data.NT_score is None:
-            warning("No NT score data found. Skip cell-level NT score fluid visualization.")
-            return None
-        if "Cell_NTScore" not in ana_data.NT_score.columns:
-            warning("Cell_NTScore not found in the NT score data. Skip cell-level NT score fluid visualization.")
-            return None
-    except FileNotFoundError as e:
-        warning(str(e))
-        return None
-
-    if getattr(ana_data.options, "sample", False):
-        return _plot_nt_score_fluid_sample(
-            NT_score=ana_data.NT_score,
-            meta_data_df=ana_data.meta_data_df,
-            score_column="Cell_NTScore",
-            score_label="Cell-level NT Score",
-            output_stem="cell_NT_score_fluid",
-            reverse=ana_data.options.reverse,
-            spatial_scaling_factor=ana_data.options.scale_factor,
-            output_file_path=ana_data.options.output,
-        )
-    return _plot_nt_score_fluid_dataset(
-        NT_score=ana_data.NT_score,
-        meta_data_df=ana_data.meta_data_df,
-        score_column="Cell_NTScore",
-        score_label="Cell-level NT Score",
-        output_stem="cell_NT_score_fluid",
-        reverse=ana_data.options.reverse,
-        output_file_path=ana_data.options.output,
-    )
-
-
-def plot_niche_NT_score_quiver(
-    ana_data: AnaData,
-) -> Optional[Union[List[Tuple[Figure, Axes]], Tuple[Figure, Union[Axes, np.ndarray]]]]:
-    """Plot niche-level NT score as a quiver field."""
-
-    try:
-        if ana_data.NT_score is None:
-            warning("No NT score data found. Skip niche-level NT score quiver visualization.")
-            return None
-        if "Niche_NTScore" not in ana_data.NT_score.columns:
-            warning("Niche_NTScore not found in the NT score data. Skip niche-level NT score quiver visualization.")
-            return None
-    except FileNotFoundError as e:
-        warning(str(e))
-        return None
-
-    if getattr(ana_data.options, "sample", False):
-        return _plot_nt_score_vector_sample(
-            NT_score=ana_data.NT_score,
-            meta_data_df=ana_data.meta_data_df,
-            score_column="Niche_NTScore",
-            score_label="Niche-level NT Score Gradient",
-            output_stem="niche_NT_score_quiver",
-            field_plotter=_plot_nt_score_quiver_field,
-            reverse=ana_data.options.reverse,
-            spatial_scaling_factor=ana_data.options.scale_factor,
-            output_file_path=ana_data.options.output,
-        )
-    return _plot_nt_score_vector_dataset(
-        NT_score=ana_data.NT_score,
-        meta_data_df=ana_data.meta_data_df,
-        score_column="Niche_NTScore",
-        score_label="Niche-level NT Score Gradient",
-        output_stem="niche_NT_score_quiver",
-        field_plotter=_plot_nt_score_quiver_field,
-        reverse=ana_data.options.reverse,
-        output_file_path=ana_data.options.output,
-    )
-
-
-def plot_cell_NT_score_quiver(
-    ana_data: AnaData,
-) -> Optional[Union[List[Tuple[Figure, Axes]], Tuple[Figure, Union[Axes, np.ndarray]]]]:
-    """Plot cell-level NT score as a quiver field."""
-
-    try:
-        if ana_data.NT_score is None:
-            warning("No NT score data found. Skip cell-level NT score quiver visualization.")
-            return None
-        if "Cell_NTScore" not in ana_data.NT_score.columns:
-            warning("Cell_NTScore not found in the NT score data. Skip cell-level NT score quiver visualization.")
-            return None
-    except FileNotFoundError as e:
-        warning(str(e))
-        return None
-
-    if getattr(ana_data.options, "sample", False):
-        return _plot_nt_score_vector_sample(
-            NT_score=ana_data.NT_score,
-            meta_data_df=ana_data.meta_data_df,
-            score_column="Cell_NTScore",
-            score_label="Cell-level NT Score Gradient",
-            output_stem="cell_NT_score_quiver",
-            field_plotter=_plot_nt_score_quiver_field,
-            reverse=ana_data.options.reverse,
-            spatial_scaling_factor=ana_data.options.scale_factor,
-            output_file_path=ana_data.options.output,
-        )
-    return _plot_nt_score_vector_dataset(
-        NT_score=ana_data.NT_score,
-        meta_data_df=ana_data.meta_data_df,
-        score_column="Cell_NTScore",
-        score_label="Cell-level NT Score Gradient",
-        output_stem="cell_NT_score_quiver",
-        field_plotter=_plot_nt_score_quiver_field,
-        reverse=ana_data.options.reverse,
-        output_file_path=ana_data.options.output,
-    )
-
-
-def plot_niche_NT_score_stream(
-    ana_data: AnaData,
-) -> Optional[Union[List[Tuple[Figure, Axes]], Tuple[Figure, Union[Axes, np.ndarray]]]]:
-    """Plot niche-level NT score as streamlines."""
-
-    try:
-        if ana_data.NT_score is None:
-            warning("No NT score data found. Skip niche-level NT score stream visualization.")
-            return None
-        if "Niche_NTScore" not in ana_data.NT_score.columns:
-            warning("Niche_NTScore not found in the NT score data. Skip niche-level NT score stream visualization.")
-            return None
-    except FileNotFoundError as e:
-        warning(str(e))
-        return None
-
-    if getattr(ana_data.options, "sample", False):
-        return _plot_nt_score_vector_sample(
-            NT_score=ana_data.NT_score,
-            meta_data_df=ana_data.meta_data_df,
-            score_column="Niche_NTScore",
-            score_label="Niche-level NT Score Streamlines",
-            output_stem="niche_NT_score_stream",
-            field_plotter=_plot_nt_score_stream_field,
-            reverse=ana_data.options.reverse,
-            spatial_scaling_factor=ana_data.options.scale_factor,
-            output_file_path=ana_data.options.output,
-        )
-    return _plot_nt_score_vector_dataset(
-        NT_score=ana_data.NT_score,
-        meta_data_df=ana_data.meta_data_df,
-        score_column="Niche_NTScore",
-        score_label="Niche-level NT Score Streamlines",
-        output_stem="niche_NT_score_stream",
-        field_plotter=_plot_nt_score_stream_field,
-        reverse=ana_data.options.reverse,
-        output_file_path=ana_data.options.output,
-    )
-
-
-def plot_cell_NT_score_stream(
-    ana_data: AnaData,
-) -> Optional[Union[List[Tuple[Figure, Axes]], Tuple[Figure, Union[Axes, np.ndarray]]]]:
-    """Plot cell-level NT score as streamlines."""
-
-    try:
-        if ana_data.NT_score is None:
-            warning("No NT score data found. Skip cell-level NT score stream visualization.")
-            return None
-        if "Cell_NTScore" not in ana_data.NT_score.columns:
-            warning("Cell_NTScore not found in the NT score data. Skip cell-level NT score stream visualization.")
-            return None
-    except FileNotFoundError as e:
-        warning(str(e))
-        return None
-
-    if getattr(ana_data.options, "sample", False):
-        return _plot_nt_score_vector_sample(
-            NT_score=ana_data.NT_score,
-            meta_data_df=ana_data.meta_data_df,
-            score_column="Cell_NTScore",
-            score_label="Cell-level NT Score Streamlines",
-            output_stem="cell_NT_score_stream",
-            field_plotter=_plot_nt_score_stream_field,
-            reverse=ana_data.options.reverse,
-            spatial_scaling_factor=ana_data.options.scale_factor,
-            output_file_path=ana_data.options.output,
-        )
-    return _plot_nt_score_vector_dataset(
-        NT_score=ana_data.NT_score,
-        meta_data_df=ana_data.meta_data_df,
-        score_column="Cell_NTScore",
-        score_label="Cell-level NT Score Streamlines",
-        output_stem="cell_NT_score_stream",
-        field_plotter=_plot_nt_score_stream_field,
-        reverse=ana_data.options.reverse,
-        output_file_path=ana_data.options.output,
-    )
 
 
 def spatial_visualization(ana_data: AnaData) -> None:
@@ -1369,11 +1182,5 @@ def spatial_visualization(ana_data: AnaData) -> None:
     if getattr(ana_data.options, "suppress_niche_trajectory", False):
         info("Skip spatial NT score visualization according to `suppress_niche_trajectory` option.")
     else:
-        plot_niche_NT_score(ana_data=ana_data)
-        plot_cell_NT_score(ana_data=ana_data)
-        plot_niche_NT_score_fluid(ana_data=ana_data)
-        plot_cell_NT_score_fluid(ana_data=ana_data)
-        plot_niche_NT_score_quiver(ana_data=ana_data)
-        plot_cell_NT_score_quiver(ana_data=ana_data)
-        plot_niche_NT_score_stream(ana_data=ana_data)
-        plot_cell_NT_score_stream(ana_data=ana_data)
+        plot_niche_NT_score(ana_data=ana_data, background_layer="scatter", foreground_layer="quiver")
+        plot_cell_NT_score(ana_data=ana_data, background_layer="scatter", foreground_layer="quiver")
