@@ -4,6 +4,7 @@
 
 Added:
 
+- More spatail visualization tools for NT score
 - Automatically generate website ready API reference markdown files
 
 Changed:

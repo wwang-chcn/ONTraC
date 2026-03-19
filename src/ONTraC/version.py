@@ -1,6 +1,6 @@
 """This module records the version of ONTraC.
 
-Version format: ``major.minor.patch.devX+functions.YYYYMMDD.X``.
+Version format: ``major.minor.patch.devX+functions/branch.YYYYMMDD.X``.
 """
 
-__version__ = "2.0.9.dev0+20260313.0"
+__version__ = "2.0.9.dev0+analysis.20260317.0"
