@@ -151,7 +151,7 @@ def _style_nt_score_axis(ax: Axes, score_title: str) -> None:
     ax.set_xticks([])
     ax.set_yticks([])
     ax.set_aspect("equal", adjustable="box")
-    ax.set_facecolor("#f7f7f7")
+    ax.set_facecolor("none")
     for spine in ax.spines.values():
         spine.set_visible(False)
 
@@ -816,6 +816,12 @@ def plot_niche_NT_score_dataset(
         pd.DataFrame, the NT score data.
     meta_data_df :
         pd.DataFrame, the meta data.
+    background_layer :
+        str, background rendering mode. Use ``"scatter"`` for the original point cloud
+        or ``"fluid"`` for a smooth contour field.
+    foreground_layer :
+        Optional[str], front overlay mode. Use ``None``/``"none"`` for no overlay,
+        ``"quiver"`` for gradient arrows, or ``"stream"`` for streamlines.
     reverse :
         bool, reverse the NT score or not.
     output_file_path :
@@ -823,7 +829,9 @@ def plot_niche_NT_score_dataset(
 
     Returns
     -------
-    None or Tuple[plt.Figure, plt.Axes]."""
+    None or Tuple[Figure, Axes | np.ndarray]
+        Saved plot when ``output_file_path`` is set; otherwise the in-memory figure
+        and axes container."""
 
     return _plot_nt_score_dataset(
         NT_score=NT_score,
@@ -849,10 +857,17 @@ def plot_niche_NT_score_dataset_from_anadata(
     ----------
     ana_data :
         AnaData, the data for analysis.
+    background_layer :
+        str, background rendering mode. Use ``"scatter"`` or ``"fluid"``.
+    foreground_layer :
+        Optional[str], front overlay mode. Use ``None``/``"none"``,
+        ``"quiver"``, or ``"stream"``.
 
     Returns
     -------
-    None or Tuple[plt.Figure, plt.Axes]."""
+    None or Tuple[Figure, Axes | np.ndarray]
+        Saved plot when ``ana_data.options.output`` is set; otherwise the in-memory
+        figure and axes container."""
 
     try:
         if ana_data.NT_score is None:
@@ -892,6 +907,11 @@ def plot_niche_NT_score_sample(
         pd.DataFrame, the NT score data.
     meta_data_df :
         pd.DataFrame, the meta data.
+    background_layer :
+        str, background rendering mode. Use ``"scatter"`` or ``"fluid"``.
+    foreground_layer :
+        Optional[str], front overlay mode. Use ``None``/``"none"``,
+        ``"quiver"``, or ``"stream"``.
     reverse :
         bool, reverse the NT score or not.
     spatial_scaling_factor :
@@ -901,7 +921,9 @@ def plot_niche_NT_score_sample(
 
     Returns
     -------
-    None or Tuple[plt.Figure, plt.Axes]."""
+    None or list[tuple[Figure, Axes]]
+        Saved plots when ``output_file_path`` is set; otherwise a list of in-memory
+        figure/axes tuples, one per sample."""
 
     return _plot_nt_score_sample(
         NT_score=NT_score,
@@ -928,10 +950,17 @@ def plot_niche_NT_score_sample_from_anadata(
     ----------
     ana_data :
         AnaData, the data for analysis.
+    background_layer :
+        str, background rendering mode. Use ``"scatter"`` or ``"fluid"``.
+    foreground_layer :
+        Optional[str], front overlay mode. Use ``None``/``"none"``,
+        ``"quiver"``, or ``"stream"``.
 
     Returns
     -------
-    None or Tuple[plt.Figure, plt.Axes]."""
+    None or list[tuple[Figure, Axes]]
+        Saved plots when ``ana_data.options.output`` is set; otherwise a list of
+        in-memory figure/axes tuples."""
 
     try:
         if ana_data.NT_score is None:
@@ -966,10 +995,17 @@ def plot_niche_NT_score(
     ----------
     ana_data :
         AnaData, the data for analysis.
+    background_layer :
+        str, background rendering mode. Use ``"scatter"`` or ``"fluid"``.
+    foreground_layer :
+        Optional[str], front overlay mode. Use ``None``/``"none"``,
+        ``"quiver"``, or ``"stream"``.
 
     Returns
     -------
-    None or Tuple[plt.Figure, plt.Axes]."""
+    None or list[tuple[Figure, Axes]] or tuple[Figure, Axes | np.ndarray]
+        Sample-level outputs when ``ana_data.options.sample`` is true; otherwise a
+        dataset-level figure and axes container."""
 
     if getattr(ana_data.options, "sample", False):
         return plot_niche_NT_score_sample_from_anadata(
@@ -1001,6 +1037,12 @@ def plot_cell_NT_score_dataset(
         pd.DataFrame, the NT score data.
     meta_data_df :
         pd.DataFrame, the meta data.
+    background_layer :
+        str, background rendering mode. Use ``"scatter"`` for the original point cloud
+        or ``"fluid"`` for a smooth contour field.
+    foreground_layer :
+        Optional[str], front overlay mode. Use ``None``/``"none"`` for no overlay,
+        ``"quiver"`` for gradient arrows, or ``"stream"`` for streamlines.
     reverse :
         bool, reverse the NT score or not.
     output_file_path :
@@ -1008,7 +1050,9 @@ def plot_cell_NT_score_dataset(
 
     Returns
     -------
-    None or Tuple[plt.Figure, plt.Axes]."""
+    None or Tuple[Figure, Axes | np.ndarray]
+        Saved plot when ``output_file_path`` is set; otherwise the in-memory figure
+        and axes container."""
 
     return _plot_nt_score_dataset(
         NT_score=NT_score,
@@ -1034,10 +1078,17 @@ def plot_cell_NT_score_dataset_from_anadata(
     ----------
     ana_data :
         AnaData, the data for analysis.
+    background_layer :
+        str, background rendering mode. Use ``"scatter"`` or ``"fluid"``.
+    foreground_layer :
+        Optional[str], front overlay mode. Use ``None``/``"none"``,
+        ``"quiver"``, or ``"stream"``.
 
     Returns
     -------
-    None or Tuple[plt.Figure, plt.Axes]."""
+    None or Tuple[Figure, Axes | np.ndarray]
+        Saved plot when ``ana_data.options.output`` is set; otherwise the in-memory
+        figure and axes container."""
 
     try:
         if ana_data.NT_score is None:
@@ -1077,6 +1128,11 @@ def plot_cell_NT_score_sample(
         pd.DataFrame, the NT score data.
     meta_data_df :
         pd.DataFrame, the meta data.
+    background_layer :
+        str, background rendering mode. Use ``"scatter"`` or ``"fluid"``.
+    foreground_layer :
+        Optional[str], front overlay mode. Use ``None``/``"none"``,
+        ``"quiver"``, or ``"stream"``.
     reverse :
         bool, reverse the NT score or not.
     spatial_scaling_factor :
@@ -1086,7 +1142,9 @@ def plot_cell_NT_score_sample(
 
     Returns
     -------
-    None or Tuple[plt.Figure, plt.Axes]."""
+    None or list[tuple[Figure, Axes]]
+        Saved plots when ``output_file_path`` is set; otherwise a list of in-memory
+        figure/axes tuples, one per sample."""
 
     return _plot_nt_score_sample(
         NT_score=NT_score,
@@ -1113,10 +1171,17 @@ def plot_cell_NT_score_sample_from_anadata(
     ----------
     ana_data :
         AnaData, the data for analysis.
+    background_layer :
+        str, background rendering mode. Use ``"scatter"`` or ``"fluid"``.
+    foreground_layer :
+        Optional[str], front overlay mode. Use ``None``/``"none"``,
+        ``"quiver"``, or ``"stream"``.
 
     Returns
     -------
-    None or Tuple[plt.Figure, plt.Axes]."""
+    None or list[tuple[Figure, Axes]]
+        Saved plots when ``ana_data.options.output`` is set; otherwise a list of
+        in-memory figure/axes tuples."""
 
     try:
         if ana_data.NT_score is None:
@@ -1151,10 +1216,17 @@ def plot_cell_NT_score(
     ----------
     ana_data :
         AnaData, the data for analysis.
+    background_layer :
+        str, background rendering mode. Use ``"scatter"`` or ``"fluid"``.
+    foreground_layer :
+        Optional[str], front overlay mode. Use ``None``/``"none"``,
+        ``"quiver"``, or ``"stream"``.
 
     Returns
     -------
-    None or Tuple[plt.Figure, plt.Axes]."""
+    None or list[tuple[Figure, Axes]] or tuple[Figure, Axes | np.ndarray]
+        Sample-level outputs when ``ana_data.options.sample`` is true; otherwise a
+        dataset-level figure and axes container."""
 
     if getattr(ana_data.options, "sample", None):
         return plot_cell_NT_score_sample_from_anadata(
@@ -1196,5 +1268,5 @@ def spatial_visualization(ana_data: AnaData) -> None:
     if getattr(ana_data.options, "suppress_niche_trajectory", False):
         info("Skip spatial NT score visualization according to `suppress_niche_trajectory` option.")
     else:
-        plot_niche_NT_score(ana_data=ana_data, background_layer="scatter", foreground_layer="quiver")
-        plot_cell_NT_score(ana_data=ana_data, background_layer="scatter", foreground_layer="quiver")
+        plot_niche_NT_score(ana_data=ana_data, background_layer="scatter", foreground_layer=None)
+        plot_cell_NT_score(ana_data=ana_data, background_layer="scatter", foreground_layer=None)
