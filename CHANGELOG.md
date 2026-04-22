@@ -1,5 +1,11 @@
 # Change log
 
+## [2.0.9.post1] - 2026-Apr-22
+
+Fixed:
+
+- Dependency error caused by an outdated version of `umap-learn`
+
 ## [2.0.9] - 2026-Apr-6
 
 Added:
