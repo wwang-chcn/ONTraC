@@ -204,6 +204,7 @@ def _plot_nt_score_scatter_background(
     sample_df: pd.DataFrame,
     score_column: str,
     reverse: bool = False,
+    **kwargs,
 ):
     """Plot the original scatter-style NT-score background."""
 
@@ -211,8 +212,9 @@ def _plot_nt_score_scatter_background(
     if sample_arrays is None:
         return None
     x, y, scores = sample_arrays
-    point_size = 1 if x.size > 200 else 2
-    return ax.scatter(x, y, c=scores, cmap="rainbow", vmin=0, vmax=1, s=point_size, linewidths=0)
+    kwargs.setdefault("s", 1 if x.size > 200 else 2)
+    kwargs.setdefault("linewidths", 0)
+    return ax.scatter(x, y, c=scores, cmap="rainbow", vmin=0, vmax=1, **kwargs)
 
 
 def _plot_nt_score_fluid_background(
@@ -359,6 +361,7 @@ def _plot_nt_score_layered_field(
     background_layer: str = "scatter",
     foreground_layer: Optional[str] = None,
     reverse: bool = False,
+    **kwargs,
 ):
     """Plot an NT-score view using configurable background and foreground layers."""
 
@@ -382,6 +385,7 @@ def _plot_nt_score_layered_field(
             sample_df=sample_df,
             score_column=score_column,
             reverse=reverse,
+            **kwargs,
         )
 
     if foreground_layer == "quiver":
@@ -421,6 +425,7 @@ def _plot_nt_score_dataset(
     foreground_layer: Optional[str] = None,
     reverse: bool = False,
     output_file_path: Optional[Union[str, Path]] = None,
+    **kwargs,
 ) -> Optional[Tuple[Figure, Union[Axes, np.ndarray]]]:
     """Plot a layered NT-score view for all samples in one figure."""
 
@@ -450,6 +455,7 @@ def _plot_nt_score_dataset(
             background_layer=background_layer,
             foreground_layer=foreground_layer,
             reverse=reverse,
+            **kwargs,
         )
         if rendered is not None:
             mappable = rendered
@@ -480,6 +486,7 @@ def _plot_nt_score_sample(
     reverse: bool = False,
     spatial_scaling_factor: float = 1.0,
     output_file_path: Optional[Union[str, Path]] = None,
+    **kwargs,
 ) -> Optional[List[Tuple[Figure, Axes]]]:
     """Plot one layered NT-score view per sample."""
 
@@ -522,6 +529,7 @@ def _plot_nt_score_sample(
             background_layer=background_layer,
             foreground_layer=foreground_layer,
             reverse=reverse,
+            **kwargs,
         )
         if rendered is not None:
             colorbar = fig.colorbar(rendered, ax=ax, fraction=0.04, pad=0.02)
@@ -539,6 +547,7 @@ def plot_cell_type_composition_dataset(
     cell_type_codes: pd.DataFrame,
     cell_type_composition: pd.DataFrame,
     output_file_path: Optional[Union[str, Path]] = None,
+    **kwargs,
 ) -> Optional[Tuple[plt.Figure, plt.Axes]]:
     """Plot spatial distribution of cell type composition.
 
@@ -552,6 +561,9 @@ def plot_cell_type_composition_dataset(
         pd.DataFrame, the cell type composition data.
     output_file_path :
         Optional[Union[str, Path]], the output file path.
+    kwargs :
+        Additional keyword arguments passed to ``matplotlib.axes.Axes.scatter``.
+        For example, use ``s`` to control marker area. Defaults to ``s=1``.
 
     Returns
     -------
@@ -559,6 +571,7 @@ def plot_cell_type_composition_dataset(
 
     samples: List[str] = meta_data_df["Sample"].unique().tolist()
     cell_types: List[str] = cell_type_codes["Cell_Type"].tolist()
+    kwargs.setdefault("s", 1)
 
     M, N = len(samples), len(cell_types)
     fig, axes = plt.subplots(M, N, figsize=(3.5 * N, 3 * M))
@@ -568,7 +581,13 @@ def plot_cell_type_composition_dataset(
         for j, cell_type in enumerate(cell_types):
             ax = axes[i, j] if M > 1 else axes[j]
             scatter = ax.scatter(
-                sample_df["x"], sample_df["y"], c=sample_df[cell_type], cmap="Reds", vmin=0, vmax=1, s=1
+                sample_df["x"],
+                sample_df["y"],
+                c=sample_df[cell_type],
+                cmap="Reds",
+                vmin=0,
+                vmax=1,
+                **kwargs,
             )
             ax.set_xticks([])
             ax.set_yticks([])
@@ -584,13 +603,19 @@ def plot_cell_type_composition_dataset(
         return fig, axes
 
 
-def plot_cell_type_composition_dataset_from_anadata(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.Axes]]:
+def plot_cell_type_composition_dataset_from_anadata(
+    ana_data: AnaData,
+    **kwargs,
+) -> Optional[Tuple[plt.Figure, plt.Axes]]:
     """Plot spatial distribution of cell type composition.
 
     Parameters
     ----------
     ana_data :
         AnaData, the data for analysis.
+    kwargs :
+        Additional keyword arguments passed to ``matplotlib.axes.Axes.scatter``.
+        For example, use ``s`` to control marker area. Defaults to ``s=1``.
 
     Returns
     -------
@@ -612,6 +637,7 @@ def plot_cell_type_composition_dataset_from_anadata(ana_data: AnaData) -> Option
         cell_type_codes=ana_data.cell_type_codes,
         cell_type_composition=ana_data.cell_type_composition,
         output_file_path=ana_data.options.output,
+        **kwargs,
     )
 
 
@@ -621,6 +647,7 @@ def plot_cell_type_composition_sample(
     cell_type_composition: pd.DataFrame,
     spatial_scaling_factor: float = 1.0,
     output_file_path: Optional[Union[str, Path]] = None,
+    **kwargs,
 ) -> Optional[List[Tuple[plt.Figure, plt.Axes]]]:
     """Plot spatial distribution of cell type composition.
 
@@ -636,16 +663,20 @@ def plot_cell_type_composition_sample(
         float, the scale factor control the size of spatial-based plots.
     output_file_path :
         Optional[Union[str, Path]], the output file path.
+    kwargs :
+        Additional keyword arguments passed to ``matplotlib.axes.Axes.scatter``.
+        For example, use ``s`` to control marker area. Defaults to ``s=1``.
 
     Returns
     -------
-    None."""
+    None or List[Tuple[plt.Figure, plt.Axes]]."""
 
     samples: List[str] = meta_data_df["Sample"].unique().tolist()
     cell_types: List[str] = cell_type_codes["Cell_Type"].tolist()
 
     output = []
     N = len(cell_types)
+    kwargs.setdefault("s", 1)
     for sample in samples:
         sample_df = cell_type_composition.loc[meta_data_df["Sample"] == sample]
         sample_df = sample_df.join(meta_data_df[["x", "y"]])
@@ -654,7 +685,13 @@ def plot_cell_type_composition_sample(
         for j, cell_type in enumerate(cell_types):
             ax = axes[j]  # At least two cell types are required, checked at original data loading.
             scatter = ax.scatter(
-                sample_df["x"], sample_df["y"], c=sample_df[cell_type], cmap="Reds", vmin=0, vmax=1, s=1
+                sample_df["x"],
+                sample_df["y"],
+                c=sample_df[cell_type],
+                cmap="Reds",
+                vmin=0,
+                vmax=1,
+                **kwargs,
             )
             ax.set_xticks([])
             ax.set_yticks([])
@@ -669,13 +706,19 @@ def plot_cell_type_composition_sample(
     return output if len(output) > 0 else None
 
 
-def plot_cell_type_composition_sample_from_anadata(ana_data: AnaData) -> Optional[List[Tuple[plt.Figure, plt.Axes]]]:
+def plot_cell_type_composition_sample_from_anadata(
+    ana_data: AnaData,
+    **kwargs,
+) -> Optional[List[Tuple[plt.Figure, plt.Axes]]]:
     """Plot spatial distribution of cell type composition.
 
     Parameters
     ----------
     ana_data :
         AnaData, the data for analysis.
+    kwargs :
+        Additional keyword arguments passed to ``matplotlib.axes.Axes.scatter``.
+        For example, use ``s`` to control marker area. Defaults to ``s=1``.
 
     Returns
     -------
@@ -698,11 +741,13 @@ def plot_cell_type_composition_sample_from_anadata(ana_data: AnaData) -> Optiona
         cell_type_composition=ana_data.cell_type_composition,
         spatial_scaling_factor=ana_data.options.scale_factor,
         output_file_path=ana_data.options.output,
+        **kwargs,
     )
 
 
 def plot_cell_type_composition(
     ana_data: AnaData,
+    **kwargs,
 ) -> Optional[Union[List[Tuple[plt.Figure, plt.Axes]], Tuple[plt.Figure, plt.Axes]]]:
     """Plot spatial distribution of cell type composition.
 
@@ -710,19 +755,23 @@ def plot_cell_type_composition(
     ----------
     ana_data :
         AnaData, the data for analysis.
+    kwargs :
+        Additional keyword arguments passed to ``matplotlib.axes.Axes.scatter``.
+        For example, use ``s`` to control marker area. Defaults to ``s=1``.
 
     Returns
     -------
     None or Tuple[plt.Figure, plt.Axes]."""
 
     if getattr(ana_data.options, "sample", False):
-        return plot_cell_type_composition_sample_from_anadata(ana_data=ana_data)
+        return plot_cell_type_composition_sample_from_anadata(ana_data=ana_data, **kwargs)
     else:
-        return plot_cell_type_composition_dataset_from_anadata(ana_data=ana_data)
+        return plot_cell_type_composition_dataset_from_anadata(ana_data=ana_data, **kwargs)
 
 
 def plot_adjust_cell_type_composition_sample_from_anadata(
     ana_data: AnaData,
+    **kwargs,
 ) -> Optional[List[Tuple[plt.Figure, plt.Axes]]]:
     """Plot spatial distribution of adjusted cell type composition.
 
@@ -730,6 +779,9 @@ def plot_adjust_cell_type_composition_sample_from_anadata(
     ----------
     ana_data :
         AnaData, the data for analysis.
+    kwargs :
+        Additional keyword arguments passed to ``matplotlib.axes.Axes.scatter``.
+        For example, use ``s`` to control marker area. Defaults to ``s=1``.
 
     Returns
     -------
@@ -749,16 +801,23 @@ def plot_adjust_cell_type_composition_sample_from_anadata(
         cell_type_composition=ana_data.adjust_cell_type_composition,
         spatial_scaling_factor=ana_data.options.scale_factor,
         output_file_path=ana_data.options.output,
+        **kwargs,
     )
 
 
-def plot_adjust_cell_type_composition_dataset_from_anadata(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.Axes]]:
+def plot_adjust_cell_type_composition_dataset_from_anadata(
+    ana_data: AnaData,
+    **kwargs,
+) -> Optional[Tuple[plt.Figure, plt.Axes]]:
     """Plot spatial distribution of adjusted cell type composition.
 
     Parameters
     ----------
     ana_data :
         AnaData, the data for analysis.
+    kwargs :
+        Additional keyword arguments passed to ``matplotlib.axes.Axes.scatter``.
+        For example, use ``s`` to control marker area. Defaults to ``s=1``.
 
     Returns
     -------
@@ -777,11 +836,13 @@ def plot_adjust_cell_type_composition_dataset_from_anadata(ana_data: AnaData) ->
         cell_type_codes=ana_data.cell_type_codes,
         cell_type_composition=ana_data.adjust_cell_type_composition,
         output_file_path=ana_data.options.output,
+        **kwargs,
     )
 
 
 def plot_adjust_cell_type_composition(
     ana_data: AnaData,
+    **kwargs,
 ) -> Optional[Union[List[Tuple[plt.Figure, plt.Axes]], Tuple[plt.Figure, plt.Axes]]]:
     """Plot spatial distribution of adjusted cell type composition.
 
@@ -789,15 +850,18 @@ def plot_adjust_cell_type_composition(
     ----------
     ana_data :
         AnaData, the data for analysis.
+    kwargs :
+        Additional keyword arguments passed to ``matplotlib.axes.Axes.scatter``.
+        For example, use ``s`` to control marker area. Defaults to ``s=1``.
 
     Returns
     -------
     None or Tuple[plt.Figure, plt.Axes]."""
 
     if getattr(ana_data.options, "sample", False):
-        return plot_adjust_cell_type_composition_sample_from_anadata(ana_data=ana_data)
+        return plot_adjust_cell_type_composition_sample_from_anadata(ana_data=ana_data, **kwargs)
     else:
-        return plot_adjust_cell_type_composition_dataset_from_anadata(ana_data=ana_data)
+        return plot_adjust_cell_type_composition_dataset_from_anadata(ana_data=ana_data, **kwargs)
 
 
 def plot_niche_NT_score_dataset(
@@ -807,6 +871,7 @@ def plot_niche_NT_score_dataset(
     foreground_layer: Optional[str] = None,
     reverse: bool = False,
     output_file_path: Optional[Union[str, Path]] = None,
+    **kwargs,
 ) -> Optional[Tuple[Figure, Union[Axes, np.ndarray]]]:
     """Plot spatial distribution of niche NT score.
 
@@ -826,6 +891,11 @@ def plot_niche_NT_score_dataset(
         bool, reverse the NT score or not.
     output_file_path :
         Optional[Union[str, Path]], the output file path.
+    kwargs :
+        Additional keyword arguments passed to ``matplotlib.axes.Axes.scatter``.
+        For example, use ``s`` to control marker area. Defaults to ``s=1`` for
+        more than 200 points and ``s=2`` otherwise. Ignored when
+        ``background_layer="fluid"``.
 
     Returns
     -------
@@ -843,6 +913,7 @@ def plot_niche_NT_score_dataset(
         foreground_layer=foreground_layer,
         reverse=reverse,
         output_file_path=output_file_path,
+        **kwargs,
     )
 
 
@@ -850,6 +921,7 @@ def plot_niche_NT_score_dataset_from_anadata(
     ana_data: AnaData,
     background_layer: str = "scatter",
     foreground_layer: Optional[str] = None,
+    **kwargs,
 ) -> Optional[Tuple[Figure, Union[Axes, np.ndarray]]]:
     """Plot spatial distribution of niche NT score.
 
@@ -862,6 +934,11 @@ def plot_niche_NT_score_dataset_from_anadata(
     foreground_layer :
         Optional[str], front overlay mode. Use ``None``/``"none"``,
         ``"quiver"``, or ``"stream"``.
+    kwargs :
+        Additional keyword arguments passed to ``matplotlib.axes.Axes.scatter``.
+        For example, use ``s`` to control marker area. Defaults to ``s=1`` for
+        more than 200 points and ``s=2`` otherwise. Ignored when
+        ``background_layer="fluid"``.
 
     Returns
     -------
@@ -887,6 +964,7 @@ def plot_niche_NT_score_dataset_from_anadata(
         foreground_layer=foreground_layer,
         reverse=ana_data.options.reverse,
         output_file_path=ana_data.options.output,
+        **kwargs,
     )
 
 
@@ -898,6 +976,7 @@ def plot_niche_NT_score_sample(
     reverse: bool = False,
     spatial_scaling_factor: float = 1.0,
     output_file_path: Optional[Union[str, Path]] = None,
+    **kwargs,
 ) -> Optional[List[Tuple[Figure, Axes]]]:
     """Plot spatial distribution of niche NT score.
 
@@ -918,6 +997,11 @@ def plot_niche_NT_score_sample(
         float, the scale factor control the size of spatial-based plots.
     output_file_path :
         Optional[Union[str, Path]], the output file path.
+    kwargs :
+        Additional keyword arguments passed to ``matplotlib.axes.Axes.scatter``.
+        For example, use ``s`` to control marker area. Defaults to ``s=1`` for
+        more than 200 points and ``s=2`` otherwise. Ignored when
+        ``background_layer="fluid"``.
 
     Returns
     -------
@@ -936,6 +1020,7 @@ def plot_niche_NT_score_sample(
         reverse=reverse,
         spatial_scaling_factor=spatial_scaling_factor,
         output_file_path=output_file_path,
+        **kwargs,
     )
 
 
@@ -943,6 +1028,7 @@ def plot_niche_NT_score_sample_from_anadata(
     ana_data: AnaData,
     background_layer: str = "scatter",
     foreground_layer: Optional[str] = None,
+    **kwargs,
 ) -> Optional[List[Tuple[Figure, Axes]]]:
     """Plot spatial distribution of niche NT score.
 
@@ -955,6 +1041,11 @@ def plot_niche_NT_score_sample_from_anadata(
     foreground_layer :
         Optional[str], front overlay mode. Use ``None``/``"none"``,
         ``"quiver"``, or ``"stream"``.
+    kwargs :
+        Additional keyword arguments passed to ``matplotlib.axes.Axes.scatter``.
+        For example, use ``s`` to control marker area. Defaults to ``s=1`` for
+        more than 200 points and ``s=2`` otherwise. Ignored when
+        ``background_layer="fluid"``.
 
     Returns
     -------
@@ -981,6 +1072,7 @@ def plot_niche_NT_score_sample_from_anadata(
         reverse=ana_data.options.reverse,
         spatial_scaling_factor=ana_data.options.scale_factor,
         output_file_path=ana_data.options.output,
+        **kwargs,
     )
 
 
@@ -988,6 +1080,7 @@ def plot_niche_NT_score(
     ana_data: AnaData,
     background_layer: str = "scatter",
     foreground_layer: Optional[str] = None,
+    **kwargs,
 ) -> Optional[Union[List[Tuple[Figure, Axes]], Tuple[Figure, Union[Axes, np.ndarray]]]]:
     """Plot spatial distribution of niche NT score.
 
@@ -1000,6 +1093,11 @@ def plot_niche_NT_score(
     foreground_layer :
         Optional[str], front overlay mode. Use ``None``/``"none"``,
         ``"quiver"``, or ``"stream"``.
+    kwargs :
+        Additional keyword arguments passed to ``matplotlib.axes.Axes.scatter``.
+        For example, use ``s`` to control marker area. Defaults to ``s=1`` for
+        more than 200 points and ``s=2`` otherwise. Ignored when
+        ``background_layer="fluid"``.
 
     Returns
     -------
@@ -1012,12 +1110,14 @@ def plot_niche_NT_score(
             ana_data=ana_data,
             background_layer=background_layer,
             foreground_layer=foreground_layer,
+            **kwargs,
         )
     else:
         return plot_niche_NT_score_dataset_from_anadata(
             ana_data=ana_data,
             background_layer=background_layer,
             foreground_layer=foreground_layer,
+            **kwargs,
         )
 
 
@@ -1028,6 +1128,7 @@ def plot_cell_NT_score_dataset(
     foreground_layer: Optional[str] = None,
     reverse: bool = False,
     output_file_path: Optional[Union[str, Path]] = None,
+    **kwargs,
 ) -> Optional[Tuple[Figure, Union[Axes, np.ndarray]]]:
     """Plot spatial distribution of cell NT score.
 
@@ -1047,6 +1148,11 @@ def plot_cell_NT_score_dataset(
         bool, reverse the NT score or not.
     output_file_path :
         Optional[Union[str, Path]], the output file path.
+    kwargs :
+        Additional keyword arguments passed to ``matplotlib.axes.Axes.scatter``.
+        For example, use ``s`` to control marker area. Defaults to ``s=1`` for
+        more than 200 points and ``s=2`` otherwise. Ignored when
+        ``background_layer="fluid"``.
 
     Returns
     -------
@@ -1064,6 +1170,7 @@ def plot_cell_NT_score_dataset(
         foreground_layer=foreground_layer,
         reverse=reverse,
         output_file_path=output_file_path,
+        **kwargs,
     )
 
 
@@ -1071,6 +1178,7 @@ def plot_cell_NT_score_dataset_from_anadata(
     ana_data: AnaData,
     background_layer: str = "scatter",
     foreground_layer: Optional[str] = None,
+    **kwargs,
 ) -> Optional[Tuple[Figure, Union[Axes, np.ndarray]]]:
     """Plot spatial distribution of cell NT score.
 
@@ -1083,6 +1191,11 @@ def plot_cell_NT_score_dataset_from_anadata(
     foreground_layer :
         Optional[str], front overlay mode. Use ``None``/``"none"``,
         ``"quiver"``, or ``"stream"``.
+    kwargs :
+        Additional keyword arguments passed to ``matplotlib.axes.Axes.scatter``.
+        For example, use ``s`` to control marker area. Defaults to ``s=1`` for
+        more than 200 points and ``s=2`` otherwise. Ignored when
+        ``background_layer="fluid"``.
 
     Returns
     -------
@@ -1108,6 +1221,7 @@ def plot_cell_NT_score_dataset_from_anadata(
         foreground_layer=foreground_layer,
         reverse=ana_data.options.reverse,
         output_file_path=ana_data.options.output,
+        **kwargs,
     )
 
 
@@ -1119,6 +1233,7 @@ def plot_cell_NT_score_sample(
     reverse: bool = False,
     spatial_scaling_factor: float = 1.0,
     output_file_path: Optional[Union[str, Path]] = None,
+    **kwargs,
 ) -> Optional[List[Tuple[Figure, Axes]]]:
     """Plot spatial distribution of cell NT score.
 
@@ -1139,6 +1254,11 @@ def plot_cell_NT_score_sample(
         float, the scale factor control the size of spatial-based plots.
     output_file_path :
         Optional[Union[str, Path]], the output file path.
+    kwargs :
+        Additional keyword arguments passed to ``matplotlib.axes.Axes.scatter``.
+        For example, use ``s`` to control marker area. Defaults to ``s=1`` for
+        more than 200 points and ``s=2`` otherwise. Ignored when
+        ``background_layer="fluid"``.
 
     Returns
     -------
@@ -1157,6 +1277,7 @@ def plot_cell_NT_score_sample(
         reverse=reverse,
         spatial_scaling_factor=spatial_scaling_factor,
         output_file_path=output_file_path,
+        **kwargs,
     )
 
 
@@ -1164,6 +1285,7 @@ def plot_cell_NT_score_sample_from_anadata(
     ana_data: AnaData,
     background_layer: str = "scatter",
     foreground_layer: Optional[str] = None,
+    **kwargs,
 ) -> Optional[List[Tuple[Figure, Axes]]]:
     """Plot spatial distribution of cell NT score.
 
@@ -1176,6 +1298,11 @@ def plot_cell_NT_score_sample_from_anadata(
     foreground_layer :
         Optional[str], front overlay mode. Use ``None``/``"none"``,
         ``"quiver"``, or ``"stream"``.
+    kwargs :
+        Additional keyword arguments passed to ``matplotlib.axes.Axes.scatter``.
+        For example, use ``s`` to control marker area. Defaults to ``s=1`` for
+        more than 200 points and ``s=2`` otherwise. Ignored when
+        ``background_layer="fluid"``.
 
     Returns
     -------
@@ -1202,6 +1329,7 @@ def plot_cell_NT_score_sample_from_anadata(
         reverse=ana_data.options.reverse,
         spatial_scaling_factor=ana_data.options.scale_factor,
         output_file_path=ana_data.options.output,
+        **kwargs,
     )
 
 
@@ -1209,6 +1337,7 @@ def plot_cell_NT_score(
     ana_data: AnaData,
     background_layer: str = "scatter",
     foreground_layer: Optional[str] = None,
+    **kwargs,
 ) -> Optional[Union[List[Tuple[Figure, Axes]], Tuple[Figure, Union[Axes, np.ndarray]]]]:
     """Plot spatial distribution of cell NT score.
 
@@ -1221,6 +1350,11 @@ def plot_cell_NT_score(
     foreground_layer :
         Optional[str], front overlay mode. Use ``None``/``"none"``,
         ``"quiver"``, or ``"stream"``.
+    kwargs :
+        Additional keyword arguments passed to ``matplotlib.axes.Axes.scatter``.
+        For example, use ``s`` to control marker area. Defaults to ``s=1`` for
+        more than 200 points and ``s=2`` otherwise. Ignored when
+        ``background_layer="fluid"``.
 
     Returns
     -------
@@ -1233,22 +1367,31 @@ def plot_cell_NT_score(
             ana_data=ana_data,
             background_layer=background_layer,
             foreground_layer=foreground_layer,
+            **kwargs,
         )
     else:
         return plot_cell_NT_score_dataset_from_anadata(
             ana_data=ana_data,
             background_layer=background_layer,
             foreground_layer=foreground_layer,
+            **kwargs,
         )
 
 
-def spatial_visualization(ana_data: AnaData) -> None:
+def spatial_visualization(
+    ana_data: AnaData,
+    **kwargs,
+) -> None:
     """All spatial visualization will include here.
 
     Parameters
     ----------
     ana_data :
         AnaData, the data for analysis.
+    kwargs :
+        Additional keyword arguments passed to ``matplotlib.axes.Axes.scatter``.
+        For example, use ``s`` to control marker area. Defaults depend on each
+        underlying scatter-backed function.
 
     Returns
     -------
@@ -1258,9 +1401,12 @@ def spatial_visualization(ana_data: AnaData) -> None:
     if getattr(ana_data.options, "suppress_cell_type_composition", False):
         info("Skip spatial cell type composition visualization according to `suppress_cell_type_composition` option.")
     else:
-        plot_cell_type_composition(ana_data=ana_data)
+        plot_cell_type_composition(ana_data=ana_data, **kwargs)
         if getattr(ana_data.options, "embedding_adjust", False):
-            plot_adjust_cell_type_composition(ana_data=ana_data)
+            plot_adjust_cell_type_composition(
+                ana_data=ana_data,
+                **kwargs,
+            )
         else:
             info("Skip the adjusted cell type composition visualization due to no embedding adjust setting.")
 
@@ -1268,5 +1414,15 @@ def spatial_visualization(ana_data: AnaData) -> None:
     if getattr(ana_data.options, "suppress_niche_trajectory", False):
         info("Skip spatial NT score visualization according to `suppress_niche_trajectory` option.")
     else:
-        plot_niche_NT_score(ana_data=ana_data, background_layer="scatter", foreground_layer=None)
-        plot_cell_NT_score(ana_data=ana_data, background_layer="scatter", foreground_layer=None)
+        plot_niche_NT_score(
+            ana_data=ana_data,
+            background_layer="scatter",
+            foreground_layer=None,
+            **kwargs,
+        )
+        plot_cell_NT_score(
+            ana_data=ana_data,
+            background_layer="scatter",
+            foreground_layer=None,
+            **kwargs,
+        )

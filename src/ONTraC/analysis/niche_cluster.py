@@ -894,6 +894,7 @@ def plot_niche_cluster_loadings_dataset(
     meta_data_df: pd.DataFrame,
     nc_scores: np.ndarray,
     output_file_path: Optional[Union[str, Path]] = None,
+    **kwargs,
 ) -> Optional[Tuple[plt.Figure, Union[plt.Axes, List[plt.Axes]]]]:
     """Plot niche cluster loadings for each cell.
 
@@ -907,6 +908,9 @@ def plot_niche_cluster_loadings_dataset(
         np.ndarray, the score of each niche cluster, default is None.
     output_file_path :
         Optional[Union[str, Path]], the output file path, default is None.
+    kwargs :
+        Additional keyword arguments passed to ``matplotlib.axes.Axes.scatter``.
+        For example, use ``s`` to control marker area. Defaults to ``s=4``.
 
     Returns
     -------
@@ -916,6 +920,7 @@ def plot_niche_cluster_loadings_dataset(
     n_sample = len(samples)
     n_niche_cluster = cell_level_niche_cluster_assign.shape[1]
     nc_order_index = cal_nc_order_index(nc_scores)
+    kwargs.setdefault("s", 4)
 
     fig, axes = plt.subplots(n_sample, n_niche_cluster, figsize=(3.3 * n_niche_cluster, 3 * n_sample))
     for i, sample in enumerate(samples):
@@ -924,7 +929,13 @@ def plot_niche_cluster_loadings_dataset(
         for j, c_index in enumerate(nc_order_index):
             ax = axes[i, j] if n_sample > 1 else axes[j]
             scatter = ax.scatter(
-                sample_df["x"], sample_df["y"], c=sample_df[f"NicheCluster_{c_index}"], cmap="Reds", vmin=0, vmax=1, s=4
+                sample_df["x"],
+                sample_df["y"],
+                c=sample_df[f"NicheCluster_{c_index}"],
+                cmap="Reds",
+                vmin=0,
+                vmax=1,
+                **kwargs,
             )
             ax.set_title(f"{sample}: niche cluster {c_index}")
             plt.colorbar(scatter)
@@ -939,6 +950,7 @@ def plot_niche_cluster_loadings_dataset(
 
 def plot_niche_cluster_loadings_dataset_from_anadata(
     ana_data: AnaData,
+    **kwargs,
 ) -> Optional[Tuple[plt.Figure, Union[plt.Axes, List[plt.Axes]]]]:
     """Plot niche cluster loadings for each cell.
 
@@ -946,6 +958,9 @@ def plot_niche_cluster_loadings_dataset_from_anadata(
     ----------
     ana_data :
         AnaData, the data for analysis.
+    kwargs :
+        Additional keyword arguments passed to ``matplotlib.axes.Axes.scatter``.
+        For example, use ``s`` to control marker area. Defaults to ``s=4``.
 
     Returns
     -------
@@ -966,6 +981,7 @@ def plot_niche_cluster_loadings_dataset_from_anadata(
         meta_data_df=ana_data.meta_data_df,
         nc_scores=nc_scores,
         output_file_path=ana_data.options.output,
+        **kwargs,
     )
 
 
@@ -975,6 +991,7 @@ def plot_niche_cluster_loadings_sample(
     nc_scores: np.ndarray,
     spatial_scaling_factor: float = 1.0,
     output_file_path: Optional[Union[str, Path]] = None,
+    **kwargs,
 ) -> Optional[List[Tuple[plt.Figure, plt.Axes]]]:
     """Plot niche cluster loadings for each cell.
 
@@ -990,6 +1007,9 @@ def plot_niche_cluster_loadings_sample(
         float, the scale factor control the size of spatial-based plots.
     output_file_path :
         Optional[Union[str, Path]], the output file path, default is None.
+    kwargs :
+        Additional keyword arguments passed to ``matplotlib.axes.Axes.scatter``.
+        For example, use ``s`` to control marker area. Defaults to ``s=4``.
 
     Returns
     -------
@@ -998,6 +1018,7 @@ def plot_niche_cluster_loadings_sample(
     samples = meta_data_df["Sample"].unique()
     n_niche_cluster = cell_level_niche_cluster_assign.shape[1]
     nc_order = cal_nc_order_index(nc_scores)
+    kwargs.setdefault("s", 4)
 
     output = []
     for sample in samples:
@@ -1008,7 +1029,13 @@ def plot_niche_cluster_loadings_sample(
         for j, c_index in enumerate(nc_order):
             ax = axes[j]  # there should more than one niche cluster
             scatter = ax.scatter(
-                sample_df["x"], sample_df["y"], c=sample_df[f"NicheCluster_{c_index}"], cmap="Reds", vmin=0, vmax=1, s=4
+                sample_df["x"],
+                sample_df["y"],
+                c=sample_df[f"NicheCluster_{c_index}"],
+                cmap="Reds",
+                vmin=0,
+                vmax=1,
+                **kwargs,
             )
             ax.set_title(f"{sample}: niche cluster {c_index}")
             plt.colorbar(scatter)
@@ -1020,13 +1047,19 @@ def plot_niche_cluster_loadings_sample(
     return output if len(output) > 0 else None
 
 
-def plot_niche_cluster_loadings_sample_from_anadata(ana_data: AnaData) -> Optional[List[Tuple[plt.Figure, plt.Axes]]]:
+def plot_niche_cluster_loadings_sample_from_anadata(
+    ana_data: AnaData,
+    **kwargs,
+) -> Optional[List[Tuple[plt.Figure, plt.Axes]]]:
     """Plot niche cluster loadings for each cell.
 
     Parameters
     ----------
     ana_data :
         AnaData, the data for analysis.
+    kwargs :
+        Additional keyword arguments passed to ``matplotlib.axes.Axes.scatter``.
+        For example, use ``s`` to control marker area. Defaults to ``s=4``.
 
     Returns
     -------
@@ -1048,11 +1081,13 @@ def plot_niche_cluster_loadings_sample_from_anadata(ana_data: AnaData) -> Option
         nc_scores=nc_scores,
         spatial_scaling_factor=ana_data.options.scale_factor,
         output_file_path=ana_data.options.output,
+        **kwargs,
     )
 
 
 def plot_niche_cluster_loadings(
     ana_data: AnaData,
+    **kwargs,
 ) -> Optional[Union[List[Tuple[plt.Figure, plt.Axes]], Tuple[plt.Figure, Union[plt.Axes, List[plt.Axes]]]]]:
     """Plot niche cluster loadings for each cell.
 
@@ -1060,14 +1095,17 @@ def plot_niche_cluster_loadings(
     ----------
     ana_data :
         AnaData, the data for analysis.
+    kwargs :
+        Additional keyword arguments passed to ``matplotlib.axes.Axes.scatter``.
+        For example, use ``s`` to control marker area. Defaults to ``s=4``.
 
     Returns
     -------
     None or Union[List[Tuple[plt.Figure, plt.Axes]], Tuple[plt.Figure, Union[plt.Axes, List[plt.Axes]]]]."""
     if getattr(ana_data.options, "sample", False):
-        return plot_niche_cluster_loadings_sample_from_anadata(ana_data=ana_data)
+        return plot_niche_cluster_loadings_sample_from_anadata(ana_data=ana_data, **kwargs)
     else:
-        return plot_niche_cluster_loadings_dataset_from_anadata(ana_data=ana_data)
+        return plot_niche_cluster_loadings_dataset_from_anadata(ana_data=ana_data, **kwargs)
 
 
 def plot_max_niche_cluster_dataset(
@@ -1075,6 +1113,7 @@ def plot_max_niche_cluster_dataset(
     meta_data_df: pd.DataFrame,
     nc_scores: np.ndarray,
     output_file_path: Optional[Union[str, Path]] = None,
+    **kwargs,
 ) -> Optional[Tuple[plt.Figure, plt.Axes]]:
     """Plot the maximum niche cluster for each cell.
 
@@ -1088,6 +1127,9 @@ def plot_max_niche_cluster_dataset(
         Optional[np.ndarray], the score of each niche cluster, default is None.
     output_file_path :
         Optional[Union[str, Path]], the output file path, default is None.
+    kwargs :
+        Additional keyword arguments passed to ``matplotlib.axes.Axes.scatter``.
+        For example, use ``s`` to control marker area. Defaults to ``s=10``.
 
     Returns
     -------
@@ -1099,6 +1141,7 @@ def plot_max_niche_cluster_dataset(
     # colors
     nc_colors = cal_nc_colors(nc_scores)
     nc_palette = cal_nc_palette(nc_colors)
+    kwargs.setdefault("s", 10)
 
     fig, axes = plt.subplots(1, n_sample, figsize=(5 * n_sample, 3))
     for i, sample in enumerate(samples):
@@ -1113,8 +1156,8 @@ def plot_max_niche_cluster_dataset(
             hue="Niche_Cluster",
             hue_order=[f"niche cluster {j}" for j in cal_nc_order_index(nc_scores)],
             palette=nc_palette,
-            s=10,
             ax=ax,
+            **kwargs,
         )
         ax.set_title(f"{sample}")
         ax.legend(loc="upper left", bbox_to_anchor=(1, 1))
@@ -1127,13 +1170,19 @@ def plot_max_niche_cluster_dataset(
         return fig, axes
 
 
-def plot_max_niche_cluster_dataset_from_anadata(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.Axes]]:
+def plot_max_niche_cluster_dataset_from_anadata(
+    ana_data: AnaData,
+    **kwargs,
+) -> Optional[Tuple[plt.Figure, plt.Axes]]:
     """Plot the maximum niche cluster for each cell.
 
     Parameters
     ----------
     ana_data :
         AnaData, the data for analysis.
+    kwargs :
+        Additional keyword arguments passed to ``matplotlib.axes.Axes.scatter``.
+        For example, use ``s`` to control marker area. Defaults to ``s=10``.
 
     Returns
     -------
@@ -1154,6 +1203,7 @@ def plot_max_niche_cluster_dataset_from_anadata(ana_data: AnaData) -> Optional[T
         meta_data_df=ana_data.meta_data_df,
         nc_scores=nc_scores,
         output_file_path=ana_data.options.output,
+        **kwargs,
     )
 
 
@@ -1162,6 +1212,7 @@ def plot_max_niche_cluster_sample(
     meta_data_df: pd.DataFrame,
     nc_scores: np.ndarray,
     output_file_path: Optional[Union[str, Path]] = None,
+    **kwargs,
 ) -> Optional[List[Tuple[plt.Figure, plt.Axes]]]:
     """Plot the maximum niche cluster for each cell.
 
@@ -1175,6 +1226,9 @@ def plot_max_niche_cluster_sample(
         np.ndarray, the score of each niche cluster.
     output_file_path :
         Optional[Union[str, Path]], the output file path.
+    kwargs :
+        Additional keyword arguments passed to ``matplotlib.axes.Axes.scatter``.
+        For example, use ``s`` to control marker area. Defaults to ``s=10``.
 
     Returns
     -------
@@ -1186,6 +1240,7 @@ def plot_max_niche_cluster_sample(
     # colors
     nc_colors = cal_nc_colors(nc_scores)
     nc_palette = cal_nc_palette(nc_colors)
+    kwargs.setdefault("s", 10)
 
     output = []
     for sample in samples:
@@ -1201,8 +1256,8 @@ def plot_max_niche_cluster_sample(
             hue="Niche_Cluster",
             hue_order=[f"niche cluster {j}" for j in cal_nc_order_index(nc_scores)],
             palette=nc_palette,
-            s=10,
             ax=ax,
+            **kwargs,
         )
         ax.set_title(f"{sample}")
         ax.legend(loc="upper left", bbox_to_anchor=(1, 1))
@@ -1215,13 +1270,19 @@ def plot_max_niche_cluster_sample(
     return output if len(output) > 0 else None
 
 
-def plot_max_niche_cluster_sample_from_anadata(ana_data: AnaData) -> Optional[List[Tuple[plt.Figure, plt.Axes]]]:
+def plot_max_niche_cluster_sample_from_anadata(
+    ana_data: AnaData,
+    **kwargs,
+) -> Optional[List[Tuple[plt.Figure, plt.Axes]]]:
     """Plot the maximum niche cluster for each cell.
 
     Parameters
     ----------
     ana_data :
         AnaData, the data for analysis.
+    kwargs :
+        Additional keyword arguments passed to ``matplotlib.axes.Axes.scatter``.
+        For example, use ``s`` to control marker area. Defaults to ``s=10``.
 
     Returns
     -------
@@ -1242,11 +1303,13 @@ def plot_max_niche_cluster_sample_from_anadata(ana_data: AnaData) -> Optional[Li
         meta_data_df=ana_data.meta_data_df,
         nc_scores=nc_scores,
         output_file_path=ana_data.options.output,
+        **kwargs,
     )
 
 
 def plot_max_niche_cluster(
     ana_data: AnaData,
+    **kwargs,
 ) -> Optional[Union[List[Tuple[plt.Figure, plt.Axes]], Tuple[plt.Figure, plt.Axes]]]:
     """Plot the maximum niche cluster for each cell.
 
@@ -1254,14 +1317,17 @@ def plot_max_niche_cluster(
     ----------
     ana_data :
         AnaData, the data for analysis.
+    kwargs :
+        Additional keyword arguments passed to ``matplotlib.axes.Axes.scatter``.
+        For example, use ``s`` to control marker area. Defaults to ``s=10``.
 
     Returns
     -------
     None or Tuple[plt.Figure, plt.Axes]."""
     if getattr(ana_data.options, "sample", False):
-        return plot_max_niche_cluster_sample_from_anadata(ana_data=ana_data)
+        return plot_max_niche_cluster_sample_from_anadata(ana_data=ana_data, **kwargs)
     else:
-        return plot_max_niche_cluster_dataset_from_anadata(ana_data=ana_data)
+        return plot_max_niche_cluster_dataset_from_anadata(ana_data=ana_data, **kwargs)
 
 
 def plot_niche_cluster_gini(
@@ -1327,13 +1393,20 @@ def plot_niche_cluster_gini_from_anadata(ana_data: AnaData) -> Optional[Tuple[pl
         return fig, ax
 
 
-def niche_cluster_visualization(ana_data: AnaData) -> None:
+def niche_cluster_visualization(
+    ana_data: AnaData,
+    **kwargs,
+) -> None:
     """All spatial visualization will include here.
 
     Parameters
     ----------
     ana_data :
         AnaData, the data for analysis.
+    kwargs :
+        Additional keyword arguments passed to ``matplotlib.axes.Axes.scatter``.
+        For example, use ``s`` to control marker area. Defaults depend on each
+        underlying scatter-backed function.
 
     Returns
     -------
@@ -1363,10 +1436,10 @@ def niche_cluster_visualization(ana_data: AnaData) -> None:
     if getattr(ana_data.options, "suppress_niche_cluster_loadings", False):
         info("Skip niche cluster loadings plot according to `suppress_niche_cluster_loadings` option.")
     else:
-        plot_niche_cluster_loadings(ana_data=ana_data)
+        plot_niche_cluster_loadings(ana_data=ana_data, **kwargs)
 
     # 5. maximum niche cluster for each cell
-    plot_max_niche_cluster(ana_data=ana_data)
+    plot_max_niche_cluster(ana_data=ana_data, **kwargs)
 
     # 6. gini coefficient of each niche cluster
     plot_niche_cluster_gini_from_anadata(ana_data=ana_data)

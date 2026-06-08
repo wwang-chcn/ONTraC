@@ -19,12 +19,14 @@ mpl.rcParams["font.family"] = "Arial"
 
 
 def clustering_visualization(
-    data_df: pd.DataFrame, output_file_path: Optional[Union[str, Path]] = None
-) -> Optional[Tuple[plt.Figure, plt.Axes]]:
+    data_df: pd.DataFrame,
+    output_file_path: Optional[Union[str, Path]] = None,
+    **kwargs,
+) -> Optional[plt.Figure]:
     """Plot UMAP clustering colored by cell type.
 
-        Parameters
-        ----------
+    Parameters
+    ----------
     data_df :
         pd.DataFrame
             Data frame containing ``Embedding_1``, ``Embedding_2`` and ``Cell_Type``.
@@ -32,11 +34,14 @@ def clustering_visualization(
         str or Path, optional
             Directory where ``clustering.pdf`` is written. If not provided, the
             figure is returned for interactive use.
+    kwargs :
+        Additional keyword arguments passed to ``matplotlib.axes.Axes.scatter``.
+        For example, use ``s`` to control marker area. Defaults to ``s=2``.
 
-        Returns
-        -------
-        tuple[matplotlib.figure.Figure, matplotlib.axes.Axes] or None
-            Figure/axes for in-memory use, or ``None`` when saved to disk.
+    Returns
+    -------
+    matplotlib.figure.Figure or None
+        Figure for in-memory use, or ``None`` when saved to disk.
     """
 
     with (
@@ -53,7 +58,15 @@ def clustering_visualization(
         ),
     ):
         fig, ax = plt.subplots(1, 1, figsize=(8, 5))
-        sns.scatterplot(data=data_df, x="Embedding_1", y="Embedding_2", hue="Cell_Type", s=2, ax=ax)
+        kwargs.setdefault("s", 2)
+        sns.scatterplot(
+            data=data_df,
+            x="Embedding_1",
+            y="Embedding_2",
+            hue="Cell_Type",
+            ax=ax,
+            **kwargs,
+        )
         ax.set_xlabel("UMAP_1")
         ax.set_ylabel("UMAP_2")
         ax.legend(loc="upper left", bbox_to_anchor=(1, 1), ncol=3, markerscale=4)
@@ -65,13 +78,24 @@ def clustering_visualization(
             return fig
 
 
-def clustering_visualization_from_anadata(ana_data: AnaData) -> Optional[Tuple[plt.Figure, plt.Axes]]:
+def clustering_visualization_from_anadata(
+    ana_data: AnaData,
+    **kwargs,
+) -> Optional[plt.Figure]:
     """Visualization of clustering results.
 
     Parameters
     ----------
     ana_data :
         AnaData object.
+    kwargs :
+        Additional keyword arguments passed to ``matplotlib.axes.Axes.scatter``.
+        For example, use ``s`` to control marker area. Defaults to ``s=2``.
+
+    Returns
+    -------
+    matplotlib.figure.Figure or None
+        Figure for in-memory use, or ``None`` when saved to disk.
     """
 
     # check if the embedding is available
@@ -84,7 +108,7 @@ def clustering_visualization_from_anadata(ana_data: AnaData) -> Optional[Tuple[p
     data_df["Cell_Type"] = ana_data.meta_data_df["Cell_Type"]
     data_df["Cell_Type"] = data_df["Cell_Type"].astype("category")
 
-    return clustering_visualization(data_df=data_df, output_file_path=ana_data.options.output)
+    return clustering_visualization(data_df=data_df, output_file_path=ana_data.options.output, **kwargs)
 
 
 def embedding_adjust_visualization(

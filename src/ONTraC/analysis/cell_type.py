@@ -20,7 +20,9 @@ mpl.rcParams["font.family"] = "Arial"
 
 
 def plot_spatial_cell_type_distribution_dataset(
-    data_df: pd.DataFrame, output_file_path: Optional[Union[str, Path]] = None, **kwargs
+    data_df: pd.DataFrame,
+    output_file_path: Optional[Union[str, Path]] = None,
+    **kwargs,
 ) -> Optional[Tuple[plt.Figure, List[plt.Axes]]]:
     """Plot spatial cell type distribution.
 
@@ -31,7 +33,8 @@ def plot_spatial_cell_type_distribution_dataset(
     output_file_path :
         Optional[Union[str, Path]], the output directory.
     kwargs :
-        Optional, the additional arguments for visualization using seaborn.scatterplot.
+        Additional keyword arguments passed to ``matplotlib.axes.Axes.scatter``.
+        For example, use ``s`` to control marker area. Defaults to ``s=8``.
 
     Returns
     -------
@@ -58,6 +61,7 @@ def plot_spatial_cell_type_distribution_dataset(
     cell_types = data_df["Cell_Type"].cat.categories.tolist()
     palette = kwargs.get("palette", None)
     kwargs["palette"] = validate_cell_type_palette(cell_types=cell_types, palette=palette)
+    kwargs.setdefault("s", 8)
 
     samples = data_df["Sample"].unique()
     N = len(samples)
@@ -66,7 +70,7 @@ def plot_spatial_cell_type_distribution_dataset(
     for i, sample in enumerate(samples):
         sample_df = data_df.loc[data_df["Sample"] == sample]
         ax: plt.Axes = axes[i] if N > 1 else axes  # type: ignore
-        sns.scatterplot(data=sample_df, x="x", y="y", hue="Cell_Type", s=8, ax=ax, **kwargs)
+        sns.scatterplot(data=sample_df, x="x", y="y", hue="Cell_Type", ax=ax, **kwargs)
         ax.set_xlabel("X coordinate")
         ax.set_ylabel("Y coordinate")
         ax.legend(loc="upper left", bbox_to_anchor=(1, 1))
@@ -80,7 +84,8 @@ def plot_spatial_cell_type_distribution_dataset(
 
 
 def plot_spatial_cell_type_distribution_dataset_from_anadata(
-    ana_data: AnaData, **kwargs
+    ana_data: AnaData,
+    **kwargs,
 ) -> Optional[Tuple[plt.Figure, List[plt.Axes]]]:
     """Plot spatial cell type distribution.
 
@@ -89,7 +94,8 @@ def plot_spatial_cell_type_distribution_dataset_from_anadata(
     ana_data :
         AnaData, the data for analysis.
     kwargs :
-        Optional, the additional arguments for visualization using seaborn.scatterplot.
+        Additional keyword arguments passed to ``matplotlib.axes.Axes.scatter``.
+        For example, use ``s`` to control marker area. Defaults to ``s=8``.
 
     Returns
     -------
@@ -100,12 +106,16 @@ def plot_spatial_cell_type_distribution_dataset_from_anadata(
         return None
 
     return plot_spatial_cell_type_distribution_dataset(
-        data_df=ana_data.meta_data_df, output_file_path=ana_data.options.output, **kwargs
+        data_df=ana_data.meta_data_df,
+        output_file_path=ana_data.options.output,
+        **kwargs,
     )
 
 
 def plot_spatial_cell_type_distribution_sample(
-    data_df: pd.DataFrame, output_file_path: Optional[Union[str, Path]] = None, **kwargs
+    data_df: pd.DataFrame,
+    output_file_path: Optional[Union[str, Path]] = None,
+    **kwargs,
 ) -> Optional[List[Tuple[plt.Figure, plt.Axes]]]:
     """Plot spatial cell type distribution.
 
@@ -116,7 +126,8 @@ def plot_spatial_cell_type_distribution_sample(
     output_file_path :
         Optional[Union[str, Path]], the output directory.
     kwargs :
-        Optional, the additional arguments for visualization using seaborn.scatterplot.
+        Additional keyword arguments passed to ``matplotlib.axes.Axes.scatter``.
+        For example, use ``s`` to control marker area. Defaults to ``s=8``.
 
     Returns
     -------
@@ -143,6 +154,7 @@ def plot_spatial_cell_type_distribution_sample(
     cell_types = data_df["Cell_Type"].cat.categories.tolist()
     palette = kwargs.get("palette", None)
     kwargs["palette"] = validate_cell_type_palette(cell_types=cell_types, palette=palette)
+    kwargs.setdefault("s", 8)
 
     samples = data_df["Sample"].unique()
     output = []
@@ -150,7 +162,7 @@ def plot_spatial_cell_type_distribution_sample(
     for sample in samples:
         sample_df = data_df.loc[data_df["Sample"] == sample]
         fig, ax = plt.subplots(figsize=saptial_figsize(sample_df))
-        sns.scatterplot(data=sample_df, x="x", y="y", hue="Cell_Type", s=8, ax=ax, **kwargs)
+        sns.scatterplot(data=sample_df, x="x", y="y", hue="Cell_Type", ax=ax, **kwargs)
         ax.set_xlabel("X coordinate")
         ax.set_ylabel("Y coordinate")
         ax.legend(loc="upper left", bbox_to_anchor=(1, 1))
@@ -163,7 +175,8 @@ def plot_spatial_cell_type_distribution_sample(
 
 
 def plot_spatial_cell_type_distribution_sample_from_anadata(
-    ana_data: AnaData, **kwargs
+    ana_data: AnaData,
+    **kwargs,
 ) -> Optional[List[Tuple[plt.Figure, plt.Axes]]]:
     """Plot spatial cell type distribution.
 
@@ -172,7 +185,8 @@ def plot_spatial_cell_type_distribution_sample_from_anadata(
     ana_data :
         AnaData, the data for analysis.
     kwargs :
-        Optional, the additional arguments for visualization using seaborn.scatterplot.
+        Additional keyword arguments passed to ``matplotlib.axes.Axes.scatter``.
+        For example, use ``s`` to control marker area. Defaults to ``s=8``.
 
     Returns
     -------
@@ -183,7 +197,9 @@ def plot_spatial_cell_type_distribution_sample_from_anadata(
         return None
 
     return plot_spatial_cell_type_distribution_sample(
-        data_df=ana_data.meta_data_df, output_file_path=ana_data.options.output, **kwargs
+        data_df=ana_data.meta_data_df,
+        output_file_path=ana_data.options.output,
+        **kwargs,
     )
 
 
