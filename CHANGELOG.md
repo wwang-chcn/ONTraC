@@ -1,5 +1,16 @@
 # Change log
 
+## [2.1.0] - 2026-Jun-8
+
+Added:
+
+- Visualization of cell type composition for spot-level data
+- `**kwagrs` for some visualization functions
+
+Changed:
+
+- Replace "cell type along trajectory" with "cell type composition laong trajectory"
+
 ## [2.0.9.post1] - 2026-Apr-22
 
 Fixed:
@@ -106,7 +117,7 @@ Changed:
 
 ## [1.2.3.post1] - 2026-Mar-12
 
-Fix:
+Fixed:
 
 - typos
 
