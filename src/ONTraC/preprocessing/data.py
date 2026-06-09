@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Union
 
 import pandas as pd
+from pandas.api.types import CategoricalDtype
 
 from ..log import warning
 
@@ -89,7 +90,8 @@ def save_cell_type_code(save_dir: Union[str, Path], cell_types: pd.Series) -> No
 
     # check if the cell type is categorical
     if not pd.api.types.is_categorical_dtype(cell_types):  # type: ignore
-        cell_types = cell_types.astype("category")
+        cat_dtype = CategoricalDtype(categories=cell_types.values.tolist(), ordered=True)
+        cell_types = cell_types.astype(cat_dtype)
 
     # save mappings of the categorical data
     cell_type_code = pd.DataFrame(enumerate(cell_types.cat.categories), columns=["Code", "Cell_Type"])
