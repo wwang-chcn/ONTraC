@@ -461,6 +461,12 @@ class AnaData:
         if getattr(self, "_cell_type_composition", None) is None:
             self._load_cell_type_composition()
         return self._cell_type_composition
+    
+    @property
+    def raw_cell_type_composition(self) -> DataFrame:
+        if getattr(self, '_cell_type_composition', None) is None:
+            self._load_cell_type_composition()
+        return self._cell_type_composition
 
     def _load_NT_score(self) -> Optional[DataFrame]:
         """Load and align NT scores to metadata index.
