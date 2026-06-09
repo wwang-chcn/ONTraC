@@ -749,7 +749,8 @@ def plot_kde_cell_type_composition_along_NT_score(
     cell_types :
         Optional[List[str]], cell type composition columns to use.
     order :
-        Optional[List[str]], cell type order to show. Defaults to descending abundance.
+        Optional[List[str]], cell type order to show. Defaults to ascending
+        weighted mean NT score.
     show_categories :
         Optional[List[str]], subset of cell types to show.
     renormalize_shown :
@@ -780,6 +781,7 @@ def plot_kde_cell_type_composition_along_NT_score(
         cell_types=cell_types,
         order=order,
         show_categories=show_categories,
+        default_order_by="mean_nt_score",
         plot_name="cell type composition KDE plot",
     )
     if prepared_data is None:
@@ -851,7 +853,8 @@ def plot_kde_cell_type_composition_along_NT_score_from_anadata(
     cell_types :
         Optional[List[str]], cell type composition columns to use.
     order :
-        Optional[List[str]], cell type order to show. Defaults to descending abundance.
+        Optional[List[str]], cell type order to show. Defaults to ascending
+        weighted mean NT score.
     show_categories :
         Optional[List[str]], subset of cell types to show.
     renormalize_shown :
@@ -921,7 +924,8 @@ def plot_hist_cell_type_composition_along_NT_score(
     cell_types :
         Optional[List[str]], cell type composition columns to use.
     order :
-        Optional[List[str]], cell type order to show. Defaults to descending abundance.
+        Optional[List[str]], cell type order to show. Defaults to ascending
+        weighted mean NT score.
     show_categories :
         Optional[List[str]], subset of cell types to show.
     renormalize_shown :
@@ -950,6 +954,7 @@ def plot_hist_cell_type_composition_along_NT_score(
         cell_types=cell_types,
         order=order,
         show_categories=show_categories,
+        default_order_by="mean_nt_score",
         plot_name="cell type composition histogram",
     )
     if prepared_data is None:
@@ -1045,7 +1050,8 @@ def plot_hist_cell_type_composition_along_NT_score_from_anadata(
     cell_types :
         Optional[List[str]], cell type composition columns to use.
     order :
-        Optional[List[str]], cell type order to show. Defaults to descending abundance.
+        Optional[List[str]], cell type order to show. Defaults to ascending
+        weighted mean NT score.
     show_categories :
         Optional[List[str]], subset of cell types to show.
     renormalize_shown :
