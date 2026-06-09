@@ -1,5 +1,15 @@
 # Change log
 
+## [2.1.0.post1] - 2026-Jun-8
+
+Changed:
+
+- Default order of cell type in KDE and hist form visualization of cell type composition to be same as violin form (by their weighted NT score)
+
+Fixed:
+
+- Wrong cell type order for `cell_type_code.csv` and following `cell type composition` and visualization part for spot-level data
+
 ## [2.1.0] - 2026-Jun-8
 
 Added:
