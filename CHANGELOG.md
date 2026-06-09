@@ -9,7 +9,7 @@ Added:
 
 Changed:
 
-- Replace "cell type along trajectory" with "cell type composition laong trajectory"
+- Replace visualization tools "cell type along trajectory" with "cell type composition laong trajectory"
 
 ## [2.0.9.post1] - 2026-Apr-22
 
