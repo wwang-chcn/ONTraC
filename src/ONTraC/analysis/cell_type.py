@@ -419,9 +419,13 @@ def _cell_type_composition_legend_layout(
 def _cell_type_composition_entity_labels(ana_data: AnaData) -> Tuple[str, str]:
     """Return top-density and count-axis labels for AnaData resolution."""
 
-    if getattr(ana_data.options, "spatial_res", None) == "spot":
+    if ana_data.meta_data_df.index.name == 'Cell_ID':
+        return "All cells", "Number of cells"
+    elif ana_data.meta_data_df.index.name == 'Spot_ID':
         return "All spots", "Number of spots"
-    return "All cells", "Number of cells"
+    else:
+        warning("Unrecognized metadata index name. Defaulting to 'All cells' and 'Number of cells' for cell type composition plot labels.")
+        return "All cells", "Number of cells"
 
 
 def plot_violin_cell_type_composition_along_NT_score(
