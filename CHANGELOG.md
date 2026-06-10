@@ -1,6 +1,6 @@
 # Change log
 
-## [2.1.0.post1] - 2026-Jun-10
+## [2.1.0.post2] - 2026-Jun-10
 
 Removed:
 
