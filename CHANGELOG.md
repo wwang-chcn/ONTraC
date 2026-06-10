@@ -1,5 +1,11 @@
 # Change log
 
+## [2.1.0.post1] - 2026-Jun-10
+
+Removed:
+
+- `cell_types` parameter in `cell type composition` funcs
+
 ## [2.1.0.post1] - 2026-Jun-8
 
 Changed:

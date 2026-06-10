@@ -308,9 +308,8 @@ def _prepare_cell_type_composition_plot_data(
 
 def _prepare_cell_type_composition_nt_score_data(
     ana_data: AnaData,
-    cell_types: Optional[List[str]] = None,
 ) -> Optional[Tuple[pd.DataFrame, List[str]]]:
-    """Build wide cell-type composition plus ``Niche_NTScore`` data from ``AnaData``."""
+    """Build all valid cell-type composition columns plus ``Niche_NTScore`` from ``AnaData``."""
 
     if ana_data.NT_score is None:
         warning("No NT score data found. Skip cell type composition along NT score visualization.")
@@ -333,9 +332,9 @@ def _prepare_cell_type_composition_nt_score_data(
         warning("No cell type codes found. Skip cell type composition along NT score visualization.")
         return None
 
-    default_cell_types = cell_type_codes["Cell_Type"].tolist()
-    selected_cell_types = default_cell_types if cell_types is None else cell_types
-    selected_cell_types = [cell_type for cell_type in selected_cell_types if cell_type in raw_cell_type_composition]
+    selected_cell_types = [
+        cell_type for cell_type in cell_type_codes["Cell_Type"].tolist() if cell_type in raw_cell_type_composition
+    ]
     if len(selected_cell_types) == 0:
         warning("No valid cell type composition columns found. Skip cell type composition along NT score visualization.")
         return None
@@ -614,7 +613,6 @@ def plot_violin_cell_type_composition_along_NT_score(
 
 def plot_violin_cell_type_composition_along_NT_score_from_anadata(
     ana_data: AnaData,
-    cell_types: Optional[List[str]] = None,
     order: Optional[List[str]] = None,
     show_categories: Optional[List[str]] = None,
     renormalize_shown: bool = True,
@@ -639,15 +637,13 @@ def plot_violin_cell_type_composition_along_NT_score_from_anadata(
     Parameters
     ----------
     ana_data :
-        AnaData, the data for analysis. Cell type composition is read from
+        AnaData, the data for analysis. All valid cell type composition columns are read from
         ``raw_cell_type_composition`` and NT scores are read from ``Cell_NTScore``.
-    cell_types :
-        Optional[List[str]], cell type composition columns to use.
     order :
         Optional[List[str]], cell type order to show. Defaults to ascending
         weighted mean NT score.
     show_categories :
-        Optional[List[str]], subset of cell types to show in the composition and count panels.
+        Optional[List[str]], subset of loaded cell types to show in the composition and count panels.
     renormalize_shown :
         bool, whether to normalize composition among shown cell types only.
     palette :
@@ -687,7 +683,7 @@ def plot_violin_cell_type_composition_along_NT_score_from_anadata(
     -------
     None or Tuple[plt.Figure, List[plt.Axes]]."""
 
-    prepared_data = _prepare_cell_type_composition_nt_score_data(ana_data=ana_data, cell_types=cell_types)
+    prepared_data = _prepare_cell_type_composition_nt_score_data(ana_data=ana_data)
     if prepared_data is None:
         return None
     data_df, cell_types = prepared_data
@@ -832,7 +828,6 @@ def plot_kde_cell_type_composition_along_NT_score(
 
 def plot_kde_cell_type_composition_along_NT_score_from_anadata(
     ana_data: AnaData,
-    cell_types: Optional[List[str]] = None,
     order: Optional[List[str]] = None,
     show_categories: Optional[List[str]] = None,
     renormalize_shown: bool = True,
@@ -848,15 +843,13 @@ def plot_kde_cell_type_composition_along_NT_score_from_anadata(
     Parameters
     ----------
     ana_data :
-        AnaData, the data for analysis. Cell type composition is read from
+        AnaData, the data for analysis. All valid cell type composition columns are read from
         ``raw_cell_type_composition`` and NT scores are read from ``Cell_NTScore``.
-    cell_types :
-        Optional[List[str]], cell type composition columns to use.
     order :
         Optional[List[str]], cell type order to show. Defaults to ascending
         weighted mean NT score.
     show_categories :
-        Optional[List[str]], subset of cell types to show.
+        Optional[List[str]], subset of loaded cell types to show.
     renormalize_shown :
         bool, whether to normalize composition among shown cell types only.
     palette :
@@ -877,7 +870,7 @@ def plot_kde_cell_type_composition_along_NT_score_from_anadata(
     -------
     None or Tuple[plt.Figure, plt.Axes]."""
 
-    prepared_data = _prepare_cell_type_composition_nt_score_data(ana_data=ana_data, cell_types=cell_types)
+    prepared_data = _prepare_cell_type_composition_nt_score_data(ana_data=ana_data)
     if prepared_data is None:
         return None
     data_df, cell_types = prepared_data
@@ -1030,7 +1023,6 @@ def plot_hist_cell_type_composition_along_NT_score(
 
 def plot_hist_cell_type_composition_along_NT_score_from_anadata(
     ana_data: AnaData,
-    cell_types: Optional[List[str]] = None,
     order: Optional[List[str]] = None,
     show_categories: Optional[List[str]] = None,
     renormalize_shown: bool = True,
@@ -1045,15 +1037,13 @@ def plot_hist_cell_type_composition_along_NT_score_from_anadata(
     Parameters
     ----------
     ana_data :
-        AnaData, the data for analysis. Cell type composition is read from
+        AnaData, the data for analysis. All valid cell type composition columns are read from
         ``raw_cell_type_composition`` and NT scores are read from ``Cell_NTScore``.
-    cell_types :
-        Optional[List[str]], cell type composition columns to use.
     order :
         Optional[List[str]], cell type order to show. Defaults to ascending
         weighted mean NT score.
     show_categories :
-        Optional[List[str]], subset of cell types to show.
+        Optional[List[str]], subset of loaded cell types to show.
     renormalize_shown :
         bool, whether to normalize composition among shown cell types only.
     palette :
@@ -1072,7 +1062,7 @@ def plot_hist_cell_type_composition_along_NT_score_from_anadata(
     -------
     None or Tuple[plt.Figure, plt.Axes]."""
 
-    prepared_data = _prepare_cell_type_composition_nt_score_data(ana_data=ana_data, cell_types=cell_types)
+    prepared_data = _prepare_cell_type_composition_nt_score_data(ana_data=ana_data)
     if prepared_data is None:
         return None
     data_df, cell_types = prepared_data
