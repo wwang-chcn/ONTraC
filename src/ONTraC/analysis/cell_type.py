@@ -427,6 +427,45 @@ def _cell_type_composition_entity_labels(ana_data: AnaData) -> Tuple[str, str]:
         return "All cells", "Number of cells"
 
 
+def _resolve_violin_width_scale(
+    shown_cell_types: List[str],
+    violin_width_scale: Optional[Union[float, Dict[str, float]]] = None,
+) -> Dict[str, float]:
+    """Resolve per-cell-type violin width scale factors."""
+
+    if violin_width_scale is None:
+        raw_scales = {cell_type: 1.0 for cell_type in shown_cell_types}
+    elif isinstance(violin_width_scale, dict):
+        for cell_type, scale in violin_width_scale.items():
+            if not isinstance(cell_type, str):
+                raise ValueError("violin_width_scale keys must be cell type names.")
+            try:
+                scale = float(scale)
+            except (TypeError, ValueError) as e:
+                raise ValueError("violin_width_scale values must be finite numbers >= 1.") from e
+            if not np.isfinite(scale) or scale < 1:
+                raise ValueError("violin_width_scale values must be finite numbers >= 1.")
+        raw_scales = {
+            cell_type: float(violin_width_scale.get(cell_type, 1.0)) for cell_type in shown_cell_types
+        }
+    else:
+        try:
+            scale = float(violin_width_scale)
+        except (TypeError, ValueError) as e:
+            raise ValueError("violin_width_scale must be None, a scalar, or a cell type to scale dict.") from e
+        if not np.isfinite(scale) or scale < 1:
+            raise ValueError("violin_width_scale must be a finite number >= 1.")
+        raw_scales = {cell_type: scale for cell_type in shown_cell_types}
+
+    return raw_scales
+
+
+def _format_violin_scale_label(scale: float) -> str:
+    """Format the actual composition represented by one scale-bar half-height."""
+
+    return f"{100 / scale:.2f}".rstrip("0").rstrip(".") + "%"
+
+
 def plot_violin_cell_type_composition_along_NT_score(
     data_df: pd.DataFrame,
     value_col: str = "Niche_NTScore",
@@ -442,6 +481,8 @@ def plot_violin_cell_type_composition_along_NT_score(
     bw_method: Any = None,
     grid_size: int = 400,
     max_violin_width: float = 0.35,
+    violin_width_scale: Optional[Union[float, Dict[str, float]]] = None,
+    show_violin_scale_bar: Optional[bool] = None,
     show_fill: bool = False,
     fill_alpha: float = 0.15,
     linewidth: float = 1.2,
@@ -483,7 +524,20 @@ def plot_violin_cell_type_composition_along_NT_score(
     grid_size :
         int, number of NT-score grid points used for KDE evaluation.
     max_violin_width :
-        float, maximum half-width of each composition violin.
+        float, base half-width for cell types with ``violin_width_scale=1``.
+    violin_width_scale :
+        Optional[Union[float, Dict[str, float]]], direct per-cell-type width
+        multiplier. Displayed half-width is composition multiplied by
+        ``max_violin_width`` and this scale. Missing dict entries default to 1.
+        Scalar values apply to all shown cell types. Values must be finite
+        numbers >= 1.
+    show_violin_scale_bar :
+        Optional[bool], whether to show scale bars indicating the
+        actual composition represented by a standard ``max_violin_width``
+        half-width. Labels are ``100 / violin_width_scale``. If None,
+        scale bars are shown only when any width scale is not 1.
+        Row spacing is fixed, so large scales may overlap neighboring rows or
+        clip at plot boundaries unless ``max_violin_width`` is reduced.
     show_fill :
         bool, whether to fill each composition violin.
     fill_alpha :
@@ -503,7 +557,9 @@ def plot_violin_cell_type_composition_along_NT_score(
 
     Returns
     -------
-    None or Tuple[plt.Figure, List[plt.Axes]]."""
+    None or Tuple[plt.Figure, List[plt.Axes]]. The axes list is
+    ``[ax_top, ax_violin, ax_bar]`` by default, or
+    ``[ax_top, ax_violin, ax_scale, ax_bar]`` when scale bars are shown."""
 
     prepared_data = _prepare_cell_type_composition_plot_data(
         data_df=data_df,
@@ -531,25 +587,57 @@ def plot_violin_cell_type_composition_along_NT_score(
         eps=eps,
     )
     validated_palette = validate_cell_type_palette(cell_types=shown_cell_types, palette=palette)
+    width_scale = _resolve_violin_width_scale(
+        shown_cell_types=shown_cell_types,
+        violin_width_scale=violin_width_scale,
+    )
+    max_width_scale = max(width_scale.values())
+    if max_violin_width * max_width_scale >= 0.5:
+        warning(
+            "Scaled violin widths may overlap adjacent cell-type rows or clip at plot boundaries. "
+            "Consider reducing `max_violin_width`."
+        )
+    row_y_limits = (n_categories - 0.5, -0.5)
+    if show_violin_scale_bar is None:
+        show_violin_scale_bar = any(scale != 1.0 for scale in width_scale.values())
 
     if figsize is None:
-        figsize = (10, max(5, 0.42 * n_categories + 1.5))
+        figsize = (10 + (0.35 if show_violin_scale_bar else 0), max(5, 0.42 * n_categories + 1.5))
 
     fig = plt.figure(figsize=figsize)
-    gs = GridSpec(
-        nrows=2,
-        ncols=2,
-        figure=fig,
-        width_ratios=[5, 1.3],
-        height_ratios=[1.2, max(3, n_categories * 0.45)],
-        wspace=0.06,
-        hspace=0.05,
-    )
-    ax_top = fig.add_subplot(gs[0, 0])
-    ax_violin = fig.add_subplot(gs[1, 0], sharex=ax_top)
-    ax_bar = fig.add_subplot(gs[1, 1], sharey=ax_violin)
-    ax_empty = fig.add_subplot(gs[0, 1])
-    ax_empty.axis("off")
+    if show_violin_scale_bar:
+        gs = GridSpec(
+            nrows=2,
+            ncols=3,
+            figure=fig,
+            width_ratios=[5, 0.38, 1.3],
+            height_ratios=[1.2, max(3, n_categories * 0.45)],
+            wspace=0.03,
+            hspace=0.05,
+        )
+        ax_top = fig.add_subplot(gs[0, 0])
+        ax_violin = fig.add_subplot(gs[1, 0], sharex=ax_top)
+        ax_scale = fig.add_subplot(gs[1, 1], sharey=ax_violin)
+        ax_bar = fig.add_subplot(gs[1, 2], sharey=ax_violin)
+        ax_empty_scale = fig.add_subplot(gs[0, 1])
+        ax_empty_bar = fig.add_subplot(gs[0, 2])
+        ax_empty_scale.axis("off")
+        ax_empty_bar.axis("off")
+    else:
+        gs = GridSpec(
+            nrows=2,
+            ncols=2,
+            figure=fig,
+            width_ratios=[5, 1.3],
+            height_ratios=[1.2, max(3, n_categories * 0.45)],
+            wspace=0.06,
+            hspace=0.05,
+        )
+        ax_top = fig.add_subplot(gs[0, 0])
+        ax_violin = fig.add_subplot(gs[1, 0], sharex=ax_top)
+        ax_bar = fig.add_subplot(gs[1, 1], sharey=ax_violin)
+        ax_empty = fig.add_subplot(gs[0, 1])
+        ax_empty.axis("off")
 
     ax_top.fill_between(x_grid, 0, density_all, color=top_color, alpha=0.2, linewidth=0)
     ax_top.plot(x_grid, density_all, color=top_color, linewidth=1.5)
@@ -562,7 +650,7 @@ def plot_violin_cell_type_composition_along_NT_score(
 
     for i, cell_type in enumerate(shown_cell_types):
         color = validated_palette[cell_type]
-        width = composition_matrix[i, :] * max_violin_width
+        width = composition_matrix[i, :] * max_violin_width * width_scale[cell_type]
         y_lower = i - width
         y_upper = i + width
         ax_violin.hlines(
@@ -583,11 +671,45 @@ def plot_violin_cell_type_composition_along_NT_score(
     ax_violin.tick_params(axis="y", labelleft=True, left=True)
     ax_violin.set_xlabel(value_name)
     ax_violin.set_ylabel(category_name)
-    ax_violin.set_ylim(n_categories - 0.5, -0.5)
+    ax_violin.set_ylim(*row_y_limits)
     if show_grid:
         ax_violin.grid(axis="x", linestyle=":", color="0.7", linewidth=0.8)
     else:
         ax_violin.grid(False)
+
+    if show_violin_scale_bar:
+        for i, cell_type in enumerate(shown_cell_types):
+            color = validated_palette[cell_type]
+            scale = width_scale[cell_type]
+            y_start = i
+            y_end = i - max_violin_width
+            ax_scale.vlines(
+                x=0,
+                ymin=y_end,
+                ymax=y_start,
+                color=color,
+                linewidth=linewidth,
+            )
+            ax_scale.hlines(
+                y=[y_start, y_end],
+                xmin=-0.05,
+                xmax=0,
+                color=color,
+                linewidth=linewidth,
+            )
+            ax_scale.text(
+                0.04,
+                i - max_violin_width / 2,
+                _format_violin_scale_label(scale),
+                va="center",
+                ha="left",
+                fontsize=8,
+            )
+        ax_scale.set_xlim(-0.07, 0.34)
+        ax_scale.tick_params(axis="x", bottom=False, labelbottom=False)
+        ax_scale.tick_params(axis="y", left=False, labelleft=False)
+        ax_scale.set_ylim(*row_y_limits)
+        sns.despine(ax=ax_scale, left=True, bottom=True)
 
     count_values = data[shown_cell_types].sum(axis=0).to_numpy()
     ax_bar.barh(
@@ -598,7 +720,7 @@ def plot_violin_cell_type_composition_along_NT_score(
     )
     ax_bar.set_xlabel(count_name)
     ax_bar.tick_params(axis="y", labelleft=False, left=False)
-    ax_bar.set_ylim(n_categories - 0.5, -0.5)
+    ax_bar.set_ylim(*row_y_limits)
 
     sns.despine(ax=ax_top)
     sns.despine(ax=ax_violin)
@@ -608,6 +730,8 @@ def plot_violin_cell_type_composition_along_NT_score(
         fig.savefig(f"{output_file_path}/cell_type_composition_along_NT_score_violin.pdf", transparent=True)
         plt.close(fig)
         return None
+    if show_violin_scale_bar:
+        return fig, [ax_top, ax_violin, ax_scale, ax_bar]
     return fig, [ax_top, ax_violin, ax_bar]
 
 
@@ -624,6 +748,8 @@ def plot_violin_cell_type_composition_along_NT_score_from_anadata(
     bw_method: Any = None,
     grid_size: int = 400,
     max_violin_width: float = 0.35,
+    violin_width_scale: Optional[Union[float, Dict[str, float]]] = None,
+    show_violin_scale_bar: Optional[bool] = None,
     show_fill: bool = False,
     fill_alpha: float = 0.15,
     linewidth: float = 1.2,
@@ -663,7 +789,20 @@ def plot_violin_cell_type_composition_along_NT_score_from_anadata(
     grid_size :
         int, number of NT-score grid points used for KDE evaluation.
     max_violin_width :
-        float, maximum half-width of each composition violin.
+        float, base half-width for cell types with ``violin_width_scale=1``.
+    violin_width_scale :
+        Optional[Union[float, Dict[str, float]]], direct per-cell-type width
+        multiplier. Displayed half-width is composition multiplied by
+        ``max_violin_width`` and this scale. Missing dict entries default to 1.
+        Scalar values apply to all shown cell types. Values must be finite
+        numbers >= 1.
+    show_violin_scale_bar :
+        Optional[bool], whether to show scale bars indicating the
+        actual composition represented by a standard ``max_violin_width``
+        half-width. Labels are ``100 / violin_width_scale``. If None,
+        scale bars are shown only when any width scale is not 1.
+        Row spacing is fixed, so large scales may overlap neighboring rows or
+        clip at plot boundaries unless ``max_violin_width`` is reduced.
     show_fill :
         bool, whether to fill each composition violin.
     fill_alpha :
@@ -681,7 +820,9 @@ def plot_violin_cell_type_composition_along_NT_score_from_anadata(
 
     Returns
     -------
-    None or Tuple[plt.Figure, List[plt.Axes]]."""
+    None or Tuple[plt.Figure, List[plt.Axes]]. The axes list is
+    ``[ax_top, ax_violin, ax_bar]`` by default, or
+    ``[ax_top, ax_violin, ax_scale, ax_bar]`` when scale bars are shown."""
 
     prepared_data = _prepare_cell_type_composition_nt_score_data(ana_data=ana_data)
     if prepared_data is None:
@@ -708,6 +849,8 @@ def plot_violin_cell_type_composition_along_NT_score_from_anadata(
         bw_method=bw_method,
         grid_size=grid_size,
         max_violin_width=max_violin_width,
+        violin_width_scale=violin_width_scale,
+        show_violin_scale_bar=show_violin_scale_bar,
         show_fill=show_fill,
         fill_alpha=fill_alpha,
         linewidth=linewidth,

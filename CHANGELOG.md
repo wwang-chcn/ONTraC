@@ -1,5 +1,11 @@
 # Change log
 
+## [2.1.0.post3] - 2026-Jun-11
+
+Added:
+
+- per cell type scale for cell type composition along trajectory in violin form
+
 ## [2.1.0.post2] - 2026-Jun-10
 
 Removed:
