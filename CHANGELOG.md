@@ -4,7 +4,11 @@
 
 Added:
 
-- per cell type scale for cell type composition along trajectory in violin form
+- Per-cell-type scaling for violin plots of cell type composition along the trajectory through `violin_width_scale` parameter.
+
+Fixed:
+
+- `KDE` and `Hist` plots now include an `Others` cell type when show_categories is used, preserving the true cell type composition.
 
 ## [2.1.0.post2] - 2026-Jun-10
 

@@ -348,6 +348,67 @@ def _prepare_cell_type_composition_nt_score_data(
     return data_df, selected_cell_types
 
 
+def _add_others_to_cell_type_composition_plot_data(
+    data: pd.DataFrame,
+    all_cell_types: List[str],
+    shown_cell_types: List[str],
+    show_categories: Optional[List[str]] = None,
+    others_name: str = "others",
+) -> Tuple[pd.DataFrame, List[str], List[str]]:
+    """Group hidden cell types into ``others`` when plotting a selected subset."""
+
+    if show_categories is None:
+        return data, all_cell_types, shown_cell_types
+
+    hidden_cell_types = [cell_type for cell_type in all_cell_types if cell_type not in shown_cell_types]
+    if len(hidden_cell_types) == 0:
+        return data, shown_cell_types, shown_cell_types
+
+    data = data.copy()
+    hidden_composition = data[hidden_cell_types].sum(axis=1)
+    if others_name in shown_cell_types:
+        data[others_name] = data[others_name] + hidden_composition
+    else:
+        data[others_name] = hidden_composition
+        shown_cell_types = shown_cell_types + [others_name]
+
+    # After collapsing hidden columns, displayed groups cover the full composition.
+    return data, shown_cell_types, shown_cell_types
+
+
+def _validate_cell_type_composition_palette(
+    cell_types: List[str],
+    palette: Optional[Union[List[str], Dict[str, str]]] = None,
+    others_name: str = "others",
+    force_others_gray: bool = False,
+) -> Dict[str, str]:
+    """Validate a composition palette and force auto-generated ``others`` to neutral gray."""
+
+    if others_name not in cell_types or not force_others_gray:
+        return validate_cell_type_palette(cell_types=cell_types, palette=palette)
+
+    non_others_cell_types = [cell_type for cell_type in cell_types if cell_type != others_name]
+    non_others_palette = validate_cell_type_palette(cell_types=non_others_cell_types, palette=palette)
+    validated_palette = {cell_type: non_others_palette[cell_type] for cell_type in non_others_cell_types}
+
+    used_colors = set()
+    for color in validated_palette.values():
+        try:
+            used_colors.add(mpl.colors.to_hex(color).lower())
+        except ValueError:
+            continue
+
+    for gray in ["#808080", "#A0A0A0", "#666666", "#BDBDBD", "#4D4D4D"]:
+        normalized_gray = mpl.colors.to_hex(gray).lower()
+        if normalized_gray not in used_colors:
+            validated_palette[others_name] = gray
+            break
+    else:
+        validated_palette[others_name] = "#808080"
+
+    return validated_palette
+
+
 def _calculate_cell_type_composition_density(
     data_df: pd.DataFrame,
     value_col: str,
@@ -891,11 +952,17 @@ def plot_kde_cell_type_composition_along_NT_score(
         Optional[List[str]], cell type order to show. Defaults to ascending
         weighted mean NT score.
     show_categories :
-        Optional[List[str]], subset of cell types to show.
+        Optional[List[str]], subset of cell types to show individually. When set,
+        remaining cell types are grouped as ``others`` to preserve total
+        composition.
     renormalize_shown :
-        bool, whether to normalize composition among shown cell types only.
+        bool, whether to normalize composition among shown cell types only. When
+        ``show_categories`` is set, ``others`` is included in the shown groups,
+        so the displayed composition covers all valid cell types.
     palette :
-        Optional[List[str] or Dict[str, str]], cell type color palette.
+        Optional[List[str] or Dict[str, str]], cell type color palette. If
+        ``others`` is auto-generated, it is forced to a neutral gray that avoids
+        displayed cell-type colors when possible.
     bw_method :
         Optional, bandwidth method passed to ``scipy.stats.gaussian_kde``.
     grid_size :
@@ -926,6 +993,15 @@ def plot_kde_cell_type_composition_along_NT_score(
     if prepared_data is None:
         return None
     data, all_cell_types, shown_cell_types = prepared_data
+    has_auto_others = show_categories is not None and any(
+        cell_type not in shown_cell_types for cell_type in all_cell_types
+    )
+    data, all_cell_types, shown_cell_types = _add_others_to_cell_type_composition_plot_data(
+        data=data,
+        all_cell_types=all_cell_types,
+        shown_cell_types=shown_cell_types,
+        show_categories=show_categories,
+    )
 
     x_grid, _, composition_matrix = _calculate_cell_type_composition_density(
         data_df=data,
@@ -937,7 +1013,11 @@ def plot_kde_cell_type_composition_along_NT_score(
         renormalize_shown=renormalize_shown,
         eps=eps,
     )
-    validated_palette = validate_cell_type_palette(cell_types=shown_cell_types, palette=palette)
+    validated_palette = _validate_cell_type_composition_palette(
+        cell_types=shown_cell_types,
+        palette=palette,
+        force_others_gray=has_auto_others,
+    )
 
     legend_ncol, figsize = _cell_type_composition_legend_layout(
         n_cell_types=len(shown_cell_types),
@@ -992,11 +1072,17 @@ def plot_kde_cell_type_composition_along_NT_score_from_anadata(
         Optional[List[str]], cell type order to show. Defaults to ascending
         weighted mean NT score.
     show_categories :
-        Optional[List[str]], subset of loaded cell types to show.
+        Optional[List[str]], subset of loaded cell types to show individually.
+        When set, remaining cell types are grouped as ``others`` to preserve
+        total composition.
     renormalize_shown :
-        bool, whether to normalize composition among shown cell types only.
+        bool, whether to normalize composition among shown cell types only. When
+        ``show_categories`` is set, ``others`` is included in the shown groups,
+        so the displayed composition covers all valid cell types.
     palette :
-        Optional[List[str] or Dict[str, str]], cell type color palette.
+        Optional[List[str] or Dict[str, str]], cell type color palette. If
+        ``others`` is auto-generated, it is forced to a neutral gray that avoids
+        displayed cell-type colors when possible.
     bw_method :
         Optional, bandwidth method passed to ``scipy.stats.gaussian_kde``.
     grid_size :
@@ -1063,11 +1149,17 @@ def plot_hist_cell_type_composition_along_NT_score(
         Optional[List[str]], cell type order to show. Defaults to ascending
         weighted mean NT score.
     show_categories :
-        Optional[List[str]], subset of cell types to show.
+        Optional[List[str]], subset of cell types to show individually. When set,
+        remaining cell types are grouped as ``others`` to preserve total
+        composition.
     renormalize_shown :
-        bool, whether to normalize composition among shown cell types only.
+        bool, whether to normalize composition among shown cell types only. When
+        ``show_categories`` is set, ``others`` is included in the shown groups,
+        so the displayed composition covers all valid cell types.
     palette :
-        Optional[List[str] or Dict[str, str]], cell type color palette.
+        Optional[List[str] or Dict[str, str]], cell type color palette. If
+        ``others`` is auto-generated, it is forced to a neutral gray that avoids
+        displayed cell-type colors when possible.
     bins :
         Histogram bins passed to ``numpy.histogram_bin_edges``.
     figsize :
@@ -1096,6 +1188,15 @@ def plot_hist_cell_type_composition_along_NT_score(
     if prepared_data is None:
         return None
     data, all_cell_types, shown_cell_types = prepared_data
+    has_auto_others = show_categories is not None and any(
+        cell_type not in shown_cell_types for cell_type in all_cell_types
+    )
+    data, all_cell_types, shown_cell_types = _add_others_to_cell_type_composition_plot_data(
+        data=data,
+        all_cell_types=all_cell_types,
+        shown_cell_types=shown_cell_types,
+        show_categories=show_categories,
+    )
 
     values = data[value_col].to_numpy(dtype=float)
     bin_edges = np.histogram_bin_edges(values, bins=bins)
@@ -1123,7 +1224,11 @@ def plot_hist_cell_type_composition_along_NT_score(
         denominator = all_weight_matrix.sum(axis=0)
     hist_matrix = shown_weight_matrix / (denominator[None, :] + eps)
 
-    validated_palette = validate_cell_type_palette(cell_types=shown_cell_types, palette=palette)
+    validated_palette = _validate_cell_type_composition_palette(
+        cell_types=shown_cell_types,
+        palette=palette,
+        force_others_gray=has_auto_others,
+    )
     base_figsize = (max(8, len(shown_cell_types) / 2), 4)
     legend_ncol, figsize = _cell_type_composition_legend_layout(
         n_cell_types=len(shown_cell_types),
@@ -1186,11 +1291,17 @@ def plot_hist_cell_type_composition_along_NT_score_from_anadata(
         Optional[List[str]], cell type order to show. Defaults to ascending
         weighted mean NT score.
     show_categories :
-        Optional[List[str]], subset of loaded cell types to show.
+        Optional[List[str]], subset of loaded cell types to show individually.
+        When set, remaining cell types are grouped as ``others`` to preserve
+        total composition.
     renormalize_shown :
-        bool, whether to normalize composition among shown cell types only.
+        bool, whether to normalize composition among shown cell types only. When
+        ``show_categories`` is set, ``others`` is included in the shown groups,
+        so the displayed composition covers all valid cell types.
     palette :
-        Optional[List[str] or Dict[str, str]], cell type color palette.
+        Optional[List[str] or Dict[str, str]], cell type color palette. If
+        ``others`` is auto-generated, it is forced to a neutral gray that avoids
+        displayed cell-type colors when possible.
     bins :
         Histogram bins passed to ``numpy.histogram_bin_edges``.
     figsize :
