@@ -1,5 +1,11 @@
 # Change log
 
+## [2.1.0.post4] - 2026-Jun-12
+
+Changed:
+
+- Update default value of `renormalize_shown` to False in plotting functions.
+
 ## [2.1.0.post3] - 2026-Jun-11
 
 Added:

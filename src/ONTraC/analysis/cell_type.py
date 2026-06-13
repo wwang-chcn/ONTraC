@@ -533,7 +533,7 @@ def plot_violin_cell_type_composition_along_NT_score(
     cell_types: Optional[List[str]] = None,
     order: Optional[List[str]] = None,
     show_categories: Optional[List[str]] = None,
-    renormalize_shown: bool = True,
+    renormalize_shown: bool = False,
     palette: Optional[Union[List[str], Dict[str, str]]] = None,
     category_name: str = "Cell Type",
     value_name: str = "Niche-level NT score",
@@ -569,7 +569,7 @@ def plot_violin_cell_type_composition_along_NT_score(
     show_categories :
         Optional[List[str]], subset of cell types to show in the composition and count panels.
     renormalize_shown :
-        bool, whether to normalize composition among shown cell types only.
+        bool, whether to normalize composition among shown cell types only. Defaults to False.
     palette :
         Optional[List[str] or Dict[str, str]], cell type color palette.
     category_name :
@@ -800,7 +800,7 @@ def plot_violin_cell_type_composition_along_NT_score_from_anadata(
     ana_data: AnaData,
     order: Optional[List[str]] = None,
     show_categories: Optional[List[str]] = None,
-    renormalize_shown: bool = True,
+    renormalize_shown: bool = False,
     palette: Optional[Union[List[str], Dict[str, str]]] = None,
     category_name: str = "Cell Type",
     value_name: str = "Niche-level NT score",
@@ -832,7 +832,7 @@ def plot_violin_cell_type_composition_along_NT_score_from_anadata(
     show_categories :
         Optional[List[str]], subset of loaded cell types to show in the composition and count panels.
     renormalize_shown :
-        bool, whether to normalize composition among shown cell types only.
+        bool, whether to normalize composition among shown cell types only. Defaults to False.
     palette :
         Optional[List[str] or Dict[str, str]], cell type color palette.
     category_name :
@@ -929,7 +929,7 @@ def plot_kde_cell_type_composition_along_NT_score(
     cell_types: Optional[List[str]] = None,
     order: Optional[List[str]] = None,
     show_categories: Optional[List[str]] = None,
-    renormalize_shown: bool = True,
+    renormalize_shown: bool = False,
     palette: Optional[Union[List[str], Dict[str, str]]] = None,
     bw_method: Any = None,
     grid_size: int = 400,
@@ -952,13 +952,14 @@ def plot_kde_cell_type_composition_along_NT_score(
         Optional[List[str]], cell type order to show. Defaults to ascending
         weighted mean NT score.
     show_categories :
-        Optional[List[str]], subset of cell types to show individually. When set,
-        remaining cell types are grouped as ``others`` to preserve total
-        composition.
+        Optional[List[str]], subset of cell types to show individually. When set
+        and ``renormalize_shown=False``, remaining cell types are grouped as
+        ``others`` to preserve total composition.
     renormalize_shown :
-        bool, whether to normalize composition among shown cell types only. When
-        ``show_categories`` is set, ``others`` is included in the shown groups,
-        so the displayed composition covers all valid cell types.
+        bool, whether to normalize composition among shown cell types only.
+        Defaults to False. When ``show_categories`` is set, False adds
+        ``others`` for hidden cell types; True excludes hidden cell types and
+        normalizes the selected groups.
     palette :
         Optional[List[str] or Dict[str, str]], cell type color palette. If
         ``others`` is auto-generated, it is forced to a neutral gray that avoids
@@ -993,15 +994,17 @@ def plot_kde_cell_type_composition_along_NT_score(
     if prepared_data is None:
         return None
     data, all_cell_types, shown_cell_types = prepared_data
-    has_auto_others = show_categories is not None and any(
+    has_hidden_cell_types = show_categories is not None and any(
         cell_type not in shown_cell_types for cell_type in all_cell_types
     )
-    data, all_cell_types, shown_cell_types = _add_others_to_cell_type_composition_plot_data(
-        data=data,
-        all_cell_types=all_cell_types,
-        shown_cell_types=shown_cell_types,
-        show_categories=show_categories,
-    )
+    has_auto_others = has_hidden_cell_types and not renormalize_shown
+    if has_auto_others:
+        data, all_cell_types, shown_cell_types = _add_others_to_cell_type_composition_plot_data(
+            data=data,
+            all_cell_types=all_cell_types,
+            shown_cell_types=shown_cell_types,
+            show_categories=show_categories,
+        )
 
     x_grid, _, composition_matrix = _calculate_cell_type_composition_density(
         data_df=data,
@@ -1053,7 +1056,7 @@ def plot_kde_cell_type_composition_along_NT_score_from_anadata(
     ana_data: AnaData,
     order: Optional[List[str]] = None,
     show_categories: Optional[List[str]] = None,
-    renormalize_shown: bool = True,
+    renormalize_shown: bool = False,
     palette: Optional[Union[List[str], Dict[str, str]]] = None,
     bw_method: Any = None,
     grid_size: int = 400,
@@ -1073,12 +1076,13 @@ def plot_kde_cell_type_composition_along_NT_score_from_anadata(
         weighted mean NT score.
     show_categories :
         Optional[List[str]], subset of loaded cell types to show individually.
-        When set, remaining cell types are grouped as ``others`` to preserve
-        total composition.
+        When set and ``renormalize_shown=False``, remaining cell types are
+        grouped as ``others`` to preserve total composition.
     renormalize_shown :
-        bool, whether to normalize composition among shown cell types only. When
-        ``show_categories`` is set, ``others`` is included in the shown groups,
-        so the displayed composition covers all valid cell types.
+        bool, whether to normalize composition among shown cell types only.
+        Defaults to False. When ``show_categories`` is set, False adds
+        ``others`` for hidden cell types; True excludes hidden cell types and
+        normalizes the selected groups.
     palette :
         Optional[List[str] or Dict[str, str]], cell type color palette. If
         ``others`` is auto-generated, it is forced to a neutral gray that avoids
@@ -1127,7 +1131,7 @@ def plot_hist_cell_type_composition_along_NT_score(
     cell_types: Optional[List[str]] = None,
     order: Optional[List[str]] = None,
     show_categories: Optional[List[str]] = None,
-    renormalize_shown: bool = True,
+    renormalize_shown: bool = False,
     palette: Optional[Union[List[str], Dict[str, str]]] = None,
     bins: Any = 20,
     figsize: Optional[Tuple[float, float]] = None,
@@ -1149,13 +1153,14 @@ def plot_hist_cell_type_composition_along_NT_score(
         Optional[List[str]], cell type order to show. Defaults to ascending
         weighted mean NT score.
     show_categories :
-        Optional[List[str]], subset of cell types to show individually. When set,
-        remaining cell types are grouped as ``others`` to preserve total
-        composition.
+        Optional[List[str]], subset of cell types to show individually. When set
+        and ``renormalize_shown=False``, remaining cell types are grouped as
+        ``others`` to preserve total composition.
     renormalize_shown :
-        bool, whether to normalize composition among shown cell types only. When
-        ``show_categories`` is set, ``others`` is included in the shown groups,
-        so the displayed composition covers all valid cell types.
+        bool, whether to normalize composition among shown cell types only.
+        Defaults to False. When ``show_categories`` is set, False adds
+        ``others`` for hidden cell types; True excludes hidden cell types and
+        normalizes the selected groups.
     palette :
         Optional[List[str] or Dict[str, str]], cell type color palette. If
         ``others`` is auto-generated, it is forced to a neutral gray that avoids
@@ -1188,15 +1193,17 @@ def plot_hist_cell_type_composition_along_NT_score(
     if prepared_data is None:
         return None
     data, all_cell_types, shown_cell_types = prepared_data
-    has_auto_others = show_categories is not None and any(
+    has_hidden_cell_types = show_categories is not None and any(
         cell_type not in shown_cell_types for cell_type in all_cell_types
     )
-    data, all_cell_types, shown_cell_types = _add_others_to_cell_type_composition_plot_data(
-        data=data,
-        all_cell_types=all_cell_types,
-        shown_cell_types=shown_cell_types,
-        show_categories=show_categories,
-    )
+    has_auto_others = has_hidden_cell_types and not renormalize_shown
+    if has_auto_others:
+        data, all_cell_types, shown_cell_types = _add_others_to_cell_type_composition_plot_data(
+            data=data,
+            all_cell_types=all_cell_types,
+            shown_cell_types=shown_cell_types,
+            show_categories=show_categories,
+        )
 
     values = data[value_col].to_numpy(dtype=float)
     bin_edges = np.histogram_bin_edges(values, bins=bins)
@@ -1273,7 +1280,7 @@ def plot_hist_cell_type_composition_along_NT_score_from_anadata(
     ana_data: AnaData,
     order: Optional[List[str]] = None,
     show_categories: Optional[List[str]] = None,
-    renormalize_shown: bool = True,
+    renormalize_shown: bool = False,
     palette: Optional[Union[List[str], Dict[str, str]]] = None,
     bins: Any = 20,
     figsize: Optional[Tuple[float, float]] = None,
@@ -1292,12 +1299,13 @@ def plot_hist_cell_type_composition_along_NT_score_from_anadata(
         weighted mean NT score.
     show_categories :
         Optional[List[str]], subset of loaded cell types to show individually.
-        When set, remaining cell types are grouped as ``others`` to preserve
-        total composition.
+        When set and ``renormalize_shown=False``, remaining cell types are
+        grouped as ``others`` to preserve total composition.
     renormalize_shown :
-        bool, whether to normalize composition among shown cell types only. When
-        ``show_categories`` is set, ``others`` is included in the shown groups,
-        so the displayed composition covers all valid cell types.
+        bool, whether to normalize composition among shown cell types only.
+        Defaults to False. When ``show_categories`` is set, False adds
+        ``others`` for hidden cell types; True excludes hidden cell types and
+        normalizes the selected groups.
     palette :
         Optional[List[str] or Dict[str, str]], cell type color palette. If
         ``others`` is auto-generated, it is forced to a neutral gray that avoids
