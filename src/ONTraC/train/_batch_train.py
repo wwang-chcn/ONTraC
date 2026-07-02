@@ -1,6 +1,7 @@
 """Batch training abstractions and implementations for ONTraC."""
 
 from abc import ABC, abstractmethod
+from copy import deepcopy
 from typing import Callable, Dict, List, Optional, Protocol, Tuple
 
 import numpy as np
@@ -86,21 +87,21 @@ class BatchTrain(ABC):
         self.model.train()
         min_loss = np.inf
         patience = 0
-        best_params = self.model.state_dict()
+        best_params = deepcopy(self.model.state_dict())
 
         for epoch in range(max_epochs):
             train_loss = self.train_epoch(epoch=epoch)
             if np.isnan(train_loss):  # unexpected situation
-                best_params = self.model.state_dict()
+                best_params = deepcopy(self.model.state_dict())
                 break
             elif max_patience == 0:  # no early stopping
-                best_params = self.model.state_dict()
+                best_params = deepcopy(self.model.state_dict())
             elif min_loss - train_loss < min_loss * min_delta:  # no improvement
                 patience += 1
             else:  # improvement
                 min_loss = train_loss
                 patience = 0
-                best_params = self.model.state_dict()
+                best_params = deepcopy(self.model.state_dict())
             # max_patience == 0 means no early stopping
             if max_patience != 0 and patience >= max_patience and epoch >= min_epochs:
                 break

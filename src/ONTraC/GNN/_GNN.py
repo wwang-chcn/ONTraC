@@ -1,5 +1,6 @@
 """This module contains the main substeps in GNN step of ONTraC, including training, evaluation, and prediction."""
 
+import os
 import random
 from pathlib import Path
 from typing import Callable, Dict, List, Optional, Tuple, Type, Union
@@ -15,22 +16,32 @@ from ..data import SpatialOmicsDataset
 from ..log import info
 from ..train import SubBatchTrainProtocol
 
+CUBLAS_WORKSPACE_CONFIG = ":4096:8"
+
 
 def set_seed(seed: int) -> None:
-    """Set seed.
+    """Set random seeds and configure deterministic PyTorch execution.
 
     Parameters
     ----------
     seed :
-        seed.
+        Random seed used for Python, NumPy, Torch CPU, and Torch CUDA generators.
 
     Returns
     -------
     None."""
 
+    os.environ["CUBLAS_WORKSPACE_CONFIG"] = CUBLAS_WORKSPACE_CONFIG
     random.seed(seed)
-    torch.manual_seed(seed)
     np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.use_deterministic_algorithms(True)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+    torch.backends.cuda.matmul.allow_tf32 = False
+    torch.backends.cudnn.allow_tf32 = False
 
 
 def train(

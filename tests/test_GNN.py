@@ -1,3 +1,4 @@
+import os
 from optparse import Values
 
 import pytest
@@ -5,9 +6,35 @@ import torch
 from torch_geometric.loader import DenseDataLoader
 
 from ONTraC.data import load_dataset
-from ONTraC.GNN._GNN import SpatialOmicsDataset
+from ONTraC.GNN._GNN import CUBLAS_WORKSPACE_CONFIG, SpatialOmicsDataset, set_seed
 from ONTraC.model import GNN
 from ONTraC.train import GNNBatchTrain
+from ONTraC.train._batch_train import BatchTrain
+
+
+class _LossSequenceBatchTrain(BatchTrain):
+    """Minimal trainer for testing best-state restoration."""
+
+    def __init__(self, model: torch.nn.Module, losses: list[float]) -> None:
+        super().__init__(model=model, device=torch.device("cpu"), data_loader=[])
+        self.losses = losses
+
+    def set_train_args(self) -> None:
+        """No extra training arguments are needed for this test trainer."""
+
+    def train_epoch(self, epoch: int) -> float:
+        """Mutate the model in place and return the configured loss."""
+        with torch.no_grad():
+            self.model.weight.fill_(epoch + 1)  # type: ignore[attr-defined]
+        return self.losses[epoch]
+
+    def evaluate(self):
+        """Return an empty metric dict for abstract interface completeness."""
+        return {}
+
+    def predict_dict(self, data):
+        """Return an empty prediction dict for abstract interface completeness."""
+        return {}
 
 
 @pytest.fixture
@@ -67,3 +94,31 @@ def test_train(options: Values, sample_loader: DenseDataLoader, nn_model: torch.
         assert torch.allclose(
             v, trained_params[k], rtol=0.05
         )  # Small platform-level differences can occur between Linux and macOS.
+
+
+def test_set_seed_enables_deterministic_pytorch(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Setting a seed should make Torch random values repeat and enable strict deterministic backends."""
+    monkeypatch.delenv("CUBLAS_WORKSPACE_CONFIG", raising=False)
+
+    set_seed(123)
+    first = torch.rand(3)
+    set_seed(123)
+    second = torch.rand(3)
+
+    assert torch.equal(first, second)
+    assert os.environ["CUBLAS_WORKSPACE_CONFIG"] == CUBLAS_WORKSPACE_CONFIG
+    assert torch.are_deterministic_algorithms_enabled()
+    assert torch.backends.cudnn.deterministic
+    assert not torch.backends.cudnn.benchmark
+    assert not torch.backends.cuda.matmul.allow_tf32
+    assert not torch.backends.cudnn.allow_tf32
+
+
+def test_train_restores_deep_copied_best_state() -> None:
+    """Early stopping should restore the best weights instead of a mutable state_dict reference."""
+    model = torch.nn.Linear(1, 1, bias=False)
+    batch_train = _LossSequenceBatchTrain(model=model, losses=[3.0, 2.0, 4.0])
+
+    batch_train.train(max_epochs=3, max_patience=5, min_delta=0, min_epochs=0)
+
+    assert torch.equal(model.weight, torch.tensor([[2.0]]))

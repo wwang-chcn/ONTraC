@@ -2,7 +2,6 @@
 
 import sys
 from optparse import OptionGroup, OptionParser, Values
-from random import randint
 from typing import Optional
 
 import torch
@@ -65,7 +64,14 @@ def add_train_options_group(optparser: OptionParser) -> OptionGroup:
         default=0,
         help="Batch size for training. Default is 0 for whole dataset.",
     )
-    group_train.add_option("-s", "--seed", dest="seed", type="int", help="Random seed for training. Default is random.")
+    group_train.add_option(
+        "-s",
+        "--seed",
+        dest="seed",
+        type="int",
+        default=42,
+        help="Random seed for training. Default is 42.",
+    )
     group_train.add_option(
         "--lr", dest="lr", type="float", default=0.03, help="Learning rate for training. Default is 0.03."
     )
@@ -257,7 +263,7 @@ def validate_train_options(options: Values, optparser: Optional[OptionParser] = 
 
     # seed
     if getattr(options, "seed", None) is None:
-        options.seed = randint(0, 10000)
+        options.seed = 42
 
     # lr
     if getattr(options, "lr", None) is None:

@@ -1,5 +1,11 @@
 # Change log
 
+## [2.1.1] = 2026-July-1
+
+Changed:
+
+- Enhance seed setting for deterministic algorithms
+
 ## [2.1.0.post4] - 2026-Jun-12
 
 Changed:

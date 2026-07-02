@@ -110,10 +110,10 @@ def gnn(options: Values) -> None:
     None."""
 
     info("------------------------ GNN ------------------------ ")
-    # load data
-    dataset, sample_loader, meta_data_df = preprocessing_gnn(NN_dir=options.NN_dir, batch_size=options.batch_size)
     # random seed
     set_seed(seed=options.seed)
+    # load data
+    dataset, sample_loader, meta_data_df = preprocessing_gnn(NN_dir=options.NN_dir, batch_size=options.batch_size)
     # device
     device = options.device
     # build model
