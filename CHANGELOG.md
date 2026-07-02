@@ -1,6 +1,6 @@
 # Change log
 
-## [2.1.1] = 2026-July-1
+## [2.1.1] - 2026-July-1
 
 Changed:
 
