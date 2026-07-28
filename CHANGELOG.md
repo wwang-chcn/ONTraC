@@ -1,5 +1,16 @@
 # Change log
 
+## [2.1.2] - 2026-July-27
+
+Changed:
+
+- `torch` dependency to `~=2.9.1`
+- Numerical results may differ slightly from v2.1.1 due to the `torch` upgrade. Seeded runs stay bitwise reproducible within a `torch` version, but not across versions.
+
+Fixed:
+
+- Security issue caused by pytorch
+
 ## [2.1.1] - 2026-July-1
 
 Changed:

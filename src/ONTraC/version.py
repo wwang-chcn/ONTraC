@@ -3,4 +3,4 @@
 Version format: ``major.minor.patch.devX+functions/branch.YYYYMMDD.X``.
 """
 
-__version__ = "2.1.1"
+__version__ = "2.1.2"
